@@ -1,0 +1,25 @@
+{
+  "name": "miniproject",
+  "version": "1.0.0",
+  "description": "AI based miniproject in healthcare domain.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anandcomp22/Patient-Engagement-.git"
+  },
+  "author": "Anand",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anandcomp22/Patient-Engagement-/issues"
+  },
+  "homepage": "https://github.com/anandcomp22/Patient-Engagement-#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
