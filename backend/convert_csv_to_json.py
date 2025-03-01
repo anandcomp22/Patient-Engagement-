@@ -6,11 +6,9 @@ json_file = r"C:\Users\morea\OneDrive\Desktop\Patient-Engagement-\backend\traini
 
 df = pd.read_csv(csv_file)
 
-# Select relevant columns and rename for consistency
 df = df[['uniqueID', 'drugName', 'condition', 'rating']]
 df.rename(columns={'uniqueID': 'id', 'drugName': 'drug_name'}, inplace=True)
 
-# Convert to training format
 json_data = [
     {
         "prompt": f"Condition: {row['condition']}",
@@ -19,7 +17,7 @@ json_data = [
     for _, row in df.iterrows()
 ]
 
-# Save to JSON
+
 with open(json_file, "w") as f:
     json.dump(json_data, f, indent=2)
 

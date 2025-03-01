@@ -1,18 +1,12 @@
-FROM llama2
+FROM llama2  # Base model
 
-# Attach the fine-tuned adapter
-ADAPTER "medicine_adapter"
-
-# Training parameters
 PARAMETER "learning_rate=5e-5"
 PARAMETER "batch_size=8"
 PARAMETER "epochs=3"
 
-# Define response template
 TEMPLATE """Condition: {{prompt}}
 ---
 ID: {{response.id}}
 Drug Name: {{response.drug_name}}
 Rating: {{response.rating}}
-Recommended Medicine: {{response.drug_name}}
-"""
+Recommended Medicine: {{response.drug_name}}"""
