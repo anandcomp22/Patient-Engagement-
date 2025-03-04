@@ -5,9 +5,12 @@ from datasets import load_dataset
 from trl import SFTTrainer
 
 # Load model and tokenizer
-MODEL_NAME = "meta-llama/Llama-2-7b-hf"
+MODEL_NAME =  "TinyLlama/TinyLlama-1.1B-Chat-v1.0" 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="cpu")  # Force CPU usage
+model = AutoModelForCausalLM.from_pretrained(
+    "TinyLlama/TinyLlama-1.1B-Chat-v1.0", torch_dtype=torch.float16, device_map="auto"
+)
+# Force CPU usage
 
 # Load dataset
 dataset = load_dataset("json", data_files="training_data.json", split="train")
@@ -38,9 +41,9 @@ training_args = TrainingArguments(
 trainer = SFTTrainer(
     model=model,
     train_dataset=dataset,
-    tokenizer=tokenizer,
+    processing_class=tokenizer,
     args=training_args,
-    packing=False,
+   
 )
 
 trainer.train()
