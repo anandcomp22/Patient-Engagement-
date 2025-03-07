@@ -1,5 +1,0 @@
-FROM llama2
-ADAPTER my_medical_adapter
-
-TEMPLATE "Condition: {{prompt}}\n---\nID: {{response.id}}\nDrug Name: {{response.drug_name}}\nRating: {{response.rating}}\nRecommended Medicine: {{response.drug_name}}"
-
