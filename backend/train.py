@@ -4,14 +4,23 @@ from peft import LoraConfig, get_peft_model
 from datasets import load_dataset
 from trl import SFTTrainer
 
+# Check for GPU availability
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
 # Load model and tokenizer
-MODEL_NAME = "meta-llama/Llama-2-7b-hf"
+MODEL_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="cpu")  # Force CPU usage
+
+model = AutoModelForCausalLM.from_pretrained(
+    MODEL_NAME, 
+    torch_dtype=torch.float16,  # Use float16 for GPU
+    device_map="auto"  # Automatically assign to GPU if available
+)
 
 # Load dataset
-dataset = load_dataset("json", data_files="training_data.json", split="train")
+dataset = load_dataset("json", data_files="1000_rows.json", split="train")
 
+# Format dataset
 def format_dataset(example):
     return {"text": f"Condition: {example['prompt']}\nResponse: {example['response']}"}
 
@@ -26,26 +35,29 @@ model = get_peft_model(model, lora_config)
 # Training arguments
 training_args = TrainingArguments(
     output_dir="./results",
-    per_device_train_batch_size=1,
+    per_device_train_batch_size=2,  # Increase if GPU memory allows
     gradient_accumulation_steps=4,
     num_train_epochs=3,
     save_steps=500,
     save_total_limit=2,
     logging_dir="./logs",
     logging_steps=10,
+    label_names=["labels"],
+    fp16=True,  # Enable mixed-precision training for GPU speedup
 )
 
+# Fix SFTTrainer parameter
 trainer = SFTTrainer(
     model=model,
     train_dataset=dataset,
-    tokenizer=tokenizer,
+    processing_class=tokenizer,
     args=training_args,
-    packing=False,
 )
 
+# Start training
 trainer.train()
 
-# Save the fine-tuned model
+# Save fine-tuned model
 model.save_pretrained("./lora_finetuned_model")
 tokenizer.save_pretrained("./lora_finetuned_model")
 
