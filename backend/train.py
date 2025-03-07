@@ -51,6 +51,7 @@ trainer = SFTTrainer(
     model=model,
     train_dataset=dataset,
     processing_class=tokenizer,
+    processing_class=tokenizer,
     args=training_args,
 )
 
