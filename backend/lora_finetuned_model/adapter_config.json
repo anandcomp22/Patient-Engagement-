@@ -1,10 +1,10 @@
 {
   "alpha_pattern": {},
   "auto_mapping": {
-    "base_model_class": "LlamaForCausalLM",
-    "parent_library": "transformers.models.llama.modeling_llama"
+    "base_model_class": "PeftModel",
+    "parent_library": "peft.peft_model"
   },
-  "base_model_name_or_path": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+  "base_model_name_or_path": null,
   "bias": "none",
   "eva_config": null,
   "exclude_modules": null,
