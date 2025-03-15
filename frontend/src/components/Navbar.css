@@ -1,0 +1,37 @@
+.navbar {
+    background-color: #ffffff !important; /* White background */
+    color: #333; /* Dark text */
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Light shadow */
+    z-index: 1201;
+  }
+  
+  .navbar-title {
+    font-weight: bold;
+    color: #1a237e;
+  }
+  
+  .navbar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+  }
+  
+  .user-info {
+    margin-right: 20px;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .logout-btn {
+    background-color: #1a237e !important;
+    color: white;
+    text-transform: none;
+  }
+  
+  /* Add Space Between Navbar & Main Content */
+  .content {
+    margin-top: 90px; /* Pushes main content down */
+    margin-left: 270px; /* Adjust to sidebar width */
+    padding: 20px;
+  }
+  

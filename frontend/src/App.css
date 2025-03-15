@@ -1,0 +1,13 @@
+.app-container {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .main-content {
+    flex-grow: 1;
+    padding: 20px;
+    margin-left: 240px; /* Same as sidebar width */
+    display: flex;
+    flex-direction: column;
+  }
+  
