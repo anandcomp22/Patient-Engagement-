@@ -1,8 +1,8 @@
 .navbar {
     background-color: #ffffff !important; /* White background */
-    color: #333; /* Dark text */
+    color: #333; /* Dark text for contrast */
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Light shadow */
-    z-index: 1201;
+    z-index: 1201; /* Ensure it's above other components */
   }
   
   .navbar-title {
@@ -26,12 +26,5 @@
     background-color: #1a237e !important;
     color: white;
     text-transform: none;
-  }
-  
-  /* Add Space Between Navbar & Main Content */
-  .content {
-    margin-top: 90px; /* Pushes main content down */
-    margin-left: 270px; /* Adjust to sidebar width */
-    padding: 20px;
   }
   
