@@ -1,10 +1,11 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Box, Button, TextField } from "@mui/material";
-import "./Navbar.css"; // Make sure to import the updated CSS file
+import { AppBar, Toolbar, Typography, Box, Button, TextField, IconButton} from "@mui/material";
+import { Notifications, Settings } from "@mui/icons-material";
+import "./Navbar.css";
 
 const Navbar = () => {
   return (
-    <AppBar position="fixed" className="navbar" sx={{ width: "calc(100% - 240px)", ml: "250px" }}>
+    <AppBar position="fixed" className="navbar" sx={{ width: "calc(100% - 280px)", ml: "280px" }}>
       <Toolbar sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
         
         {/* Left Section - Logo & Title */}
@@ -17,15 +18,27 @@ const Navbar = () => {
             className="search-bar"
             sx={{
               "& .MuiOutlinedInput-root": {
-                "& fieldset": { border: "none" }, // Removes border
+                "& fieldset": { border: "none" },
               },
             }}
           />
         </Box>
 
         {/* Right Section - User Info & Logout */}
-        <Box className="navbar-actions">
-          <Typography className="user-info">Dr. Edward Jenner</Typography>
+        <Box className="navbar-actions" sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+          {/* Notification & Settings Icons */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <IconButton classname="navicon" color="primary" sx={{color: "gray"}}>
+            <Notifications />
+          </IconButton>
+          <IconButton classname="navicon" color="primary" sx={{color: "gray"}}>
+            <Settings />
+          </IconButton>
+          </Box>
+        
+        <Typography variant="body1" className="user-info" sx={{ marginLeft: "8px" }}>
+          Dr. Edward William <div className="user-email">edward.william@MedConnect.com</div>
+        </Typography>
           <Button variant="contained" className="logout-btn">
             Logout
           </Button>

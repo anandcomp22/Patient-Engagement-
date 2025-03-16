@@ -1,5 +1,5 @@
 .sidebar {
-  width: 240px;
+  width: 280px;
   position: fixed;
   height: 100vh;
   background-color: #1a237e;
@@ -12,10 +12,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #1a237e; 
-  padding-top: 2px;
+  background-color: #1a237e;
   padding-bottom: 10px;
-  height: 65px;
+  height: 42.5px;
 }
 
 /* MedConnect AI Title */
@@ -24,13 +23,12 @@
   font-weight: bold;
   font-size: 20px;
   letter-spacing: 1px;
-  text-align: center;
 }
 
 
   
   .sidebar .MuiDrawer-paper {
-    width: 240px;
+    width: 280px;
     background-color: #1E40AF; /* Dark blue */
     color: #fff;
     box-sizing: border-box;

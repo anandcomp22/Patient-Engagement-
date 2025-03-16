@@ -30,11 +30,14 @@
 
 /* Logout Button */
 .logout-btn {
-  background-color: #364cc6 !important; /* Blue */
+  background-color: #344ddb !important; /* Blue */
   color: white !important;
   text-transform: none;
-  padding: 6px 15px;
-  border-radius: 6px;
+  font-size: 12px; /* Reduce text size */
+  padding: 2px 8px; /* Reduce padding */
+  min-width: auto; /* Ensure it doesn't stretch */
+  border-radius: 3px; /* Slightly round edges */
+  height: 30px; /* Reduce button height */
 }
 
 /* Search Bar Styling */
@@ -52,4 +55,19 @@
 .search-bar:focus {
   outline: none;
   box-shadow:0px 2px 5px rgba(0, 0, 0, 0.1) ;
+}
+
+.user-info {
+  font-weight: bold;
+  color: #333;
+  text-align: left;
+}
+
+.user-email {
+  font-size: 0.78rem;
+  color: gray;
+}
+
+.navicon {
+  margin-right: 10px;
 }

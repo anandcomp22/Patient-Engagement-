@@ -2,16 +2,17 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Drawer, List, ListItem, ListItemIcon, ListItemText, Typography, Box } from "@mui/material";
 import { Dashboard, CalendarMonth, People, Medication, VideoCall, Analytics, Settings, Help } from "@mui/icons-material";
+import logo from "./icons/licons.png"
 import "./Sidebar.css";
 
 const Sidebar = () => {
   return (
     <Drawer variant="permanent" className="sidebar">
       {/* MedConnect AI Title Section */}
-      <Box className="sidebar-header">
-        <img src="icons/licons.png" alt="Logo" className="sidebar-logo" />
+      <Box className="sidebar-header" sx={{gap:1}}>
+        <img src={logo} alt="DR. logo" width="30px"/>
         <Typography variant="h6" className="sidebar-title">
-          MedConnect AI
+        MedConnect AI
         </Typography>
       </Box>
 
