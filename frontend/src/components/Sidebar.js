@@ -42,6 +42,9 @@ const Sidebar = () => {
           <ListItemIcon><Analytics sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Analytics" sx={{ color: "white" }} />
         </ListItem>
+
+        <Box className="sidebar-divider"></Box>
+
         <ListItem button component={Link} to="/">
           <ListItemIcon><Settings sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Settings" sx={{ color: "white" }} />

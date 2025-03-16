@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: center;
   background-color: #1a237e;
-  padding-bottom: 10px;
+  padding-bottom: 17px;
   height: 42.5px;
 }
 
@@ -29,7 +29,7 @@
   
   .sidebar .MuiDrawer-paper {
     width: 280px;
-    background-color: #1E40AF; /* Dark blue */
+    background-color: #193bad; /* Dark blue */
     color: #fff;
     box-sizing: border-box;
     margin-top: 21.5px;
@@ -46,4 +46,12 @@
   .icon {
     color: #fff;
   }
+
+  .sidebar-divider {
+    width: 90%;  /* Adjust width to match text length */
+    height: 1px;  /* Thin line */
+    background-color: #427cf9; /* Light white */
+    margin: 10px auto; /* Center the line */
+  }
+  
   
