@@ -1,43 +1,53 @@
 import React from "react";
-import { Drawer, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
+import { Link } from "react-router-dom";
+import { Drawer, List, ListItem, ListItemIcon, ListItemText, Typography, Box } from "@mui/material";
 import { Dashboard, CalendarMonth, People, Medication, VideoCall, Analytics, Settings, Help } from "@mui/icons-material";
 import "./Sidebar.css";
 
 const Sidebar = () => {
   return (
     <Drawer variant="permanent" className="sidebar">
-      <List>
-        <ListItem button>
-          <ListItemIcon><Dashboard /></ListItemIcon>
-          <ListItemText primary="Dashboard" />
+      {/* MedConnect AI Title Section */}
+      <Box className="sidebar-header">
+        <img src="icons/licons.png" alt="Logo" className="sidebar-logo" />
+        <Typography variant="h6" className="sidebar-title">
+          MedConnect AI
+        </Typography>
+      </Box>
+
+      {/* Menu List */}
+      <List className="sidebar-menu">
+        <ListItem button component={Link} to="/">
+          <ListItemIcon><Dashboard sx={{ color: "white" }} /></ListItemIcon>
+          <ListItemText primary="Dashboard" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button>
-          <ListItemIcon><CalendarMonth /></ListItemIcon>
-          <ListItemText primary="Appointments" />
+        <ListItem button component={Link} to="/">
+          <ListItemIcon><CalendarMonth sx={{ color: "white" }} /></ListItemIcon>
+          <ListItemText primary="Appointments" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button>
-          <ListItemIcon><People /></ListItemIcon>
-          <ListItemText primary="Patients" />
+        <ListItem button component={Link} to="/patients">
+          <ListItemIcon><People sx={{ color: "white" }} /></ListItemIcon>
+          <ListItemText primary="Patients" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button>
-          <ListItemIcon><Medication /></ListItemIcon>
-          <ListItemText primary="Prescriptions" />
+        <ListItem button component={Link} to="/">
+          <ListItemIcon><Medication sx={{ color: "white" }} /></ListItemIcon>
+          <ListItemText primary="Prescriptions" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button>
-          <ListItemIcon><VideoCall /></ListItemIcon>
-          <ListItemText primary="Video Calls" />
+        <ListItem button component={Link} to="/">
+          <ListItemIcon><VideoCall sx={{ color: "white" }} /></ListItemIcon>
+          <ListItemText primary="Video Calls" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button>
-          <ListItemIcon><Analytics /></ListItemIcon>
-          <ListItemText primary="Analytics" />
+        <ListItem button component={Link} to="/">
+          <ListItemIcon><Analytics sx={{ color: "white" }} /></ListItemIcon>
+          <ListItemText primary="Analytics" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button>
-          <ListItemIcon><Settings /></ListItemIcon>
-          <ListItemText primary="Settings" />
+        <ListItem button component={Link} to="/">
+          <ListItemIcon><Settings sx={{ color: "white" }} /></ListItemIcon>
+          <ListItemText primary="Settings" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button>
-          <ListItemIcon><Help /></ListItemIcon>
-          <ListItemText primary="Help & Support" />
+        <ListItem button component={Link} to="/">
+          <ListItemIcon><Help sx={{ color: "white" }} /></ListItemIcon>
+          <ListItemText primary="Help & Support" sx={{ color: "white" }} />
         </ListItem>
       </List>
     </Drawer>

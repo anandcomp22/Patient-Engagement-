@@ -5,9 +5,7 @@
   
   .main-content {
     flex-grow: 1;
+    margin-left: 250px;
     padding: 20px;
-    margin-left: 240px; /* Same as sidebar width */
-    display: flex;
-    flex-direction: column;
   }
   
