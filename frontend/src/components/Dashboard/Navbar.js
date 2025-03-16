@@ -1,6 +1,7 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Box, Button, TextField, IconButton} from "@mui/material";
 import { Notifications, Settings } from "@mui/icons-material";
+import LogoutIcon from "@mui/icons-material/Logout";
 import "./Navbar.css";
 
 const Navbar = () => {
@@ -39,7 +40,7 @@ const Navbar = () => {
         <Typography variant="body1" className="user-info" sx={{ marginLeft: "8px" }}>
           Dr. Edward William <div className="user-email">edward.william@MedConnect.com</div>
         </Typography>
-          <Button variant="contained" className="logout-btn">
+          <Button variant="contained" className="logout-btn" startIcon={<LogoutIcon />}>
             Logout
           </Button>
         </Box>

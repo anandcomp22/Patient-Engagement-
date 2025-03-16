@@ -1,11 +1,138 @@
 import React from "react";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography, Card, CardContent, Avatar, TextField, Button, Chip, Divider } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import AddIcon from "@mui/icons-material/Add";
+
+// Sample Patient Data
+const patients = [
+  {
+    name: "John Doe",
+    age: 45,
+    gender: "Male",
+    phone: "(555) 123-4567",
+    email: "john.doe@example.com",
+    lastVisit: "May 15, 2025",
+    nextAppointment: "June 10, 2025",
+    conditions: ["Hypertension", "Type 2 Diabetes"],
+  },
+  {
+    name: "Emily Johnson",
+    age: 32,
+    gender: "Female",
+    phone: "(555) 987-6543",
+    email: "emily.johnson@example.com",
+    lastVisit: "April 22, 2025",
+    nextAppointment: "July 5, 2025",
+    conditions: ["Chronic Migraines", "Anxiety"],
+  },
+  {
+    name: "Robert Smith",
+    age: 58,
+    gender: "Male",
+    phone: "(555) 456-7890",
+    email: "robert.smith@example.com",
+    lastVisit: "May 3, 2025",
+    nextAppointment: "June 15, 2025",
+    conditions: ["Type 2 Diabetes", "Hyperlipidemia", "Osteoarthritis"],
+  },
+  {
+    name: "Maria Garcia",
+    age: 29,
+    gender: "Female",
+    phone: "(555) 234-5678",
+    email: "maria.garcia@example.com",
+    lastVisit: "May 18, 2025",
+    nextAppointment: "May 25, 2025",
+    conditions: ["Severe Allergies", "Asthma"],
+  },
+];
 
 const Patients = () => {
   return (
-    <Box sx={{ padding: 3 }}>
-      <Typography variant="h4">Patients</Typography>
-      <Typography variant="body1">This is the Patients section.</Typography>
+    <Box sx={{ padding: 3, mt: 5 }}>
+      {/* Header Section */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" fontWeight="bold">Patients</Typography>
+      </Box>
+
+      {/* Search Bar, Filter & Add Patient Section */}
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 4 }}>
+        {/* Search Bar on Left */}
+        <TextField
+          variant="outlined"
+          size="small"
+          placeholder="Search patients..."
+          InputProps={{
+            startAdornment: <SearchIcon color="action" />,
+          }}
+          sx={{ width: 300 }}
+        />
+
+        {/* Buttons on Right */}
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Button variant="outlined" startIcon={<FilterListIcon />} sx={{ textTransform: "none" }}>
+            Filter
+          </Button>
+          <Button variant="contained" startIcon={<AddIcon />} sx={{ textTransform: "none" }}>
+            Add Patient
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Patients Grid */}
+      <Grid container spacing={3}>
+        {patients.map((patient, index) => (
+          <Grid item xs={12} sm={6} md={4} key={index}>
+            <Card sx={{ padding: 2, borderRadius: 2, boxShadow: 2 }}>
+              <CardContent>
+                {/* Avatar and Name */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <Avatar sx={{ bgcolor: "#007BFF" }}>{patient.name.charAt(0)}</Avatar>
+                  <Box>
+                    <Typography variant="h6" fontWeight="bold">{patient.name}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {patient.age} years, {patient.gender}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Contact Info */}
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    📞 {patient.phone}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    ✉️ {patient.email}
+                  </Typography>
+                </Box>
+
+                {/* Divider Line Between Email & Last Visit */}
+                <Divider sx={{ my: 2 }} />
+
+                {/* Visit & Appointment Info (Aligned) */}
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Box>
+                    <Typography variant="body2" fontWeight="bold">Last Visit</Typography>
+                    <Typography variant="body2" color="text.secondary">{patient.lastVisit}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" fontWeight="bold">Next Appointment</Typography>
+                    <Typography variant="body2" color="text.secondary">{patient.nextAppointment}</Typography>
+                  </Box>
+                </Box>
+
+                {/* Conditions (Chips) */}
+                <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  {patient.conditions.map((condition, idx) => (
+                    <Chip key={idx} label={condition} color="primary" variant="outlined" />
+                  ))}
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
     </Box>
   );
 };
