@@ -50,33 +50,31 @@ const patients = [
 
 const Patients = () => {
   return (
-    <Box sx={{ padding: 3, mt: 5 }}>
-      {/* Header Section */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold">Patients</Typography>
-      </Box>
-
+    <Box sx={{ padding: 3, mt: 5}}>
       {/* Search Bar, Filter & Add Patient Section */}
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 4 }}>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 4, gap:2 }}>
+        {/* Header Section */}
+          <h2 fontWeight="bold">Patients</h2>
         {/* Search Bar on Left */}
-        <TextField
-          variant="outlined"
-          size="small"
-          placeholder="Search patients..."
-          InputProps={{
-            startAdornment: <SearchIcon color="action" />,
-          }}
-          sx={{ width: 300 }}
-        />
+        <Box sx={{display: "flex", gap:2}}>
+          <TextField
+            variant="outlined"
+            size="small"
+            placeholder="Search patients..."
+            InputProps={{
+              startAdornment: <SearchIcon color="action" />,
+            }}
+            sx={{ width: 200 }}
+          />
 
-        {/* Buttons on Right */}
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <Button variant="outlined" startIcon={<FilterListIcon />} sx={{ textTransform: "none" }}>
-            Filter
-          </Button>
-          <Button variant="contained" startIcon={<AddIcon />} sx={{ textTransform: "none" }}>
-            Add Patient
-          </Button>
+          {/* Buttons on Right */}
+        
+            <Button variant="outlined" startIcon={<FilterListIcon />} sx={{ textTransform: "none" }}>
+              Filter
+            </Button>
+            <Button variant="contained" startIcon={<AddIcon />} sx={{ textTransform: "none" }}>
+              Add Patient
+            </Button>
         </Box>
       </Box>
 

@@ -22,7 +22,7 @@ const Sidebar = () => {
           <ListItemIcon><Dashboard sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Dashboard" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button component={Link} to="/">
+        <ListItem button component={Link} to="/Appointments">
           <ListItemIcon><CalendarMonth sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Appointments" sx={{ color: "white" }} />
         </ListItem>
