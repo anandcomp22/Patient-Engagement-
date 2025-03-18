@@ -47,6 +47,6 @@ def generate_response(prompt, max_length=50):
 
 
 # Example test prompt
-test_prompt = "Condition: aids"
+test_prompt = "Condition: fever"
 response = generate_response(test_prompt)
 print("Output:", response)
