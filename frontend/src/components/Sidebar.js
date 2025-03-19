@@ -34,7 +34,7 @@ const Sidebar = () => {
           <ListItemIcon><Medication sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Prescriptions" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button component={Link} to="/">
+        <ListItem button component={Link} to="/LiveVideoCall">
           <ListItemIcon><VideoCall sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Video Calls" sx={{ color: "white" }} />
         </ListItem>
