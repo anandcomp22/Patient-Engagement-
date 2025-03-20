@@ -1,89 +1,121 @@
-import React from 'react';
-import { Box, Grid, Typography, Card, CardContent, Avatar, TextField, Button, Chip, Divider, Paper } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import PersonIcon from "@mui/icons-material/Person";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import { Video, Mic, PhoneCall, MessageCircle, NotepadText, ChartNoAxesGantt } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:5000");
 
 const LiveVideoCall = () => {
+  const myVideo = useRef(null);
+  const userVideo = useRef(null);
+  const [stream, setStream] = useState(null);
+  const [remoteStream, setRemoteStream] = useState(null);
+  const [isCallActive, setIsCallActive] = useState(false);
+  const peerConnection = useRef(null);
+
+  useEffect(() => {
+    socket.on("offer", async (offer) => {
+      peerConnection.current = new RTCPeerConnection();
+      peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
+
+      const currentStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      setStream(currentStream);
+      if (myVideo.current) myVideo.current.srcObject = currentStream;
+      currentStream.getTracks().forEach((track) => peerConnection.current.addTrack(track, currentStream));
+
+      const answer = await peerConnection.current.createAnswer();
+      await peerConnection.current.setLocalDescription(answer);
+      socket.emit("answer", answer);
+
+      peerConnection.current.ontrack = (event) => {
+        setRemoteStream(event.streams[0]);
+      };
+    });
+
+    socket.on("answer", async (answer) => {
+      if (peerConnection.current) {
+        await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
+      }
+    });
+
+    socket.on("ice-candidate", async (candidate) => {
+      if (peerConnection.current) {
+        await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
+      }
+    });
+
+    return () => {
+      socket.off("offer");
+      socket.off("answer");
+      socket.off("ice-candidate");
+    };
+  }, []);
+
+  const startCall = async () => {
+    peerConnection.current = new RTCPeerConnection();
+
+    peerConnection.current.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit("ice-candidate", event.candidate);
+      }
+    };
+
+    peerConnection.current.ontrack = (event) => {
+      setRemoteStream(event.streams[0]);
+    };
+
+    const currentStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    setStream(currentStream);
+    if (myVideo.current) myVideo.current.srcObject = currentStream;
+    currentStream.getTracks().forEach((track) => peerConnection.current.addTrack(track, currentStream));
+
+    const offer = await peerConnection.current.createOffer();
+    await peerConnection.current.setLocalDescription(offer);
+    socket.emit("offer", offer);
+
+    setIsCallActive(true);
+  };
+
+  const endCall = () => {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      setStream(null);
+    }
+    if (remoteStream) {
+      remoteStream.getTracks().forEach((track) => track.stop());
+      setRemoteStream(null);
+    }
+    if (peerConnection.current) {
+      peerConnection.current.close();
+      peerConnection.current = null;
+    }
+    setIsCallActive(false);
+  };
+
   return (
-    <Box>
-    <Box sx={{ padding:4, mt:3, width:"75%"}}>
-      <Card sx={{ display: "flex", flexDirection: "column", boxShadow: 2 }}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems:"center", mb:0, gap:1}}>
-            <Avatar sx={{ bgcolor: "#007BFF" }}>
-              <PersonIcon/>
-            </Avatar>
-            <Box>
-              <Typography variant="body1" fontWeight="bold">Prathmesh Vharkal</Typography>
-              <Typography variant="body2" color="text.secondary">
-                20 years, Male  
-              </Typography> 
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "cemter", gap: 2}}>
-            <Chip label="Live" color="primary" variant="outlined" />
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <AccessTimeIcon fontSize="small" />
-                <Typography variant="body2">10:30</Typography>
-              </Box>
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
+    <div>
+      <div style={{ display: "flex", gap: "20px" }}>
+        <div>
+          <h3>My Video</h3>
+          <video ref={myVideo} autoPlay muted style={{ width: "300px", border: "2px solid black" }} />
+        </div>
+        <div>
+          <h3>User Video</h3>
+          {remoteStream ? (
+            <video ref={userVideo} autoPlay style={{ width: "300px", border: "2px solid black" }} srcObject={remoteStream} />
+          ) : (
+            <p>Waiting for user...</p>
+          )}
+        </div>
+      </div>
 
-      <Card sx={{ display: "flex", flexDirection: "column", boxShadow: 2, mt:0.5}}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems:"center", mb:55, gap:1}}>
-
-          </Box>
-        </CardContent>
-      </Card>
-
-      <Card sx={{ display: "flex", flexDirection: "column", boxShadow: 2, mt:0}}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems:"center", mb:2, gap:2}}>
-            <Avatar><Mic/></Avatar>
-            <Avatar><Video/></Avatar>
-            <Avatar><PhoneCall color='red'/></Avatar>
-            <Avatar><MessageCircle/></Avatar>
-            <Avatar><NotepadText/></Avatar>
-          </Box>
-        </CardContent>
-      </Card>
-    </Box>
-
-    
-
-    <Box sx={{ padding:4, mt:3, width:"25%"}}>
-      <Card sx={{ display: "flex", flexDirection: "column", boxShadow: 2 }}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems:"center", mb:0, gap:1}}>
-            <ChartNoAxesGantt/>
-            <Typography fontWeight="Bold" fontSize="15px">Prescription Generator</Typography>
-          </Box>
-        </CardContent>
-      </Card>
-
-      <Card sx={{ display: "flex", flexDirection: "column", boxShadow: 2, mt:0.5}}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems:"center", mb:55, gap:1}}>
-
-          </Box>
-        </CardContent>
-      </Card>
-
-      <Card sx={{ display: "flex", flexDirection: "column", boxShadow: 2, mt:0}}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems:"center", mb:2, gap:2}}>
-            
-          </Box>
-        </CardContent>
-      </Card>
-    </Box>
-
-    </Box>
-
-)
+      <div>
+        {!isCallActive ? (
+          <button onClick={startCall}>Start Call</button>
+        ) : (
+          <button onClick={endCall}>End Call</button>
+        )}
+      </div>
+    </div>
+  );
 };
+
 export default LiveVideoCall;
