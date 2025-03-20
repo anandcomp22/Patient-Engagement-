@@ -1,120 +1,53 @@
-import React, { useEffect, useRef, useState } from "react";
-import io from "socket.io-client";
+import React from "react";
+import { Box, Typography, Card, Button, Avatar, Chip } from "@mui/material";
+import VideoCallIcon from "@mui/icons-material/VideoCall";
+import { useNavigate } from "react-router-dom";
 
-const socket = io("http://localhost:5000");
+const appointments = [
+  { id: 1, name: "John Doe", details: "Follow-up for hypertension", time: "10:00 AM", status: "Confirmed" },
+  { id: 2, name: "Emily Johnson", details: "Consultation for migraines", time: "11:30 AM", status: "Confirmed" },
+  { id: 3, name: "Robert Smith", details: "Diabetes check-up", time: "1:15 PM", status: "Pending" },
+];
 
 const LiveVideoCall = () => {
-  const myVideo = useRef(null);
-  const userVideo = useRef(null);
-  const [stream, setStream] = useState(null);
-  const [remoteStream, setRemoteStream] = useState(null);
-  const [isCallActive, setIsCallActive] = useState(false);
-  const peerConnection = useRef(null);
-
-  useEffect(() => {
-    socket.on("offer", async (offer) => {
-      peerConnection.current = new RTCPeerConnection();
-      peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
-
-      const currentStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      setStream(currentStream);
-      if (myVideo.current) myVideo.current.srcObject = currentStream;
-      currentStream.getTracks().forEach((track) => peerConnection.current.addTrack(track, currentStream));
-
-      const answer = await peerConnection.current.createAnswer();
-      await peerConnection.current.setLocalDescription(answer);
-      socket.emit("answer", answer);
-
-      peerConnection.current.ontrack = (event) => {
-        setRemoteStream(event.streams[0]);
-      };
-    });
-
-    socket.on("answer", async (answer) => {
-      if (peerConnection.current) {
-        await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
-      }
-    });
-
-    socket.on("ice-candidate", async (candidate) => {
-      if (peerConnection.current) {
-        await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
-      }
-    });
-
-    return () => {
-      socket.off("offer");
-      socket.off("answer");
-      socket.off("ice-candidate");
-    };
-  }, []);
-
-  const startCall = async () => {
-    peerConnection.current = new RTCPeerConnection();
-
-    peerConnection.current.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket.emit("ice-candidate", event.candidate);
-      }
-    };
-
-    peerConnection.current.ontrack = (event) => {
-      setRemoteStream(event.streams[0]);
-    };
-
-    const currentStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    setStream(currentStream);
-    if (myVideo.current) myVideo.current.srcObject = currentStream;
-    currentStream.getTracks().forEach((track) => peerConnection.current.addTrack(track, currentStream));
-
-    const offer = await peerConnection.current.createOffer();
-    await peerConnection.current.setLocalDescription(offer);
-    socket.emit("offer", offer);
-
-    setIsCallActive(true);
-  };
-
-  const endCall = () => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-      setStream(null);
-    }
-    if (remoteStream) {
-      remoteStream.getTracks().forEach((track) => track.stop());
-      setRemoteStream(null);
-    }
-    if (peerConnection.current) {
-      peerConnection.current.close();
-      peerConnection.current = null;
-    }
-    setIsCallActive(false);
-  };
+  const navigate = useNavigate();
 
   return (
-    <div>
-      <div style={{ display: "flex", gap: "20px" }}>
-        <div>
-          <h3>My Video</h3>
-          <video ref={myVideo} autoPlay muted style={{ width: "300px", border: "2px solid black" }} />
-        </div>
-        <div>
-          <h3>User Video</h3>
-          {remoteStream ? (
-            <video ref={userVideo} autoPlay style={{ width: "300px", border: "2px solid black" }} srcObject={remoteStream} />
-          ) : (
-            <p>Waiting for user...</p>
-          )}
-        </div>
-      </div>
+    <Box sx={{ padding: 3, mt: 5 }}>
+      <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
+        Video Call Appointments
+      </Typography>
 
-      <div>
-        {!isCallActive ? (
-          <button onClick={startCall}>Start Call</button>
-        ) : (
-          <button onClick={endCall}>End Call</button>
-        )}
-      </div>
-    </div>
+      {appointments.map((item) => (
+        <Card key={item.id} sx={{ mb: 2, p: 2, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: 2 }}>
+          {/* Left: Patient Info */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Avatar>{item.name[0]}</Avatar>
+            <Box>
+              <Typography variant="h6" fontWeight="bold">{item.name}</Typography>
+              <Typography variant="body2" color="textSecondary">{item.details}</Typography>
+            </Box>
+          </Box>
+
+          {/* Right: Status & Video Call Button */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Chip label={item.status} color={item.status === "Confirmed" ? "success" : "warning"} variant="outlined" />
+            
+            {/* Start Video Call Button */}
+            {item.status === "Confirmed" && (
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<VideoCallIcon />}
+                onClick={() => navigate(`/video-call/${item.id}`)}
+              >
+                Start Video Call
+              </Button>
+            )}
+          </Box>
+        </Card>
+      ))}
+    </Box>
   );
 };
 
