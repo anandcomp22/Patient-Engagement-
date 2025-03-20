@@ -17,10 +17,22 @@
   },
   "homepage": "https://github.com/anandcomp22/Patient-Engagement-#readme",
   "dependencies": {
+    "@google-cloud/speech": "^7.0.0",
     "child_process": "^1.0.2",
     "cors": "^2.8.5",
+<<<<<<< HEAD
     "express": "^4.21.2",
     "mongodb": "^6.15.0"
+=======
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "fs": "^0.0.1-security",
+    "google-speech": "^0.0.5",
+    "multer": "^1.4.5-lts.1",
+    "openai": "^4.87.4",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+>>>>>>> f2c1233ff8cb1ede78365c5626506f64bdd1b502
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
