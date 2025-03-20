@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-import React from 'react';
-import { Box, Typography, Card, CardContent, Avatar, Chip} from "@mui/material";
-
-import PersonIcon from "@mui/icons-material/Person";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import { Video, Mic, PhoneCall, MessageCircle, NotepadText, ChartNoAxesGantt } from "lucide-react";
-=======
 import React from "react";
 import { Box, Typography, Card, Button, Avatar, Chip } from "@mui/material";
 import VideoCallIcon from "@mui/icons-material/VideoCall";
@@ -16,8 +8,6 @@ const appointments = [
   { id: 2, name: "Emily Johnson", details: "Consultation for migraines", time: "11:30 AM", status: "Confirmed" },
   { id: 3, name: "Robert Smith", details: "Diabetes check-up", time: "1:15 PM", status: "Pending" },
 ];
->>>>>>> f2c1233ff8cb1ede78365c5626506f64bdd1b502
-
 const LiveVideoCall = () => {
   const navigate = useNavigate();
 
