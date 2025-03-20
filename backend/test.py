@@ -3,7 +3,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import re
 
 # Load the fine-tuned model and tokenizer
-MODEL_PATH = r"C:\Users\HP\Patient-Engagement-\backend\lora_finetuned_model"
+MODEL_PATH = r"C:\Users\morea\OneDrive\Desktop\Patient-Engagement-\backend\lora_finetuned_model"
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
 model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.float16, device_map="auto")
 
