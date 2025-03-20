@@ -6,10 +6,9 @@ import Navbar from "./components/Dashboard/Navbar";
 import Dashboard from "./components/Dashboard/Dashboard";
 import Patients from "./components/Dashboard/Patients"; 
 import Appointments from "./components/Dashboard/Appointments";
-import VideoCallAppointments from "./components/Dashboard/LiveVideoCall";
+import LiveVideoCall from "./components/Dashboard/LiveVideoCall";
 import VideoCall from "./components/Dashboard/VideoCall";
 import "./App.css";
-import LiveVideoCall from "./components/Dashboard/LiveVideoCall";
 
 function App() {
   return (
