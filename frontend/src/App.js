@@ -7,6 +7,7 @@ import Dashboard from "./components/Dashboard/Dashboard";
 import Patients from "./components/Dashboard/Patients"; 
 import Appointments from "./components/Dashboard/Appointments";
 import LiveVideoCall from "./components/Dashboard/LiveVideoCall";
+import Prescription from "./components/Dashboard/Prescriptions";
 import VideoCall from "./components/Dashboard/VideoCall";
 import "./App.css";
 
@@ -24,6 +25,7 @@ function App() {
             <Route path="/Appointments" element={<Appointments/>} />
             <Route path="/LiveVideoCall" element={<LiveVideoCall />} />
             <Route path="/video-call/:id" element={<VideoCall />} />
+            <Route path="/Prescription" element={<Prescription/>}/>
           </Routes>
         </Box>
       </Box>
