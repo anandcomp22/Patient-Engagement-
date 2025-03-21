@@ -1,89 +1,53 @@
-import React from 'react';
-import { Box, Grid, Typography, Card, CardContent, Avatar, TextField, Button, Chip, Divider, Paper } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import PersonIcon from "@mui/icons-material/Person";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import { Video, Mic, PhoneCall, MessageCircle, NotepadText, ChartNoAxesGantt } from "lucide-react";
+import React from "react";
+import { Box, Typography, Card, Button, Avatar, Chip } from "@mui/material";
+import VideoCallIcon from "@mui/icons-material/VideoCall";
+import { useNavigate } from "react-router-dom";
 
+const appointments = [
+  { id: 1, name: "John Doe", details: "Follow-up for hypertension", time: "10:00 AM", status: "Confirmed" },
+  { id: 2, name: "Emily Johnson", details: "Consultation for migraines", time: "11:30 AM", status: "Confirmed" },
+  { id: 3, name: "Robert Smith", details: "Diabetes check-up", time: "1:15 PM", status: "Pending" },
+];
 const LiveVideoCall = () => {
+  const navigate = useNavigate();
+
   return (
-    <Box>
-    <Box sx={{ padding:4, mt:3, width:"75%"}}>
-      <Card sx={{ display: "flex", flexDirection: "column", boxShadow: 2 }}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems:"center", mb:0, gap:1}}>
-            <Avatar sx={{ bgcolor: "#007BFF" }}>
-              <PersonIcon/>
-            </Avatar>
+    <Box sx={{ padding: 3, mt: 5 }}>
+      <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
+        Video Call Appointments
+      </Typography>
+
+      {appointments.map((item) => (
+        <Card key={item.id} sx={{ mb: 2, p: 2, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: 2 }}>
+          {/* Left: Patient Info */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Avatar>{item.name[0]}</Avatar>
             <Box>
-              <Typography variant="body1" fontWeight="bold">Prathmesh Vharkal</Typography>
-              <Typography variant="body2" color="text.secondary">
-                20 years, Male  
-              </Typography> 
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "cemter", gap: 2}}>
-            <Chip label="Live" color="primary" variant="outlined" />
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <AccessTimeIcon fontSize="small" />
-                <Typography variant="body2">10:30</Typography>
-              </Box>
+              <Typography variant="h6" fontWeight="bold">{item.name}</Typography>
+              <Typography variant="body2" color="textSecondary">{item.details}</Typography>
             </Box>
           </Box>
-        </CardContent>
-      </Card>
 
-      <Card sx={{ display: "flex", flexDirection: "column", boxShadow: 2, mt:0.5}}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems:"center", mb:55, gap:1}}>
-
-          </Box>
-        </CardContent>
-      </Card>
-
-      <Card sx={{ display: "flex", flexDirection: "column", boxShadow: 2, mt:0}}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems:"center", mb:2, gap:2}}>
-            <Avatar><Mic/></Avatar>
-            <Avatar><Video/></Avatar>
-            <Avatar><PhoneCall color='red'/></Avatar>
-            <Avatar><MessageCircle/></Avatar>
-            <Avatar><NotepadText/></Avatar>
-          </Box>
-        </CardContent>
-      </Card>
-    </Box>
-
-    
-
-    <Box sx={{ padding:4, mt:3, width:"25%"}}>
-      <Card sx={{ display: "flex", flexDirection: "column", boxShadow: 2 }}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems:"center", mb:0, gap:1}}>
-            <ChartNoAxesGantt/>
-            <Typography fontWeight="Bold" fontSize="15px">Prescription Generator</Typography>
-          </Box>
-        </CardContent>
-      </Card>
-
-      <Card sx={{ display: "flex", flexDirection: "column", boxShadow: 2, mt:0.5}}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems:"center", mb:55, gap:1}}>
-
-          </Box>
-        </CardContent>
-      </Card>
-
-      <Card sx={{ display: "flex", flexDirection: "column", boxShadow: 2, mt:0}}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems:"center", mb:2, gap:2}}>
+          {/* Right: Status & Video Call Button */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Chip label={item.status} color={item.status === "Confirmed" ? "success" : "warning"} variant="outlined" />
             
+            {/* Start Video Call Button */}
+            {item.status === "Confirmed" && (
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<VideoCallIcon />}
+                onClick={() => navigate(`/video-call/${item.id}`)}
+              >
+                Start Video Call
+              </Button>
+            )}
           </Box>
-        </CardContent>
-      </Card>
+        </Card>
+      ))}
     </Box>
-
-    </Box>
-
-)
+  );
 };
+
 export default LiveVideoCall;
