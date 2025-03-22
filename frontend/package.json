@@ -15,13 +15,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.3.0",
-<<<<<<< HEAD
-    "react-scripts": "^3.0.1",
-=======
     "react-scripts": "^5.0.1",
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.8.1",
->>>>>>> db9bba1ffd21de6138978f9b99465e04ec05719e
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -50,7 +46,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
-    "eslint": "^6.8.0",
+    "eslint": "^8.57.1",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-react": "^7.37.4",
     "globals": "^16.0.0"

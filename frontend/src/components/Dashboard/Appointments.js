@@ -9,9 +9,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 
 const appointments = [
-    { id: 1, name: "John Doe", details: "Follow-up on blood pressure medication", time: "10:00 AM", status: "Confirmed" },
-    { id: 2, name: "Emily Johnson", details: "Initial consultation for chronic migraines", time: "11:30 AM", status: "Confirmed" },
-    { id: 3, name: "Robert Smith", details: "Diabetes management check-in", time: "1:15 PM", status: "Pending" },
+    { id: 1, name: "Shreyas Sadavarte", details: "Follow-up on blood pressure medication", time: "10:00 AM", status: "Confirmed" },
+    { id: 2, name: "Prathmesh Vharkal", details: "Initial consultation for chronic migraines", time: "11:30 AM", status: "Confirmed" },
+    { id: 3, name: "Sayyoni Parate", details: "Diabetes management check-in", time: "1:15 PM", status: "Pending" },
 ];
 
 const Appointments = () => {

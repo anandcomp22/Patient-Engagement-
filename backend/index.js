@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
+const path = require("path");
+const fs = require("fs");
 require("dotenv").config();
 
 const { Prescription, Doctor, FeePay, Appointment, connectToDatabase } = require("./db/models");
@@ -24,6 +26,30 @@ connectToDatabase();
 
 app.use(express.json());
 app.use(cors());
+
+app.use("/prescriptions", express.static(path.join(__dirname, "prescriptions")));
+
+// Route to Download Prescription PDF
+app.get("/download-prescription", (req, res) => {
+  const { filename } = req.query; 
+  if (!filename) {
+    return res.status(400).send("Filename is required");
+  }
+
+  const filePath = path.join(__dirname, "prescriptions", filename);
+
+  // Check if file exists before attempting to send
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send(`File ${filename} not found.`);
+  }
+
+  res.download(filePath, filename, (err) => {
+    if (err) {
+      console.error("Error downloading file:", err);
+      res.status(500).send("Error downloading file");
+    }
+  });
+});
 
 app.get("/", async (req, res) => {
   await Prescription.updateMany({});
@@ -52,14 +78,13 @@ io.on("connection", (socket) => {
     });
 
     socket.on("end-call", () => {
-        io.emit("end-call"); // Notify all clients
+        io.emit("end-call"); 
     });
 
     socket.on("disconnect", () => {
         console.log("User disconnected:", socket.id);
     });
 });
-
 
 // Start Server
 const PORT = process.env.PORT || 3000;

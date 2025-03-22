@@ -1,77 +1,53 @@
 import React from "react";
+import { Box, Typography, Button, Card, List, ListItem, ListItemText } from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
 
-const Prescription = () => {
-  const containerStyle = {
-    maxWidth: "600px",
-    margin: "20px auto",
-    padding: "20px",
-    backgroundColor: "#fff",
-    boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
-    borderRadius: "10px",
-    border: "1px solid #ddd",
-    fontFamily: "Arial, sans-serif"
-  };
+const prescriptions = [
+  { id: 1, patient: "Shreyas Sadavarte", date: "2025-03-15", file: "prescription_Shreyas_Sadavarte.pdf" },
+  { id: 2, patient: "Prathmesh Vharkal", date: "2025-03-17", file: "prescription_Prathmesh_vharkal.pdf" },
+];
 
-  const headerStyle = {
-    textAlign: "center",
-    marginBottom: "20px"
-  };
+const Prescriptions = () => {
+      const handleDownload = () => {
+        fetch("http://localhost:3000/download-prescription")
+          .then((res) => res.blob())
+          .then((blob) => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "Prescription.pdf";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          })
+          .catch((err) => console.error("Download error:", err));
+      };
+      
 
-  const sectionStyle = {
-    borderTop: "1px solid #ccc",
-    paddingTop: "10px",
-    marginBottom: "10px"
-  };
-
-  const footerStyle = {
-    textAlign: "center",
-    marginTop: "20px",
-    fontSize: "12px",
-    color: "#666"
-  };
 
   return (
-    <div style={containerStyle}>
-      <header style={headerStyle}>
-        <h1>Dr. John Doe</h1>
-        <p>MBBS, MD - General Physician</p>
-        <p>XYZ Hospital, City</p>
-        <p>Phone: (123) 456-7890</p>
-      </header>
-
-      <section style={sectionStyle}>
-        <h2>Patient Details</h2>
-        <p><strong>Name:</strong> Jane Smith</p>
-        <p><strong>Age:</strong> 35</p>
-        <p><strong>Gender:</strong> Female</p>
-        <p><strong>Date:</strong> {new Date().toLocaleDateString()}</p>
-      </section>
-
-      <section style={sectionStyle}>
-        <h2>Diagnosis</h2>
-        <p>Flu and Mild Fever</p>
-      </section>
-
-      <section style={sectionStyle}>
-        <h2>Prescribed Medicines</h2>
-        <ul>
-          <li>Paracetamol 500mg - 1 tablet every 6 hours</li>
-          <li>Cough Syrup - 10ml twice a day</li>
-          <li>Vitamin C Supplement - Once a day</li>
-        </ul>
-      </section>
-
-      <section style={sectionStyle}>
-        <h2>Additional Notes</h2>
-        <p>Drink plenty of fluids and take rest.</p>
-      </section>
-
-      <footer style={footerStyle}>
-        <p>Signature: ______________________</p>
-        <p>Get well soon!</p>
-      </footer>
-    </div>
+    <Box sx={{ padding: 3 }}>
+      <Typography variant="h5" fontWeight="bold" sx={{ mb: 3, mt :6 }}>
+        Prescription List
+      </Typography>
+      <Card sx={{ padding: 2 }}>
+        <List>
+          {prescriptions.map((prescription) => (
+            <ListItem key={prescription.id} sx={{ display: "flex", justifyContent: "space-between" }}>
+              <ListItemText primary={prescription.patient} secondary={`Date: ${prescription.date}`} />
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<DownloadIcon />}
+                onClick={() => handleDownload(prescription.file)}>
+                Download
+              </Button>
+            </ListItem>
+          ))}
+        </List>
+      </Card>
+    </Box>
   );
 };
 
-export default Prescription;
+export default Prescriptions;

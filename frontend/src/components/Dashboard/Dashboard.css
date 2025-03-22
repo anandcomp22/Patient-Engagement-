@@ -124,7 +124,7 @@
 .appointment-time {
   font-size: 14px;
   font-weight: bold;
-  color: #ff5722;
+  color: green;
   display: flex;
   align-items: center;
   gap: 5px;
