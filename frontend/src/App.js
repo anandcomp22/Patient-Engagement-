@@ -25,7 +25,7 @@ function App() {
             <Route path="/Appointments" element={<Appointments/>} />
             <Route path="/LiveVideoCall" element={<LiveVideoCall />} />
             <Route path="/video-call/:id" element={<VideoCall />} />
-            <Route path="/prescription-doc" element={<Prescriptions />} />
+            <Route path="/prescriptions" element={<Prescriptions />} />
           </Routes>
         </Box>
       </Box>

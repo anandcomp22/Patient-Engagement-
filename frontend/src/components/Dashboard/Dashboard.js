@@ -1,6 +1,6 @@
 import React from "react";
-import { Grid, Paper, Typography, Box, Avatar, Button  } from "@mui/material";
-import { CalendarMonth, People, Description, Warning, AccessTime, VideoCall } from "@mui/icons-material";
+import { Grid, Paper, Typography, Box, Avatar  } from "@mui/material";
+import { CalendarMonth, People, Description, Warning, AccessTime } from "@mui/icons-material";
 import "./Dashboard.css";
 
 const Dashboard = () => {

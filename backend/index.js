@@ -10,9 +10,22 @@ const { Prescription, Doctor, FeePay, Appointment, connectToDatabase } = require
 const appointmentRouter = require("./routes/appointment.js");
 const doctorRouter = require("./routes/doctor.js");
 const feespayRouter = require("./routes/feespay.js");
-const prescriptionRouter = require("./routes/prescription.js");
+const prescriptionRoutes = require("./routes/prescriptionRoutes");
+
+
 
 const app = express();
+app.use(cors());
+app.use(express.json());
+
+connectToDatabase();
+
+const prescriptionsDir = path.join(__dirname, "prescriptions");
+if (!fs.existsSync(prescriptionsDir)) {
+  fs.mkdirSync(prescriptionsDir);
+}
+
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -21,43 +34,8 @@ const io = new Server(server, {
   }
 });
 
-// Connect to MongoDB
-connectToDatabase();
-
-app.use(express.json());
-app.use(cors());
-
-app.use("/prescriptions", express.static(path.join(__dirname, "prescriptions")));
-
-// Route to Download Prescription PDF
-app.get("/download-prescription", (req, res) => {
-  const { filename } = req.query; 
-  if (!filename) {
-    return res.status(400).send("Filename is required");
-  }
-
-  const filePath = path.join(__dirname, "prescriptions", filename);
-
-  // Check if file exists before attempting to send
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).send(`File ${filename} not found.`);
-  }
-
-  res.download(filePath, filename, (err) => {
-    if (err) {
-      console.error("Error downloading file:", err);
-      res.status(500).send("Error downloading file");
-    }
-  });
-});
-
-app.get("/", async (req, res) => {
-  await Prescription.updateMany({});
-  res.send("Hello World");
-});
-
 // API Routes
-app.use("/prescription", prescriptionRouter);
+app.use("/prescriptions", prescriptionRoutes);
 app.use("/feespay", feespayRouter);
 app.use("/doctor", doctorRouter);
 app.use("/appointment", appointmentRouter);
@@ -87,7 +65,7 @@ io.on("connection", (socket) => {
 });
 
 // Start Server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 9000;
 server.listen(PORT, () => {
   console.log(`Server started at http://localhost:${PORT}`);
 });
