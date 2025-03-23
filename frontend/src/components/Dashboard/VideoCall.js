@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback} from "react";
 import { Box, Typography, Paper, Button, IconButton, TextField, Select, MenuItem } from "@mui/material";
 import { MicOff, Mic, Videocam, VideocamOff, CallEnd, Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -33,8 +33,9 @@ const VideoCall = () => {
     navigator.mediaDevices.getUserMedia(constraints)
       .then((stream) => {
         setLocalStream(stream);
-        localVideoRef.current.srcObject = stream;
-
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+        }
         peerConnection.current = new RTCPeerConnection();
         stream.getTracks().forEach((track) => peerConnection.current.addTrack(track, stream));
 
@@ -55,6 +56,37 @@ const VideoCall = () => {
     };
   }, []);
 
+  const endCall = useCallback(() => {
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+      setLocalStream(null);
+    }
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = null;
+    }
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = null;
+    }
+
+    if (peerConnection.current) {
+      peerConnection.current.close();
+      peerConnection.current = null;
+    }
+
+    socket.emit("end-call");
+
+    setMicOn(false);
+    setCameraOn(false);
+
+    navigator.mediaDevices.getUserMedia({ video: false, audio: false })
+      .then((stream) => {
+        stream.getTracks().forEach((track) => track.stop());
+      })
+      .catch((err) => console.error("Error revoking permissions:", err));
+
+    navigate("/prescription-doc");
+  }, [localStream, navigate]);
+
   const toggleMic = () => {
     if (localStream) {
       localStream.getAudioTracks().forEach((track) => (track.enabled = !micOn));
@@ -67,15 +99,6 @@ const VideoCall = () => {
       localStream.getVideoTracks().forEach((track) => (track.enabled = !cameraOn));
       setCameraOn(!cameraOn);
     }
-  };
-
-  const endCall = () => {
-    if (localStream) {
-      localStream.getTracks().forEach((track) => track.stop());
-    }
-    socket.emit("end-call");
-    peerConnection.current?.close();
-    navigate("/appointments");
   };
 
   const addMedication = () => {

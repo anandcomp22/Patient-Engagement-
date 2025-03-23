@@ -38,7 +38,7 @@ const Navbar = () => {
           </Box>
         
         <Typography variant="body1" className="user-info" sx={{ marginLeft: "8px" }}>
-          Dr. Edward William <div className="user-email">edward.william@MedConnect.com</div>
+          Dr. Prathap C. Reddy <div className="user-email">prathap.reddy@MedConnect.com</div>
         </Typography>
           <Button variant="contained" className="logout-btn" startIcon={<LogoutIcon />}>
             Logout

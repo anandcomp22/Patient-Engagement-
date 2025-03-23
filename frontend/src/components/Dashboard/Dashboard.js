@@ -1,6 +1,6 @@
 import React from "react";
-import { Grid, Paper, Typography, Box, Avatar, Button  } from "@mui/material";
-import { CalendarMonth, People, Description, Warning, AccessTime, VideoCall } from "@mui/icons-material";
+import { Grid, Paper, Typography, Box, Avatar  } from "@mui/material";
+import { CalendarMonth, People, Description, Warning, AccessTime } from "@mui/icons-material";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -63,11 +63,11 @@ const Dashboard = () => {
             {/* Appointment Card */}
             <Box className="appointment-card">
               {/* Avatar */}
-              <Avatar sx={{ bgcolor: "#f0f2f5", color: "#555", width: 40, height: 40 }}>J</Avatar>
+              <Avatar sx={{ bgcolor: "#f0f2f5", color: "#555", width: 40, height: 40 }}>S</Avatar>
 
               {/* Appointment Details */}
               <Box className="appointment-details">
-                <Typography className="appointment-name"><strong>John Doe</strong></Typography>
+                <Typography className="appointment-name"><strong>Sayyoni Parate</strong></Typography>
                 <Typography className="appointment-info">Follow-up on blood pressure medication</Typography>
               </Box>
 
@@ -77,9 +77,6 @@ const Dashboard = () => {
                   <AccessTime sx={{ fontSize: 16, marginRight: "5px" }} />
                   10:00 AM
                 </Typography>
-                <Button variant="outlined" size="small" className="video-btn" startIcon={<VideoCall />}>
-                  Video
-                </Button>
               </Box>
             </Box>
 
@@ -117,7 +114,7 @@ const Dashboard = () => {
         <Box className="insight-card" style={{ backgroundColor: "#FFF3E0" }}>
           <Typography className="insight-title">Follow-up Reminder</Typography>
           <Typography className="insight-text">
-            Patient John Doe is due for follow-up lab work to monitor kidney function with current medication regimen.
+            Patient Sayyoni Parate is due for follow-up lab work to monitor kidney function with current medication regimen.
           </Typography>
         </Box>
 

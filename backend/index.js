@@ -2,15 +2,30 @@ const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
+const path = require("path");
+const fs = require("fs");
 require("dotenv").config();
 
 const { Prescription, Doctor, FeePay, Appointment, connectToDatabase } = require("./db/models");
 const appointmentRouter = require("./routes/appointment.js");
 const doctorRouter = require("./routes/doctor.js");
 const feespayRouter = require("./routes/feespay.js");
-const prescriptionRouter = require("./routes/prescription.js");
+const prescriptionRoutes = require("./routes/prescriptionRoutes");
+
+
 
 const app = express();
+app.use(cors());
+app.use(express.json());
+
+connectToDatabase();
+
+const prescriptionsDir = path.join(__dirname, "prescriptions");
+if (!fs.existsSync(prescriptionsDir)) {
+  fs.mkdirSync(prescriptionsDir);
+}
+
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -19,19 +34,8 @@ const io = new Server(server, {
   }
 });
 
-// Connect to MongoDB
-connectToDatabase();
-
-app.use(express.json());
-app.use(cors());
-
-app.get("/", async (req, res) => {
-  await Prescription.updateMany({});
-  res.send("Hello World");
-});
-
 // API Routes
-app.use("/prescription", prescriptionRouter);
+app.use("/prescriptions", prescriptionRoutes);
 app.use("/feespay", feespayRouter);
 app.use("/doctor", doctorRouter);
 app.use("/appointment", appointmentRouter);
@@ -52,7 +56,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("end-call", () => {
-        io.emit("end-call"); // Notify all clients
+        io.emit("end-call"); 
     });
 
     socket.on("disconnect", () => {
@@ -60,9 +64,8 @@ io.on("connection", (socket) => {
     });
 });
 
-
 // Start Server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 9000;
 server.listen(PORT, () => {
   console.log(`Server started at http://localhost:${PORT}`);
 });
