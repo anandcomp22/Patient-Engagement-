@@ -5,7 +5,7 @@ import re
 # Load the fine-tuned model and tokenizer
 
 
-MODEL_PATH = r"C:\Users\HP\Patient-Engagement-\backend\lora_finetuned_model"
+MODEL_PATH = r"C:\Users\HP\Patient-Engagement-\backend\third_lora_finetuned_model"
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
 model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.float16, device_map="auto")
@@ -22,7 +22,7 @@ def generate_response(prompt, max_length=100):
 
 
 test_prompts = [
-    "cancer",  "fever"
+    "cancer"  
 ]
 
 for prompt in test_prompts:
