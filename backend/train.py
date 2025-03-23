@@ -58,7 +58,7 @@ trainer = SFTTrainer(
 trainer.train()
 
 # Save fine-tuned model
-model.save_pretrained("./second_lora_finetuned_model")
-tokenizer.save_pretrained("./second_lora_finetuned_model")
+model.save_pretrained("./third_lora_finetuned_model")
+tokenizer.save_pretrained("./third_lora_finetuned_model")
 
 print("Training complete! Model saved in ./lora_finetuned_model")
