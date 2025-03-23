@@ -132,9 +132,9 @@ const VideoCall = () => {
             height: "80vh",
           }}
         >
-          <video ref={localVideoRef} autoPlay playsInline muted style={{ width: "100%", height: "100%" }} />
+          <video ref={remoteVideoRef} autoPlay playsInline muted style={{ width: "100%", height: "100%" }} />
           <video
-            ref={remoteVideoRef}
+            ref={localVideoRef}
             autoPlay
             playsInline
             style={{
