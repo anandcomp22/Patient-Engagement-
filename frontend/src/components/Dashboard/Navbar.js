@@ -1,6 +1,6 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Box, Button, TextField, IconButton} from "@mui/material";
-import { Notifications, Settings } from "@mui/icons-material";
+import { AppBar, Toolbar, Typography, Box, Button, TextField, IconButton, Avatar} from "@mui/material";
+import { Notifications, Settings, SupervisedUserCircleRounded } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import "./Navbar.css";
 
@@ -36,14 +36,14 @@ const Navbar = () => {
             <Settings />
           </IconButton>
           </Box>
-        
-        <Typography variant="body1" className="user-info" sx={{ marginLeft: "8px" }}>
-          Dr. Prathap C. Reddy <div className="user-email">prathap.reddy@MedConnect.com</div>
-        </Typography>
-          <Button variant="contained" className="logout-btn" startIcon={<LogoutIcon />}>
-            Logout
-          </Button>
-        </Box>
+            <Avatar sx={{size: "10px"}}>P</Avatar>
+            <Typography variant="body1" className="user-info" sx={{ marginLeft: "-10px" }}>
+              Dr. Prathap C. Reddy <div className="user-email">prathap.reddy@MedConnect.com</div>
+            </Typography>
+            <Button variant="contained" className="logout-btn" startIcon={<LogoutIcon />}>
+              Logout
+            </Button>
+          </Box>
 
       </Toolbar>
     </AppBar>
