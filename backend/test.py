@@ -39,3 +39,4 @@ for prompt in test_prompts:
     
     filtered_response = f"{med_id}, {med_name}, {rating}".replace("Rating,", ",")
     print(f"\nPrompt: {prompt}\nResponse: {filtered_response}")
+
