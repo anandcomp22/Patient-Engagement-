@@ -1,15 +1,13 @@
 import React from "react";
-import { Box, Typography, Card, Button, Avatar, Chip } from "@mui/material";
-import VideoCallIcon from "@mui/icons-material/VideoCall";
-import { useNavigate } from "react-router-dom";
+import { Box, Typography, Card, Avatar, Chip } from "@mui/material";
+
 
 const appointments = [
-  { id: 1, name: "John Doe", details: "Follow-up for hypertension", time: "10:00 AM", status: "Confirmed" },
-  { id: 2, name: "Emily Johnson", details: "Consultation for migraines", time: "11:30 AM", status: "Confirmed" },
-  { id: 3, name: "Robert Smith", details: "Diabetes check-up", time: "1:15 PM", status: "Pending" },
+  { id: 1, name: "Shreyas Sadavarte", details: "Follow-up for hypertension", time: "10:00 AM", status: "Appointment Done" },
+  { id: 2, name: "Prathmesh Vharkal", details: "Consultation for migraines", time: "11:30 AM", status: "Appointment Done" },
+  { id: 3, name: "Sayyoni Parate", details: "Diabetes check-up", time: "1:15 PM", status: "Pending" },
 ];
 const LiveVideoCall = () => {
-  const navigate = useNavigate();
 
   return (
     <Box sx={{ padding: 3, mt: 5 }}>
@@ -30,19 +28,7 @@ const LiveVideoCall = () => {
 
           {/* Right: Status & Video Call Button */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Chip label={item.status} color={item.status === "Confirmed" ? "success" : "warning"} variant="outlined" />
-            
-            {/* Start Video Call Button */}
-            {item.status === "Confirmed" && (
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<VideoCallIcon />}
-                onClick={() => navigate(`/video-call/${item.id}`)}
-              >
-                Start Video Call
-              </Button>
-            )}
+            <Chip label={item.status} color={item.status === "Appointment Done" ? "success" : "warning"} variant="outlined" />
           </Box>
         </Card>
       ))}

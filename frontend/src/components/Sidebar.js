@@ -30,7 +30,7 @@ const Sidebar = () => {
           <ListItemIcon><People sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Patients" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button component={Link} to="/Prescriptions">
+        <ListItem button component={Link} to="/prescriptions">
           <ListItemIcon><Medication sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Prescriptions" sx={{ color: "white" }} />
         </ListItem>

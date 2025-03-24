@@ -4,7 +4,8 @@
   "description": "AI based miniproject in healthcare domain.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start"
   },
   "repository": {
     "type": "git",
@@ -25,9 +26,13 @@
     "fs": "^0.0.1-security",
     "google-speech": "^0.0.5",
     "mongodb": "^6.15.0",
-    "mongoose": "^8.12.1",
+    "mongoose": "^8.12.2",
     "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.10.0",
     "openai": "^4.87.4",
+    "path": "^0.12.7",
+    "pdfkit": "^0.16.0",
+    "react-scripts": "^5.0.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1"
   },

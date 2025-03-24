@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback} from "react";
 import { Box, Typography, Paper, Button, IconButton, TextField, Select, MenuItem } from "@mui/material";
 import { MicOff, Mic, Videocam, VideocamOff, CallEnd, Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -33,8 +33,9 @@ const VideoCall = () => {
     navigator.mediaDevices.getUserMedia(constraints)
       .then((stream) => {
         setLocalStream(stream);
-        localVideoRef.current.srcObject = stream;
-
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+        }
         peerConnection.current = new RTCPeerConnection();
         stream.getTracks().forEach((track) => peerConnection.current.addTrack(track, stream));
 
@@ -55,6 +56,37 @@ const VideoCall = () => {
     };
   }, []);
 
+  const endCall = useCallback(() => {
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+      setLocalStream(null);
+    }
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = null;
+    }
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = null;
+    }
+
+    if (peerConnection.current) {
+      peerConnection.current.close();
+      peerConnection.current = null;
+    }
+
+    socket.emit("end-call");
+
+    setMicOn(false);
+    setCameraOn(false);
+
+    navigator.mediaDevices.getUserMedia({ video: false, audio: false })
+      .then((stream) => {
+        stream.getTracks().forEach((track) => track.stop());
+      })
+      .catch((err) => console.error("Error revoking permissions:", err));
+
+    navigate("/prescription-doc");
+  }, [localStream, navigate]);
+
   const toggleMic = () => {
     if (localStream) {
       localStream.getAudioTracks().forEach((track) => (track.enabled = !micOn));
@@ -67,15 +99,6 @@ const VideoCall = () => {
       localStream.getVideoTracks().forEach((track) => (track.enabled = !cameraOn));
       setCameraOn(!cameraOn);
     }
-  };
-
-  const endCall = () => {
-    if (localStream) {
-      localStream.getTracks().forEach((track) => track.stop());
-    }
-    socket.emit("end-call");
-    peerConnection.current?.close();
-    navigate("/appointments");
   };
 
   const addMedication = () => {
@@ -109,9 +132,9 @@ const VideoCall = () => {
             height: "80vh",
           }}
         >
-          <video ref={localVideoRef} autoPlay playsInline muted style={{ width: "100%", height: "100%" }} />
+          <video ref={remoteVideoRef} autoPlay playsInline muted style={{ width: "100%", height: "100%" }} />
           <video
-            ref={remoteVideoRef}
+            ref={localVideoRef}
             autoPlay
             playsInline
             style={{
@@ -145,7 +168,7 @@ const VideoCall = () => {
             <IconButton onClick={toggleCamera} sx={{ color: "white" }}>
               {cameraOn ? <Videocam /> : <VideocamOff />}
             </IconButton>
-            <IconButton onClick={endCall} sx={{ color: "red" }}>
+            <IconButton onClick={() => navigate(`/Prescriptions`)}  sx={{ color: "red" }}>
               <CallEnd />
             </IconButton>
             <IconButton onClick={() => setEditing(true)} sx={{ color: "white" }}>
@@ -160,12 +183,12 @@ const VideoCall = () => {
             Prescription Generator
           </Typography>
           <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Patient Information</Typography>
-          <Typography variant="body2">Name: John Doe | Age: 42</Typography>
+          <Typography variant="body2">Name: Sayyoni Parate | Age: 22</Typography>
           <Typography variant="body2">Patient ID: P-12345 | Date: 28/02/2025</Typography>
 
           <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2 }}>Medications</Typography>
           {medications.map((med, index) => (
-            <Typography key={index} variant="body2">
+            <Typography key={index} variant="body1">
               {med.name} - {med.dosage}, {med.frequency}, {med.duration}
             </Typography>
           ))}
