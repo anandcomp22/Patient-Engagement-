@@ -132,9 +132,9 @@ const VideoCall = () => {
             height: "80vh",
           }}
         >
-          <video ref={localVideoRef} autoPlay playsInline muted style={{ width: "100%", height: "100%" }} />
+          <video ref={remoteVideoRef} autoPlay playsInline muted style={{ width: "100%", height: "100%" }} />
           <video
-            ref={remoteVideoRef}
+            ref={localVideoRef}
             autoPlay
             playsInline
             style={{
@@ -168,7 +168,7 @@ const VideoCall = () => {
             <IconButton onClick={toggleCamera} sx={{ color: "white" }}>
               {cameraOn ? <Videocam /> : <VideocamOff />}
             </IconButton>
-            <IconButton onClick={endCall} sx={{ color: "red" }}>
+            <IconButton onClick={() => navigate(`/Prescriptions`)}  sx={{ color: "red" }}>
               <CallEnd />
             </IconButton>
             <IconButton onClick={() => setEditing(true)} sx={{ color: "white" }}>
@@ -183,12 +183,12 @@ const VideoCall = () => {
             Prescription Generator
           </Typography>
           <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Patient Information</Typography>
-          <Typography variant="body2">Name: John Doe | Age: 42</Typography>
+          <Typography variant="body2">Name: Sayyoni Parate | Age: 22</Typography>
           <Typography variant="body2">Patient ID: P-12345 | Date: 28/02/2025</Typography>
 
           <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2 }}>Medications</Typography>
           {medications.map((med, index) => (
-            <Typography key={index} variant="body2">
+            <Typography key={index} variant="body1">
               {med.name} - {med.dosage}, {med.frequency}, {med.duration}
             </Typography>
           ))}

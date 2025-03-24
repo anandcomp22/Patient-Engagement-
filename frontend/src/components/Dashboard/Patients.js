@@ -4,7 +4,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import AddIcon from "@mui/icons-material/Add";
 
-// Sample Patient Data
+
 const patients = [
   {
     name: "Shreyas Sadavarte ",
@@ -17,7 +17,7 @@ const patients = [
     conditions: ["Hypertension", "Type 2 Diabetes"],
   },
   {
-    name: "Saayoni Parate",
+    name: "Sayyoni Parate",
     age: 21,
     gender: "Female",
     phone: "(555) 987-6543",

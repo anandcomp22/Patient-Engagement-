@@ -97,7 +97,7 @@ const Appointments = () => {
                         color="primary" 
                         size="small" 
                         startIcon={<VideoCallIcon />} 
-                        onClick={() => navigate(`/video-call/${index}`)} // Now correctly passing index
+                        onClick={() => navigate(`/video-call/${index}`)} 
                     >
                         Start Video
                     </Button>
