@@ -21,6 +21,10 @@
     "@google-cloud/speech": "^7.0.0",
     "child_process": "^1.0.2",
     "cors": "^2.8.5",
+<<<<<<< HEAD
+    "express": "^4.21.2",
+    "react-scripts": "^3.0.1"
+=======
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "fs": "^0.0.1-security",
@@ -35,6 +39,7 @@
     "react-scripts": "^5.0.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1"
+>>>>>>> e8965c62721ce1b38fcdcfaa563631dd7dedcc12
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
