@@ -4,7 +4,8 @@
   "description": "AI based miniproject in healthcare domain.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start"
   },
   "repository": {
     "type": "git",
@@ -17,10 +18,28 @@
   },
   "homepage": "https://github.com/anandcomp22/Patient-Engagement-#readme",
   "dependencies": {
+    "@google-cloud/speech": "^7.0.0",
     "child_process": "^1.0.2",
     "cors": "^2.8.5",
+<<<<<<< HEAD
     "express": "^4.21.2",
     "react-scripts": "^3.0.1"
+=======
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "fs": "^0.0.1-security",
+    "google-speech": "^0.0.5",
+    "mongodb": "^6.15.0",
+    "mongoose": "^8.12.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.10.0",
+    "openai": "^4.87.4",
+    "path": "^0.12.7",
+    "pdfkit": "^0.16.0",
+    "react-scripts": "^5.0.1",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+>>>>>>> e8965c62721ce1b38fcdcfaa563631dd7dedcc12
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

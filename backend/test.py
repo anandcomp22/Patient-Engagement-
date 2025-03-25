@@ -1,52 +1,41 @@
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from peft import PeftModel
+import re
 
-# Define model path
-MODEL_PATH = r"C:\Users\HP\Patient-Engagement-\backend\lora_finetuned_model"
+# Load the fine-tuned model and tokenizer
 
-# Load tokenizer
+
+MODEL_PATH = r"C:\Users\HP\Patient-Engagement-\backend\merged_lora_model"
+
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.float16, device_map="auto")
 
-# Load base model
-base_model = AutoModelForCausalLM.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0", torch_dtype=torch.float16)
 
-# Load fine-tuned LoRA model
-model = PeftModel.from_pretrained(base_model, MODEL_PATH)
-model.to("cuda" if torch.cuda.is_available() else "cpu")
-
-model.eval()  # Set model to evaluation mode
-
-def generate_response(prompt, max_length=50):
-    input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(model.device)
-
+def generate_response(prompt, max_length=100):
+   
+    normalized_prompt = prompt.strip().title()
+    
+    inputs = tokenizer(f"Condition: {normalized_prompt}\nResponse:", return_tensors="pt").to(model.device)
     with torch.no_grad():
-        output = model.generate(input_ids, max_length=max_length, pad_token_id=tokenizer.eos_token_id)
+        output = model.generate(**inputs, max_length=max_length, pad_token_id=tokenizer.eos_token_id)
+    return tokenizer.decode(output[0], skip_special_tokens=True).replace("\n", " ")
 
-    response = tokenizer.decode(output[0], skip_special_tokens=True)
 
-    # Extract ID, Medicine Name, and Rating
-    med_id, med_name, rating = "", "", ""
-    response_lines = response.split("\n")
+test_prompts = [
+    "cold"  , "cancer"
+]
 
-    for line in response_lines:
-        if "ID:" in line:
-            med_id = line.split(":")[-1].strip()  # Extract ID
-        elif "Drug Name:" in line:
-            med_name = line.split(":")[-1].strip()  # Extract Medicine Name
-        elif "Rating:" in line:
-            rating = line.split(":")[-1].strip()  # Extract Rating
+for prompt in test_prompts:
+    response = generate_response(prompt)
     
-    # Ensure correct format
-    if med_id and med_name and rating:
-        return f"{med_id} {med_name} {rating}"
     
-    return response  # Return full response if extraction fails
-
-
-
-
-# Example test prompt
-test_prompt = "Condition: fever"
-response = generate_response(test_prompt)
-print("Output:", response)
+    med_id_match = re.search(r'\bID[:\s]*([0-9]+)\b', response, re.IGNORECASE)
+    med_name_match = re.search(r'\bDrug Name[:\s]*([\w\s]+)\b', response, re.IGNORECASE)
+    rating_match = re.search(r'\bRating[:\s]*([0-9]+)\b', response, re.IGNORECASE)
+    
+    med_id = med_id_match.group(1) if med_id_match else "Unknown ID"
+    med_name = med_name_match.group(1).strip() if med_name_match else "Unknown Name"
+    rating = rating_match.group(1) if rating_match else "Unknown Rating"
+    
+    filtered_response = f"{med_id}, {med_name}, {rating}".replace("Rating,", ",")
+    print(f"\nPrompt: {prompt}\nResponse: {filtered_response}")
