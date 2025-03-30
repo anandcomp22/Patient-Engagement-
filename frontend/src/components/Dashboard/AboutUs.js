@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { FaInstagram, FaYoutube, FaWhatsapp, FaEnvelope, FaLinkedin, FaGithub } from "react-icons/fa";
+import "./AboutUs.css";
 
 const teamMembers = [
   { name: "Anand More", role: "FrontEnd, Backend, Database, Machine-learning Developer", desc: "Expert in AI and patient analytics. With years of experience in AI-driven patient engagement.", img: "https://via.placeholder.com/100" },
@@ -15,22 +16,21 @@ export default function AboutUs() {
   const [hovered, setHovered] = useState(null);
 
   return (
-    <div className="relative flex flex-col items-center bg-white min-h-screen py-10 text-black px-4">
+    <div className="about-container">
       <motion.div 
-        className="bg-[#344ddb] px-12 py-4 rounded-xl shadow-lg text-white text-5xl font-bold"
+        className="about-title"
         whileHover={{ scale: 1.1 }}
       >
         ABOUT US
       </motion.div>
-      <div className="w-full border-b border-gray-300 mt-4"></div>
+      <div className="divider"></div>
       
-      {/* Description Box */}
       <motion.div
-        className="bg-gray-200 text-black p-10 rounded-2xl shadow-lg w-[98%] max-w-6xl mt-8 text-center border border-gray-300"
-        whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(0,0,0,0.3)" }}
+        className="description-box"
+        whileHover={{ scale: 1.02 }}
       >
-        <h2 className="text-3xl font-bold">Connecting Patients with Experts</h2>
-        <p className="mt-4 text-lg">
+        <h2>Connecting Patients with Experts</h2>
+        <p>
           Our platform enables seamless engagement between patients and top professionals, including professors, doctors, and researchers. Book appointments, schedule consultations, and access expert guidance effortlessly. 
           We ensure high-quality interactions to enhance patient outcomes. Our system integrates AI-driven recommendations to match patients with the best professionals based on their needs. 
           With a user-friendly interface, patients can navigate through expert profiles, read verified reviews, and choose the right specialist with ease. 
@@ -41,14 +41,17 @@ export default function AboutUs() {
           Join us in shaping the future of healthcare by connecting with top experts worldwide.
         </p>
       </motion.div>
-      <div className="w-full border-b border-gray-300 mt-10"></div>
+
+      <div className="contributors-heading">
+        <h2>Our Contributors</h2>
+        <div className="heading-divider"></div>
+      </div>
       
-      {/* Team Section */}
-      <div className="grid grid-cols-2 gap-12 mt-12 max-w-6xl mx-auto">
+      <div className="team-section">
         {teamMembers.slice(0, 2).map((member, index) => (
           <ProfileCard key={index} member={member} hovered={hovered} setHovered={setHovered} />
         ))}
-        <div className="col-span-2 flex justify-center">
+        <div className="center-card">
           <ProfileCard member={teamMembers[2]} hovered={hovered} setHovered={setHovered} />
         </div>
         {teamMembers.slice(3, 5).map((member, index) => (
@@ -56,17 +59,16 @@ export default function AboutUs() {
         ))}
       </div>
 
-      {/* Footer */}
-      <div className="bg-[#344ddb] text-white w-full py-6 mt-16 flex flex-col items-center">
-        <div className="flex gap-6 text-2xl">
-          <FaEnvelope className="cursor-pointer hover:text-blue-400" />
-          <FaInstagram className="cursor-pointer hover:text-red-500" />
-          <FaYoutube className="cursor-pointer hover:text-red-600" />
-          <FaWhatsapp className="cursor-pointer hover:text-green-500" />
-          <FaLinkedin className="cursor-pointer hover:text-blue-500" />
-          <FaGithub className="cursor-pointer hover:text-gray-500" />
+      <div className="about-footer">
+        <div className="social-icons ">
+          <FaEnvelope className="icon" />
+          <FaInstagram className="icon" />
+          <FaYoutube className="icon" />
+          <FaWhatsapp className="icon" />
+          <FaLinkedin className="icon" />
+          <FaGithub className="icon" />
         </div>
-        <p className="mt-3 text-sm">&copy; 2025 Patient Engagement Platform. All Rights Reserved.</p>
+        <p className="copyright">&copy; 2025 Patient Engagement Platform. All Rights Reserved.</p>
       </div>
     </div>
   );
@@ -75,17 +77,17 @@ export default function AboutUs() {
 function ProfileCard({ member, hovered, setHovered }) {
   return (
     <motion.div
-      className="relative bg-white text-black p-8 rounded-lg shadow-md w-[500px] h-[350px] cursor-pointer overflow-hidden flex flex-col items-center justify-center text-center border border-gray-300"
-      whileHover={{ width: "550px", height: "400px" }}
+      className="profile-card"
+      whileHover={{ scale: 1.03 }}
       onMouseEnter={() => setHovered(member.name)}
       onMouseLeave={() => setHovered(null)}
     >
-      <img src={member.img} alt={member.name} className="w-28 h-28 rounded-full mb-4" />
-      <h3 className="font-semibold text-gray-800 text-2xl w-full text-center">{member.name}</h3>
-      <p className="text-lg text-gray-600">{member.role}</p>
+      <img src={member.img} alt={member.name} className="profile-img" />
+      <h3 className="profile-name">{member.name}</h3>
+      <p className="profile-role">{member.role}</p>
       {hovered === member.name && (
         <motion.p
-          className="text-md text-gray-700 mt-3 px-6"
+          className="profile-desc"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}

@@ -2,7 +2,7 @@
   width: 280px;
   position: fixed;
   height: 100vh;
-  background-color: #1a237e;
+  background-color: #1E3A8A;
   display: flex;
   flex-direction: column;
 }
@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #1a237e;
+  background-color: #1E3A8A;
   padding-bottom: 17px;
   height: 42.5px;
 }
@@ -29,7 +29,7 @@
   
   .sidebar .MuiDrawer-paper {
     width: 280px;
-    background-color: #193bad; /* Dark blue */
+    background-color: #1E5DA9; /* Dark blue */
     color: #fff;
     box-sizing: border-box;
     margin-top: 21.5px;
@@ -40,7 +40,7 @@
     top: 10px;
     left: 20px;
     z-index: 1500;
-    color: #1E3A8A;
+    color: #1E5DA9;
   }
   
   .icon {

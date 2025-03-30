@@ -1,8 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Drawer, List, ListItem, ListItemIcon, ListItemText, Typography, Box } from "@mui/material";
-import { Dashboard, CalendarMonth, People, Medication, VideoCall, Analytics, Settings, Help } from "@mui/icons-material";
-import logo from "./icons/licons.png"
+import {
+  Dashboard ,
+  CalendarMonth,
+  People,
+  Medication,
+  VideoCall ,
+  Analytics,
+  Settings,
+  Help,
+  SupervisedUserCircleRounded
+} from '@mui/icons-material';
+import logo from "./icons/licons.png";
 import "./Sidebar.css";
 
 const Sidebar = () => {
@@ -38,7 +48,7 @@ const Sidebar = () => {
           <ListItemIcon><VideoCall sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Video Calls" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button component={Link} to="/">
+        <ListItem button component={Link} to="/aboutus">
           <ListItemIcon><Analytics sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Analytics" sx={{ color: "white" }} />
         </ListItem>
@@ -52,6 +62,10 @@ const Sidebar = () => {
         <ListItem button component={Link} to="/aboutus">
           <ListItemIcon><Help sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Help & Support" sx={{ color: "white" }} />
+        </ListItem>
+        <ListItem button component={Link} to="/patient/signin">
+          <ListItemIcon><SupervisedUserCircleRounded sx={{ color: "white" }} /></ListItemIcon>
+          <ListItemText primary="Patient Portal" sx={{ color: "white" }}/>
         </ListItem>
       </List>
     </Drawer>
