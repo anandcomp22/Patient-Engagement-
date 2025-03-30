@@ -16,7 +16,9 @@ import BookAppointment from './components/PatientPortal/BookAppointment';
 import PatientDashboard from './components/PatientPortal/PatientDashboard';
 import HomePage from './components/Home/HomePage';
 import DoctorLogin from './components/Auth/DoctorLogin';
-import PatientLogin from './components/Auth/PatientLogin';
+import PatientLogin from './components/Auth/PatientSignIn';
+import PatientSidebar from './components/PatientPortal/PatientSidebar';
+import PatientNavbar from './components/PatientPortal/PatientNavbar';
 import './App.css';
 
 function App() {
@@ -24,20 +26,31 @@ function App() {
     <Router>
       <CssBaseline />
       <Routes>
-        {/* Routes without Sidebar/Navbar */}
         <Route path="/" element={<HomePage />} />
         <Route path="/doctor/login" element={<DoctorLogin />} />
-        <Route path="/patient/login" element={<PatientLogin />} />
+        <Route path="/patient/signin" element={<PatientLogin />} />
         <Route path="/patient/signup" element={<PatientSignUp />} />
-        <Route path="/patient/appointments" element={<PatientAppointments />} />
-        <Route path="/patient/book" element={<BookAppointment />} />
-        <Route path="/patient/dashboard" element={<PatientDashboard />} />
 
-        {/* Routes with Sidebar/Navbar */}
+        <Route path="/patient/*" element={
+          <Box sx={{ display: 'flex' }}>
+            <PatientSidebar />
+            <Box className="main-content" sx={{ flexGrow: 1 }}>
+              <PatientNavbar />
+              <Routes>
+                <Route path="dashboard" element={<PatientDashboard />} />
+                <Route path="appointments" element={<PatientAppointments />} />
+                <Route path="book" element={<BookAppointment />} />
+                <Route path="video-call" element={<VideoCall />} />
+                <Route path="video-call/:id" element={<VideoCall />} />
+              </Routes>
+            </Box>
+          </Box>
+        } />
+
         <Route path="*" element={
           <Box sx={{ display: 'flex' }}>
             <Sidebar />
-            <Box className="main-content">
+            <Box className="main-content" sx={{ flexGrow: 1 }}>
               <Navbar />
               <Routes>
                 <Route path="/dashboard" element={<Dashboard />} />

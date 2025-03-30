@@ -6,6 +6,9 @@ import "./Dashboard.css";
 const Dashboard = () => {
   return (
     <div className="content">
+      <Typography variant="h5" sx={{ color: '#1E5DA9', mb: 4 }}>
+              Doctor Dashboard
+            </Typography>
       {/* Top Metrics */}
       <Grid container spacing={3}>
         {/* Today's Appointments */}
