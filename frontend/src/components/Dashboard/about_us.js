@@ -4,11 +4,11 @@ import { useState } from "react";
 import { FaInstagram, FaYoutube, FaWhatsapp, FaEnvelope, FaLinkedin, FaGithub } from "react-icons/fa";
 
 const teamMembers = [
-  { name: "Dr. John Doe", role: "Professor", desc: "Expert in AI and patient analytics. With years of experience in AI-driven patient engagement, he has helped thousands in need.", img: "https://via.placeholder.com/100" },
-  { name: "Dr. Jane Smith", role: "Psychologist", desc: "Specialist in mental health engagements. Her research in emotional well-being has transformed patient care.", img: "https://via.placeholder.com/100" },
-  { name: "Prof. Alan Turing", role: "Data Scientist", desc: "Pioneer in AI-driven patient solutions. His algorithms provide personalized patient care solutions.", img: "https://via.placeholder.com/100" },
-  { name: "Dr. Lisa Ray", role: "Medical Consultant", desc: "Connecting patients with top professionals. She specializes in medical consultancy and advisory.", img: "https://via.placeholder.com/100" },
-  { name: "Dr. Mark Lee", role: "Neurologist", desc: "Researcher in brain health and AI tools. His groundbreaking research in neuroscience aids patients worldwide.", img: "https://via.placeholder.com/100" }
+  { name: "Anand More", role: "FrontEnd, Backend, Database, Machine-learning Developer", desc: "Expert in AI and patient analytics. With years of experience in AI-driven patient engagement.", img: "https://via.placeholder.com/100" },
+  { name: "Sayyoni Parate", role: "FrontEnd, Backend, Database, Machine-learning Developer", desc: "Specialist in mental health engagements. Her research in emotional well-being has transformed patient care.", img: "https://via.placeholder.com/100" },
+  { name: "Sujal Shahare", role: "Backend and Machine-Learning Developer", desc: "Pioneer in AI-driven patient solutions. His algorithms provide personalized patient care solutions.", img: "https://via.placeholder.com/100" },
+  { name: "Prathmesh Vharkal", role: "UI Developer", desc: "Connecting patients with top professionals. She specializes in medical consultancy and advisory.", img: "https://via.placeholder.com/100" },
+  { name: "Shreyas Sadavarte", role: "Frontend & UI Developer ", desc: "Researcher in brain health and AI tools. His groundbreaking research in neuroscience aids patients worldwide.", img: "https://via.placeholder.com/100" }
 ];
 
 export default function AboutUs() {

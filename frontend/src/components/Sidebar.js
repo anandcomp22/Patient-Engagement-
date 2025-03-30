@@ -12,7 +12,7 @@ const Sidebar = () => {
       <Box className="sidebar-header" sx={{gap:1}}>
         <img src={logo} alt="DR. logo" width="30px"/>
         <Typography variant="h6" className="sidebar-title">
-        MedConnect AI
+        AidME
         </Typography>
       </Box>
 
@@ -49,7 +49,7 @@ const Sidebar = () => {
           <ListItemIcon><Settings sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Settings" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button component={Link} to="/">
+        <ListItem button component={Link} to="/aboutus">
           <ListItemIcon><Help sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Help & Support" sx={{ color: "white" }} />
         </ListItem>

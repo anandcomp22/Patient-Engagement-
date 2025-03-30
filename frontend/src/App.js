@@ -9,6 +9,7 @@ import Appointments from "./components/Dashboard/Appointments";
 import LiveVideoCall from "./components/Dashboard/LiveVideoCall";
 import VideoCall from "./components/Dashboard/VideoCall";
 import Prescriptions from "./components/Dashboard/Prescriptions";
+import about_us from "./components/Dashboard/about_us";
 import "./App.css";
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
             <Route path="/LiveVideoCall" element={<LiveVideoCall />} />
             <Route path="/video-call/:id" element={<VideoCall />} />
             <Route path="/prescriptions" element={<Prescriptions />} />
+            <Route path="/aboutus" element={<about_us/>}/>
           </Routes>
         </Box>
       </Box>
