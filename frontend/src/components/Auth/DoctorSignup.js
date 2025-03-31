@@ -15,7 +15,9 @@ import {
   IconButton,
   FormHelperText,
   MenuItem,
-  Select
+  Select,
+  Checkbox,
+  FormControlLabel
 } from '@mui/material';
 import { 
   Visibility, 
@@ -25,11 +27,14 @@ import {
   Phone,
   Lock,
   ArrowBack,
-  Cake,
-  LocationOn
+  Work,
+  School,
+  Badge,
+  LocationOn,
+  LocalHospital
 } from '@mui/icons-material';
 
-// Sample location data (replace with your actual data or API calls)
+// Sample location and specialty data
 const countries = ['India', 'United States', 'United Kingdom', 'Canada', 'Australia'];
 const statesByCountry = {
   'India': ['Andhra Pradesh', 'Karnataka', 'Maharashtra', 'Tamil Nadu', 'Delhi'],
@@ -41,8 +46,21 @@ const districtsByState = {
   'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik'],
   // Add other states and their districts
 };
+const specialties = [
+  'Cardiology',
+  'Dermatology',
+  'Endocrinology',
+  'Gastroenterology',
+  'Neurology',
+  'Oncology',
+  'Pediatrics',
+  'Psychiatry',
+  'Radiology',
+  'Surgery'
+];
+const qualifications = ['MBBS', 'MD', 'MS', 'DM', 'MCh', 'PhD', 'DNB'];
 
-const PatientSignUp = () => {
+const DoctorSignUp = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -50,22 +68,28 @@ const PatientSignUp = () => {
     lastName: '',
     email: '',
     phone: '',
-    age: '',
+    licenseNumber: '',
+    specialty: '',
+    qualifications: [],
+    experience: '',
+    hospital: '',
     country: '',
     state: '',
     district: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    termsAccepted: false
   });
   const [errors, setErrors] = useState({});
   const [availableStates, setAvailableStates] = useState([]);
   const [availableDistricts, setAvailableDistricts] = useState([]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, checked, type } = e.target;
+    
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
 
     // Handle location hierarchy changes
@@ -85,6 +109,16 @@ const PatientSignUp = () => {
         [name]: ''
       }));
     }
+  };
+
+  const handleQualificationChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setFormData(prev => ({
+      ...prev,
+      qualifications: typeof value === 'string' ? value.split(',') : value,
+    }));
   };
 
   const handleClickShowPassword = () => {
@@ -109,12 +143,20 @@ const PatientSignUp = () => {
       newErrors.phone = 'Phone number must be 10 digits';
     }
     
-    if (!formData.age) {
-      newErrors.age = 'Age is required';
-    } else if (isNaN(formData.age) || formData.age < 1 || formData.age > 120) {
-      newErrors.age = 'Please enter a valid age (1-120)';
+    if (!formData.licenseNumber.trim()) {
+      newErrors.licenseNumber = 'Medical license number is required';
     }
     
+    if (!formData.specialty) newErrors.specialty = 'Specialty is required';
+    if (formData.qualifications.length === 0) newErrors.qualifications = 'At least one qualification is required';
+    
+    if (!formData.experience) {
+      newErrors.experience = 'Years of experience is required';
+    } else if (isNaN(formData.experience) || formData.experience < 0 || formData.experience > 60) {
+      newErrors.experience = 'Please enter valid experience (0-60)';
+    }
+    
+    if (!formData.hospital.trim()) newErrors.hospital = 'Hospital/Clinic name is required';
     if (!formData.country) newErrors.country = 'Country is required';
     if (!formData.state) newErrors.state = 'State is required';
     if (!formData.district) newErrors.district = 'District is required';
@@ -129,6 +171,10 @@ const PatientSignUp = () => {
       newErrors.confirmPassword = 'Passwords do not match';
     }
     
+    if (!formData.termsAccepted) {
+      newErrors.termsAccepted = 'You must accept the terms and conditions';
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -136,20 +182,20 @@ const PatientSignUp = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
-      // Here you would typically call your API to register the patient
-      console.log('Form submitted:', formData);
-      navigate('/patient/dashboard'); // Redirect after successful signup
+      // Here you would typically call your API to register the doctor
+      console.log('Doctor form submitted:', formData);
+      navigate('/doctor/dashboard'); // Redirect after successful signup
     }
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
+    <Container maxWidth="md" sx={{ mt: 8, mb: 4 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
           <ArrowBack />
         </IconButton>
         <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
-          Create Patient Account
+          Doctor Registration
         </Typography>
       </Box>
       
@@ -191,7 +237,7 @@ const PatientSignUp = () => {
               }}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Email Address"
@@ -210,7 +256,7 @@ const PatientSignUp = () => {
               }}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Phone Number"
@@ -231,24 +277,108 @@ const PatientSignUp = () => {
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label="Age"
-              name="age"
-              type="number"
-              value={formData.age}
+              label="Medical License Number"
+              name="licenseNumber"
+              value={formData.licenseNumber}
               onChange={handleChange}
-              error={!!errors.age}
-              helperText={errors.age}
+              error={!!errors.licenseNumber}
+              helperText={errors.licenseNumber}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Cake color="action" />
+                    <Badge color="action" />
                   </InputAdornment>
                 ),
-                inputProps: { min: 1, max: 120 }
               }}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
+            <FormControl fullWidth error={!!errors.specialty}>
+              <InputLabel>Specialty</InputLabel>
+              <Select
+                name="specialty"
+                value={formData.specialty}
+                onChange={handleChange}
+                label="Specialty"
+                startAdornment={
+                  <InputAdornment position="start">
+                    <Work color="action" />
+                  </InputAdornment>
+                }
+              >
+                {specialties.map((specialty) => (
+                  <MenuItem key={specialty} value={specialty}>
+                    {specialty}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.specialty && <FormHelperText>{errors.specialty}</FormHelperText>}
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth error={!!errors.qualifications}>
+              <InputLabel>Qualifications</InputLabel>
+              <Select
+                multiple
+                name="qualifications"
+                value={formData.qualifications}
+                onChange={handleQualificationChange}
+                label="Qualifications"
+                renderValue={(selected) => selected.join(', ')}
+                startAdornment={
+                  <InputAdornment position="start">
+                    <School color="action" />
+                  </InputAdornment>
+                }
+              >
+                {qualifications.map((qualification) => (
+                  <MenuItem key={qualification} value={qualification}>
+                    {qualification}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.qualifications && <FormHelperText>{errors.qualifications}</FormHelperText>}
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Years of Experience"
+              name="experience"
+              type="number"
+              value={formData.experience}
+              onChange={handleChange}
+              error={!!errors.experience}
+              helperText={errors.experience}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Work color="action" />
+                  </InputAdornment>
+                ),
+                inputProps: { min: 0, max: 60 }
+              }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Hospital/Clinic Name"
+              name="hospital"
+              value={formData.hospital}
+              onChange={handleChange}
+              error={!!errors.hospital}
+              helperText={errors.hospital}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LocalHospital color="action" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
             <FormControl fullWidth error={!!errors.country}>
               <InputLabel>Country</InputLabel>
               <Select
@@ -271,7 +401,7 @@ const PatientSignUp = () => {
               {errors.country && <FormHelperText>{errors.country}</FormHelperText>}
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <FormControl fullWidth error={!!errors.state}>
               <InputLabel>State</InputLabel>
               <Select
@@ -290,7 +420,7 @@ const PatientSignUp = () => {
               {errors.state && <FormHelperText>{errors.state}</FormHelperText>}
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <FormControl fullWidth error={!!errors.district}>
               <InputLabel>District</InputLabel>
               <Select
@@ -367,6 +497,22 @@ const PatientSignUp = () => {
               {errors.confirmPassword && <FormHelperText>{errors.confirmPassword}</FormHelperText>}
             </FormControl>
           </Grid>
+          <Grid item xs={12}>
+            <FormControl error={!!errors.termsAccepted}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="termsAccepted"
+                    checked={formData.termsAccepted}
+                    onChange={handleChange}
+                    color="primary"
+                  />
+                }
+                label="I agree to the terms and conditions and privacy policy"
+              />
+              {errors.termsAccepted && <FormHelperText>{errors.termsAccepted}</FormHelperText>}
+            </FormControl>
+          </Grid>
         </Grid>
         
         <Button
@@ -383,14 +529,14 @@ const PatientSignUp = () => {
             }
           }}
         >
-          Sign Up
+          Register as Doctor
         </Button>
         
         <Grid container justifyContent="flex-end">
           <Grid item>
             <Typography variant="body2">
               Already have an account?{' '}
-              <Link href="/patient/signin" variant="body2" sx={{ color: '#1E5DA9' }}>
+              <Link href="/doctor/signin" variant="body2" sx={{ color: '#1E5DA9' }}>
                 Sign in
               </Link>
             </Typography>
@@ -401,4 +547,4 @@ const PatientSignUp = () => {
   );
 };
 
-export default PatientSignUp;
+export default DoctorSignUp;

@@ -15,8 +15,9 @@ import PatientAppointments from './components/PatientPortal/PatientAppointments'
 import BookAppointment from './components/PatientPortal/BookAppointment';
 import PatientDashboard from './components/PatientPortal/PatientDashboard';
 import HomePage from './components/Home/HomePage';
-import DoctorLogin from './components/Auth/DoctorLogin';
-import PatientLogin from './components/Auth/PatientSignIn';
+import DoctorSignin from './components/Auth/DoctorSignin';
+import DoctorSignUp from './components/Auth/DoctorSignup';
+import PatientLogin from './components/PatientPortal/PatientSignIn';
 import PatientSidebar from './components/PatientPortal/PatientSidebar';
 import PatientNavbar from './components/PatientPortal/PatientNavbar';
 import './App.css';
@@ -27,7 +28,8 @@ function App() {
       <CssBaseline />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/doctor/login" element={<DoctorLogin />} />
+        <Route path="/doctor/signin" element={<DoctorSignin />} />
+        <Route path="/doctor/signup" element={<DoctorSignUp />} />
         <Route path="/patient/signin" element={<PatientLogin />} />
         <Route path="/patient/signup" element={<PatientSignUp />} />
 

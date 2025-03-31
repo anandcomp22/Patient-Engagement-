@@ -200,7 +200,7 @@ const HomePage = () => {
                     bgcolor: '#1E5DA9',
                     '&:hover': { bgcolor: '#154281' }
                   }}
-                  onClick={() => navigate('/doctor/login')}
+                  onClick={() => navigate('/doctor/signin')}
                 >
                   Doctor Portal
                 </Button>
@@ -238,7 +238,7 @@ const HomePage = () => {
                     bgcolor: '#1E5DA9',
                     '&:hover': { bgcolor: '#154281' }
                   }}
-                  onClick={() => navigate('/patient/login')}
+                  onClick={() => navigate('/patient/signup')}
                 >
                   Patient Portal
                 </Button>
