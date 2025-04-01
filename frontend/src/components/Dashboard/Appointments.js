@@ -12,16 +12,19 @@ const appointments = [
     { id: 1, name: "Shreyas Sadavarte", details: "Follow-up on blood pressure medication", time: "10:00 AM", status: "Confirmed" },
     { id: 2, name: "Prathmesh Vharkal", details: "Initial consultation for chronic migraines", time: "11:30 AM", status: "Confirmed" },
     { id: 3, name: "Sayyoni Parate", details: "Diabetes management check-in", time: "1:15 PM", status: "Pending" },
+    { id: 4, name: "Sujal Shahare", details: "Health check-up", time: "2:15 PM", status: "Pending" },
 ];
 
 const Appointments = () => {
     const navigate = useNavigate();
-    const [selectedDate, setSelectedDate] = useState(new Date(2025, 1, 28));
+    const [selectedDate, setSelectedDate] = useState(() => new Date("2025-03-27")); 
 
     const changeDate = (days) => {
-        const newDate = new Date(selectedDate);
-        newDate.setDate(newDate.getDate() + days);
-        setSelectedDate(newDate);
+        setSelectedDate(prevDate => {
+            const newDate = new Date(prevDate);
+            newDate.setDate(newDate.getDate() + days);
+            return newDate;
+        });
     };
 
     return (

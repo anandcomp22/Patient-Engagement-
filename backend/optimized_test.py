@@ -1,7 +1,8 @@
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import re
-
+import sys
+import json
 MODEL_PATH = r"C:\Users\HP\Desktop\LLM_models\merged_lora_model"
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
@@ -27,7 +28,7 @@ def generate_response(prompt, max_new_tokens=30):
         )
     return tokenizer.decode(output[0], skip_special_tokens=True).replace("\n", " ")
 
-test_prompts = [ "hi" ]
+test_prompts = [ "adhd" , " fever" , "cancer", "weakness"]
 
 for prompt in test_prompts:
     response = generate_response(prompt)
@@ -41,4 +42,8 @@ for prompt in test_prompts:
     rating = rating_match.group(1) if rating_match else "Unknown Rating"
 
     filtered_response = f"{med_id}, {med_name}, {rating}".replace("Rating,", ",")
-    print(f"\nPrompt: {prompt}\nResponse: {filtered_response}")
+    output = {"Response": filtered_response}
+    print(json.dumps(output))
+    
+
+sys.stdout.flush()
