@@ -11,7 +11,7 @@
 /* Navbar Title */
 .navbar-title {
   font-weight: bold;
-  color: #1a237e; /* Dark Blue */
+  color: #1E5DA9; /* Dark Blue */
 }
 
 /* Navbar Actions Container */
@@ -30,7 +30,7 @@
 
 /* Logout Button */
 .logout-btn {
-  background-color: #344ddb !important; /* Blue */
+  background-color: #1E5DA9 !important; /* Blue */
   color: white !important;
   text-transform: none;
   font-size: 12px; /* Reduce text size */

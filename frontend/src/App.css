@@ -9,3 +9,6 @@
     padding: 20px;
   }
   
+  html, body, #root {
+    height: 100%;
+  }
