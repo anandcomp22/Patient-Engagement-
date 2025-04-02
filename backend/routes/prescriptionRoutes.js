@@ -105,6 +105,38 @@ router.get("/download/:filename", (req, res) => {
     }
 });
 
+outer.get("/liveprescription", async (req, res) => {
+    console.log("Getting Prescription Data");
+    try {
+        exec(`python C:/Users/HP/Patient-Engagement-/backend/optimized_test.py`, (error, stdout, stderr) => {
+            if (error) {
+                console.error("Exec Error:", error.message);
+                return res.status(500).json({ error: error.message });
+            }
+            
+            if (stderr && !stderr.includes("tensorflow/core/util/port.cc")) {
+                console.error("Stderr:", stderr);
+                return res.status(500).json({ error: stderr });
+            }
+
+            try {
+                const output = stdout;
+                res.json({ message: "Request successful", data: output });
+            } catch (parseError) {
+                console.error("JSON Parse Error:", parseError.message);
+                res.status(500).json({ error: "Invalid JSON response from Python script" });
+            }
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            status: false,
+            message: "Error in fetching Prescriptions"
+        });
+    }
+});
+
+
 router.post("/send", (req, res) => {
     const { email, file } = req.body;
     const filePath = path.join(prescriptionsDir, file);

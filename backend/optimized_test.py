@@ -42,7 +42,7 @@ for prompt in test_prompts:
     rating = rating_match.group(1) if rating_match else "Unknown Rating"
 
     filtered_response = f"{med_id}, {med_name}, {rating}".replace("Rating,", ",")
-    output = {"Response": filtered_response}
+    output = filtered_response
     print(json.dumps(output))
     
 

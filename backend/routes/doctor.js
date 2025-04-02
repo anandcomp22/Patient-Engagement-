@@ -22,28 +22,37 @@ router.get('/appointment', async (req, res) => {
 
 });
 
-router.get("/prescriptions", async(req,res)=>{
+router.get("/doctorprescript", async (req, res) => {
     console.log("Getting Prescription Data");
-    try{
-        exec(`python C:\\Users\\HP\\Patient-Engagement-\\backend\\optimized_test.py`, (error, stdout, stderr) => {
-            if (error || stderr) {
-                return res.status(500).json({ error: error?.message || stderr });
+    try {
+        exec(`python C:/Users/HP/Patient-Engagement-/backend/optimized_test.py`, (error, stdout, stderr) => {
+            if (error) {
+                console.error("Exec Error:", error.message);
+                return res.status(500).json({ error: error.message });
             }
+            
+            // Ignore TensorFlow warnings in stderr
+            if (stderr && !stderr.includes("tensorflow/core/util/port.cc")) {
+                console.error("Stderr:", stderr);
+                return res.status(500).json({ error: stderr });
+            }
+
             try {
-                const output = JSON.parse(stdout);
+                const output = stdout;
                 res.json({ message: "Request successful", data: output });
             } catch (parseError) {
+                console.error("JSON Parse Error:", parseError.message);
                 res.status(500).json({ error: "Invalid JSON response from Python script" });
             }
         });
 
-    }catch(err){
+    } catch (err) {
         res.status(500).json({
-            status : false,
-            message : "Error in fetching Prescriptions"
-        })
+            status: false,
+            message: "Error in fetching Prescriptions"
+        });
     }
-})
+});
 
 module.exports = router;
 
