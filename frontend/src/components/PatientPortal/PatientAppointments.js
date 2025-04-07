@@ -4,8 +4,8 @@ import { Add } from '@mui/icons-material';
 
 export default function PatientAppointments() {
   const appointments = [
-    { id: 1, date: '2023-06-15', time: '10:00 AM', doctor: 'Dr. Smith', status: 'Confirmed' },
-    { id: 2, date: '2023-06-20', time: '02:30 PM', doctor: 'Dr. Johnson', status: 'Pending' }
+    { id: 1, date: '2023-06-15', time: '10:00 AM', doctor: 'Dr. shreyas', status: 'Confirmed' },
+    { id: 2, date: '2023-06-20', time: '02:30 PM', doctor: 'Dr. prathmesh', status: 'Pending' }
   ];
 
   return (
