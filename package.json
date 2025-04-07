@@ -23,6 +23,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "framer-motion": "^12.6.3",
     "fs": "^0.0.1-security",
     "google-speech": "^0.0.5",
     "mongodb": "^6.15.0",

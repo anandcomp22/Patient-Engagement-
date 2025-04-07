@@ -107,7 +107,7 @@ router.get("/download/:filename", (req, res) => {
 
 router.get("/medicine", (req,res) => {
     const Medicals = path.join()
-})
+});
 
 router.post("/send", (req, res) => {
     const { email, file } = req.body;
