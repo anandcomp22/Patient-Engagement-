@@ -1,11 +1,16 @@
 import React, { useState } from "react";
 
-const prescriptions = [
-  { id: 1, patient: "Shreyas Sadavarte", date: "2025-03-15", email: "shreyas.sadavarte_comp22@pccoer.in" },
-  { id: 2, patient: "Prathmesh Vharkal", date: "2025-03-17", email: "prathmesh.vharkal_comp22@pccoer.in" },
-  { id: 3, patient: "Sayyoni Parate", date: "2025-03-20", email: "sayyoni.parate_comp22@pccoer.in" },
-  { id: 4, patient: " Sujal Shahare", date: "2025-03-28", email: "sujal.shahare_comp22@pccoer.in" },
-];
+const Prescriptions = () => {
+  const [formData, setFormData] = useState({
+    patientName: "",
+    age: "",
+    gender: "",
+    doctorName: "",
+    diagnosis: "",
+    medication: "",
+    dosage: "",
+    instructions: ""
+  });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,7 +20,14 @@ const prescriptions = [
     window.print();
   };
 
-const Prescriptions = () => {
+  // The prescriptions array is defined but not used in the component
+  const prescriptions = [
+    { id: 1, patient: "Shreyas Sadavarte", date: "2025-03-15", email: "shreyas.sadavarte_comp22@pccoer.in" },
+    { id: 2, patient: "Prathmesh Vharkal", date: "2025-03-17", email: "prathmesh.vharkal_comp22@pccoer.in" },
+    { id: 3, patient: "Sayyoni Parate", date: "2025-03-20", email: "sayyoni.parate_comp22@pccoer.in" },
+    { id: 4, patient: " Sujal Shahare", date: "2025-03-28", email: "sujal.shahare_comp22@pccoer.in" },
+  ];
+
   return (
     <div className="max-w-lg mx-auto p-4 bg-white shadow-lg rounded-lg">
       <h2 className="text-xl font-bold mb-4">Prescription Form</h2>
@@ -96,5 +108,5 @@ const Prescriptions = () => {
     </div>
   );
 };
-};
-export default Prescription;
+
+export default Prescriptions;
