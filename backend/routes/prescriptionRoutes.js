@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");
 const nodemailer = require("nodemailer");
+const { Prescription } = require("../db/models");
 require("dotenv").config();
 
 const router = express.Router();
@@ -10,7 +11,7 @@ const router = express.Router();
 const prescriptionsDir = path.join(__dirname, "../prescriptions");
 if (!fs.existsSync(prescriptionsDir)) fs.mkdirSync(prescriptionsDir);
 
-router.post("/generate", (req, res) => {
+router.post("/generate", async (req, res) => {
     const { patient, age, address, contact, prescriptionNo, date, email, medicines } = req.body;
 
     if (!patient || !age || !address || !contact || !prescriptionNo || !date || !email || !medicines || !medicines.length) {
@@ -86,6 +87,19 @@ doc.moveTo(400, doc.y + 5).lineTo(520, doc.y + 5).stroke();
 
 doc.end();
 
+const newPrescription = new Prescription({
+    doctorId: 101, 
+    patientId: 202, 
+    patientname: patient,
+    medicine: medicines.map(m => `${m.name} ${m.dosage}`).join(", "),
+    age,
+    dosage: medicines[0]?.dosage || 0, 
+    date: new Date(date),
+    notes: "No additional notes"
+  });
+  
+  await newPrescription.save();
+
     writeStream.on("finish", () => {
         res.json({ message: "Prescription saved", file: fileName });
     });
@@ -147,5 +161,8 @@ router.post("/send", (req, res) => {
         }
     });
 });
+
+
+
 
 module.exports = router;

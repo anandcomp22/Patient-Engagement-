@@ -136,15 +136,7 @@ const HomePage = () => {
               Contact Us
             </Button>
             
-            {/* Login Button */}
-            <Button 
-              variant="outlined" 
-              color="inherit"
-              sx={{ ml: 2 }}
-              onClick={() => navigate('/login')}
-            >
-              Login
-            </Button>
+            
           </Box>
         </Toolbar>
       </AppBar>

@@ -15,13 +15,19 @@ const prescriptionSchema = new mongoose.Schema({
 const doctorSchema = new mongoose.Schema({
     doctorId: { type: Number, required: true, unique: true },
     doctorname: { type: String, required: true },
-    email: {type: String, required: true},
-    password: {type: String, required: true},
-    specialization: { type: String, required: true },
-    hospital: { type: String },
-    availableslots: {type: Number, required: true},
-
-});
+    email: { type: String, required: true },
+    password: { type: String, required: true },
+    phone: { type: String, required: true },
+    licenseNumber: { type: String, required: true },
+    specialty: { type: String, required: true },
+    qualifications: { type: [String], required: true },
+    experience: { type: Number, required: true },
+    hospital: { type: String, required: true },
+    country: { type: String, required: true },
+    state: { type: String, required: true },
+    district: { type: String, required: true }
+  });
+  
 
 const feepaySchema = new mongoose.Schema({
     patientId: { type: Number, required: true },
@@ -53,23 +59,26 @@ const patientSchema = new mongoose.Schema({
     patientId: { type: Number, required: true, unique: true },
     patientname: { type: String, required: true },
     email: { type: String, required: true },
-    medicinehistory: { type: String, require: false},
+    password: { type: String, required: true },
+    phone: { type: String, required: true },
     age: { type: Number, required: true },
+    country: { type: String },
+    state: { type: String },
+    district: { type: String },
     gender: {
-        type: String,
-        enum: ['male', 'female','other']
+      type: String,
+      enum: ['male', 'female', 'other']
     },
-    contact: { type: Number, required: true },
-    bloodgroup: { type: String, required: true },
+    contact: { type: Number },
+    bloodgroup: { type: String },
     allergies: { type: String },
-
     emergencycontact: {
-        ename: { type: String, required: true },
-        econtact:{ type: Number, required: true },
-        relation: { type: String, required: true }
-    }
-
-});
+      ename: { type: String },
+      econtact: { type: Number },
+      relation: { type: String }
+    },
+  });
+  
 
 const videocallSchema = new mongoose.Schema({
     appointmentId: { type: Number, required: true, unique: true },
@@ -102,6 +111,7 @@ const Prescription = mongoose.model('Prescription', prescriptionSchema);
 const Doctor = mongoose.model('Doctor', doctorSchema);
 const FeePay = mongoose.model('FeePay', feepaySchema);
 const Appointment = mongoose.model('Appointment', appointmentSchema);
+const Patient = mongoose.model('Patient', patientSchema);
+const videocall = mongoose.model('videocall', videocallSchema);
 
-
-module.exports = { Prescription, Doctor, FeePay, Appointment, connectToDatabase };
+module.exports = { Prescription, Doctor, FeePay, Appointment,Patient,videocall, connectToDatabase };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { 
   Container,
   Box,
@@ -179,14 +180,27 @@ const DoctorSignUp = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-      // Here you would typically call your API to register the doctor
-      console.log('Doctor form submitted:', formData);
-      navigate('/doctor/dashboard'); // Redirect after successful signup
+      try {
+        const { firstName, lastName, email, password } = formData;
+        const name = `${firstName} ${lastName}`;
+  
+        const res = await axios.post('http://localhost:5000/doctor/signup', formData);
+
+  
+        if (res.status === 201) {
+          alert("Doctor Registered Successfully");
+          navigate("/doctor/signin");
+        }
+      } catch (err) {
+        alert("Registration Failed: " + err.response?.data?.message);
+      }
     }
   };
+  
+  
 
   return (
     <Container maxWidth="md" sx={{ mt: 8, mb: 4 }}>

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { 
   Container,
   Box,
@@ -141,7 +142,7 @@ const DoctorSignIn = () => {
       setTimeout(() => {
         setIsSubmitting(false);
         showSnackbar('Sign in successful! Redirecting...', 'success');
-        setTimeout(() => navigate('/doctor/dashboard'), 1000);
+        setTimeout(() => navigate('/dashboard'), 1000);
       }, 1500);
     }
   };

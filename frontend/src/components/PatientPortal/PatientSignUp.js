@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { 
   Container,
   Box,
@@ -29,17 +30,14 @@ import {
   LocationOn
 } from '@mui/icons-material';
 
-// Sample location data (replace with your actual data or API calls)
 const countries = ['India', 'United States', 'United Kingdom', 'Canada', 'Australia'];
 const statesByCountry = {
   'India': ['Andhra Pradesh', 'Karnataka', 'Maharashtra', 'Tamil Nadu', 'Delhi'],
   'United States': ['California', 'Texas', 'New York', 'Florida', 'Illinois'],
-  // Add other countries and their states
 };
 const districtsByState = {
   'Karnataka': ['Bangalore Urban', 'Mysore', 'Belgaum', 'Mangalore'],
   'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik'],
-  // Add other states and their districts
 };
 
 const PatientSignUp = () => {
@@ -68,7 +66,6 @@ const PatientSignUp = () => {
       [name]: value
     }));
 
-    // Handle location hierarchy changes
     if (name === 'country') {
       setAvailableStates(statesByCountry[value] || []);
       setFormData(prev => ({ ...prev, state: '', district: '' }));
@@ -78,7 +75,7 @@ const PatientSignUp = () => {
       setFormData(prev => ({ ...prev, district: '' }));
     }
 
-    // Clear error when user types
+    
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -133,14 +130,22 @@ const PatientSignUp = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-      // Here you would typically call your API to register the patient
-      console.log('Form submitted:', formData);
-      navigate('/patient/dashboard'); // Redirect after successful signup
+      try {
+        const res = await axios.post('http://localhost:5000/patient/signup', formData);
+  
+        if (res.status === 201) {
+          alert("Patient Registered Successfully");
+          navigate("/patient/signin");
+        }
+      } catch (err) {
+        alert("Registration Failed: " + err.response?.data?.message);
+      }
     }
   };
+  
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
