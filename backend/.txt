@@ -1,4 +1,4 @@
-generate route :
+generate route (POST):
 
 {
   "patient": "sujal shahare",
@@ -24,7 +24,7 @@ generate route :
 
 
 
-send :
+send (POST):
 
 {
   "email": "sujal.shahare_comp22@pccoer.in",
@@ -33,7 +33,7 @@ send :
 
 
 
-download :
+download (GET):
 http://localhost:8000/prescriptions/download/prescription_sujal_shahare.pdf
 
 
