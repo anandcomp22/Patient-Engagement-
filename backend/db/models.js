@@ -7,7 +7,7 @@ const prescriptionSchema = new mongoose.Schema({
     patientname: { type: String, required: true },
     medicine: { type: String, required: true },
     age: { type: Number, required: true },
-    dosage: { type: Number, required: true },
+    dosage: { type: String, required: true },
     date: { type: Date, required: true },
     notes: { type: String, required: true, default: "No additional notes" }
 });

@@ -1,0 +1,43 @@
+generate route :
+
+{
+  "patient": "sujal shahare",
+  "age": "21",
+  "address": "123 Health St, Wellness City",
+  "contact": "9876543210",
+  "prescriptionNo": "RX123456",
+  "date": "2025-04-09",
+  "email": "sujal.shahare_comp22@pccoer.in",
+  "medicines": [
+    {
+      "name": "Paracetamol",
+      "dosage": "500mg",
+      "duration": "5 days"
+    },
+    {
+      "name": "Amoxicillin",
+      "dosage": "250mg",
+      "duration": "7 days"
+    }
+  ]
+}
+
+
+
+send :
+
+{
+  "email": "sujal.shahare_comp22@pccoer.in",
+  "file": "prescription_sujal_shahare.pdf"
+}
+
+
+
+download :
+http://localhost:8000/prescriptions/download/prescription_sujal_shahare.pdf
+
+
+
+live prescript generation :
+
+http://localhost:8000/doctor/doctorprescript
