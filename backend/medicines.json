@@ -1,0 +1,8 @@
+{
+    "Fever": ["Paracetamol 500mg", "Rest", "Fluids"],
+    "Cold": ["Cetirizine", "Steam inhalation"],
+    "Diabetes": ["Metformin", "Insulin"],
+    "Headache": ["Ibuprofen", "Paracetamol"],
+    "Migraine": ["Sumatriptan", "Avoid triggers"]
+  }
+  

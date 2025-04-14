@@ -7,7 +7,7 @@ import Dashboard from './components/Dashboard/Dashboard';
 import Patients from './components/Dashboard/Patients'; 
 import Appointments from './components/Dashboard/Appointments';
 import LiveVideoCall from './components/Dashboard/LiveVideoCall';
-import VideoCall from './components/Dashboard/VideoCall';
+import DoctorVideoCall from './components/Dashboard/VideoCall';
 import Prescriptions from './components/Dashboard/Prescriptions';
 import AboutUs from './components/Dashboard/AboutUs';
 import PatientSignUp from './components/PatientPortal/PatientSignUp';
@@ -15,11 +15,12 @@ import PatientAppointments from './components/PatientPortal/PatientAppointments'
 import BookAppointment from './components/PatientPortal/BookAppointment';
 import PatientDashboard from './components/PatientPortal/PatientDashboard';
 import HomePage from './components/Home/HomePage';
-import DoctorSignin from './components/Auth/DoctorSignin';
-import DoctorSignUp from './components/Auth/DoctorSignup';
+import DoctorSignin from './components/DoctorPortal/DoctorSignin';
+import DoctorSignUp from './components/DoctorPortal/DoctorSignup';
 import PatientLogin from './components/PatientPortal/PatientSignIn';
 import PatientSidebar from './components/PatientPortal/PatientSidebar';
 import PatientNavbar from './components/PatientPortal/PatientNavbar';
+import PatientVideoCall from './components/PatientPortal/PatientVideoCall';
 import './App.css';
 
 function App() {
@@ -42,8 +43,7 @@ function App() {
                 <Route path="dashboard" element={<PatientDashboard />} />
                 <Route path="appointments" element={<PatientAppointments />} />
                 <Route path="book" element={<BookAppointment />} />
-                <Route path="video-call" element={<VideoCall />} />
-                <Route path="video-call/:id" element={<VideoCall />} />
+                <Route path="video-call" element={<PatientVideoCall />} />
               </Routes>
             </Box>
           </Box>
@@ -59,7 +59,7 @@ function App() {
                 <Route path="/patients" element={<Patients />} />
                 <Route path="/appointments" element={<Appointments />} />
                 <Route path="/livevideocall" element={<LiveVideoCall />} />
-                <Route path="/video-call/:id" element={<VideoCall />} />
+                <Route path="/video-call/:id" element={<DoctorVideoCall />} />
                 <Route path="/prescriptions" element={<Prescriptions />} />
                 <Route path="/aboutus" element={<AboutUs />} />
               </Routes>

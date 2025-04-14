@@ -145,14 +145,15 @@ const HomePage = () => {
       <Container maxWidth="lg">
         {/* Login Options Section - Now at the top */}
         <Box sx={{ 
-          minHeight: '50vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          textAlign: 'center',
-          py: 8
-        }}>
+          width: '100%',
+            minHeight: '50vh',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            textAlign: 'center',
+            py: 8,
+          }}>
           <Typography variant="h3" sx={{ mb: 4, fontWeight: 'bold', color: '#1E5DA9' }}>
             Welcome to AidME Healthcare
           </Typography>

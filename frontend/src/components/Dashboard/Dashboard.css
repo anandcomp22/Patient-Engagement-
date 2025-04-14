@@ -193,6 +193,21 @@
   color: #0F5ABB;
 }
 
+/* Scrollbar Styling for Insight Section */
+.insight-card-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.insight-card-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
+}
+
+.insight-card-container::-webkit-scrollbar-track {
+  background-color: #f5f5f5;
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .content {

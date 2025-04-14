@@ -3,7 +3,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import re
 import sys
 import json
-MODEL_PATH = r"C:\Users\HP\Desktop\LLM_models\merged_lora_model"
+MODEL_PATH = r"C:\Users\morea\Desktop\merged_lora_model"
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
 model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.float16, device_map="auto").eval()
@@ -41,7 +41,7 @@ for prompt in test_prompts:
     med_name = med_name_match.group(1).strip() if med_name_match else "Unknown Name"
     rating = rating_match.group(1) if rating_match else "Unknown Rating"
 
-    filtered_response = f"{med_id}, {med_name}, {rating}".replace("Rating,", ",")
+    filtered_response = f"{med_id},{med_name},{prompt}, {rating}".replace("Rating,", ",")
     output = filtered_response
     print(json.dumps(output))
     

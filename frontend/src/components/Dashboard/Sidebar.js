@@ -28,7 +28,7 @@ const Sidebar = () => {
 
       {/* Menu List */}
       <List className="sidebar-menu">
-        <ListItem button component={Link} to="/">
+        <ListItem button component={Link} to="/dashboard">
           <ListItemIcon><Dashboard sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Dashboard" sx={{ color: "white" }} />
         </ListItem>
@@ -48,24 +48,20 @@ const Sidebar = () => {
           <ListItemIcon><VideoCall sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Video Calls" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button component={Link} to="/">
+        <ListItem button component={Link} to="/dashboard">
           <ListItemIcon><Analytics sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Analytics" sx={{ color: "white" }} />
         </ListItem>
 
         <Box className="sidebar-divider"></Box>
 
-        <ListItem button component={Link} to="/">
+        <ListItem button component={Link} to="/dashboard">
           <ListItemIcon><Settings sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Settings" sx={{ color: "white" }} />
         </ListItem>
         <ListItem button component={Link} to="/aboutus">
           <ListItemIcon><Help sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Help & Support" sx={{ color: "white" }} />
-        </ListItem>
-        <ListItem button component={Link} to="/patient/signin">
-          <ListItemIcon><SupervisedUserCircleRounded sx={{ color: "white" }} /></ListItemIcon>
-          <ListItemText primary="Patient Portal" sx={{ color: "white" }}/>
         </ListItem>
       </List>
     </Drawer>

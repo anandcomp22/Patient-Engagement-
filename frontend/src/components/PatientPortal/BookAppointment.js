@@ -1,23 +1,28 @@
 import React, { useState } from "react";
+import axios from 'axios';
 import "./BookAppointment.css";
 
 const doctors = [
   {
+    doctorId: 101,
     name: "Dr. Shreyas Sadavate",
     specialty: "Cardiologist",
     image: "/images/sarah.jpg",
   },
   {
+    doctorId: 102,
     name: "Dr. Prathmesh Vharkal",
     specialty: "Dermatologist",
     image: "/images/michael.jpg",
   },
   {
+    doctorId: 103,
     name: "Dr. Sayyoni Parate",
     specialty: "Pediatrician",
     image: "/images/emily.jpg",
   },
 ];
+
 
 const BookAppointment = () => {
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -73,13 +78,31 @@ const BookAppointment = () => {
           </select>
 
           <button
-            onClick={() => {
+            onClick={async () => {
               if (selectedDoctor && date && time) {
-                alert(`Appointment booked with ${selectedDoctor} on ${date} at ${time}`);
+                const selectedDoc = doctors.find(doc => doc.name === selectedDoctor);
+                if (!selectedDoc) {
+                  alert("Invalid doctor selected.");
+                  return;
+                }
+            
+                try {
+                  const response = await axios.post("http://localhost:8000/appointment/book", {
+                    date: new Date(`${date}T${time}`),
+                    patientId: 123, 
+                    doctorId: selectedDoc.doctorId
+                  });
+            
+                  alert(`Appointment booked! Room ID: ${response.data.roomId}`);
+                } catch (err) {
+                  alert("Error booking appointment. Please try again.");
+                  console.error(err);
+                }
               } else {
                 alert("Please fill all fields.");
               }
             }}
+
             className="book-btn"
           >
             Book Appointment

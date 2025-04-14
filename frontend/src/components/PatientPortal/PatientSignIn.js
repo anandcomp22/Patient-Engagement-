@@ -76,13 +76,18 @@ const PatientSignIn = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-      // Here you would typically call your API to authenticate the patient
-      console.log('Form submitted:', formData);
-      console.log('Remember me:', rememberMe);
-      navigate('/patient/dashboard'); // Redirect after successful sign-in
+      try {
+        const res = await axios.post('http://localhost:8000/patient/signin', formData);
+        if (res.status === 200) {
+          alert("Login successful");
+          navigate('/patient/dashboard');
+        }
+      } catch (err) {
+        alert("Login failed: " + err.response?.data?.message || err.message);
+      }
     }
   };
 

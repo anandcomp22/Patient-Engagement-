@@ -14,7 +14,8 @@ const prescriptionSchema = new mongoose.Schema({
 
 const doctorSchema = new mongoose.Schema({
     doctorId: { type: Number, required: true, unique: true },
-    doctorname: { type: String, required: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
     phone: { type: String, required: true },
@@ -57,7 +58,8 @@ const appointmentSchema = new mongoose.Schema({
 
 const patientSchema = new mongoose.Schema({
     patientId: { type: Number, required: true, unique: true },
-    patientname: { type: String, required: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
     phone: { type: String, required: true },
