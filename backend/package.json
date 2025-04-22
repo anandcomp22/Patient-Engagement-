@@ -2,14 +2,18 @@
   "dependencies": {
     "axios": "^1.8.4",
     "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
     "deepspeech": "^0.9.3",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.2",
     "nodemailer": "^6.10.1",
+    "paypal-rest-sdk": "^1.8.1",
     "pdfkit": "^0.17.0",
+    "razorpay": "^2.9.6",
     "socket.io": "^4.8.1",
+    "stripe": "^18.0.0",
     "uuid": "^11.1.0"
   }
 }

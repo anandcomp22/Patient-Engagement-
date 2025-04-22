@@ -7,7 +7,6 @@ const Doctor = require('../models/Doctor');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// ===== PATIENT SIGNUP =====
 router.post('/patient/signup', async (req, res) => {
   const { firstName, lastName, email, password, phone, age, country, state, district } = req.body;
 
@@ -36,7 +35,7 @@ router.post('/patient/signup', async (req, res) => {
   }
 });
 
-// ===== DOCTOR SIGNUP =====
+
 router.post('/doctor/signup', async (req, res) => {
   const {
     firstName, lastName, email, phone, licenseNumber, specialty,
@@ -72,7 +71,6 @@ router.post('/doctor/signup', async (req, res) => {
   }
 });
 
-// ===== PATIENT LOGIN =====
 router.post('/patient/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -87,7 +85,6 @@ router.post('/patient/login', async (req, res) => {
   res.status(200).json({ message: 'Login successful', token, user: patient });
 });
 
-// ===== DOCTOR LOGIN =====
 router.post('/doctor/login', async (req, res) => {
   const { email, password } = req.body;
 

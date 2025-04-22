@@ -151,7 +151,7 @@ const DoctorSignIn = () => {
 
           if (res.status === 200) {
             showSnackbar('Sign in successful! Redirecting...', 'success');
-            setTimeout(() => navigate('/dashboard'), 1000); 
+            setTimeout(() => navigate('/doctor/dashboard'), 1000); 
           }
         } catch (err) {
           showSnackbar("Login failed: " + (err.response?.data?.message || err.message), "error");

@@ -10,7 +10,6 @@ import {
   Analytics,
   Settings,
   Help,
-  SupervisedUserCircleRounded
 } from '@mui/icons-material';
 import logo from "./icons/licons.png";
 import "./Sidebar.css";
@@ -28,38 +27,38 @@ const Sidebar = () => {
 
       {/* Menu List */}
       <List className="sidebar-menu">
-        <ListItem button component={Link} to="/dashboard">
+        <ListItem button component={Link} to="/doctor/dashboard">
           <ListItemIcon><Dashboard sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Dashboard" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button component={Link} to="/Appointments">
+        <ListItem button component={Link} to="/doctor/Appointments">
           <ListItemIcon><CalendarMonth sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Appointments" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button component={Link} to="/patients">
+        <ListItem button component={Link} to="/doctor/patients">
           <ListItemIcon><People sx={{ color: "white" }} /></ListItemIcon>
-          <ListItemText primary="Patients" sx={{ color: "white" }} />
+          <ListItemText primary="Patients Details" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button component={Link} to="/prescriptions">
+        <ListItem button component={Link} to="/doctor/prescriptions">
           <ListItemIcon><Medication sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Prescriptions" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button component={Link} to="/LiveVideoCall">
+        <ListItem button component={Link} to="/doctor/LiveVideoCall">
           <ListItemIcon><VideoCall sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Video Calls" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button component={Link} to="/dashboard">
+        <ListItem button component={Link} to="/doctor/dashboard">
           <ListItemIcon><Analytics sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Analytics" sx={{ color: "white" }} />
         </ListItem>
 
         <Box className="sidebar-divider"></Box>
 
-        <ListItem button component={Link} to="/dashboard">
+        <ListItem button component={Link} to="/doctor/dashboard">
           <ListItemIcon><Settings sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Settings" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button component={Link} to="/aboutus">
+        <ListItem button component={Link} to="/doctor/aboutus">
           <ListItemIcon><Help sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Help & Support" sx={{ color: "white" }} />
         </ListItem>

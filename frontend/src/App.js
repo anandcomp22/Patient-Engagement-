@@ -21,18 +21,25 @@ import PatientLogin from './components/PatientPortal/PatientSignIn';
 import PatientSidebar from './components/PatientPortal/PatientSidebar';
 import PatientNavbar from './components/PatientPortal/PatientNavbar';
 import PatientVideoCall from './components/PatientPortal/PatientVideoCall';
+import PayPalPaymentPage from './pages/PayPalPaymentPage';
+import Chatbot from './components/PatientPortal/Chatbot'; 
 import './App.css';
 
 function App() {
   return (
     <Router>
       <CssBaseline />
+      
+      {/* Add the Chatbot here so it appears on all pages */}
+      <Chatbot />
+      
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/doctor/signin" element={<DoctorSignin />} />
         <Route path="/doctor/signup" element={<DoctorSignUp />} />
         <Route path="/patient/signin" element={<PatientLogin />} />
         <Route path="/patient/signup" element={<PatientSignUp />} />
+        <Route path="/paypal" element={<PayPalPaymentPage />} />
 
         <Route path="/patient/*" element={
           <Box sx={{ display: 'flex' }}>
@@ -49,19 +56,19 @@ function App() {
           </Box>
         } />
 
-        <Route path="*" element={
+        <Route path="/doctor/*" element={
           <Box sx={{ display: 'flex' }}>
             <Sidebar />
             <Box className="main-content" sx={{ flexGrow: 1 }}>
               <Navbar />
               <Routes>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/patients" element={<Patients />} />
-                <Route path="/appointments" element={<Appointments />} />
-                <Route path="/livevideocall" element={<LiveVideoCall />} />
-                <Route path="/video-call/:id" element={<DoctorVideoCall />} />
-                <Route path="/prescriptions" element={<Prescriptions />} />
-                <Route path="/aboutus" element={<AboutUs />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="patients" element={<Patients />} />
+                <Route path="appointments" element={<Appointments />} />
+                <Route path="livevideocall" element={<LiveVideoCall />} />
+                <Route path="video-call/:id" element={<DoctorVideoCall />} />
+                <Route path="prescriptions" element={<Prescriptions />} />
+                <Route path="aboutus" element={<AboutUs />} />
               </Routes>
             </Box>
           </Box>

@@ -22,6 +22,8 @@ const patientRouter = require("./routes/patient.js");
 const feespayRouter = require("./routes/feespay.js");
 const prescriptionRoutes = require("./routes/prescriptionRoutes");
 const newsRoute = require('./routes/newsRoute');
+const paypalRoute = require('./routes/paypal');
+
 
 const app = express();
 app.use(cors());
@@ -37,43 +39,56 @@ if (!fs.existsSync(prescriptionsDir)) {
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin:'*',
+    credentials: true,
     methods: ["GET", "POST"],
   },
 });
 
-// API Routes
 app.use("/prescriptions", prescriptionRoutes);
 app.use("/feespay", feespayRouter);
 app.use("/doctor", doctorRouter);
 app.use("/appointment", appointmentRouter);
 app.use("/patient", patientRouter)
 app.use('/api/news', newsRoute);
+app.use('/api/paypal', paypalRoute);
 
-// Socket.io video call + DeepSpeech handling
 io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
+  console.log("🔌 Client connected:", socket.id);
 
-  // Video call signaling
-  socket.on("offer", (offer) => {
-    socket.broadcast.emit("offer", offer);
+  socket.onAny((event, ...args) => {
+    console.log(`📥 Event received: ${event}`, args);
   });
 
-  socket.on("answer", (answer) => {
-    socket.broadcast.emit("answer", answer);
+  socket.on("join-room", ({ roomId }) => {
+    socket.join(roomId);
   });
 
-  socket.on("ice-candidate", (candidate) => {
-    socket.broadcast.emit("ice-candidate", candidate);
+  socket.on("offer", ({ roomId, offer }) => {
+    socket.to(roomId).emit("offer", { offer });
   });
 
-  socket.on("end-call", () => {
-    io.emit("end-call");
+  socket.on("answer", ({ roomId, answer }) => {
+    socket.to(roomId).emit("answer", { answer });
   });
 
-  // DeepSpeech integration
-  const python = spawn("python3", ["deepspeech_streamer.py"]);
+  socket.on("ice-candidate", ({ roomId, candidate }) => {
+    socket.to(roomId).emit("ice-candidate", { candidate });
+  });
 
+
+
+  socket.on("end-call", ({ roomId }) => {
+    socket.to(roomId).emit("end-call");
+    socket.leave(roomId);
+  });
+
+  // Real-time appointment updates
+  socket.on("appointment-update", () => {
+    io.emit("appointment-updated");
+  });
+
+  const python = spawn("python", ["deepspeech_server.py"]); // Replace with your actual script
   socket.on("audio-stream", (data) => {
     if (python.stdin.writable) {
       python.stdin.write(Buffer.from(data));
@@ -83,17 +98,18 @@ io.on("connection", (socket) => {
   python.stdout.on("data", (data) => {
     try {
       const parsed = JSON.parse(data.toString());
-      socket.emit("transcript", parsed); // emits { text, condition, recommendations }
+      socket.emit("transcript", parsed);
     } catch (err) {
       console.error("Failed to parse DeepSpeech output:", err);
     }
   });
+  
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
-    if (python) python.kill();
   });
 });
+
 
 // Start server
 const PORT = process.env.PORT || 9000;
