@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CircularProgress } from '@mui/material';
 import axios from 'axios';
 
 
@@ -86,6 +87,7 @@ const DoctorSignUp = () => {
   const [errors, setErrors] = useState({});
   const [availableStates, setAvailableStates] = useState([]);
   const [availableDistricts, setAvailableDistricts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
@@ -184,6 +186,7 @@ const DoctorSignUp = () => {
     e.preventDefault();
     if (validate()) {
       try {
+        setLoading(true);
         const { confirmPassword, ...doctorData } = formData;
   
         const response = await axios.post("http://localhost:8000/doctor/signup", doctorData);
@@ -194,9 +197,12 @@ const DoctorSignUp = () => {
         }
       } catch (err) {
         alert("Registration Failed: " + (err.response?.data?.message || "Unknown error"));
+      } finally {
+        setLoading(false);
       }
     }
   };
+  
   
   
 
@@ -476,87 +482,93 @@ const DoctorSignUp = () => {
                   </InputAdornment>
                 }
                 label="Password"
-              />
-              {errors.password && <FormHelperText>{errors.password}</FormHelperText>}
-            </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            <FormControl fullWidth variant="outlined" error={!!errors.confirmPassword}>
-              <InputLabel>Confirm Password</InputLabel>
-              <OutlinedInput
-                name="confirmPassword"
-                type={showPassword ? 'text' : 'password'}
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                startAdornment={
-                  <InputAdornment position="start">
-                    <Lock color="action" />
-                  </InputAdornment>
-                }
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                }
-                label="Confirm Password"
-              />
-              {errors.confirmPassword && <FormHelperText>{errors.confirmPassword}</FormHelperText>}
-            </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            <FormControl error={!!errors.termsAccepted}>
+                />
+                {errors.password && <FormHelperText>{errors.password}</FormHelperText>}
+              </FormControl>
+            </Grid>
+  
+            <Grid item xs={12}>
+              <FormControl fullWidth variant="outlined" error={!!errors.confirmPassword}>
+                <InputLabel>Confirm Password</InputLabel>
+                <OutlinedInput
+                  name="confirmPassword"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  startAdornment={
+                    <InputAdornment position="start">
+                      <Lock color="action" />
+                    </InputAdornment>
+                  }
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  label="Confirm Password"
+                />
+                {errors.confirmPassword && <FormHelperText>{errors.confirmPassword}</FormHelperText>}
+              </FormControl>
+            </Grid>
+  
+            <Grid item xs={12}>
               <FormControlLabel
                 control={
                   <Checkbox
-                    name="termsAccepted"
                     checked={formData.termsAccepted}
                     onChange={handleChange}
+                    name="termsAccepted"
                     color="primary"
                   />
                 }
-                label="I agree to the terms and conditions and privacy policy"
+                label={
+                  <Typography variant="body2">
+                    I accept the{' '}
+                    <Link href="#" target="_blank" rel="noopener">
+                      Terms and Conditions
+                    </Link>
+                  </Typography>
+                }
               />
-              {errors.termsAccepted && <FormHelperText>{errors.termsAccepted}</FormHelperText>}
-            </FormControl>
+              {errors.termsAccepted && (
+                <Typography variant="caption" color="error">
+                  {errors.termsAccepted}
+                </Typography>
+              )}
+            </Grid>
+  
+            <Grid item xs={12}>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              disabled={loading}
+              sx={{ mt: 3, mb: 2 }}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : "Register"}
+            </Button>
+            </Grid>
+  
+            <Grid item xs={12} sx={{ textAlign: 'center', mt: 2 }}>
+              <Typography variant="body2">
+                Already have an account?{' '}
+                <Link href="/doctor/signin">
+                  Sign In
+                </Link>
+              </Typography>
+            </Grid>
           </Grid>
-        </Grid>
-        
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          sx={{ 
-            mt: 3, 
-            mb: 2,
-            py: 1.5,
-            backgroundColor: '#1E5DA9',
-            '&:hover': {
-              backgroundColor: '#154281'
-            }
-          }}
-        >
-          Register as Doctor
-        </Button>
-        
-        <Grid container justifyContent="flex-end">
-          <Grid item>
-            <Typography variant="body2">
-              Already have an account?{' '}
-              <Link href="/doctor/signin" variant="body2" sx={{ color: '#1E5DA9' }}>
-                Sign in
-              </Link>
-            </Typography>
-          </Grid>
-        </Grid>
-      </Box>
-    </Container>
-  );
-};
-
-export default DoctorSignUp;
+        </Box>
+      </Container>
+    );
+  };
+  
+  export default DoctorSignUp;
+  

@@ -58,7 +58,7 @@ const Sidebar = () => {
           <ListItemIcon><Settings sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Settings" sx={{ color: "white" }} />
         </ListItem>
-        <ListItem button component={Link} to="/doctor/aboutus">
+        <ListItem button component={Link} to="/aboutus">
           <ListItemIcon><Help sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Help & Support" sx={{ color: "white" }} />
         </ListItem>

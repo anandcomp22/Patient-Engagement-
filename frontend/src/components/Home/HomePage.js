@@ -15,17 +15,18 @@ import {
   Divider
 } from '@mui/material';
 import { 
+  Home,
   MedicalServices, 
   People,
-  Home,
-  Info,
+  Favorite,
   ContactMail,
+  HomeRounded,
+  InfoRounded,
   Star,
   Phone,
   NavigateNext,
   Visibility,
   LocalHospital,
-  Favorite,
   Spa,
   Description,
   Vaccines,
@@ -35,9 +36,12 @@ import {
   Schedule,
   Videocam,
   SupportAgent,
-  Groups
+  Groups, FeaturedPlayListRounded, MailOutlineRounded, LocalHospitalRounded 
 } from '@mui/icons-material';
+import { CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+
 
 const specialties = [
   "General Physician",
@@ -85,61 +89,117 @@ const benefits = [
   { icon: <SupportAgent fontSize="large" />, title: "24/7 Support", description: "Access healthcare support anytime" }
 ];
 
+const AnimatedProgressCard = ({ title, target }) => {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setProgress((oldProgress) => {
+        const diff = Math.random() * 3; // speed control
+        return Math.min(oldProgress + diff, target);
+      });
+    }, 30);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [target]);
+
+  return (
+    <Grid item xs={12} sm={6} md={3}>
+      <Paper elevation={3} sx={{
+        p: 3,
+        textAlign: 'center',
+        borderRadius: 3,
+        transition: 'all 0.3s ease',
+        '&:hover': { transform: 'translateY(-5px)', boxShadow: 6 }
+      }}>
+        <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>
+          {title}
+        </Typography>
+        <Box sx={{ position: 'relative', display: 'inline-flex', mb: 1 }}>
+          <CircularProgress variant="determinate" value={progress} size={80} thickness={5} sx={{ color: '#1E5DA9' }} />
+          <Box
+            sx={{
+              top: 0,
+              left: 0,
+              bottom: 0,
+              right: 0,
+              position: 'absolute',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography variant="h6" component="div" color="text.secondary">
+              {`${Math.round(progress)}%`}
+            </Typography>
+          </Box>
+        </Box>
+      </Paper>
+    </Grid>
+  );
+};
+
+
 const HomePage = () => {
+  const featuresRef = useRef(null);
+  const contactRef = useRef(null);
+
   const navigate = useNavigate();
+
 
   return (
     <>
       {/* Navigation Bar */}
-      <AppBar position="static" sx={{ bgcolor: '#1E5DA9' }}>
-        <Toolbar>
-          {/* Left side - Logo and Brand Name */}
-          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <MedicalServices sx={{ fontSize: 40, mr: 1 }} />
-            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-              AidME
-            </Typography>
-          </Box>
+      <AppBar position="sticky" sx={{ bgcolor: '#1E5DA9', boxShadow: 3 }}>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        
+        {/* Left - Logo and Brand */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <LocalHospitalRounded sx={{ fontSize: 40, color: 'white', mr: 1 }} />
+          <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'white' }}>
+            AidME
+          </Typography>
+        </Box>
 
-          {/* Right side - Navigation Links */}
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
-            <Button 
-              color="inherit" 
-              startIcon={<Home />}
-              sx={{ mx: 1 }}
-              onClick={() => navigate('/')}
-            >
-              Home
-            </Button>
-            <Button 
-              color="inherit" 
-              startIcon={<Star />}
-              sx={{ mx: 1 }}
-              onClick={() => navigate('/features')}
-            >
-              Features
-            </Button>
-            <Button 
-              color="inherit" 
-              startIcon={<Info />}
-              sx={{ mx: 1 }}
-              onClick={() => navigate('/about')}
-            >
-              About Us
-            </Button>
-            <Button 
-              color="inherit" 
-              startIcon={<ContactMail />}
-              sx={{ mx: 1 }}
-              onClick={() => navigate('/contact')}
-            >
-              Contact Us
-            </Button>
-            
-            
-          </Box>
-        </Toolbar>
-      </AppBar>
+        {/* Right - Navigation Links */}
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button 
+            startIcon={<HomeRounded />} 
+            sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
+            onClick={() => navigate('/')}
+          >
+            Home
+          </Button>
+          <Button 
+            startIcon={<FeaturedPlayListRounded />} 
+            sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
+            onClick={() => {
+              document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            Features
+          </Button>
+          <Button 
+            startIcon={<MailOutlineRounded />} 
+            sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
+            onClick={() => {
+              document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            Contact
+          </Button>
+          <Button 
+            startIcon={<InfoRounded />} 
+            sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
+            onClick={() => navigate('/aboutus')}
+          >
+            About Us
+          </Button>
+        </Box>
+      </Toolbar>
+    </AppBar>
 
       {/* Main Content */}
       <Container maxWidth="lg">
@@ -300,7 +360,7 @@ const HomePage = () => {
         </Box>
 
         {/* Features Provided by AidME Section */}
-        <Box sx={{ mb: 6 }}>
+        <Box id="features-section" ref={featuresRef} sx={{ mb: 6 }}>
           <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#1E5DA9' }}>
             Features Provided by AidME
           </Typography>
@@ -344,13 +404,32 @@ const HomePage = () => {
                     }}
                     onClick={() => navigate('/upload')}
                   >
-                    Try Now →
+                    Know Now →
                   </Button>
                 </Paper>
               </Grid>
             ))}
           </Grid>
         </Box>
+
+          {/* Success Rate Section with Animated Circular Progress */}
+          <Box sx={{ mb: 8 }}>
+            <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#1E5DA9', textAlign: 'center' }}>
+              Our Success Metrics
+            </Typography>
+
+            <Grid container spacing={4}>
+              {/* Individual Animated Card */}
+              {[
+                { title: 'Success Rate', target: 98 },
+                { title: 'Patient Satisfaction', target: 96 },
+                { title: 'Appointments Completed', target: 95 },
+                { title: 'Doctor Availability', target: 97 }
+              ].map((item, index) => (
+                <AnimatedProgressCard key={index} title={item.title} target={item.target} />
+              ))}
+            </Grid>
+          </Box>
 
         {/* Benefits Section */}
         <Box sx={{ mb: 8, mt: 4 }}>
@@ -393,7 +472,7 @@ const HomePage = () => {
         </Box>
 
         {/* Find Doctors Section */}
-        <Box sx={{ mt: 4, mb: 6 }}>
+        <Box id="contact-section" ref={contactRef} sx={{ mt: 4, mb: 6 }}>
           <Breadcrumbs separator={<NavigateNext fontSize="small" />} aria-label="breadcrumb">
             <Link 
               underline="hover" 

@@ -4,7 +4,7 @@ import { MicOff, Mic, Videocam, VideocamOff, CallEnd } from "@mui/icons-material
 import { useNavigate, useLocation } from "react-router-dom";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:3000");
+const socket = io("http://localhost:8000"); 
 
 const PatientVideoCall = () => {
   const navigate = useNavigate();
@@ -23,15 +23,14 @@ const PatientVideoCall = () => {
   const remoteVideoRef = useRef(null);
   const peerConnection = useRef(null);
 
-  // Optional: Auto-fill name if stored in localStorage
   useEffect(() => {
     const storedName = localStorage.getItem("patientName");
     if (storedName) setName(storedName);
   }, []);
 
-  const joinRoom = () => {
+  const joinRoom = async () => {
     if (roomId && name) {
-      socket.emit("join-room", { roomId, name });
+      await socket.emit("join-room", { roomId });
       setJoined(true);
     } else {
       alert("Please enter Room ID and Name");
@@ -41,20 +40,20 @@ const PatientVideoCall = () => {
   useEffect(() => {
     if (!joined) return;
 
-    const constraints = { video: true, audio: true };
+    const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
-    navigator.mediaDevices.getUserMedia(constraints)
+    peerConnection.current = new RTCPeerConnection(configuration);
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then((stream) => {
         setLocalStream(stream);
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
         }
 
-        peerConnection.current = new RTCPeerConnection();
-
-        stream.getTracks().forEach((track) =>
-          peerConnection.current.addTrack(track, stream)
-        );
+        stream.getTracks().forEach((track) => {
+          peerConnection.current.addTrack(track, stream);
+        });
 
         peerConnection.current.ontrack = (event) => {
           if (remoteVideoRef.current) {
@@ -62,26 +61,60 @@ const PatientVideoCall = () => {
           }
         };
 
-        socket.on("end-call", () => {
-          endCall();
+        peerConnection.current.onicecandidate = (event) => {
+          if (event.candidate) {
+            socket.emit("ice-candidate", { roomId, candidate: event.candidate });
+          }
+        };
+
+        socket.on("offer", async ({ offer }) => {
+          await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
+          const answer = await peerConnection.current.createAnswer();
+          await peerConnection.current.setLocalDescription(answer);
+          socket.emit("answer", { roomId, answer });
         });
+
+        socket.on("answer", async ({ answer }) => {
+          await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
+        });
+
+        socket.on("ice-candidate", ({ candidate }) => {
+          if (candidate) {
+            peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
+          }
+        });
+
+        createOffer();
       })
-      .catch((err) => console.error("Error accessing media devices", err));
+      .catch((err) => {
+        console.error("Error accessing media devices:", err);
+      });
+
+    socket.on("end-call", () => {
+      endCall();
+    });
 
     return () => {
+      socket.off("offer");
+      socket.off("answer");
+      socket.off("ice-candidate");
       socket.off("end-call");
     };
   }, [joined]);
+
+  const createOffer = async () => {
+    const offer = await peerConnection.current.createOffer();
+    await peerConnection.current.setLocalDescription(offer);
+    socket.emit("offer", { roomId, offer });
+  };
 
   const endCall = () => {
     if (localStream) {
       localStream.getTracks().forEach((track) => track.stop());
     }
-
     if (peerConnection.current) {
       peerConnection.current.close();
     }
-
     socket.emit("end-call", { roomId });
     navigate("/patient/appointments");
   };
@@ -148,7 +181,6 @@ const PatientVideoCall = () => {
               ref={remoteVideoRef}
               autoPlay
               playsInline
-              muted
               style={{ width: "100%", height: "100%" }}
             />
             <video

@@ -39,6 +39,7 @@ function App() {
         <Route path="/doctor/signup" element={<DoctorSignUp />} />
         <Route path="/patient/signin" element={<PatientLogin />} />
         <Route path="/patient/signup" element={<PatientSignUp />} />
+        <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/paypal" element={<PayPalPaymentPage />} />
 
         <Route path="/patient/*" element={
@@ -68,7 +69,6 @@ function App() {
                 <Route path="livevideocall" element={<LiveVideoCall />} />
                 <Route path="video-call/:id" element={<DoctorVideoCall />} />
                 <Route path="prescriptions" element={<Prescriptions />} />
-                <Route path="aboutus" element={<AboutUs />} />
               </Routes>
             </Box>
           </Box>
