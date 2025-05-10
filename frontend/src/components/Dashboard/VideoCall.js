@@ -18,16 +18,44 @@ const VideoCall = () => {
   const [localStream, setLocalStream] = useState(null);
   const [micOn, setMicOn] = useState(true);
   const [cameraOn, setCameraOn] = useState(true);
+  const [medications, setMedications] = useState([]);
+  const [medName, setMedName] = useState("");
+  const [dosage, setDosage] = useState("");
+  const [frequency, setFrequency] = useState("");
+  const [duration, setDuration] = useState("");
+  const [notes, setNotes] = useState("");
+  const [showMedForm, setShowMedForm] = useState(false);
+  const [detectedCondition, setDetectedCondition] = useState("");
+  const [callStartTime, setCallStartTime] = useState(null);
+
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const peerConnection = useRef(null);
 
+  const addMedication = () => {
+    if (medName && dosage && frequency && duration) {
+      setMedications([
+        ...medications,
+        { name: medName, dosage, frequency, duration },
+      ]);
+      setMedName("");
+      setDosage("");
+      setFrequency("");
+      setDuration("");
+    }
+  };
 
   const generateRoomId = () => {
     const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
     setRoomId(randomId);
   };
+
+  useEffect(() => {
+    if (joined) {
+      setCallStartTime(new Date().toISOString());
+    }
+  }, [joined]);
   
   useEffect(() => {
     const storedName = localStorage.getItem("doctorName");
@@ -108,22 +136,140 @@ const VideoCall = () => {
     };
   }, [joined]);
 
+  useEffect(() => {
+    socket.on("transcript", async (data) => {
+      if (data.text) {
+        setNotes((prev) => prev + " " + data.text + " ");
+  
+        // Optional: Show detected condition and recommended meds
+        if (data.condition) {
+          setDetectedCondition(data.condition);
+          try {
+            const res = await fetch("http://localhost:8000/api/ai/detect-condition", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ transcript: data.text })
+            });
+            const result = await res.json();
+      
+            if (result.condition) {
+              setDetectedCondition(result.condition);
+              fetchAIRecommendations(result.condition); // reuse existing function
+            }
+          } catch (err) {
+            console.error("Failed to detect condition:", err);
+          }
+          const fetchAIRecommendations = async (condition) => {
+            try {
+              const res = await fetch("http://localhost:8000/api/ai/recommend", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ condition })
+              });
+          
+              const data = await res.json();
+              if (data.recommendations) {
+                data.recommendations.forEach((med) => {
+                  if (!medications.some((m) => m.name === med)) {
+                    setMedications((prev) => [
+                      ...prev,
+                      { name: med, dosage: "", frequency: "", duration: "" },
+                    ]);
+                  }
+                });
+              }
+            } catch (error) {
+              console.error("AI recommendation failed:", error);
+            }
+          };
+          fetchAIRecommendations(data.condition);          
+        }
+      }
+    });
+  
+    return () => {
+      socket.off("transcript");
+    };
+  }, [medications]);
+  
+
   const createOffer = async () => {
     const offer = await peerConnection.current.createOffer();
     await peerConnection.current.setLocalDescription(offer);
     socket.emit("offer", { roomId, offer });
   };
 
-  const endCall = () => {
+  const endCall = async () => {
     if (localStream) {
       localStream.getTracks().forEach((track) => track.stop());
     }
     if (peerConnection.current) {
       peerConnection.current.close();
     }
+  
+    const prescriptionData = {
+      patient: name || "Patient",
+      age: "22",
+      address: "Pune",
+      contact: "+91-9876543210",
+      prescriptionNo: `RX-${Date.now()}`,
+      date: new Date().toLocaleDateString(),
+      email: "sayyoni@example.com",
+      medicines: medications,
+      notes: notes || "No additional notes"
+    };
+  
+    try {
+      const res = await fetch("http://localhost:8000/prescriptions/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(prescriptionData)
+      });
+  
+      const result = await res.json();
+      console.log("Prescription generated:", result);
+  
+      if (result.file) {
+        await fetch("http://localhost:8000/prescriptions/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: prescriptionData.email,
+            file: result.file
+          })
+        });
+      }
+    } catch (e) {
+      console.error("Prescription generation failed", e);
+    }
+
+    try {
+      // Save video summary
+      await fetch("http://localhost:8000/api/videocall/summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomId,
+          doctorName: name,
+          doctorEmail: localStorage.getItem("doctorEmail"),
+          patientName: "Sayyoni More", // Replace with dynamic patient
+          patientEmail: "sayyoni@example.com", // Replace with actual
+          startTime: callStartTime,
+          endTime: new Date().toISOString(),
+          transcription: notes,
+          detectedCondition,
+          medications
+        })
+      });
+    } catch (e) {
+      console.error("Failed to save video call summary", e);
+    }
+    
+  
     socket.emit("end-call", { roomId });
     navigate("/doctor/dashboard");
   };
+  
 
   const toggleMic = () => {
     if (localStream) {
@@ -180,7 +326,8 @@ const VideoCall = () => {
           </Button>
         </Paper>
       ) : (
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, px: 2 }}>
+          {/* Video Panel */}
           <Paper
             elevation={3}
             sx={{
@@ -239,7 +386,80 @@ const VideoCall = () => {
               </IconButton>
             </Box>
           </Paper>
+
+          {/* Prescription Panel */}
+          <Paper elevation={3} sx={{ width: "30%", p: 2, height: "80vh", overflowY: "auto" }}>
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
+              Prescription Generator
+            </Typography>
+            <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2 }}>
+              Medications
+            </Typography>
+            <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
+                  Detected Condition: {detectedCondition || "Not detected yet"}
+                </Typography>
+            {medications.map((med, index) => (
+              <Typography key={index} variant="body1">
+                {med.name} - {med.dosage}, {med.frequency}, {med.duration}
+              </Typography>
+            ))}
+            <Button
+              variant="outlined"
+              fullWidth
+              sx={{ mt: 2 }}
+              onClick={() => setShowMedForm((prev) => !prev)}
+            >
+              {showMedForm ? "Hide Medication Form" : "Add Medication"}
+            </Button>
+
+            {showMedForm && (
+              <Box sx={{ mt: 2, maxHeight: 250, overflowY: "auto" }}>
+                <TextField
+                  fullWidth
+                  label="Medicine Name"
+                  value={medName}
+                  onChange={(e) => setMedName(e.target.value)}
+                  sx={{ mt: 1 }}
+                />
+                <TextField
+                  fullWidth
+                  label="Dosage"
+                  value={dosage}
+                  onChange={(e) => setDosage(e.target.value)}
+                  sx={{ mt: 1 }}
+                />
+                <TextField
+                  fullWidth
+                  label="Frequency"
+                  value={frequency}
+                  onChange={(e) => setFrequency(e.target.value)}
+                  sx={{ mt: 1 }}
+                />
+                <TextField
+                  fullWidth
+                  label="Duration"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  sx={{ mt: 1 }}
+                />
+                <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={addMedication}>
+                  Insert
+                </Button>
+              </Box>
+            )}
+
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              label="Additional Notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              sx={{ mt: 2 }}
+            />
+          </Paper>
         </Box>
+
       )}
     </Box>
   );

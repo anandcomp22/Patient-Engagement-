@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
-  Container,
   Box,
   Typography,
   TextField,
@@ -52,7 +51,8 @@ import {
   VerifiedUser,
   Error,
   Info
-} from '@mui/icons-material';
+} from '@mui/icons-material'; 
+import backgroundImage from './img/D.png';
 
 const DoctorSignIn = () => {
   const navigate = useNavigate();
@@ -144,7 +144,7 @@ const DoctorSignIn = () => {
           const res = await axios.post("http://localhost:8000/doctor/signin", formData);
           const data = res.data;
 
-          localStorage.setItem("doctorName", data.doctor.name);
+          localStorage.setItem("doctorName", `${data.doctor.firstName} ${data.doctor.lastName}`);
           localStorage.setItem("doctorEmail", data.doctor.email);
 
           localStorage.setItem("token", data.token);
@@ -234,7 +234,33 @@ const DoctorSignIn = () => {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
+    <Box
+    sx={{
+      backgroundImage: `url(${backgroundImage})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      minHeight: "100vh",
+      width: "100%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 2,
+      position: "fixed",
+      overflow: "hidden",
+    }}
+  >
+    <Box
+      sx={{
+        width: "100%",
+        maxWidth: 600,
+        backgroundColor: "rgba(255, 255, 255, 0.95)",
+        padding: 4,
+        borderRadius: 3,
+        boxShadow: 3,
+        position: "fixed",
+        zIndex: 2,
+      }}
+    >
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
           <ArrowBack />
@@ -758,7 +784,8 @@ const DoctorSignIn = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </Container>
+    </Box>
+    </Box>
   );
 };
 

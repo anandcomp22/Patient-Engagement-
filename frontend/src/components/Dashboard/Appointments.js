@@ -26,18 +26,26 @@ const Appointments = () => {
   const [rescheduleDate, setRescheduleDate] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("time");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   
 
   const fetchAppointments = async () => {
-    const res = await fetch("http://localhost:8000/appointment/all"); // if available
-    const data = await res.json();
-    setAppointmentsData(data);
-    // Replace with actual API call if needed
-    setAppointmentsData([
-      { id: 1, patientId: 101, name: "Sayyoni Parate", details: "Diabetes check-up", time: "10:00 AM", status: "Confirmed" },
-      { id: 2, patientId: 102, name: "Sujal Shahare", details: "General check-up", time: "11:00 AM", status: "Pending" },
-    ]);
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("http://localhost:8000/appointment/all");
+      const data = await res.json();
+      setAppointmentsData(data.appointments);
+    } catch (err) {
+      setError("Failed to load appointments.");
+    } finally {
+      setLoading(false);
+    }
   };
+  
+  
 
   useEffect(() => {
     fetchAppointments();
@@ -46,6 +54,7 @@ const Appointments = () => {
   }, []);
 
   useEffect(() => {
+    if (!Array.isArray(appointmentsData)) return;
     let filtered = appointmentsData.filter(appt =>
       appt.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -55,12 +64,8 @@ const Appointments = () => {
       filtered.sort((a, b) => a.name.localeCompare(b.name));
     }
     setFilteredAppointments(filtered);
-  }, [searchTerm, sortBy, appointmentsData]);
-
-  const handleMarkCompleted = async (id) => {
-    await fetch(`http://localhost:8000/appointment/complete/${id}`, { method: "PUT" });
-    socket.emit("appointment-update");
-  };
+  }, [searchTerm, sortBy, appointmentsData]);  
+  
 
   const handleDelete = async (id) => {
     await fetch(`http://localhost:8000/appointment/delete/${id}`, { method: "DELETE" });
@@ -82,19 +87,28 @@ const Appointments = () => {
   };
 
   const handleAddAppointment = async () => {
+    const token = localStorage.getItem("token");
+  
     const res = await fetch("http://localhost:8000/appointment/book", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
+      },
       body: JSON.stringify(formData),
     });
+  
     const data = await res.json();
+  
     if (data.success) {
       setShowForm(false);
       setFormData({ date: "", patientId: "", doctorId: "" });
       socket.emit("appointment-update");
+    } else {
+      alert(data.message || "Failed to book appointment");
     }
   };
-
+  
   const handleReschedule = async () => {
     await fetch(`http://localhost:8000/appointment/reschedule`, {
       method: "PUT",
@@ -153,12 +167,19 @@ const Appointments = () => {
           <TextField fullWidth label="Patient ID" sx={{ mb: 2 }} value={formData.patientId} onChange={(e) => setFormData({ ...formData, patientId: e.target.value })} />
           <TextField fullWidth label="Doctor ID" sx={{ mb: 2 }} value={formData.doctorId} onChange={(e) => setFormData({ ...formData, doctorId: e.target.value })} />
           <TextField fullWidth type="date" sx={{ mb: 2 }} value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} />
-          <Button variant="contained" onClick={handleAddAppointment}>Submit Appointment</Button>
+          <Button sx={{ backgroundColor: '#344ddb', color: '#fff', '&:hover': { backgroundColor: '#2b3cc2' } }} onClick={handleAddAppointment}>
+            Submit Appointment
+          </Button>
         </Box>
       )}
 
       <Box sx={{ mt: 6 }}>
-        {filteredAppointments.map((item) => (
+      {loading ? (
+        <Typography sx={{ mt: 4 }}>Loading appointments...</Typography>
+      ) : error ? (
+        <Typography color="error" sx={{ mt: 4 }}>{error}</Typography>
+      ) : (
+        filteredAppointments.map((item) => (
           <Card key={item.id} sx={{ mb: 2, p: 2 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -180,7 +201,7 @@ const Appointments = () => {
               <Button variant="outlined" size="small" onClick={() => setRescheduleDialog(item)}>Reschedule</Button>
               <Button variant="contained" size="small" onClick={async () => {
                 try {
-                  const res = await fetch(`http://localhost:8000/appointment/room/${item.appointmentId}`);
+                  const res = await fetch(`http://localhost:8000/appointment/room/${item.id}`);
                   const data = await res.json();
                   if (data.roomId) {
                     navigate(`/video-call/${data.roomId}`, {
@@ -199,7 +220,8 @@ const Appointments = () => {
               <Button variant="outlined" color="error" size="small" onClick={() => handleDelete(item.id)}>Cancel</Button>
             </Box>
           </Card>
-        ))}
+        ))
+      )}
       </Box>
 
       <Dialog open={Boolean(viewDialog)} onClose={() => setViewDialog(null)} maxWidth="sm" fullWidth>

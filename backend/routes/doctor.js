@@ -53,22 +53,26 @@ router.post("/signin", async (req, res) => {
 
 router.get("/me", authMiddleware, async (req, res) => {
   try {
-    const doctor = await Doctor.findById(req.user.id).select('firstName lastName email'); // Select only the fields you need
+    const doctor = await Doctor.findOne({ doctorId: req.user.doctorId }).select("firstName lastName email specialty");
     if (!doctor) {
-      return res.status(404).json({ message: 'Doctor not found' });
+      return res.status(404).json({ message: "Doctor not found" });
     }
     res.json({ doctor });
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 });
+
 
 
 router.get('/appointment', authMiddleware, async (req, res) => {
   console.log("Getting Appointment data");
 
   try {
-    const appointments = await Appointments.find();
+    const { Appointment } = require("../db/models");
+
+    const appointments = await Appointment.find({ doctorId: req.user.doctorId });
+
     if (!appointments) {
       res.status(200).json({ message: "Appointments Not found" });
     }
@@ -86,7 +90,7 @@ router.get("/doctorprescript", authMiddleware, async (req, res) => {
   console.log("Getting Prescription Data");
 
   try {
-    exec(`python C:/Users/morea/Downloads/Patient-Engagement-/backend/optimized_test.py`, (error, stdout, stderr) => {
+    exec(`python C:/Users/morea/Downloads/Patient-Engagement-/backend/Traning Model/optimized_test.py`, (error, stdout, stderr) => {
       if (error) {
         console.error("Exec Error:", error.message);
         return res.status(500).json({ error: error.message });

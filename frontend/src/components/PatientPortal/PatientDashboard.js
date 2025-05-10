@@ -133,12 +133,7 @@ const EnhancedGoalTracker = ({ goal, currentValue }) => {
   );
 };
 
-const getTimeOfDayGreeting = () => {
-  const hours = new Date().getHours();
-  if (hours < 12) return 'Good Morning';
-  if (hours < 18) return 'Good Afternoon';
-  return 'Good Evening';
-};
+
 
 export default function PatientDashboard() {
   const navigate = useNavigate();
@@ -146,16 +141,42 @@ export default function PatientDashboard() {
   const [confetti, setConfetti] = useState(false);
   const { width, height } = useWindowSize();
   const [notifications] = useState(['New appointment scheduled', 'Medication reminder']);
+  const [patientName, setPatientName] = useState("");
+  const [greeting, setGreeting] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const patientName = 'Shri Hari Prasad Sharma';
-  const profileInitials = 'SS';
+  const profileInitials = 'SP';
   const patientId = 123;
+
+  useEffect(() => {
+    const name = localStorage.getItem("patientName");
+
+    if (name) {
+      setPatientName(name);
+    }
+
+    const currentHour = new Date().getHours();
+    if (currentHour < 12) {
+      setGreeting("Good Morning");
+    } else if (currentHour < 18) {
+      setGreeting("Good Afternoon");
+    } else {
+      setGreeting("Good Evening");
+    }
+  }, []);
+
 
   useEffect(() => {
     axios
       .get(`http://localhost:8000/patient/appointments/${patientId}`)
-      .then((res) => setAppointments(res.data))
-      .catch((err) => console.error(err));
+      .then((res) => {
+        setAppointments(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
   }, []);
 
   const nextAppointment = appointments.length > 0 ? appointments[0] : null;
@@ -202,10 +223,10 @@ export default function PatientDashboard() {
           <Avatar sx={{ bgcolor: '#1E5DA9', width: 56, height: 56, fontSize: '20px' }}>{profileInitials}</Avatar>
           <Box>
             <Typography variant="h5" sx={{ color: '#1E5DA9' }}>
-              {getTimeOfDayGreeting()}, {patientName.split(' ')[0]}!
+              {greeting}, {patientName || "Patient"}!
             </Typography>
             <Typography variant="body1" sx={{ color: 'gray' }}>
-              Here's your health dashboard for overview
+            Welcome to your dashboard. Here you can manage your appointments, view medical information, and more.
             </Typography>
           </Box>
         </Box>
@@ -222,9 +243,14 @@ export default function PatientDashboard() {
                   <CalendarToday sx={{ color: '#1E5DA9', mr: 2 }} />
                   <Typography variant="h6">Upcoming Appointments</Typography>
                 </Box>
-                <Typography variant="body1">
-                  You have {appointments.length} {appointments.length === 1 ? 'appointment' : 'appointments'}
-                </Typography>
+                {loading ? (
+                  <CircularProgress />
+                ) : (
+                  <Typography variant="body1">
+                    You have {appointments.length} {appointments.length === 1 ? 'appointment' : 'appointments'}
+                  </Typography>
+                )}
+
                 {nextAppointment && (
                   <Box sx={{ mt: 2 }}>
                     <Typography variant="body2" sx={{ fontWeight: 'bold' }}>

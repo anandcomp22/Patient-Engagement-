@@ -23,6 +23,7 @@ import PatientNavbar from './components/PatientPortal/PatientNavbar';
 import PatientVideoCall from './components/PatientPortal/PatientVideoCall';
 import PayPalPaymentPage from './pages/PayPalPaymentPage';
 import Chatbot from './components/PatientPortal/Chatbot'; 
+import AnalysisPage from './components/Dashboard/Analysis';
 import './App.css';
 
 function App() {
@@ -67,12 +68,13 @@ function App() {
                 <Route path="patients" element={<Patients />} />
                 <Route path="appointments" element={<Appointments />} />
                 <Route path="livevideocall" element={<LiveVideoCall />} />
-                <Route path="video-call/:id" element={<DoctorVideoCall />} />
+                <Route path="video-call" element={<DoctorVideoCall />} />
                 <Route path="prescriptions" element={<Prescriptions />} />
+                <Route path="analysis" element={<AnalysisPage />}/>
               </Routes>
             </Box>
           </Box>
-        } />
+         } />
       </Routes>
     </Router>
   );

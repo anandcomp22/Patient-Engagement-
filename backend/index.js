@@ -13,6 +13,7 @@ const {
   FeePay,
   Appointment,
   Patient,
+  videocallSchem,
   connectToDatabase,
 } = require("./db/models");
 
@@ -23,7 +24,10 @@ const feespayRouter = require("./routes/feespay.js");
 const prescriptionRoutes = require("./routes/prescriptionRoutes");
 const newsRoute = require('./routes/newsRoute');
 const paypalRoute = require('./routes/paypal');
-
+const summary = require('./routes/videoCall');
+const auth = require("./middleware/authMiddleware");
+const analysis = require('./routes/analytics');
+const aiprescript = require("./routes/ai");
 
 const app = express();
 app.use(cors());
@@ -45,13 +49,17 @@ const io = new Server(server, {
   },
 });
 
-app.use("/prescriptions", prescriptionRoutes);
-app.use("/feespay", feespayRouter);
+app.use("/prescriptions", auth, prescriptionRoutes); 
+app.use("/feespay", auth, feespayRouter); 
 app.use("/doctor", doctorRouter);
-app.use("/appointment", appointmentRouter);
+app.use("/appointment", auth, appointmentRouter);;
 app.use("/patient", patientRouter)
 app.use('/api/news', newsRoute);
 app.use('/api/paypal', paypalRoute);
+app.use('/api/videocall', summary);
+app.use('/api/analytics', analysis);
+app.use('/api/ai',aiprescript)
+
 
 io.on("connection", (socket) => {
   console.log("🔌 Client connected:", socket.id);
@@ -88,7 +96,8 @@ io.on("connection", (socket) => {
     io.emit("appointment-updated");
   });
 
-  const python = spawn("python", ["deepspeech_server.py"]); // Replace with your actual script
+  const python = spawn("python", ["transcriber.py"]);
+
   socket.on("audio-stream", (data) => {
     if (python.stdin.writable) {
       python.stdin.write(Buffer.from(data));
@@ -100,12 +109,14 @@ io.on("connection", (socket) => {
       const parsed = JSON.parse(data.toString());
       socket.emit("transcript", parsed);
     } catch (err) {
-      console.error("Failed to parse DeepSpeech output:", err);
+      console.error("Failed to parse transcript:", err);
     }
   });
+
   
 
   socket.on("disconnect", () => {
+    python.kill();
     console.log("User disconnected:", socket.id);
   });
 });

@@ -8,7 +8,7 @@ import {
   Help,
   ExitToApp
 } from '@mui/icons-material';
-import logo from "./licons.png";
+import logo from "./image/licons.png";
 
 const PatientSidebar = () => {
   return (

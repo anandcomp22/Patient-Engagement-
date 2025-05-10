@@ -1,9 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppBar, Toolbar, Typography, Box, Button, TextField, IconButton, Avatar } from "@mui/material";
 import { Notifications, Settings } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 const PatientNavbar = () => {
+  const navigate = useNavigate();
+  const [patientName, setPatientName] = useState("");
+  const [patientEmail, setPatientEmail] = useState("");
+
+  useEffect(() => {
+    const name = localStorage.getItem("patientName");
+    const email = localStorage.getItem("patientEmail");
+
+    if (name) setPatientName(name);
+    if (email) setPatientEmail(email);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("patientName");
+    localStorage.removeItem("patientEmail");
+    navigate("/patient/signin");
+  };
+
   return (
     <AppBar position="fixed" className="navbar" sx={{ 
       width: "calc(100% - 280px)", 
@@ -66,7 +86,7 @@ const PatientNavbar = () => {
               bgcolor: "#1E5DA9",
               fontSize: "14px"
             }}>
-              JS
+              {patientName ? patientName.charAt(0) : "P"}
             </Avatar>
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Typography variant="body1" sx={{ 
@@ -74,13 +94,13 @@ const PatientNavbar = () => {
                 fontWeight: "500",
                 lineHeight: "1.2"
               }}>
-                Shri Hari Prasad Sharma
+                {patientName || "Patient Name"}
               </Typography>
               <Typography variant="body2" sx={{ 
                 fontSize: "12px",
                 color: "#666666"
               }}>
-                 prasad.sharma@example.com
+                 {patientEmail || "patient@example.com"}
               </Typography>
             </Box>
           </Box>
@@ -100,6 +120,7 @@ const PatientNavbar = () => {
                 borderColor: "#1E5DA9"
               }
             }}
+            onClick={handleLogout}
           >
             Logout
           </Button>

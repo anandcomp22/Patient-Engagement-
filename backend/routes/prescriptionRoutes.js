@@ -12,7 +12,7 @@ const prescriptionsDir = path.join(__dirname, "../prescriptions");
 if (!fs.existsSync(prescriptionsDir)) fs.mkdirSync(prescriptionsDir);
 
 router.post("/generate", async (req, res) => {
-    const { patient, age, address, contact, prescriptionNo, date, email, medicines } = req.body;
+    const { patient, age, address, contact, prescriptionNo, date, email, medicines, notes } = req.body;
 
     if (!patient || !age || !address || !contact || !prescriptionNo || !date || !email || !medicines || !medicines.length) {
         return res.status(400).json({ error: "All fields are required!" });
@@ -65,6 +65,11 @@ router.post("/generate", async (req, res) => {
     doc.font("Helvetica");
     medicines.forEach((med) => {
     doc.text(`[${med.name}, ${med.dosage},${med.duration}]`, { indent: 70 });
+
+    doc.moveDown(2);
+    doc.font("Helvetica-Bold").text("Doctor's Notes:", 60, doc.y);
+    doc.font("Helvetica").text(notes || "No additional notes", { indent: 70 });
+
 });
 
 doc.moveDown(14);
@@ -88,15 +93,15 @@ doc.moveTo(400, doc.y + 5).lineTo(520, doc.y + 5).stroke();
 doc.end();
 
 const newPrescription = new Prescription({
-    doctorId: 101, 
-    patientId: 202, 
+    doctorId: 101,
+    patientId: 202,
     patientname: patient,
     medicine: medicines.map(m => `${m.name} ${m.dosage}`).join(", "),
     age,
-    dosage: medicines[0]?.dosage || 0, 
+    dosage: medicines[0]?.dosage || 0,
     date: new Date(date),
-    notes: "No additional notes"
-  });
+    notes: notes || "No additional notes"
+  });  
   
   await newPrescription.save();
 

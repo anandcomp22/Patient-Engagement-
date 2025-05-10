@@ -22,7 +22,6 @@ import {
   ContactMail,
   HomeRounded,
   InfoRounded,
-  Star,
   Phone,
   NavigateNext,
   Visibility,
@@ -95,7 +94,7 @@ const AnimatedProgressCard = ({ title, target }) => {
   useEffect(() => {
     const timer = setInterval(() => {
       setProgress((oldProgress) => {
-        const diff = Math.random() * 3; // speed control
+        const diff = Math.random() * 3; 
         return Math.min(oldProgress + diff, target);
       });
     }, 30);
@@ -202,7 +201,7 @@ const HomePage = () => {
     </AppBar>
 
       {/* Main Content */}
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" >
         {/* Login Options Section - Now at the top */}
         <Box sx={{ 
           width: '100%',
@@ -291,7 +290,7 @@ const HomePage = () => {
                     bgcolor: '#1E5DA9',
                     '&:hover': { bgcolor: '#154281' }
                   }}
-                  onClick={() => navigate('/patient/signup')}
+                  onClick={() => navigate('/patient/signin')}
                 >
                   Patient Portal
                 </Button>
@@ -423,7 +422,7 @@ const HomePage = () => {
               {[
                 { title: 'Success Rate', target: 98 },
                 { title: 'Patient Satisfaction', target: 96 },
-                { title: 'Appointments Completed', target: 95 },
+                { title: 'Appointments', target: 95 },
                 { title: 'Doctor Availability', target: 97 }
               ].map((item, index) => (
                 <AnimatedProgressCard key={index} title={item.title} target={item.target} />

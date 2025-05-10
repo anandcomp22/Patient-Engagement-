@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -16,6 +17,7 @@ import "./Navbar.css";
 const Navbar = () => {
   const [doctorName, setDoctorName] = useState("");
   const [doctorEmail, setDoctorEmail] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const name = localStorage.getItem("doctorName");
@@ -27,6 +29,14 @@ const Navbar = () => {
       setDoctorEmail(email);
     }
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("doctorName");
+    localStorage.removeItem("doctorEmail");
+    navigate("/doctor/signin");
+  };
+
 
   return (
     <AppBar position="fixed" className="navbar" sx={{ width: "calc(100% - 280px)", ml: "280px" }}>
@@ -62,7 +72,22 @@ const Navbar = () => {
             <div className="user-email">{doctorEmail || "doctor@example.com"}</div>
           </Typography>
 
-          <Button variant="contained" className="logout-btn" startIcon={<LogoutIcon />}>
+          <Button
+            variant="outlined"
+            className="logout-btn"
+            startIcon={<LogoutIcon />}
+            onClick={handleLogout}
+            sx={{
+              textTransform: "none",
+              color: "#1E5DA9",
+              borderColor: "#1E5DA9",
+              padding: "6px 12px",
+              '&:hover': {
+                backgroundColor: "#f0f7ff",
+                borderColor: "#1E5DA9"
+              }
+            }}
+          >
             Logout
           </Button>
         </Box>

@@ -2,8 +2,33 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const { Patient } = require("../db/models");
 const { generateToken } = require("../utils/auth");
+const authMiddleware = require("../middleware/authMiddleware");
+const { Appointment } = require("../db/models");
 
 const router = express.Router();
+
+router.get("/me", authMiddleware, async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ patientId: req.user.patientId }).select("firstName lastName email age");
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+    res.json({ patient });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+router.get("/appointments", authMiddleware, async (req, res) => {
+  try {
+    const appointments = await Appointment.find({ patientId: req.user.patientId });
+    res.json(appointments);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching appointments" });
+  }
+});
+
 
 router.post("/signup", async (req, res) => {
   try {

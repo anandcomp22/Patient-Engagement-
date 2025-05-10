@@ -3,8 +3,7 @@ import './Chatbot.css';
 import axios from 'axios';
 import { Support } from '@mui/icons-material';
 
-// Replace with your DeepAI API key
-const API_KEY = "3dc581ec-c6af-4c79-bfaa-aedccb15ec47";
+const API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
 
 const ruleBasedResponses = {
   "What are your business hours?": "Our business hours are from 9 AM to 6 PM, Monday to Friday.",
@@ -30,44 +29,42 @@ function Chatbot() {
     setMessages([...messages, newMessage]);
     setQuestion('');
     setLoading(true);
-
-    // Check for rule-based response first
+  
     const ruleResponse = ruleBasedResponses[question];
     if (ruleResponse) {
       setMessages(prev => [...prev, { text: ruleResponse, sender: 'bot', time: new Date().toLocaleTimeString() }]);
       setLoading(false);
       return;
     }
-
-    // Fallback to DeepAI if no rule-based response is found
+  
     try {
       const response = await axios.post(
-        'https://api.deepai.org/api/text-generator',
+        'https://api.openai.com/v1/chat/completions',
         {
-          text: newMessage.text
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: question }],
+          temperature: 0.7
         },
         {
           headers: {
             'Authorization': `Bearer ${API_KEY}`,
             'Content-Type': 'application/json'
-          }
+          }          
         }
       );
-
-      const aiText = response.data.output;
+  
+      const aiText = response.data.choices[0].message.content;
       setMessages(prev => [...prev, { text: aiText, sender: 'bot', time: new Date().toLocaleTimeString() }]);
     } catch (error) {
-      console.error("Error from DeepAI:", error);
-
-      // Fallback message if DeepAI API fails
+      console.error("OpenAI API error:", error);
       setMessages(prev => [
         ...prev,
-        { text: 'Sorry, the AI service is currently unavailable. Please ask a different question.', sender: 'bot', time: new Date().toLocaleTimeString() }
+        { text: 'Sorry, the AI is currently unavailable. Please try again later.', sender: 'bot', time: new Date().toLocaleTimeString() }
       ]);
     }
-
+  
     setLoading(false);
-  };
+  };  
 
   return (
     <>

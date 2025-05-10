@@ -9,7 +9,7 @@ const prescriptionSchema = new mongoose.Schema({
     age: { type: Number, required: true },
     dosage: { type: String, required: true },
     date: { type: Date, required: true },
-    notes: { type: String, required: true, default: "No additional notes" }
+    notes: { type: String, default: "No additional notes" }
 });
 
 const doctorSchema = new mongoose.Schema({
@@ -80,6 +80,14 @@ const patientSchema = new mongoose.Schema({
       relation: { type: String }
     },
   });
+
+
+  const userSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: { type: String, enum: ['doctor', 'patient'], required: true },
+    userId: { type: Number, required: true }, // links to doctorId or patientId
+  });
   
 
 const videocallSchema = new mongoose.Schema({
@@ -93,6 +101,26 @@ const videocallSchema = new mongoose.Schema({
     callduration: { type: Number},
     recordinglink: { type: String, unique: true}
 })
+
+const VideoCallSummarySchema = new mongoose.Schema({
+    roomId: String,
+    doctorName: String,
+    doctorEmail: String,
+    patientName: String,
+    patientEmail: String,
+    startTime: Date,
+    endTime: Date,
+    transcription: String,
+    detectedCondition: String,
+    medications: [
+      {
+        name: String,
+        dosage: String,
+        frequency: String,
+        duration: String
+      }
+    ]
+  }, { timestamps: true });
 
 const connectToDatabase = async function () {
     try {
@@ -115,5 +143,7 @@ const FeePay = mongoose.model('FeePay', feepaySchema);
 const Appointment = mongoose.model('Appointment', appointmentSchema);
 const Patient = mongoose.model('Patient', patientSchema);
 const videocall = mongoose.model('videocall', videocallSchema);
+const User = mongoose.model('User', userSchema);
+const videocallSchem = mongoose.model("VideoCallSummary", VideoCallSummarySchema);
 
-module.exports = { Prescription, Doctor, FeePay, Appointment,Patient,videocall, connectToDatabase };
+module.exports = { Prescription, Doctor, FeePay, Appointment,Patient,videocall,User,videocallSchem, connectToDatabase };

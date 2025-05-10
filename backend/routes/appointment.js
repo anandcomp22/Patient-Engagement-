@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { Appointment, videocall, Patient } = require('../db/models'); 
-const { v4: uuidv4 } = require('uuid'); 
+const { v4: uuidv4 } = require('uuid');
+const authMiddleware = require('../middleware/authMiddleware');
 
 router.get("/all", async (req, res) => {
   try {
@@ -13,7 +14,7 @@ router.get("/all", async (req, res) => {
   }
 });
 
-router.post('/book', async (req, res) => {
+router.post('/book', authMiddleware, async (req, res) => {
     try {
         const { date, patientId, doctorId } = req.body;
 
