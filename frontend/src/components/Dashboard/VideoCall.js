@@ -137,53 +137,62 @@ const VideoCall = () => {
   }, [joined]);
 
   useEffect(() => {
+    const detectConditionAndFillPrescription  = async (transcript) => {
+      try {
+        const res = await fetch("http://localhost:8000/api/ai/detect-condition", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ transcript })
+        });
+  
+        const result = await res.json();
+  
+        if (result.condition) {
+          setDetectedCondition(result.condition);
+          await fetchPrescriptionFromModel(result.condition);
+        }
+      } catch (err) {
+        console.error("Failed to detect condition:", err);
+      }
+    };
+  
+    const fetchPrescriptionFromModel = async (condition) => {
+      try {
+        const res = await fetch(`http://localhost:8000/doctor/doctorprescript?condition=${condition}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("doctorToken")}` // replace if needed
+          }
+        });
+    
+        const data = await res.json();
+        const med = data.prescription;
+    
+        if (med && med.name) {
+          setMedications((prev) => [
+            ...prev,
+            {
+              name: med.name,
+              dosage: "",
+              frequency: "",
+              duration: "",
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch prescription from model:", error);
+      }
+    };
+    
+  
     socket.on("transcript", async (data) => {
       if (data.text) {
         setNotes((prev) => prev + " " + data.text + " ");
-  
-        // Optional: Show detected condition and recommended meds
-        if (data.condition) {
-          setDetectedCondition(data.condition);
-          try {
-            const res = await fetch("http://localhost:8000/api/ai/detect-condition", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ transcript: data.text })
-            });
-            const result = await res.json();
-      
-            if (result.condition) {
-              setDetectedCondition(result.condition);
-              fetchAIRecommendations(result.condition); // reuse existing function
-            }
-          } catch (err) {
-            console.error("Failed to detect condition:", err);
-          }
-          const fetchAIRecommendations = async (condition) => {
-            try {
-              const res = await fetch("http://localhost:8000/api/ai/recommend", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ condition })
-              });
-          
-              const data = await res.json();
-              if (data.recommendations) {
-                data.recommendations.forEach((med) => {
-                  if (!medications.some((m) => m.name === med)) {
-                    setMedications((prev) => [
-                      ...prev,
-                      { name: med, dosage: "", frequency: "", duration: "" },
-                    ]);
-                  }
-                });
-              }
-            } catch (error) {
-              console.error("AI recommendation failed:", error);
-            }
-          };
-          fetchAIRecommendations(data.condition);          
-        }
+        await detectConditionAndFillPrescription(data.text);
+        setDetectedCondition(result.condition);
+        fetchPrescriptionFromModel(result.condition);
+
       }
     });
   

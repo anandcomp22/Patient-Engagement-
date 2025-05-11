@@ -28,22 +28,28 @@ def generate_response(prompt, max_new_tokens=30):
         )
     return tokenizer.decode(output[0], skip_special_tokens=True).replace("\n", " ")
 
-test_prompts = [ "adhd" , " fever" , "cancer", "weakness"]
+# Read condition passed as command-line argument
+if len(sys.argv) < 2:
+    print(json.dumps({ "error": "No condition provided" }))
+    sys.exit()
 
-for prompt in test_prompts:
-    response = generate_response(prompt)
+condition = sys.argv[1].strip()
+response = generate_response(condition)
 
-    med_id_match = re.search(r'\bID[:\s]*([0-9]+)\b', response, re.IGNORECASE)
-    med_name_match = re.search(r'\bDrug Name[:\s]*([\w\s]+)\b', response, re.IGNORECASE)
-    rating_match = re.search(r'\bRating[:\s]*([0-9]+)\b', response, re.IGNORECASE)
+med_id_match = re.search(r'\bID[:\s]*([0-9]+)\b', response, re.IGNORECASE)
+med_name_match = re.search(r'\bDrug Name[:\s]*([\w\s]+)\b', response, re.IGNORECASE)
+rating_match = re.search(r'\bRating[:\s]*([0-9]+)\b', response, re.IGNORECASE)
 
-    med_id = med_id_match.group(1) if med_id_match else "Unknown ID"
-    med_name = med_name_match.group(1).strip() if med_name_match else "Unknown Name"
-    rating = rating_match.group(1) if rating_match else "Unknown Rating"
+med_id = med_id_match.group(1) if med_id_match else "Unknown ID"
+med_name = med_name_match.group(1).strip() if med_name_match else "Unknown Name"
+rating = rating_match.group(1) if rating_match else "Unknown Rating"
 
-    filtered_response = f"{med_id},{med_name},{prompt}, {rating}".replace("Rating,", ",")
-    output = filtered_response
-    print(json.dumps(output))
-    
+output = {
+    "id": med_id,
+    "name": med_name,
+    "condition": condition,
+    "rating": rating
+}
 
+print(json.dumps(output))
 sys.stdout.flush()

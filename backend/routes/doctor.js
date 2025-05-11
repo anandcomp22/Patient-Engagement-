@@ -86,36 +86,33 @@ router.get('/appointment', authMiddleware, async (req, res) => {
   }
 });
 
-router.get("/doctorprescript", authMiddleware, async (req, res) => {
-  console.log("Getting Prescription Data");
+router.get("/doctorprescript", authMiddleware, (req, res) => {
+  const scriptPath = `"C:/Users/morea/Downloads/Patient-Engagement-/backend/Traning_Model/optimized_test.py"`;
 
-  try {
-    exec(`python C:/Users/morea/Downloads/Patient-Engagement-/backend/Traning Model/optimized_test.py`, (error, stdout, stderr) => {
-      if (error) {
-        console.error("Exec Error:", error.message);
-        return res.status(500).json({ error: error.message });
-      }
+  // Use global python (assuming it's in your PATH)
+  exec(`python ${scriptPath}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Execution error:", error.message);
+      return res.status(500).json({ error: error.message });
+    }
 
-      if (stderr && !stderr.includes("tensorflow/core/util/port.cc")) {
-        console.error("Stderr:", stderr);
-        return res.status(500).json({ error: stderr });
-      }
+    if (stderr) {
+      console.error("Python stderr:", stderr);
+    }
 
-      try {
-        const output = stdout;
-        res.json({ message: "Request successful", data: output });
-      } catch (parseError) {
-        console.error("JSON Parse Error:", parseError.message);
-        res.status(500).json({ error: "Invalid JSON response from Python script" });
-      }
-    });
+    try {
+      const lines = stdout.trim().split("\n").map(line => JSON.parse(line));
+      const prescriptions = lines.map(line => {
+        const [id, name, condition, rating] = line.split(",");
+        return { id, name, condition, rating };
+      });
 
-  } catch (err) {
-    res.status(500).json({
-      status: false,
-      message: "Error in fetching Prescriptions"
-    });
-  }
+      res.json({ message: "Prescription generated", prescriptions });
+    } catch (err) {
+      console.error("JSON Parse error:", err.message);
+      res.status(500).json({ error: "Failed to parse prescription output" });
+    }
+  });
 });
 
 module.exports = router;
