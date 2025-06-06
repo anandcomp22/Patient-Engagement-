@@ -1,10 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Box, Typography, Paper, IconButton, Button, TextField } from "@mui/material";
-import { MicOff, Mic, Videocam, VideocamOff, CallEnd } from "@mui/icons-material";
+import {
+  Box,
+  Typography,
+  Paper,
+  IconButton,
+  Button,
+  TextField,
+} from "@mui/material";
+import {
+  MicOff,
+  Mic,
+  Videocam,
+  VideocamOff,
+  CallEnd,
+} from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:8000"); 
+const socket = io("http://localhost:8000");
 
 const PatientVideoCall = () => {
   const navigate = useNavigate();
@@ -23,59 +36,91 @@ const PatientVideoCall = () => {
   const remoteVideoRef = useRef(null);
   const peerConnection = useRef(null);
 
+  const requestFullScreen = () => {
+    const el = document.getElementById("video-container");
+    if (!el) return;
+
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); 
+    else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+    else if (el.msRequestFullscreen) el.msRequestFullscreen(); 
+  };
+
+  const exitFullScreen = () => {
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+      else if (document.msExitFullscreen) document.msExitFullscreen();
+    }
+  };
+
   useEffect(() => {
     const storedName = localStorage.getItem("patientName");
     if (storedName) setName(storedName);
   }, []);
 
   const joinRoom = async () => {
-    if (roomId && name) {
-      await socket.emit("join-room", { roomId });
-      setJoined(true);
-    } else {
+    if (!roomId || !name) {
       alert("Please enter Room ID and Name");
+      return;
     }
+
+    await socket.emit("join-room", { roomId });
+    setJoined(true);
+
+    setTimeout(requestFullScreen, 300);
   };
 
   useEffect(() => {
     if (!joined) return;
 
-    const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
-
+    const configuration = {
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+    };
     peerConnection.current = new RTCPeerConnection(configuration);
 
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
       .then((stream) => {
         setLocalStream(stream);
+
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
         }
 
-        stream.getTracks().forEach((track) => {
-          peerConnection.current.addTrack(track, stream);
-        });
+        // Publish tracks
+        stream.getTracks().forEach((track) =>
+          peerConnection.current.addTrack(track, stream)
+        );
 
+        // Listen for remote tracks
         peerConnection.current.ontrack = (event) => {
-          if (remoteVideoRef.current) {
+          if (remoteVideoRef.current)
             remoteVideoRef.current.srcObject = event.streams[0];
-          }
         };
 
+        // ICE candidates
         peerConnection.current.onicecandidate = (event) => {
           if (event.candidate) {
             socket.emit("ice-candidate", { roomId, candidate: event.candidate });
           }
         };
 
+        /* Socket listeners */
         socket.on("offer", async ({ offer }) => {
-          await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
+          await peerConnection.current.setRemoteDescription(
+            new RTCSessionDescription(offer)
+          );
           const answer = await peerConnection.current.createAnswer();
           await peerConnection.current.setLocalDescription(answer);
           socket.emit("answer", { roomId, answer });
         });
 
         socket.on("answer", async ({ answer }) => {
-          await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
+          await peerConnection.current.setRemoteDescription(
+            new RTCSessionDescription(answer)
+          );
         });
 
         socket.on("ice-candidate", ({ candidate }) => {
@@ -84,16 +129,14 @@ const PatientVideoCall = () => {
           }
         });
 
+        socket.on("end-call", endCall);
+
+        // Create and send an offer
         createOffer();
       })
-      .catch((err) => {
-        console.error("Error accessing media devices:", err);
-      });
+      .catch((err) => console.error("Error accessing media devices:", err));
 
-    socket.on("end-call", () => {
-      endCall();
-    });
-
+    // cleanup
     return () => {
       socket.off("offer");
       socket.off("answer");
@@ -109,28 +152,24 @@ const PatientVideoCall = () => {
   };
 
   const endCall = () => {
-    if (localStream) {
-      localStream.getTracks().forEach((track) => track.stop());
-    }
-    if (peerConnection.current) {
-      peerConnection.current.close();
-    }
+    if (localStream) localStream.getTracks().forEach((t) => t.stop());
+    if (peerConnection.current) peerConnection.current.close();
     socket.emit("end-call", { roomId });
+
+    exitFullScreen();
     navigate("/patient/appointments");
   };
 
   const toggleMic = () => {
-    if (localStream) {
-      localStream.getAudioTracks().forEach((track) => (track.enabled = !micOn));
-      setMicOn(!micOn);
-    }
+    if (!localStream) return;
+    localStream.getAudioTracks().forEach((t) => (t.enabled = !micOn));
+    setMicOn(!micOn);
   };
 
   const toggleCamera = () => {
-    if (localStream) {
-      localStream.getVideoTracks().forEach((track) => (track.enabled = !cameraOn));
-      setCameraOn(!cameraOn);
-    }
+    if (!localStream) return;
+    localStream.getVideoTracks().forEach((t) => (t.enabled = !cameraOn));
+    setCameraOn(!cameraOn);
   };
 
   return (
@@ -140,6 +179,7 @@ const PatientVideoCall = () => {
           <Typography variant="h6" fontWeight="bold" gutterBottom>
             Join Video Call
           </Typography>
+
           <TextField
             fullWidth
             label="Your Name"
@@ -154,6 +194,7 @@ const PatientVideoCall = () => {
             onChange={(e) => setRoomId(e.target.value)}
             sx={{ mb: 2 }}
           />
+
           <Button
             fullWidth
             variant="contained"
@@ -164,30 +205,35 @@ const PatientVideoCall = () => {
           </Button>
         </Paper>
       ) : (
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Paper
+            id="video-container"
             elevation={3}
             sx={{
-              width: "70%",
-              height: "80vh",
-              position: "relative",
+              width: "100vw",
+              height: "100vh",
+              position: "absolute",
               backgroundColor: "#000",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              overflow: "hidden",
             }}
           >
+            {/* remote video (fills screen) */}
             <video
               ref={remoteVideoRef}
               autoPlay
               playsInline
-              style={{ width: "100%", height: "100%" }}
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
             />
+
+            {/* local picture‑in‑picture */}
             <video
               ref={localVideoRef}
               autoPlay
-              playsInline
               muted
+              playsInline
               style={{
                 position: "absolute",
                 bottom: "10px",
@@ -196,9 +242,11 @@ const PatientVideoCall = () => {
                 height: "100px",
                 borderRadius: "8px",
                 border: "2px solid white",
+                objectFit: "cover",
               }}
             />
 
+            {/* control bar */}
             <Box
               sx={{
                 position: "absolute",
@@ -209,7 +257,8 @@ const PatientVideoCall = () => {
                 gap: 2,
                 backgroundColor: "rgba(0,0,0,0.6)",
                 borderRadius: "8px",
-                padding: "8px 16px",
+                px: 2,
+                py: 1,
               }}
             >
               <IconButton onClick={toggleMic} sx={{ color: "white" }}>
