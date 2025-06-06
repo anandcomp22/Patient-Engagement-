@@ -66,7 +66,9 @@ router.get("/me", authMiddleware, async (req, res) => {
 
 
 router.get('/appointment', authMiddleware, async (req, res) => {
-  console.log("Getting Appointment data");
+  const doctorId = req.doctor._id; // assuming JWT sets this in middleware
+  const appointments = await Appointment.find({ doctorId }).sort({ date: -1 });
+  res.json(appointments);
 
   try {
     const { Appointment } = require("../db/models");

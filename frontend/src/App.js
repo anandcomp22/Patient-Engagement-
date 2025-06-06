@@ -24,6 +24,7 @@ import PatientVideoCall from './components/PatientPortal/PatientVideoCall';
 import PayPalPaymentPage from './pages/PayPalPaymentPage';
 import Chatbot from './components/PatientPortal/Chatbot'; 
 import AnalysisPage from './components/Dashboard/Analysis';
+import DoctorSettings from './components/Dashboard/DoctorSetting/DoctorSettings';
 import './App.css';
 
 function App() {
@@ -71,6 +72,7 @@ function App() {
                 <Route path="video-call" element={<DoctorVideoCall />} />
                 <Route path="prescriptions" element={<Prescriptions />} />
                 <Route path="analysis" element={<AnalysisPage />}/>
+                <Route path="settings" element={<DoctorSettings />} />
               </Routes>
             </Box>
           </Box>

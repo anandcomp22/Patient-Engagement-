@@ -190,8 +190,6 @@ const VideoCall = () => {
       if (data.text) {
         setNotes((prev) => prev + " " + data.text + " ");
         await detectConditionAndFillPrescription(data.text);
-        setDetectedCondition(result.condition);
-        fetchPrescriptionFromModel(result.condition);
 
       }
     });

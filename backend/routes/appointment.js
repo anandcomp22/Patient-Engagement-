@@ -4,7 +4,7 @@ const { Appointment, videocall, Patient } = require('../db/models');
 const { v4: uuidv4 } = require('uuid');
 const authMiddleware = require('../middleware/authMiddleware');
 
-router.get("/all", async (req, res) => {
+router.get("/appointments", async (req, res) => {
   try {
     const appointments = await Appointment.find();
     res.status(200).json(appointments);

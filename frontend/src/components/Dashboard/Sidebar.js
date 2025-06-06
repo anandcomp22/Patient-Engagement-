@@ -54,7 +54,7 @@ const Sidebar = () => {
 
         <Box className="sidebar-divider"></Box>
 
-        <ListItem button component={Link} to="/doctor/dashboard">
+        <ListItem button component={Link} to="/doctor/settings">
           <ListItemIcon><Settings sx={{ color: "white" }} /></ListItemIcon>
           <ListItemText primary="Settings" sx={{ color: "white" }} />
         </ListItem>

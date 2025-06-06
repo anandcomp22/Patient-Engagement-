@@ -31,7 +31,7 @@ const doctorSchema = new mongoose.Schema({
   
 
 const feepaySchema = new mongoose.Schema({
-    patientId: { type: Number, required: true },
+    patientId: { type: Number, required: true, unique: true },
     patientname: { type: String, required: true },
     doctorId: { type: Number, required: true },
     doctorname: { type: String, required: true },
@@ -45,7 +45,7 @@ const feepaySchema = new mongoose.Schema({
 });
 
 const appointmentSchema = new mongoose.Schema({
-    appointmentId: { type: Number, required: true, unique: true },
+    appointmentId: { type: Number, required: true},
     date: { type: Date, required: true },
     patientId: { type: Number, required: true },
     doctorId: { type: Number, required: true },
@@ -60,7 +60,7 @@ const patientSchema = new mongoose.Schema({
     patientId: { type: Number, required: true, unique: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     phone: { type: String, required: true },
     age: { type: Number, required: true },

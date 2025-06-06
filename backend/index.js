@@ -53,7 +53,7 @@ app.use("/prescriptions", auth, prescriptionRoutes);
 app.use("/feespay", auth, feespayRouter); 
 app.use("/doctor", doctorRouter);
 app.use("/appointment", auth, appointmentRouter);;
-app.use("/patient", patientRouter)
+app.use("/patient", patientRouter);
 app.use('/api/news', newsRoute);
 app.use('/api/paypal', paypalRoute);
 app.use('/api/videocall', summary);

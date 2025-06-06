@@ -124,9 +124,10 @@ router.get("/download/:filename", (req, res) => {
     }
 });
 
-router.get("/medicine", (req,res) => {
-    const Medicals = path.join()
+router.get("/medicine", (req, res) => {
+    res.json({ message: "This endpoint is under construction." });
 });
+
 
 router.post("/send", (req, res) => {
     const { email, file } = req.body;

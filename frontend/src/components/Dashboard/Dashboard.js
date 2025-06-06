@@ -15,6 +15,7 @@ const Dashboard = () => {
   const [DoctorName, setDoctorName] = useState("");
   const [greeting, setGreeting] = useState("");
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const insightColors = ["#E3EAFD", "#E8F5E9", "#FFF3E0", "#FCE4EC", "#F3E5F5"];
 
     useEffect(() => {
@@ -46,7 +47,12 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardMetrics = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/appointment/all");
+        const token = localStorage.getItem("token");
+        const res = await axios.get("http://localhost:8000/doctor/appointment", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const allAppointments = res.data;
   
         const today = new Date().toISOString().split("T")[0];
@@ -82,6 +88,9 @@ const Dashboard = () => {
   
       } catch (err) {
         console.error("Failed to fetch dashboard metrics:", err);
+        if (err.response?.status === 401) {
+          alert("Session expired. Please log in again.");
+        }
       }
     };
   

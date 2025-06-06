@@ -31,19 +31,31 @@ const Appointments = () => {
 
   
 
-  const fetchAppointments = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch("http://localhost:8000/appointment/all");
-      const data = await res.json();
-      setAppointmentsData(data.appointments);
-    } catch (err) {
-      setError("Failed to load appointments.");
-    } finally {
-      setLoading(false);
+const fetchAppointments = async () => {
+  setLoading(true);
+  setError("");
+  try {
+    const token = localStorage.getItem("token");
+    const res = await fetch("http://localhost:8000/doctor/appointment", {
+      headers: {
+        "Authorization": `Bearer ${token}`, 
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error("Unauthorized or failed to fetch");
     }
-  };
+
+    const data = await res.json();
+    setAppointmentsData(data.appointments || data);
+  } catch (err) {
+    console.error(err);
+    setError("Failed to load appointments.");
+  } finally {
+    setLoading(false);
+  }
+};
+
   
   
 
@@ -216,7 +228,6 @@ const Appointments = () => {
               }}>
                 Start Video
               </Button>
-              <Button variant="outlined" color="success" size="small" onClick={() => handleMarkCompleted(item.id)}>Done</Button>
               <Button variant="outlined" color="error" size="small" onClick={() => handleDelete(item.id)}>Cancel</Button>
             </Box>
           </Card>

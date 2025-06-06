@@ -6,7 +6,7 @@ import "./BookAppointment.css";
 const doctors = [
   {
     doctorId: 101,
-    name: "Dr. Shreyas Sadavate",
+    name: "Dr. Anand More",
     specialty: "Cardiologist",
     image: "/images/sarah.jpg",
   },

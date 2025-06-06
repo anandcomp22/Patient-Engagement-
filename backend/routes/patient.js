@@ -7,7 +7,7 @@ const { Appointment } = require("../db/models");
 
 const router = express.Router();
 
-router.get("/me", authMiddleware, async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
     const patient = await Patient.findOne({ patientId: req.user.patientId }).select("firstName lastName email age");
     if (!patient) {
@@ -18,6 +18,20 @@ router.get("/me", authMiddleware, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+router.post("/", async (req, res) => {
+    try {
+      const newPatient = new Patient(req.body);
+      const savedPatient = await newPatient.save();
+
+      // Emit to all clients
+      io.emit("newPatient", savedPatient);
+
+      res.status(201).json(savedPatient);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
 
 
 router.get("/appointments", authMiddleware, async (req, res) => {

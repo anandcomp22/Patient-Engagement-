@@ -41,3 +41,58 @@ http://localhost:8000/prescriptions/download/prescription_sujal_shahare.pdf
 live prescript generation :
 
 http://localhost:8000/doctor/doctorprescript
+
+
+
+
+
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Box, Typography, Card, Avatar, Chip } from "@mui/material";
+
+const LiveVideoCall = () => {
+  const [appointments, setAppointments] = useState([]);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/appointments");
+        setAppointments(response.data);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      }
+    };
+
+    fetchAppointments();
+
+    // Optional: Polling every 30s
+    const interval = setInterval(fetchAppointments, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <Box sx={{ padding: 3, mt: 5 }}>
+      <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
+        Video Call Appointments
+      </Typography>
+
+      {appointments.map((item) => (
+        <Card key={item._id} sx={{ mb: 2, p: 2, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Avatar>{item.name[0]}</Avatar>
+            <Box>
+              <Typography variant="h6" fontWeight="bold">{item.name}</Typography>
+              <Typography variant="body2" color="textSecondary">{item.details}</Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Chip label={item.status} color={item.status === "Appointment Done" ? "success" : "warning"} variant="outlined" />
+          </Box>
+        </Card>
+      ))}
+    </Box>
+  );
+};
+
+export default LiveVideoCall;
