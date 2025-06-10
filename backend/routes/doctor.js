@@ -64,27 +64,19 @@ router.get("/me", authMiddleware, async (req, res) => {
 });
 
 
+const { Appointment } = require("../db/models");
 
 router.get('/appointment', authMiddleware, async (req, res) => {
-  const doctorId = req.doctor._id; // assuming JWT sets this in middleware
-  const appointments = await Appointment.find({ doctorId }).sort({ date: -1 });
-  res.json(appointments);
-
+  console.log("🔥 /appointment route hit");
   try {
-    const { Appointment } = require("../db/models");
-
-    const appointments = await Appointment.find({ doctorId: req.user.doctorId });
-
-    if (!appointments) {
-      res.status(200).json({ message: "Appointments Not found" });
-    }
-
+    console.log("Decoded user in appointment route:", req.user);
+    const doctorId = req.user.doctorId;
+    const appointments = await Appointment.find({ doctorId }).sort({ date: -1 });
     return res.status(200).json(appointments);
+    
   } catch (err) {
-    res.status(500).json({
-      status: false,
-      message: "Error in fetching Appointments"
-    });
+    console.error("Error fetching appointments:", err);
+    return res.status(500).json({ message: "Failed to fetch appointments" });
   }
 });
 

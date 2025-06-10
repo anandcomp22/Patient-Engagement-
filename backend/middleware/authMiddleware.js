@@ -14,7 +14,12 @@ const authMiddleware = async (req, res, next) => {
     const doctor = await Doctor.findById(decoded.id).select("-password");
     if (!doctor) return res.status(404).json({ message: "Doctor not found" });
 
-    req.doctor = doctor;
+    req.user = {
+    doctorId: doctor.doctorId,
+    id: doctor._id,
+    email: doctor.email,
+  };
+
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid token" });
