@@ -65,7 +65,7 @@ io.on("connection", (socket) => {
   console.log("🔌 Client connected:", socket.id);
 
   socket.onAny((event, ...args) => {
-    console.log(`📥 Event received: ${event}`, args);
+    console.log(`Event received: ${event}`, args);
   });
 
   socket.on("join-room", ({ roomId }) => {
@@ -91,7 +91,6 @@ io.on("connection", (socket) => {
     socket.leave(roomId);
   });
 
-  // Real-time appointment updates
   socket.on("appointment-update", () => {
     io.emit("appointment-updated");
   });
@@ -122,7 +121,6 @@ io.on("connection", (socket) => {
 });
 
 
-// Start server
 const PORT = process.env.PORT || 9000;
 server.listen(PORT, () => {
   console.log(`Server started at http://localhost:${PORT}`);

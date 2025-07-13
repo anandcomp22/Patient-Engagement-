@@ -151,54 +151,65 @@ const HomePage = () => {
   return (
     <>
       {/* Navigation Bar */}
-      <AppBar position="sticky" sx={{ bgcolor: '#1E5DA9', boxShadow: 3 }}>
-      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-        
-        {/* Left - Logo and Brand */}
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <LocalHospitalRounded sx={{ fontSize: 40, color: 'white', mr: 1 }} />
-          <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'white' }}>
-            AidME
-          </Typography>
-        </Box>
+      <AppBar
+        position="sticky"
+        elevation={4}
+        sx={{
+          background: "linear-gradient(135deg, #83c9fbff 0%, #0062b2ff 100%)",
+          borderBottomLeftRadius: 20,
+          borderBottomRightRadius: 20,
+          transition: "all 0.4s ease",
+          boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+        }}
+      >
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          
+          {/* Left - Logo and Brand */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <LocalHospitalRounded sx={{ fontSize: 40, color: 'white', mr: 1 }} />
+            <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'white' }}>
+              AidME
+            </Typography>
+          </Box>
 
-        {/* Right - Navigation Links */}
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button 
-            startIcon={<HomeRounded />} 
-            sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
-            onClick={() => navigate('/')}
-          >
-            Home
-          </Button>
-          <Button 
-            startIcon={<FeaturedPlayListRounded />} 
-            sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
-            onClick={() => {
-              document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-          >
-            Features
-          </Button>
-          <Button 
-            startIcon={<MailOutlineRounded />} 
-            sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
-            onClick={() => {
-              document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-          >
-            Contact
-          </Button>
-          <Button 
-            startIcon={<InfoRounded />} 
-            sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
-            onClick={() => navigate('/aboutus')}
-          >
-            About Us
-          </Button>
-        </Box>
-      </Toolbar>
-    </AppBar>
+          {/* Right - Navigation Links */}
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button 
+              startIcon={<HomeRounded />} 
+              sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
+              onClick={() => navigate('/')}
+            >
+              Home
+            </Button>
+            <Button 
+              startIcon={<FeaturedPlayListRounded />} 
+              sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
+              onClick={() => {
+                document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Features
+            </Button>
+            <Button 
+              startIcon={<MailOutlineRounded />} 
+              sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
+              onClick={() => {
+                document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Contact
+            </Button>
+            <Button 
+              startIcon={<InfoRounded />} 
+              sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
+              onClick={() => navigate('/aboutus')}
+            >
+              About Us
+            </Button>
+          </Box>
+        </Toolbar>
+      </AppBar>
+
 
       {/* Main Content */}
       <Container maxWidth="lg" >
@@ -213,7 +224,7 @@ const HomePage = () => {
             textAlign: 'center',
             py: 8,
           }}>
-          <Typography variant="h3" sx={{ mb: 4, fontWeight: 'bold', color: '#1E5DA9' }}>
+          <Typography variant="h3" sx={{ mb: 4, fontWeight: 'bold', color: '#0062b2ff' }}>
             Welcome to AidME Healthcare
           </Typography>
           <Typography variant="h5" sx={{ mb: 6 }}>
@@ -236,7 +247,7 @@ const HomePage = () => {
               }}>
                 <MedicalServices sx={{ 
                   fontSize: 60,
-                  color: '#1E5DA9',
+                  color: '#0062b2ff',
                   mb: 2 
                 }} />
                 <Typography variant="h5" gutterBottom>

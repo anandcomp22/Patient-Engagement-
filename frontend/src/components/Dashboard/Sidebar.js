@@ -1,67 +1,190 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Drawer, List, ListItem, ListItemIcon, ListItemText, Typography, Box } from "@mui/material";
+import { Link, useLocation } from "react-router-dom";
 import {
-  Dashboard ,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  Box,
+  Tooltip,
+} from "@mui/material";
+import {
+  Dashboard,
   CalendarMonth,
   People,
   Medication,
-  VideoCall ,
+  VideoCall,
   Analytics,
   Settings,
   Help,
-} from '@mui/icons-material';
-import logo from "./icons/licons.png";
-import "./Sidebar.css";
+  Menu as MenuIcon,
+  ChevronLeft as ChevronLeftIcon,
+} from "@mui/icons-material";
+import Aidme from "./icons/logo.png";
 
-const Sidebar = () => {
+const Sidebar = ({ open, onToggle }) => {
+  const { pathname } = useLocation();
+
+  const menuItems = [
+    { text: "Dashboard", icon: <Dashboard />, to: "/doctor/dashboard" },
+    { text: "Appointments", icon: <CalendarMonth />, to: "/doctor/appointments" },
+    { text: "Patients Details", icon: <People />, to: "/doctor/patients" },
+    { text: "Prescriptions", icon: <Medication />, to: "/doctor/prescriptions" },
+    { text: "Video Calls", icon: <VideoCall />, to: "/doctor/livevideocall" },
+    { text: "Analytics", icon: <Analytics />, to: "/doctor/analysis" },
+  ];
+
+  const footerItems = [
+    { text: "Settings", icon: <Settings />, to: "/doctor/settings" },
+    { text: "Help & Support", icon: <Help />, to: "/aboutus" },
+  ];
+
   return (
-    <Drawer variant="permanent" className="sidebar">
-      {/* MedConnect AI Title Section */}
-      <Box className="sidebar-header" sx={{gap:1}}>
-        <img src={logo} alt="DR. logo" width="30px"/>
-        <Typography variant="h6" className="sidebar-title">
-        AidME
-        </Typography>
+    <Drawer
+      variant="permanent"
+      open={open}
+      PaperProps={{
+        sx: {
+          width: open ? 240 : 62,
+          transition: "width 0.3s ease-in-out",
+          bgcolor: "primary.light",
+          backgroundImage: open
+            ? "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)"
+            : "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)",
+          color: "white",
+          boxShadow: 3,
+          overflowX: "hidden",
+          borderTopRightRadius: 30,
+          borderBottomRightRadius: 30,
+        },
+      }}
+    >
+      {/* Toggle Button */}
+      <Box
+        sx={{
+          height: 64,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: open ? "flex-end" : "center",
+          px: 1,
+        }}
+      >
+        <IconButton
+          onClick={onToggle}
+          sx={{
+            bgcolor: "white",
+            color: "primary.main",
+            "&:hover": {
+              bgcolor: "#e0f2ff",
+            },
+          }}
+        >
+          {open ? <ChevronLeftIcon /> : <MenuIcon />}
+        </IconButton>
       </Box>
 
-      {/* Menu List */}
-      <List className="sidebar-menu">
-        <ListItem button component={Link} to="/doctor/dashboard">
-          <ListItemIcon><Dashboard sx={{ color: "white" }} /></ListItemIcon>
-          <ListItemText primary="Dashboard" sx={{ color: "white" }} />
-        </ListItem>
-        <ListItem button component={Link} to="/doctor/Appointments">
-          <ListItemIcon><CalendarMonth sx={{ color: "white" }} /></ListItemIcon>
-          <ListItemText primary="Appointments" sx={{ color: "white" }} />
-        </ListItem>
-        <ListItem button component={Link} to="/doctor/patients">
-          <ListItemIcon><People sx={{ color: "white" }} /></ListItemIcon>
-          <ListItemText primary="Patients Details" sx={{ color: "white" }} />
-        </ListItem>
-        <ListItem button component={Link} to="/doctor/prescriptions">
-          <ListItemIcon><Medication sx={{ color: "white" }} /></ListItemIcon>
-          <ListItemText primary="Prescriptions" sx={{ color: "white" }} />
-        </ListItem>
-        <ListItem button component={Link} to="/doctor/LiveVideoCall">
-          <ListItemIcon><VideoCall sx={{ color: "white" }} /></ListItemIcon>
-          <ListItemText primary="Video Calls" sx={{ color: "white" }} />
-        </ListItem>
-        <ListItem button component={Link} to="/doctor/analysis">
-          <ListItemIcon><Analytics sx={{ color: "white" }} /></ListItemIcon>
-          <ListItemText primary="Analytics" sx={{ color: "white" }} />
-        </ListItem>
+      {/* Logo */}
+      <Box
+        sx={{
+          height: 64,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 2,
+        }}
+      >
+        <img
+          src={Aidme}
+          alt="AidME Logo"
+          style={{
+            maxWidth: open ? 120 : 40,
+            transition: "max-width 0.3s ease",
+          }}
+        />
+      </Box>
 
-        <Box className="sidebar-divider"></Box>
+      {/* Main Menu */}
+      <List>
+        {menuItems.map((item) => (
+          <Tooltip title={!open ? item.text : ""} placement="right" key={item.text}>
+            <ListItem
+              button
+              component={Link}
+              to={item.to}
+              sx={{
+                mb: 1,
+                px: open ? 2 : 1,
+                "& .MuiListItemIcon-root": {
+                  color: "white",
+                  minWidth: 0,
+                  mr: open ? 2 : "auto",
+                  justifyContent: "center",
+                },
+                "& .MuiListItemText-root .MuiTypography-root": {
+                  color: "white",
+                  opacity: open ? 1 : 0,
+                  transition: "opacity 0.3s",
+                  whiteSpace: "nowrap",
+                },
+                "&:hover": {
+                  bgcolor: "rgba(255,255,255,0.2)",
+                  "& .MuiListItemText-root .MuiTypography-root": {
+                    color: "#0d47a1",
+                  },
+                },
+                ...(pathname === item.to && {
+                  bgcolor: "rgba(255,255,255,0.3)",
+                }),
+              }}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItem>
+          </Tooltip>
+        ))}
+      </List>
 
-        <ListItem button component={Link} to="/doctor/settings">
-          <ListItemIcon><Settings sx={{ color: "white" }} /></ListItemIcon>
-          <ListItemText primary="Settings" sx={{ color: "white" }} />
-        </ListItem>
-        <ListItem button component={Link} to="/aboutus">
-          <ListItemIcon><Help sx={{ color: "white" }} /></ListItemIcon>
-          <ListItemText primary="Help & Support" sx={{ color: "white" }} />
-        </ListItem>
+      {/* Divider */}
+      <Box sx={{ borderTop: "3px solid rgba(255,255,255,0.3)", my: 4 }} />
+
+      {/* Footer Items */}
+      <List>
+        {footerItems.map((item) => (
+          <Tooltip title={!open ? item.text : ""} placement="right" key={item.text}>
+            <ListItem
+              button
+              component={Link}
+              to={item.to}
+              sx={{
+                mb: 1,
+                px: open ? 2 : 1,
+                "& .MuiListItemIcon-root": {
+                  color: "white",
+                  minWidth: 0,
+                  mr: open ? 2 : "auto",
+                  justifyContent: "center",
+                },
+                "& .MuiListItemText-root .MuiTypography-root": {
+                  color: "white",
+                  opacity: open ? 1 : 0,
+                  transition: "opacity 0.3s",
+                  whiteSpace: "nowrap",
+                },
+                "&:hover": {
+                  bgcolor: "rgba(255,255,255,0.2)",
+                  "& .MuiListItemText-root .MuiTypography-root": {
+                    color: "#0d47a1",
+                  },
+                },
+              }}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItem>
+          </Tooltip>
+        ))}
       </List>
     </Drawer>
   );

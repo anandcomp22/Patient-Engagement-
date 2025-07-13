@@ -1,3 +1,4 @@
+// App.js
 import React from 'react';
 import { CssBaseline, Box } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -28,14 +29,18 @@ import DoctorSettings from './components/Dashboard/DoctorSetting/DoctorSettings'
 import './App.css';
 
 function App() {
+  const [sidebarOpen, setSidebarOpen] = React.useState(true);
+  const toggleSidebar = () => setSidebarOpen(o => !o);
+
   return (
     <Router>
       <CssBaseline />
-      
-      {/* Add the Chatbot here so it appears on all pages */}
+
+      {/* Chatbot visible on all pages */}
       <Chatbot />
-      
+
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/doctor/signin" element={<DoctorSignin />} />
         <Route path="/doctor/signup" element={<DoctorSignUp />} />
@@ -44,39 +49,62 @@ function App() {
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/paypal" element={<PayPalPaymentPage />} />
 
-        <Route path="/patient/*" element={
-          <Box sx={{ display: 'flex' }}>
-            <PatientSidebar />
-            <Box className="main-content" sx={{ flexGrow: 1 }}>
-              <PatientNavbar />
-              <Routes>
-                <Route path="dashboard" element={<PatientDashboard />} />
-                <Route path="appointments" element={<PatientAppointments />} />
-                <Route path="book" element={<BookAppointment />} />
-                <Route path="video-call" element={<PatientVideoCall />} />
-              </Routes>
+        {/* Patient portal */}
+        <Route
+          path="/patient/*"
+          element={
+            <Box sx={{ display: 'flex' }}>
+              <PatientSidebar />
+              <Box sx={{ flexGrow: 1 }}>
+                <PatientNavbar />
+                <Box sx={{ p: 3, mt: 8 }}>
+                  <Routes>
+                    <Route path="dashboard" element={<PatientDashboard />} />
+                    <Route path="appointments" element={<PatientAppointments />} />
+                    <Route path="book" element={<BookAppointment />} />
+                    <Route path="video-call" element={<PatientVideoCall />} />
+                  </Routes>
+                </Box>
+              </Box>
             </Box>
-          </Box>
-        } />
+          }
+        />
 
-        <Route path="/doctor/*" element={
-          <Box sx={{ display: 'flex' }}>
-            <Sidebar />
-            <Box className="main-content" sx={{ flexGrow: 1 }}>
-              <Navbar />
-              <Routes>
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="patients" element={<Patients />} />
-                <Route path="appointments" element={<Appointments />} />
-                <Route path="livevideocall" element={<LiveVideoCall />} />
-                <Route path="video-call" element={<DoctorVideoCall />} />
-                <Route path="prescriptions" element={<Prescriptions />} />
-                <Route path="analysis" element={<AnalysisPage />}/>
-                <Route path="settings" element={<DoctorSettings />} />
-              </Routes>
+        {/* Doctor portal */}
+        <Route
+          path="/doctor/*"
+          element={
+            <Box sx={{ display: 'flex' }}>
+              {/* Sidebar with toggle */}
+              <Sidebar open={sidebarOpen} onToggle={toggleSidebar} />
+
+              {/* Main content area shifts with sidebar */}
+              <Box
+                className="main-content"
+                sx={{
+                  flexGrow: 1,
+                  ml: sidebarOpen ? '250px' : '72px',
+                  transition: 'margin-left 0.3s ease-in-out',
+                  p: 3,
+                  mt: 8
+                }}
+              >
+                <Navbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar} />
+
+                <Routes>
+                  <Route path="dashboard" element={<Dashboard sidebarOpen={sidebarOpen} />} />
+                  <Route path="patients" element={<Patients />} />
+                  <Route path="appointments" element={<Appointments />} />
+                  <Route path="livevideocall" element={<LiveVideoCall />} />
+                  <Route path="video-call" element={<DoctorVideoCall />} />
+                  <Route path="prescriptions" element={<Prescriptions />} />
+                  <Route path="analysis" element={<AnalysisPage />} />
+                  <Route path="settings" element={<DoctorSettings />} />
+                </Routes>
+              </Box>
             </Box>
-          </Box>
-         } />
+          }
+        />
       </Routes>
     </Router>
   );

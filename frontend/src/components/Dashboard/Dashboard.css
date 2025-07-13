@@ -211,8 +211,8 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .content {
-    margin-left: 0;
-    margin-top: 70px;
+    margin-top: 90px;
+    padding: 20px;
   }
 
   .dashboard-box {

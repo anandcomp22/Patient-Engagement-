@@ -67,7 +67,7 @@ router.get("/me", authMiddleware, async (req, res) => {
 const { Appointment } = require("../db/models");
 
 router.get('/appointment', authMiddleware, async (req, res) => {
-  console.log("🔥 /appointment route hit");
+  console.log(" /appointment route hit");
   try {
     console.log("Decoded user in appointment route:", req.user);
     const doctorId = req.user.doctorId;
@@ -83,7 +83,6 @@ router.get('/appointment', authMiddleware, async (req, res) => {
 router.get("/doctorprescript", authMiddleware, (req, res) => {
   const scriptPath = `"C:/Users/morea/Downloads/Patient-Engagement-/backend/Traning_Model/optimized_test.py"`;
 
-  // Use global python (assuming it's in your PATH)
   exec(`python ${scriptPath}`, (error, stdout, stderr) => {
     if (error) {
       console.error("Execution error:", error.message);
