@@ -732,10 +732,10 @@ const DoctorSignIn = () => {
             mb: 2,
             py: 1.5,
             fontSize: '1rem',
-            backgroundColor: verificationStatus !== 'verified' ? 'action.disabledBackground' : '#1E5DA9',
+            backgroundColor: verificationStatus !== 'verified' ? 'action.disabledBackground' : "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)",
             color: verificationStatus !== 'verified' ? 'text.secondary' : 'white',
             '&:hover': {
-              backgroundColor: verificationStatus !== 'verified' ? 'action.disabledBackground' : '#154281'
+              backgroundColor: verificationStatus !== 'verified' ? 'action.disabledBackground' : "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)"
             },
             '&.Mui-disabled': {
               color: 'text.disabled'

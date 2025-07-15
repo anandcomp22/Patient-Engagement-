@@ -212,7 +212,7 @@ const HomePage = () => {
 
 
       {/* Main Content */}
-      <Container maxWidth="lg" >
+      <Container maxWidth='false' >
         {/* Login Options Section - Now at the top */}
         <Box sx={{ 
           width: '100%',
@@ -260,7 +260,7 @@ const HomePage = () => {
                   variant="contained" 
                   size="large"
                   sx={{
-                    bgcolor: '#1E5DA9',
+                    bgcolor: "linear-gradient(135deg, #83c9fbff 0%, #0062b2ff 100%)",
                     '&:hover': { bgcolor: '#154281' }
                   }}
                   onClick={() => navigate('/doctor/signin')}
@@ -298,7 +298,7 @@ const HomePage = () => {
                   variant="contained" 
                   size="large"
                   sx={{
-                    bgcolor: '#1E5DA9',
+                    bgcolor: "linear-gradient(135deg, #83c9fbff 0%, #0062b2ff 100%)",
                     '&:hover': { bgcolor: '#154281' }
                   }}
                   onClick={() => navigate('/patient/signin')}
@@ -318,7 +318,7 @@ const HomePage = () => {
           mb: 6,
           borderLeft: '4px solid #1E5DA9'
         }}>
-          <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold', color: '#1E5DA9' }}>
+          <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold', color: '#2a72caff' }}>
             What is AidME?
           </Typography>
           <Typography variant="body1" sx={{ mb: 2 }}>
@@ -339,7 +339,7 @@ const HomePage = () => {
 
         {/* Browse by Specialties Section */}
         <Box sx={{ mb: 6 }}>
-          <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#1E5DA9' }}>
+          <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#2a72caff' }}>
             Browse by Specialties
           </Typography>
           <Grid container spacing={2}>
@@ -356,7 +356,7 @@ const HomePage = () => {
                     justifyContent: 'flex-start',
                     borderColor: '#e0e0e0',
                     '&:hover': {
-                      borderColor: '#1E5DA9',
+                      borderColor: "linear-gradient(135deg, #83c9fbff 0%, #0062b2ff 100%)",
                       backgroundColor: '#f0f7ff'
                     }
                   }}
@@ -371,7 +371,7 @@ const HomePage = () => {
 
         {/* Features Provided by AidME Section */}
         <Box id="features-section" ref={featuresRef} sx={{ mb: 6 }}>
-          <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#1E5DA9' }}>
+          <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#2a72caff' }}>
             Features Provided by AidME
           </Typography>
           <Typography variant="body1" sx={{ mb: 3 }}>
@@ -392,7 +392,7 @@ const HomePage = () => {
                 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Avatar sx={{ 
-                      bgcolor: '#1E5DA9', 
+                      bgcolor: '#2a72caff', 
                       mr: 2,
                       width: 40,
                       height: 40
@@ -409,7 +409,7 @@ const HomePage = () => {
                   <Button 
                     size="small" 
                     sx={{ 
-                      color: '#1E5DA9',
+                      color: '#2a72caff',
                       fontWeight: 'bold'
                     }}
                     onClick={() => navigate('/upload')}
@@ -424,7 +424,7 @@ const HomePage = () => {
 
           {/* Success Rate Section with Animated Circular Progress */}
           <Box sx={{ mb: 8 }}>
-            <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#1E5DA9', textAlign: 'center' }}>
+            <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#2a72caff', textAlign: 'center' }}>
               Our Success Metrics
             </Typography>
 
@@ -443,7 +443,7 @@ const HomePage = () => {
 
         {/* Benefits Section */}
         <Box sx={{ mb: 8, mt: 4 }}>
-          <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#1E5DA9', textAlign: 'center' }}>
+          <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#2a72caff', textAlign: 'center' }}>
             Why Choose AidME?
           </Typography>
           <Grid container spacing={4}>
@@ -464,7 +464,7 @@ const HomePage = () => {
                   }
                 }}>
                   <Box sx={{ 
-                    color: '#1E5DA9',
+                    color: '#2a72caff',
                     mb: 2
                   }}>
                     {benefit.icon}
@@ -508,7 +508,7 @@ const HomePage = () => {
               p: 2,
               fontSize: '1rem',
               bgcolor: '#f5f5f5',
-              borderColor: '#1E5DA9'
+              borderColor: '#2a72caff'
             }}
           />
         </Box>
