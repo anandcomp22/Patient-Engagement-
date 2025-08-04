@@ -1,11 +1,10 @@
-// App.js
 import React from 'react';
 import { CssBaseline, Box } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Dashboard/Sidebar';
 import Navbar from './components/Dashboard/Navbar';
 import Dashboard from './components/Dashboard/Dashboard';
-import Patients from './components/Dashboard/Patients'; 
+import Patients from './components/Dashboard/PatientsDetail'; 
 import Appointments from './components/Dashboard/Appointments';
 import LiveVideoCall from './components/Dashboard/LiveVideoCall';
 import DoctorVideoCall from './components/Dashboard/VideoCall';
@@ -27,10 +26,11 @@ import Chatbot from './components/PatientPortal/Chatbot';
 import AnalysisPage from './components/Dashboard/Analysis';
 import DoctorSettings from './components/Dashboard/DoctorSetting/DoctorSettings';
 import './App.css';
+import { LoginOutlined } from '@mui/icons-material';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
-  const toggleSidebar = () => setSidebarOpen(o => !o);
+  const toggleSidebar = () => setSidebarOpen(prev => !prev);
 
   return (
     <Router>
@@ -54,9 +54,15 @@ function App() {
           path="/patient/*"
           element={
             <Box sx={{ display: 'flex' }}>
-              <PatientSidebar />
-              <Box sx={{ flexGrow: 1 }}>
-                <PatientNavbar />
+              <PatientSidebar open={sidebarOpen} onToggle={toggleSidebar} />
+                <Box
+                  sx={{
+                    flexGrow: 1,
+                    ml: sidebarOpen ? '250px' : '62px',
+                    transition: 'margin-left 0.3s ease-in-out',
+                  }}
+                >
+                <PatientNavbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar}/>
                 <Box sx={{ p: 3, mt: 8 }}>
                   <Routes>
                     <Route path="dashboard" element={<PatientDashboard />} />
@@ -100,6 +106,7 @@ function App() {
                   <Route path="prescriptions" element={<Prescriptions />} />
                   <Route path="analysis" element={<AnalysisPage />} />
                   <Route path="settings" element={<DoctorSettings />} />
+                  <Route path="logout" element={<LoginOutlined />} />
                 </Routes>
               </Box>
             </Box>

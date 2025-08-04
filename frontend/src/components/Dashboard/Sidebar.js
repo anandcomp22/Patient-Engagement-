@@ -21,6 +21,7 @@ import {
   Help,
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
+  LoginOutlined,
 } from "@mui/icons-material";
 import Aidme from "./icons/logo.png";
 
@@ -39,6 +40,7 @@ const Sidebar = ({ open, onToggle }) => {
   const footerItems = [
     { text: "Settings", icon: <Settings />, to: "/doctor/settings" },
     { text: "Help & Support", icon: <Help />, to: "/aboutus" },
+    { text: "Logout", icon: <LoginOutlined />, to: "/doctor/signin" },
   ];
 
   return (
@@ -48,6 +50,8 @@ const Sidebar = ({ open, onToggle }) => {
       PaperProps={{
         sx: {
           width: open ? 240 : 62,
+          position: "fixed",
+          height: "100vh",
           transition: "width 0.3s ease-in-out",
           bgcolor: "primary.light",
           backgroundImage: open
@@ -147,7 +151,7 @@ const Sidebar = ({ open, onToggle }) => {
       </List>
 
       {/* Divider */}
-      <Box sx={{ borderTop: "3px solid rgba(255,255,255,0.3)", my: 4 }} />
+      <Box sx={{ borderTop: "3px solid rgba(255,255,255,0.3)", my: 2 }} />
 
       {/* Footer Items */}
       <List>

@@ -1,22 +1,15 @@
-// Navbar.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Box,
-  Button,
-  TextField,
-  IconButton,
-  Avatar
+  AppBar, Toolbar,
+  Typography, Box,
+  Button, TextField,
+  IconButton, Avatar
 } from "@mui/material";
-import {
-  Notifications,
-  Settings
-} from "@mui/icons-material";
+import { Notifications, Settings } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
-import "./Navbar.css";
+//import "./Navbar.css";
+
 
 const Navbar = ({ sidebarOpen }) => {
   const [doctorName, setDoctorName] = useState("");

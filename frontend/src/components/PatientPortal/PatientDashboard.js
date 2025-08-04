@@ -82,7 +82,7 @@ const ProgressChart = () => (
       <YAxis />
       <Tooltip />
       <Legend />
-      <Line type="monotone" dataKey="steps" stroke="#1E5DA9" />
+      <Line type="monotone" dataKey="steps" stroke="#008cffff" />
     </LineChart>
   </ResponsiveContainer>
 );
@@ -104,7 +104,7 @@ const EnhancedGoalTracker = ({ goal, currentValue }) => {
           value={progress}
           size={120}
           thickness={5}
-          sx={{ color: '#1E5DA9' }}
+          sx={{ color: '#008cffff' }}s
         />
         <MuiBox
           sx={{
@@ -119,7 +119,7 @@ const EnhancedGoalTracker = ({ goal, currentValue }) => {
             flexDirection: 'column',
           }}
         >
-          <FitnessCenterIcon sx={{ color: '#1E5DA9', mb: 1 }} />
+          <FitnessCenterIcon sx={{ color: '#008cffff', mb: 1 }} />
           <Typography variant="h6">{`${Math.round(progress)}%`}</Typography>
         </MuiBox>
       </MuiBox>
@@ -206,7 +206,7 @@ export default function PatientDashboard() {
 
   const cardStyles = {
     height: '100%',
-    borderLeft: '4px solid #1E5DA9',
+    borderLeft: '4px solid #008cffff',
     boxShadow: '0 4px 12px rgba(30, 93, 169, 0.2)',
     transition: 'all 0.3s ease-in-out',
     '&:hover': {
@@ -220,9 +220,9 @@ export default function PatientDashboard() {
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar sx={{ bgcolor: '#1E5DA9', width: 56, height: 56, fontSize: '20px' }}>{profileInitials}</Avatar>
+          <Avatar sx={{ bgcolor: '#008cffff', width: 56, height: 56, fontSize: '20px' }}>{profileInitials}</Avatar>
           <Box>
-            <Typography variant="h5" sx={{ color: '#1E5DA9' }}>
+            <Typography variant="h5" sx={{ color: '#008cffff' }}>
               {greeting}, {patientName || "Patient"}!
             </Typography>
             <Typography variant="body1" sx={{ color: 'gray' }}>
@@ -240,7 +240,7 @@ export default function PatientDashboard() {
             <Card sx={cardStyles}>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <CalendarToday sx={{ color: '#1E5DA9', mr: 2 }} />
+                  <CalendarToday sx={{ color: '#008cffff', mr: 2 }} />
                   <Typography variant="h6">Upcoming Appointments</Typography>
                 </Box>
                 {loading ? (
@@ -264,7 +264,7 @@ export default function PatientDashboard() {
                     </Typography>
                     <Button
                       variant="outlined"
-                      sx={{ mt: 1, color: '#1E5DA9', borderColor: '#1E5DA9' }}
+                      sx={{ mt: 1, color: '#008cffff', borderColor: '#008cffff' }}
                       onClick={() => navigate('/patient/video-call')}
                     >
                       Join Video Call
@@ -273,7 +273,7 @@ export default function PatientDashboard() {
                 )}
                 <Button
                   variant="contained"
-                  sx={{ bgcolor: '#1E5DA9', mt: 2, '&:hover': { bgcolor: '#154281' }, borderRadius: '20px', px: 3 }}
+                  sx={{ bgcolor: '#008cffff', mt: 2, '&:hover': { bgcolor: '#008cffff' }, borderRadius: '20px', px: 3 }}
                   onClick={() => navigate('/patient/appointments')}
                 >
                   View All
@@ -295,7 +295,7 @@ export default function PatientDashboard() {
                 <Typography variant="body1">Schedule a new consultation</Typography>
                 <Button
                   variant="contained"
-                  sx={{ bgcolor: '#1E5DA9', mt: 2, '&:hover': { bgcolor: '#154281' }, borderRadius: '20px', px: 3 }}
+                  sx={{ bgcolor: '#008cffff', mt: 2, '&:hover': { bgcolor: '#008cffff' }, borderRadius: '20px', px: 3 }}
                   onClick={() => navigate('/patient/book')}
                 >
                   Book Now
@@ -311,13 +311,13 @@ export default function PatientDashboard() {
             <Card sx={cardStyles}>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <VideoCall sx={{ color: '#1E5DA9', mr: 2 }} />
+                  <VideoCall sx={{ color: '#008cffff', mr: 2 }} />
                   <Typography variant="h6">Video Consultation</Typography>
                 </Box>
                 <Typography variant="body1">Connect with your doctor online</Typography>
                 <Button
                   variant="contained"
-                  sx={{ bgcolor: '#1E5DA9', mt: 2, '&:hover': { bgcolor: '#154281' }, borderRadius: '20px', px: 3 }}
+                  sx={{ bgcolor: '#008cffff', mt: 2, '&:hover': { bgcolor: '#008cffff' }, borderRadius: '20px', px: 3 }}
                   onClick={() => navigate('/patient/video-call')}
                 >
                   Join Now
@@ -358,7 +358,7 @@ export default function PatientDashboard() {
             <Card sx={cardStyles}>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <VideoCall sx={{ color: '#1E5DA9', mr: 2 }} />
+                  <VideoCall sx={{ color: '#008cffff', mr: 2 }} />
                   <Typography variant="h6">Emergency Call</Typography>
                 </Box>
                 <Typography variant="body1">In case of emergency</Typography>
