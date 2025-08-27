@@ -1,11 +1,27 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const { Patient } = require("../db/models");
-const { generateToken } = require("../utils/auth");
-const authMiddleware = require("../middleware/authMiddleware");
-const { Appointment } = require("../db/models");
+const multer = require("multer");
+const { Patient } = require("../../db/models");
+const { generateToken } = require("../../utils/auth");
+const authMiddleware = require("../../middleware/authMiddleware");
+const { Appointment } = require("../../db/models");
 
 const router = express.Router();
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/reports"),
+  filename: (req, file, cb) =>
+    cb(null, Date.now() + "-" + file.originalname),
+});
+const upload = multer({ storage });
+
+router.post("/upload-report", upload.single("report"), (req, res) => {
+  const { uploadDate, generationPlace } = req.body;
+  console.log("Upload Date:", uploadDate);
+  console.log("Place:", generationPlace);
+  console.log("File:", req.file);
+  res.json({ message: "Report uploaded successfully" });
+});
 
 router.get("/", authMiddleware, async (req, res) => {
   try {
@@ -24,7 +40,6 @@ router.post("/", async (req, res) => {
       const newPatient = new Patient(req.body);
       const savedPatient = await newPatient.save();
 
-      // Emit to all clients
       io.emit("newPatient", savedPatient);
 
       res.status(201).json(savedPatient);

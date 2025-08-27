@@ -1,5 +1,5 @@
 import React from 'react';
-import { CssBaseline, Box } from '@mui/material';
+import { Box } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Dashboard/Sidebar';
 import Navbar from './components/Dashboard/Navbar';
@@ -25,8 +25,19 @@ import PayPalPaymentPage from './pages/PayPalPaymentPage';
 import Chatbot from './components/PatientPortal/Chatbot'; 
 import AnalysisPage from './components/Dashboard/Analysis';
 import DoctorSettings from './components/Dashboard/DoctorSetting/DoctorSettings';
+import UploadReport from './components/PatientPortal/UploadedReport';
 import './App.css';
 import { LoginOutlined } from '@mui/icons-material';
+
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+const theme = createTheme({
+  typography: {
+    fontFamily: '"Roboto Slab", serif',
+  },
+});
+
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
@@ -34,85 +45,88 @@ function App() {
 
   return (
     <Router>
-      <CssBaseline />
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
 
-      {/* Chatbot visible on all pages */}
-      <Chatbot />
+        {/* Chatbot visible on all pages */}
+        <Chatbot />
 
-      <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/doctor/signin" element={<DoctorSignin />} />
-        <Route path="/doctor/signup" element={<DoctorSignUp />} />
-        <Route path="/patient/signin" element={<PatientLogin />} />
-        <Route path="/patient/signup" element={<PatientSignUp />} />
-        <Route path="/aboutus" element={<AboutUs />} />
-        <Route path="/paypal" element={<PayPalPaymentPage />} />
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/doctor/signin" element={<DoctorSignin />} />
+          <Route path="/doctor/signup" element={<DoctorSignUp />} />
+          <Route path="/patient/signin" element={<PatientLogin />} />
+          <Route path="/patient/signup" element={<PatientSignUp />} />
+          <Route path="/aboutus" element={<AboutUs />} />
+          <Route path="/paypal" element={<PayPalPaymentPage />} />
 
-        {/* Patient portal */}
-        <Route
-          path="/patient/*"
-          element={
-            <Box sx={{ display: 'flex' }}>
-              <PatientSidebar open={sidebarOpen} onToggle={toggleSidebar} />
+          {/* Patient portal */}
+          <Route
+            path="/patient/*"
+            element={
+              <Box sx={{ display: 'flex' }}>
+                <PatientSidebar open={sidebarOpen} onToggle={toggleSidebar} />
+                  <Box
+                    sx={{
+                      flexGrow: 1,
+                      ml: sidebarOpen ? '250px' : '62px',
+                      transition: 'margin-left 0.3s ease-in-out',
+                    }}
+                  >
+                  <PatientNavbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar}/>
+                  <Box sx={{ p: 3, mt: 8 }}>
+                    <Routes>
+                      <Route path="dashboard" element={<PatientDashboard />} />
+                      <Route path="appointments" element={<PatientAppointments />} />
+                      <Route path="book" element={<BookAppointment />} />
+                      <Route path="video-call" element={<PatientVideoCall />} />
+                      <Route path="upload-report" element={<UploadReport />} />
+                    </Routes>
+                  </Box>
+                </Box>
+              </Box>
+            }
+          />
+
+          {/* Doctor portal */}
+          <Route
+            path="/doctor/*"
+            element={
+              <Box sx={{ display: 'flex' }}>
+                {/* Sidebar with toggle */}
+                <Sidebar open={sidebarOpen} onToggle={toggleSidebar} />
+
+                {/* Main content area shifts with sidebar */}
                 <Box
+                  className="main-content"
                   sx={{
                     flexGrow: 1,
-                    ml: sidebarOpen ? '250px' : '62px',
+                    ml: sidebarOpen ? '250px' : '72px',
                     transition: 'margin-left 0.3s ease-in-out',
+                    p: 3,
+                    mt: 8
                   }}
                 >
-                <PatientNavbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar}/>
-                <Box sx={{ p: 3, mt: 8 }}>
+                  <Navbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar} />
+
                   <Routes>
-                    <Route path="dashboard" element={<PatientDashboard />} />
-                    <Route path="appointments" element={<PatientAppointments />} />
-                    <Route path="book" element={<BookAppointment />} />
-                    <Route path="video-call" element={<PatientVideoCall />} />
+                    <Route path="dashboard" element={<Dashboard sidebarOpen={sidebarOpen} />} />
+                    <Route path="patients" element={<Patients />} />
+                    <Route path="appointments" element={<Appointments />} />
+                    <Route path="livevideocall" element={<LiveVideoCall />} />
+                    <Route path="video-call" element={<DoctorVideoCall />} />
+                    <Route path="prescriptions" element={<Prescriptions />} />
+                    <Route path="analysis" element={<AnalysisPage />} />
+                    <Route path="settings" element={<DoctorSettings />} />
+                    <Route path="logout" element={<LoginOutlined />} />
                   </Routes>
                 </Box>
               </Box>
-            </Box>
-          }
-        />
-
-        {/* Doctor portal */}
-        <Route
-          path="/doctor/*"
-          element={
-            <Box sx={{ display: 'flex' }}>
-              {/* Sidebar with toggle */}
-              <Sidebar open={sidebarOpen} onToggle={toggleSidebar} />
-
-              {/* Main content area shifts with sidebar */}
-              <Box
-                className="main-content"
-                sx={{
-                  flexGrow: 1,
-                  ml: sidebarOpen ? '250px' : '72px',
-                  transition: 'margin-left 0.3s ease-in-out',
-                  p: 3,
-                  mt: 8
-                }}
-              >
-                <Navbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar} />
-
-                <Routes>
-                  <Route path="dashboard" element={<Dashboard sidebarOpen={sidebarOpen} />} />
-                  <Route path="patients" element={<Patients />} />
-                  <Route path="appointments" element={<Appointments />} />
-                  <Route path="livevideocall" element={<LiveVideoCall />} />
-                  <Route path="video-call" element={<DoctorVideoCall />} />
-                  <Route path="prescriptions" element={<Prescriptions />} />
-                  <Route path="analysis" element={<AnalysisPage />} />
-                  <Route path="settings" element={<DoctorSettings />} />
-                  <Route path="logout" element={<LoginOutlined />} />
-                </Routes>
-              </Box>
-            </Box>
-          }
-        />
+            }
+          />
       </Routes>
+      </ThemeProvider>
     </Router>
   );
 }

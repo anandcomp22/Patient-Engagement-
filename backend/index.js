@@ -17,17 +17,17 @@ const {
   connectToDatabase,
 } = require("./db/models");
 
-const appointmentRouter = require("./routes/appointment.js");
-const doctorRouter = require("./routes/doctor.js");
-const patientRouter = require("./routes/patient.js");
-const feespayRouter = require("./routes/feespay.js");
-const prescriptionRoutes = require("./routes/prescriptionRoutes");
-const newsRoute = require('./routes/newsRoute');
-const paypalRoute = require('./routes/paypal');
-const summary = require('./routes/videoCall');
+const appointmentRouter = require("./routes/DoctorRoutes/appointment.js");
+const doctorRouter = require("./routes/DoctorRoutes/doctor.js");
+const patientRouter = require("./routes/PatientRoutes/patient.js");
+const feespayRouter = require("./routes/PaymentRoutes/feespay.js");
+const prescriptionRoutes = require("./routes/DoctorRoutes/prescriptionRoutes.js");
+const newsRoute = require('./routes/DoctorRoutes/newsRoute.js');
+const paypalRoute = require('./routes/PaymentRoutes/paypal.js');
+const summary = require('./routes/DoctorRoutes/videoCall.js');
 const auth = require("./middleware/authMiddleware");
-const analysis = require('./routes/analytics');
-const aiprescript = require("./routes/ai");
+const analysis = require('./routes/DoctorRoutes/analytics.js');
+const aiprescript = require("./routes/ChatBotRoutes/ai.js");
 
 const app = express();
 app.use(cors());

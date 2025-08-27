@@ -1,15 +1,9 @@
 .chatbot-toggle {
     position: fixed;
-    bottom: 40px;
-    right: 30px;
-    background-color: #1976d2;
-    color: white;
-    padding: 12px;
-    border-radius: 50%;
+    bottom: 0px;
+    right: 10px;
     cursor: pointer;
     z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    transition: transform 0.2s ease-in-out;
   }
   .chatbot-toggle:hover {
     transform: scale(1.1);

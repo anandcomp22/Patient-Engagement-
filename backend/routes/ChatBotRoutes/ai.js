@@ -12,7 +12,7 @@ router.post("/detect-condition", async (req, res) => {
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "llama3.1-Instruct",
       messages: [
         { role: "system", content: "You're a medical assistant. From this transcript, extract the most likely medical condition discussed. Respond only with the condition name in lowercase." },
         { role: "user", content: transcript },

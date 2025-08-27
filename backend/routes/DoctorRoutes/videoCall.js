@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { videocallSchem } = require("../db/models");
+const { videocallSchem } = require("../../db/models");
 
 router.post("/summary", async (req, res) => {
   try {

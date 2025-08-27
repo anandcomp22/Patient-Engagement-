@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { exec } = require("child_process");
 const bcrypt = require("bcryptjs");
-const { Doctor } = require("../db/models");
-const { generateToken } = require("../utils/auth");
-const authMiddleware = require("../middleware/authMiddleware");
+const { Doctor } = require("../../db/models");
+const { generateToken } = require("../../utils/auth");
+const authMiddleware = require("../../middleware/authMiddleware");
 
 
 router.get("/dashboard", authMiddleware, (req, res) => {
@@ -64,7 +64,7 @@ router.get("/me", authMiddleware, async (req, res) => {
 });
 
 
-const { Appointment } = require("../db/models");
+const { Appointment } = require("../../db/models");
 
 router.get('/appointment', authMiddleware, async (req, res) => {
   console.log(" /appointment route hit");

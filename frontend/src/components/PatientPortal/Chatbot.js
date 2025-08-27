@@ -1,17 +1,29 @@
 import React, { useState } from 'react';
 import './Chatbot.css';
 import axios from 'axios';
-import { Support } from '@mui/icons-material';
 
 const API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
 
 const ruleBasedResponses = {
+  "Hi": "Hello, how can I help you?",
+  "Hello": "Hi there! How can I assist you today?",
   "What are your business hours?": "Our business hours are from 9 AM to 6 PM, Monday to Friday.",
   "How can I schedule an appointment?": "To schedule an appointment, you can use our website or call our office.",
   "What is the pricing for consultations?": "Consultation fees vary. Please check our website for the most up-to-date information.",
   "Can you help me with health advice?": "I can guide you, but it's best to consult with a professional for personalized advice.",
   "What is telemedicine?": "Telemedicine is a way to consult with a doctor remotely using video calls or online chats.",
+  "What is AidME?": "AidME is a healthcare platform that connects patients with doctors for appointments, consultations, and health management.",
+  "How do I contact the support team?": "You can contact our support team via email at support@aidme.com or use the chat option on our website.",
+  "Is my data secure?": "Yes, we take your privacy seriously. All your information is securely stored and handled according to privacy regulations.",
+  "Can I reschedule my appointment?": "Yes, you can reschedule your appointment using your account dashboard or by contacting our support team.",
+  "What should I do if I face technical issues?": "If you face any technical issues, please contact our support team and they will assist you promptly.",
+  "Do you provide emergency consultations?": "Currently, AidME offers scheduled consultations. For emergencies, please contact your nearest hospital or emergency services.",
+  "How do I create an account?": "You can create an account by signing up on the AidME website using your email or phone number.",
+  "I forgot my password. What should I do?": "Click on 'Forgot Password' on the login page and follow the instructions to reset your password.",
+  "Can I cancel my appointment?": "Yes, you can cancel your appointment from your dashboard or contact the support team for assistance.",
+  "What services does AidME offer?": "AidME provides online consultations, appointment booking, telemedicine services, and health management tools.",
 };
+
 
 function Chatbot() {
   const [open, setOpen] = useState(false);
@@ -69,7 +81,11 @@ function Chatbot() {
   return (
     <>
       <div className="chatbot-toggle" onClick={toggleChat}>
-        <Support style={{ fontSize: 40 }} />
+        <img 
+          src="/bot.png" 
+          alt="Chatbot" 
+          style={{ width: "100px", height: "140px", borderRadius: "50%" }} 
+        />
       </div>
 
       {open && (

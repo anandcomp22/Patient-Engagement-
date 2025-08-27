@@ -1,73 +1,15 @@
 import React from 'react';
-import { 
-  AppBar, 
-  Toolbar, 
-  Typography, 
-  Box, 
-  Button, 
-  Paper, 
-  Grid, 
-  Container,
-  Breadcrumbs,
-  Link,
-  Chip,
-  Avatar,
-  Divider
-} from '@mui/material';
-import { 
-  Home,
-  MedicalServices, 
-  People,
-  Favorite,
-  ContactMail,
-  HomeRounded,
-  InfoRounded,
-  Phone,
-  NavigateNext,
-  Visibility,
-  LocalHospital,
-  Spa,
-  Description,
-  Vaccines,
-  MonitorHeart,
-  Psychology,
-  MedicalInformation,
-  Schedule,
-  Videocam,
-  SupportAgent,
-  Groups, FeaturedPlayListRounded, MailOutlineRounded, LocalHospitalRounded 
-} from '@mui/icons-material';
-import { CircularProgress } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, Button, Paper, Grid, Container,Breadcrumbs,Link,Chip,Avatar,Divider} from '@mui/material';
+import { Favorite, ContactMail, HomeRounded, InfoRounded, Phone, NavigateNext, Visibility,
+  LocalHospital, Spa, Description, Vaccines, MonitorHeart, Psychology, MedicalInformation, Schedule, Videocam, SupportAgent,
+  Groups, FeaturedPlayListRounded, MailOutlineRounded, LocalHospitalRounded, CheckCircle, SentimentSatisfiedAlt, EventAvailable,PersonSearch, } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 
 
-const specialties = [
-  "General Physician",
-  "Dermatology",
-  "Obstetrics & Gynaecology",
-  "Orthopaedics",
-  "ENT",
-  "Neurology",
-  "Cardiology",
-  "Urology",
-  "Gastroenterology/GI",
-  "Psychiatry",
-  "Paediatrics",
-  "Pulmonology/Respiratory",
-  "Endocrinology",
-  "Nephrology",
-  "Neurosurgery",
-  "Rheumatology",
-  "Ophthalmology",
-  "Surgical Gastroenterology",
-  "Infectious Disease",
-  "General & Laparoscopic Surgery",
-  "Psychology",
-  "Medical Oncology",
-  "Diabetology",
-  "Dentist"
-];
+const specialties = ["General Physician","Dermatology","Obstetrics & Gynaecology","Orthopaedics","ENT","Neurology","Cardiology","Urology","Gastroenterology/GI",
+  "Psychiatry","Paediatrics","Pulmonology/Respiratory","Endocrinology","Nephrology","Neurosurgery","Rheumatology","Ophthalmology","Surgical Gastroenterology",
+  "Infectious Disease","General & Laparoscopic Surgery","Psychology","Medical Oncology","Diabetology","Dentist" ];
 
 const patientFeatures = [
   { icon: <Visibility />, name: "Cataract Detection", desc: "AI-powered analysis of eye scans for cataract detection" },
@@ -85,61 +27,8 @@ const benefits = [
   { icon: <Schedule fontSize="large" />, title: "Easy Scheduling", description: "Book appointments at your convenience" },
   { icon: <Videocam fontSize="large" />, title: "Video Consultations", description: "Connect with doctors face-to-face online" },
   { icon: <Groups fontSize="large" />, title: "Expert Doctors", description: "Choose from qualified healthcare professionals" },
-  { icon: <SupportAgent fontSize="large" />, title: "24/7 Support", description: "Access healthcare support anytime" }
+  { icon: <SupportAgent fontSize="large" />, title: "24/7 Support", description: "Access healthcare support team anytime" }
 ];
-
-const AnimatedProgressCard = ({ title, target }) => {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setProgress((oldProgress) => {
-        const diff = Math.random() * 3; 
-        return Math.min(oldProgress + diff, target);
-      });
-    }, 30);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [target]);
-
-  return (
-    <Grid item xs={12} sm={6} md={3}>
-      <Paper elevation={3} sx={{
-        p: 3,
-        textAlign: 'center',
-        borderRadius: 3,
-        transition: 'all 0.3s ease',
-        '&:hover': { transform: 'translateY(-5px)', boxShadow: 6 }
-      }}>
-        <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>
-          {title}
-        </Typography>
-        <Box sx={{ position: 'relative', display: 'inline-flex', mb: 1 }}>
-          <CircularProgress variant="determinate" value={progress} size={80} thickness={5} sx={{ color: '#1E5DA9' }} />
-          <Box
-            sx={{
-              top: 0,
-              left: 0,
-              bottom: 0,
-              right: 0,
-              position: 'absolute',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Typography variant="h6" component="div" color="text.secondary">
-              {`${Math.round(progress)}%`}
-            </Typography>
-          </Box>
-        </Box>
-      </Paper>
-    </Grid>
-  );
-};
-
 
 const HomePage = () => {
   const featuresRef = useRef(null);
@@ -166,7 +55,14 @@ const HomePage = () => {
           
           {/* Left - Logo and Brand */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <LocalHospitalRounded sx={{ fontSize: 40, color: 'white', mr: 1 }} />
+            <div>
+              <img 
+                src="/main1.png" 
+                alt="Icon" 
+                style={{ width: "60px", height: "50px", borderRadius: "50%" }} 
+              />
+            </div>
+            
             <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'white' }}>
               AidME
             </Typography>
@@ -245,14 +141,26 @@ const HomePage = () => {
                   transform: 'scale(1.02)'
                 }
               }}>
-                <MedicalServices sx={{ 
-                  fontSize: 60,
-                  color: '#0062b2ff',
-                  mb: 2 
-                }} />
-                <Typography variant="h5" gutterBottom>
-                  Doctor Login
-                </Typography>
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    mb: 3 
+                  }}
+                >
+                  {/* Image above Doctor Login */}
+                  <Box
+                    component="img"
+                    src="/doc1.png" 
+                    alt="Doctor Login"
+                    sx={{ width: 80, height: 80, mb: 2 }}
+                  />
+
+                  <Typography variant="h5" gutterBottom>
+                    Doctor Login
+                  </Typography>
+                </Box>
                 <Typography variant="body1" sx={{ mb: 3 }}>
                   Access your doctor dashboard to manage appointments, prescriptions, and patient records.
                 </Typography>
@@ -283,14 +191,25 @@ const HomePage = () => {
                   transform: 'scale(1.02)'
                 }
               }}>
-                <People sx={{ 
-                  fontSize: 60,
-                  color: '#1E5DA9',
-                  mb: 2 
-                }} />
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    mb: 3 
+                  }}
+                >
+                  {/* Image above Doctor Login */}
+                  <Box
+                    component="img"
+                    src="/patient1.png" 
+                    alt="Patient Login"
+                    sx={{ width: 80, height: 80, mb: 2 }}
+                  />
                 <Typography variant="h5" gutterBottom>
                   Patient Login
                 </Typography>
+                </Box>
                 <Typography variant="body1" sx={{ mb: 3 }}>
                   Access your patient portal to book appointments, view prescriptions, and connect with doctors.
                 </Typography>
@@ -423,22 +342,44 @@ const HomePage = () => {
         </Box>
 
           {/* Success Rate Section with Animated Circular Progress */}
-          <Box sx={{ mb: 8 }}>
-            <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#2a72caff', textAlign: 'center' }}>
+          <Box sx={{ mb: 10 }}>
+            <Typography
+              variant="h4"
+              sx={{ mb: 6, fontWeight: 'bold', color: '#2a72ca', textAlign: 'center' }}
+            >
               Our Success Metrics
             </Typography>
 
-            <Grid container spacing={4}>
-              {/* Individual Animated Card */}
-              {[
-                { title: 'Success Rate', target: 98 },
-                { title: 'Patient Satisfaction', target: 96 },
-                { title: 'Appointments', target: 95 },
-                { title: 'Doctor Availability', target: 97 }
-              ].map((item, index) => (
-                <AnimatedProgressCard key={index} title={item.title} target={item.target} />
-              ))}
-            </Grid>
+            <Grid container spacing={4} justifyContent="center">
+            {[
+              { title: 'Success Rate', target: 98, icon: <CheckCircle sx={{ fontSize: 40, color: '#2a72ca' }} /> },
+              { title: 'Patient Satisfaction', target: 96, icon: <SentimentSatisfiedAlt sx={{ fontSize: 40, color: '#2a72ca' }} /> },
+              { title: 'Appointments', target: 95, icon: <EventAvailable sx={{ fontSize: 40, color: '#2a72ca' }} /> },
+              { title: 'Doctor Availability', target: 97, icon: <PersonSearch sx={{ fontSize: 40, color: '#2a72ca' }} /> }
+            ].map((item, index) => (
+              <Grid item xs={12} sm={6} md={3} key={index}>
+                <Box
+                  sx={{
+                    p: 4,
+                    borderRadius: 4,
+                    textAlign: 'center',
+                    boxShadow: 3,
+                    background: 'linear-gradient(135deg, #e3f2fd, #ffffff)',
+                    transition: 'transform 0.3s ease',
+                    '&:hover': { transform: 'translateY(-6px)' },
+                  }}
+                >
+                  {item.icon}
+                  <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#2a72ca', mt: 1 }}>
+                    {item.target}%
+                  </Typography>
+                  <Typography variant="h6" sx={{ mt: 1, fontWeight: 600 }}>
+                    {item.title}
+                  </Typography>
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
           </Box>
 
         {/* Benefits Section */}
@@ -449,19 +390,14 @@ const HomePage = () => {
           <Grid container spacing={4}>
             {benefits.map((benefit, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
-                <Paper elevation={3} sx={{ 
-                  p: 3, 
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  textAlign: 'center',
-                  borderRadius: 2,
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    transform: 'translateY(-5px)',
-                    boxShadow: 6
-                  }
+                <Paper elevation={3} sx={{
+                    p: 4,
+                    borderRadius: 4,
+                    textAlign: 'center',
+                    boxShadow: 3,
+                    background: 'linear-gradient(135deg, #e3f2fd, #ffffff)',
+                    transition: 'transform 0.3s ease',
+                    '&:hover': { transform: 'translateY(-6px)' },
                 }}>
                   <Box sx={{ 
                     color: '#2a72caff',
@@ -484,30 +420,23 @@ const HomePage = () => {
         {/* Find Doctors Section */}
         <Box id="contact-section" ref={contactRef} sx={{ mt: 4, mb: 6 }}>
           <Breadcrumbs separator={<NavigateNext fontSize="small" />} aria-label="breadcrumb">
-            <Link 
-              underline="hover" 
-              color="inherit" 
-              href="/" 
-              sx={{ display: 'flex', alignItems: 'center' }}
-            >
-              <Home sx={{ mr: 0.5 }} fontSize="inherit" />
-              Home
-            </Link>
-            <Typography color="text.primary">Find Doctors</Typography>
+            <Typography variant="h6" color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
+              <PersonSearch  sx={{ mr: 0.5 }} fontSize="inherit" />
+              Find Doctors
+            </Typography>
           </Breadcrumbs>
-
-          <Typography variant="h4" sx={{ mt: 3, mb: 2, fontWeight: 'bold' }}>
+          <Typography variant="h5" sx={{ mt: 3, mb: 2, fontWeight: 'bold', color: "#2a72caff"}}>
             Find the right doctor for your ailments
           </Typography>
           
           <Chip
             icon={<Phone />}
-            label="Call +91-8040245807 to book an appointment"
+            label="Call +91-9552111011 to book an appointment"
             variant="outlined"
             sx={{ 
               p: 2,
               fontSize: '1rem',
-              bgcolor: '#f5f5f5',
+              bgcolor: '#86c8ffff',
               borderColor: '#2a72caff'
             }}
           />
@@ -518,7 +447,7 @@ const HomePage = () => {
       <Box 
         component="footer"
         sx={{
-          py: 4,
+          py: 3,
           px: 2,
           mt: 'auto',
           backgroundColor: '#fff',
@@ -526,52 +455,51 @@ const HomePage = () => {
           borderTop: '1px solid rgba(0,0,0,0.12)'
         }}
       >
-        <Container maxWidth="lg">
-          <Grid container spacing={4}>
+        <Container maxWidth="small">
+          <Grid container spacing={4} gap={4}>
+            {/* Brand */}
             <Grid item xs={12} sm={6} md={3}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#1E5DA9' }}>
+              <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold', color: '#1E5DA9' }}>
                 AidME
               </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
+              <Typography variant="body2" sx={{ mb: 1, color: 'text.secondary' }}>
                 Making healthcare accessible to everyone
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>
-                Quick Links
-              </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Link href="#" color="inherit" sx={{ mb: 1 }}>Home</Link>
-                <Link href="#" color="inherit" sx={{ mb: 1 }}>Features</Link>
-                <Link href="#" color="inherit" sx={{ mb: 1 }}>About Us</Link>
-                <Link href="#" color="inherit">Contact</Link>
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>
+
+            {/* Quick Links & Services */}
+            <Grid item xs={12} sm={2} md={5}>
+              <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 'bold' }}>
                 Services
               </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Link href="#" color="inherit" sx={{ mb: 1 }}>Find Doctors</Link>
-                <Link href="#" color="inherit" sx={{ mb: 1 }}>Video Consultations</Link>
-                <Link href="#" color="inherit" sx={{ mb: 1 }}>Health Records</Link>
-                <Link href="#" color="inherit">Medication Tracking</Link>
+              <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.5, flexWrap: 'wrap', justifyContent: 'space-between'}}>
+                <Link href="#" underline="none" color="text.secondary" sx={{ '&:hover': { color: 'primary.main' } }}>Find Doctors</Link>
+                <Link href="#" underline="none" color="text.secondary" sx={{ '&:hover': { color: 'primary.main' } }}>Video Consultations</Link>
+                <Link href="#" underline="none" color="text.secondary" sx={{ '&:hover': { color: 'primary.main' } }}>Health Records</Link>
+                <Link href="#" underline="none" color="text.secondary" sx={{ '&:hover': { color: 'primary.main' } }}>Medication Tracking</Link>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>
+
+            {/* Contact */}
+            <Grid item xs={12} sm={6} md={3} sx={{ ml: 'auto', textAlign: { xs: 'center', sm: 'right' } }}>
+              <Typography variant="subtitle1" sx={{ display: 'flex', alignItems: 'center', mb: 1, fontWeight: 'bold' }}>
                 Contact Us
               </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                <Phone fontSize="small" sx={{ mr: 1 }} /> +91-9552111011
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                <ContactMail fontSize="small" sx={{ mr: 1 }} /> support@aidme.com
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Phone fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
+                <Typography variant="body2" color="text.secondary">+91-9552111011</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <ContactMail fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
+                <Typography variant="body2" color="text.secondary">support@aidme.com</Typography>
+              </Box>
             </Grid>
           </Grid>
+
           <Divider sx={{ my: 3 }} />
-          <Typography variant="body2" align="center">
+
+          {/* Footer Bottom */}
+          <Typography variant="body2" align="center" color="text.secondary">
             © {new Date().getFullYear()} AidME Healthcare. All rights reserved.
           </Typography>
         </Container>

@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");
 const nodemailer = require("nodemailer");
-const { Prescription } = require("../db/models");
+const { Prescription } = require("../../db/models");
 require("dotenv").config();
 
 const router = express.Router();

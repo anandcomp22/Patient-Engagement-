@@ -1,9 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const {Appointment} = require("../db/models"); // Adjust path
-const {Prescription} = require("../db/models"); // If exists
+const {Appointment} = require("../../db/models"); 
+const {Prescription} = require("../../db/models");
 
-// 1. Daily appointment counts for chart
 router.get("/appointments/daily", async (req, res) => {
   try {
     const data = await Appointment.aggregate([
@@ -21,8 +20,7 @@ router.get("/appointments/daily", async (req, res) => {
   }
 });
 
-// 2. Top prescribed medicines (based on VideoCallSummary)
-const {videocallSchem} = require("../db/models");
+const {videocallSchem} = require("../../db/models");
 router.get("/medicines/top", async (req, res) => {
   try {
     const summaries = await videocallSchem.find();

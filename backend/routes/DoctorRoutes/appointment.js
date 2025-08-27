@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { Appointment, videocall, Patient } = require('../db/models'); 
+const { Appointment, videocall, Patient } = require('../../db/models'); 
 const { v4: uuidv4 } = require('uuid');
-const authMiddleware = require('../middleware/authMiddleware');
+const authMiddleware = require('../../middleware/authMiddleware');
 
 router.get("/appointments", async (req, res) => {
   try {

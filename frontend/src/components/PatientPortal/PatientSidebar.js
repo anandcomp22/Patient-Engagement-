@@ -10,6 +10,7 @@ import {
   LoginOutlined,
   ChevronLeft as ChevronLeftIcon
 } from '@mui/icons-material';
+import DescriptionIcon from "@mui/icons-material/Description";
 import Aidme from "../Dashboard/icons/logo.png";
 
 
@@ -20,6 +21,7 @@ const PatientSidebar = ({ open, onToggle }) => {
       { text: "Dashboard", icon: <Dashboard />, to: "/patient/dashboard" },
       { text: "Appointments", icon: <CalendarMonth />, to: "/patient/appointments" },
       { text: "Video Call Room", icon: <VideoCall />, to: "/patient/video_room" },
+      { text: "Upload Report", icon: <DescriptionIcon />, to: "/patient/upload-report" },
     ];
 
     const footerItems = [
