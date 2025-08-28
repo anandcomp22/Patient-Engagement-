@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import backgroundImage from './image/D.png';
 import { 
   Container,
   Box,
@@ -16,7 +17,7 @@ import {
   IconButton,
   FormHelperText,
   MenuItem,
-  Select
+  Select, Card, CardContent
 } from '@mui/material';
 import { 
   Visibility, 
@@ -148,8 +149,32 @@ const PatientSignUp = () => {
   
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+    <Box
+        sx={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          minHeight: "100vh",
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 2,
+          position: "absolute",
+          overflow: "hidden",
+            }}
+      >
+        <Card sx={{
+              width: "100%",
+              maxWidth: 700,
+              maxHeight: "80vh",
+              overflow: "auto",
+              borderRadius: 3,
+              boxShadow: 6
+            }}>
+            <CardContent>
+    <Container maxWidth="sm" sx={{ mt: 6, mb: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
         <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
           <ArrowBack />
         </IconButton>
@@ -403,6 +428,9 @@ const PatientSignUp = () => {
         </Grid>
       </Box>
     </Container>
+    </CardContent>
+    </Card>
+    </Box>
   );
 };
 

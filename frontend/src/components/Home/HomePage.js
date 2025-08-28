@@ -1,10 +1,10 @@
-import React from 'react';
-import { AppBar, Toolbar, Typography, Box, Button, Paper, Grid, Container,Breadcrumbs,Link,Chip,Avatar,Divider} from '@mui/material';
+import React, { useRef, useState } from 'react';
+import { AppBar, Toolbar, Typography, Box, Button, Paper, Grid, Container,Breadcrumbs,Link,Chip,Avatar,Divider,
+   Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} from '@mui/material';
 import { Favorite, ContactMail, HomeRounded, InfoRounded, Phone, NavigateNext, Visibility,
   LocalHospital, Spa, Description, Vaccines, MonitorHeart, Psychology, MedicalInformation, Schedule, Videocam, SupportAgent,
-  Groups, FeaturedPlayListRounded, MailOutlineRounded, LocalHospitalRounded, CheckCircle, SentimentSatisfiedAlt, EventAvailable,PersonSearch, } from '@mui/icons-material';
+  Groups, FeaturedPlayListRounded, MailOutlineRounded, CheckCircle, SentimentSatisfiedAlt, EventAvailable,PersonSearch } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useRef } from 'react';
 
 
 const specialties = ["General Physician","Dermatology","Obstetrics & Gynaecology","Orthopaedics","ENT","Neurology","Cardiology","Urology","Gastroenterology/GI",
@@ -12,16 +12,171 @@ const specialties = ["General Physician","Dermatology","Obstetrics & Gynaecology
   "Infectious Disease","General & Laparoscopic Surgery","Psychology","Medical Oncology","Diabetology","Dentist" ];
 
 const patientFeatures = [
-  { icon: <Visibility />, name: "Cataract Detection", desc: "AI-powered analysis of eye scans for cataract detection" },
-  { icon: <LocalHospital />, name: "Pneumonia Detection", desc: "Automated detection from chest X-ray uploads" },
-  { icon: <Favorite />, name: "Heart Disease Prediction", desc: "Risk assessment based on medical reports" },
-  { icon: <Spa />, name: "Skin Infection Analysis", desc: "Dermatological condition analysis from images" },
-  { icon: <Description />, name: "Report Analysis", desc: "Comprehensive medical report interpretation" },
-  { icon: <Vaccines />, name: "Vaccination Reminders", desc: "Personalized vaccination schedules" },
-  { icon: <MonitorHeart />, name: "Health Monitoring", desc: "Track vital signs and health metrics" },
-  { icon: <Psychology />, name: "Mental Health Screening", desc: "Preliminary mental health assessments" },
-  { icon: <MedicalInformation />, name: "Medication Management", desc: "Personalized medication tracking" }
+  { 
+    icon: <Visibility />, 
+    name: "Cataract Detection", 
+    desc: "AI-powered analysis of eye scans for cataract detection", 
+    details: {
+      text: "Our model uses Convolutional Neural Networks (CNN) to analyze retina images and detect cataracts at an early stage.",
+      image: "/features/cataract.jpeg",
+      model: "CNN (Convolutional Neural Network)",
+      input: "Retina images uploaded by the patient",
+      output: "Classification: Normal / Cataract (with severity score)",
+      steps: [
+        "Upload your eye scan image",
+        "Preprocessing: resize and normalize the image",
+        "CNN analyzes the scan for cloudiness and opacity",
+        "Receive detailed report with severity and recommendations"
+      ]
+    }
+  },
+  { 
+    icon: <LocalHospital />, 
+    name: "Pneumonia Detection", 
+    desc: "Automated detection from chest X-ray uploads", 
+    details: {
+      text: "Using a pre-trained deep learning model, the system detects pneumonia patterns in chest X-rays accurately.",
+      image: "/features/pneumonia.jpeg",
+      model: "CNN with Transfer Learning",
+      input: "Chest X-ray images",
+      output: "Classification: Normal / Pneumonia (with confidence score)",
+      steps: [
+        "Upload your chest X-ray",
+        "Image preprocessing and normalization",
+        "Deep learning model identifies lung inflammation",
+        "Receive predictive report with confidence level"
+      ]
+    }
+  },
+  { 
+    icon: <Favorite />, 
+    name: "Heart Disease Prediction", 
+    desc: "Risk assessment based on medical reports", 
+    details: {
+      text: "This ML model predicts the risk of heart disease based on patient medical data and lifestyle metrics.",
+      image: "/features/heart.jpeg",
+      model: "Random Forest Classifier",
+      input: "Patient medical history, blood pressure, cholesterol, age, lifestyle data",
+      output: "Risk score: Low / Medium / High",
+      steps: [
+        "Enter your health parameters",
+        "Data preprocessing and feature scaling",
+        "Random Forest model predicts heart disease risk",
+        "Receive personalized advice and risk score"
+      ]
+    }
+  },
+  { 
+    icon: <Spa />, 
+    name: "Skin Infection Analysis", 
+    desc: "Dermatological condition analysis from images", 
+    details: {
+      text: "The system classifies skin conditions using CNN, identifying infections, rashes, or acne accurately.",
+      image: "/features/skin.jpeg",
+      model: "CNN (Convolutional Neural Network)",
+      input: "Patient-uploaded skin images",
+      output: "Classification of skin condition with severity",
+      steps: [
+        "Upload skin image",
+        "Preprocessing: resize, normalize, augment images",
+        "CNN evaluates infection type and severity",
+        "Receive treatment suggestions and care advice"
+      ]
+    }
+  },
+  { 
+    icon: <Description />, 
+    name: "Report Analysis", 
+    desc: "Comprehensive medical report interpretation", 
+    details: {
+      text: "AI NLP model extracts key insights from medical reports and summarizes critical health information.",
+      image: "/features/report.jpeg",
+      model: "Transformer-based NLP (BERT)",
+      input: "Medical report documents (PDF/Text)",
+      output: "Summarized report highlighting key findings",
+      steps: [
+        "Upload medical report",
+        "NLP extracts important data (diagnoses, metrics)",
+        "AI summarizes insights in simple language",
+        "Receive easy-to-understand report with highlights"
+      ]
+    }
+  },
+  { 
+    icon: <Vaccines />, 
+    name: "Vaccination Reminders", 
+    desc: "Personalized vaccination schedules", 
+    details: {
+      text: "AI-driven scheduling system sends personalized reminders for upcoming vaccines.",
+      image: "/features/vaccinations.jpeg",
+      model: "Rule-based Scheduling + ML for personalization",
+      input: "Patient vaccination history and age",
+      output: "Next dose reminders and notifications",
+      steps: [
+        "Enter vaccination history",
+        "AI calculates due dates and optimal schedule",
+        "Receive notifications when doses are due",
+        "Track completed vaccinations in patient portal"
+      ]
+    }
+  },
+  { 
+    icon: <MonitorHeart />, 
+    name: "Health Monitoring", 
+    desc: "Track vital signs and health metrics", 
+    details: {
+      text: "The system monitors real-time vitals using wearable devices and predicts anomalies using ML models.",
+      image: "/features/monitor.jpeg",
+      model: "Time-series Anomaly Detection (LSTM/GRU)",
+      input: "Heart rate, BP, oxygen levels, activity data",
+      output: "Alerts for abnormal readings",
+      steps: [
+        "Connect wearable health devices",
+        "Continuous monitoring of vitals",
+        "ML model detects anomalies in real-time",
+        "Receive alerts and recommendations if abnormal readings detected"
+      ]
+    }
+  },
+  { 
+    icon: <Psychology />, 
+    name: "Mental Health Screening", 
+    desc: "Preliminary mental health assessments", 
+    details: {
+      text: "The system uses ML models to assess mental health based on patient responses and behavioral patterns.",
+      image: "/features/mental.jpeg",
+      model: "Logistic Regression + NLP",
+      input: "Questionnaire responses, behavioral metrics",
+      output: "Screening results: Normal / At Risk",
+      steps: [
+        "Answer a short questionnaire",
+        "AI evaluates responses using NLP and statistical models",
+        "Receive mental health screening results",
+        "Get recommendations or resources for support"
+      ]
+    }
+  },
+  { 
+    icon: <MedicalInformation />, 
+    name: "Medication Management", 
+    desc: "Personalized medication tracking", 
+    details: {
+      text: "The system tracks medications, schedules doses, and predicts adherence using AI algorithms.",
+      image: "/features/medince.jpeg",
+      model: "Rule-based scheduling + ML adherence prediction",
+      input: "Patient prescriptions and dosage timings",
+      output: "Medication reminders and adherence tracking",
+      steps: [
+        "Enter medication details",
+        "AI schedules doses and sends reminders",
+        "Predicts likelihood of missed doses",
+        "Receive alerts and medication adherence report"
+      ]
+    }
+  }
 ];
+
+
 
 const benefits = [
   { icon: <Schedule fontSize="large" />, title: "Easy Scheduling", description: "Book appointments at your convenience" },
@@ -33,9 +188,20 @@ const benefits = [
 const HomePage = () => {
   const featuresRef = useRef(null);
   const contactRef = useRef(null);
-
   const navigate = useNavigate();
 
+  const [open, setOpen] = useState(false);
+  const [selectedFeature, setSelectedFeature] = useState(null);
+
+  const handleOpen = (feature) => {
+    setSelectedFeature(feature);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedFeature(null);
+  };
 
   return (
     <>
@@ -325,21 +491,36 @@ const HomePage = () => {
                   <Typography variant="body2" sx={{ mb: 2 }}>
                     {feature.desc}
                   </Typography>
-                  <Button 
-                    size="small" 
-                    sx={{ 
-                      color: '#2a72caff',
-                      fontWeight: 'bold'
-                    }}
-                    onClick={() => navigate('/upload')}
-                  >
-                    Know Now →
-                  </Button>
+                  <Button size="small" sx={{ color: '#2a72caff', fontWeight: 'bold' }} 
+                  onClick={() => handleOpen(feature)}>Know Now →</Button>
                 </Paper>
               </Grid>
             ))}
           </Grid>
         </Box>
+
+        {/* Dialog Popup for Feature Details */}
+        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+          <DialogTitle>{selectedFeature?.name}</DialogTitle>
+          <DialogContent>
+            {selectedFeature?.details?.image && (
+              <Box component="img" src={selectedFeature.details.image} alt={selectedFeature.name} sx={{ width: '100%', mb: 2, borderRadius: 2 }} />
+            )}
+            <DialogContentText sx={{ mb: 2 }}>
+              {selectedFeature?.details?.text}
+            </DialogContentText>
+            {selectedFeature?.details?.steps && (
+              <Box component="ul" sx={{ pl: 3 }}>
+                {selectedFeature.details.steps.map((step, idx) => (
+                  <li key={idx}>{step}</li>
+                ))}
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">Close</Button>
+          </DialogActions>
+        </Dialog>
 
           {/* Success Rate Section with Animated Circular Progress */}
           <Box sx={{ mb: 10 }}>

@@ -1,9 +1,6 @@
 import React from 'react';
 import { Box, Typography, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { Add } from '@mui/icons-material';
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
 
 export default function PatientAppointments() {
 

@@ -27,8 +27,7 @@ const doctorSchema = new mongoose.Schema({
     country: { type: String, required: true },
     state: { type: String, required: true },
     district: { type: String, required: true }
-  });
-  
+  }, { timestamps: true });
 
 const feepaySchema = new mongoose.Schema({
     patientId: { type: Number, required: true, unique: true },
