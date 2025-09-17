@@ -20,7 +20,7 @@ const PatientSidebar = ({ open, onToggle }) => {
   const menuItems = [
       { text: "Dashboard", icon: <Dashboard />, to: "/patient/dashboard" },
       { text: "Appointments", icon: <CalendarMonth />, to: "/patient/appointments" },
-      { text: "Video Call Room", icon: <VideoCall />, to: "/patient/video_room" },
+      { text: "Video Call Room", icon: <VideoCall />, to: "/patient/video-call" },
       { text: "Upload Report", icon: <DescriptionIcon />, to: "/patient/upload-report" },
     ];
 

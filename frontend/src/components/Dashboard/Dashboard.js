@@ -145,59 +145,187 @@ const Dashboard = ({ sidebarOpen }) => {
   };
 
   return (
-    <div
-      className="content"
-      style={{
-        marginLeft: sidebarOpen ? 0 : 0,
-        transition: "margin-left 0.3s ease-in-out",
-      }}
-    >
-      <Typography variant="h5" sx={{ color: "#1E5DA9", mb: 4 }}>
-        {greeting}, {DoctorName || "Doctor"}!
-      </Typography>
+    <Box sx={{ p: 3, mt: 3 }}>
 
-      {/* Top Metrics */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box>
+            <Typography variant="h5" sx={{ color: '#1E5DA9' }}>
+              {greeting}, {DoctorName || "Doctor"}!
+            </Typography>
+            <Typography variant="body1" sx={{ color: 'gray' }}>
+            Welcome to your Doctor's dashboard.
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+
       <Grid container spacing={3}>
+        {/* Appointments */}
         <Grid item xs={12} sm={6} md={3}>
-          <Paper className="dashboard-box">
-            <Box className="icon-container" sx={{ backgroundColor: "#DDE8FF" }}>
-              <CalendarMonth sx={{ color: "#3F72FF" }} />
+          <Paper
+            sx={{
+              backgroundColor: "#E3F2FD",
+              borderRadius: "16px",
+              p: 2,
+              textAlign: "center",
+              height: "100%",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                backgroundColor: "#BBDEFB",
+                boxShadow: "0 6px 16px rgba(30,93,169,0.2)",
+                transform: "translateY(-4px)",
+              },
+            }}
+          >
+            <Box
+              sx={{
+                width: 50,
+                height: 50,
+                borderRadius: "50%",
+                backgroundColor: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mx: "auto",
+                mb: 1.5,
+              }}
+            >
+              <CalendarMonth sx={{ color: "#1E88E5", fontSize: 28 }} />
             </Box>
-            <Typography className="box-title">Today's Appointments</Typography>
-            <div className="box-value">{metrics.todayAppointments}</div>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              Today's Appointments
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: "bold", mt: 0.5 }}>
+              {metrics.todayAppointments}
+            </Typography>
           </Paper>
         </Grid>
 
+        {/* Patient Satisfaction */}
         <Grid item xs={12} sm={6} md={3}>
-          <Paper className="dashboard-box">
-            <Box className="icon-container" sx={{ backgroundColor: "#DFFFE0" }}>
-              <People sx={{ color: "#3DDC84" }} />
+          <Paper
+            sx={{
+              backgroundColor: "#E8F5E9",
+              borderRadius: "16px",
+              p: 2,
+              textAlign: "center",
+              height: "100%",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                backgroundColor: "#C8E6C9",
+                boxShadow: "0 6px 16px rgba(56,142,60,0.2)",
+                transform: "translateY(-4px)",
+              },
+            }}
+          >
+            <Box
+              sx={{
+                width: 50,
+                height: 50,
+                borderRadius: "50%",
+                backgroundColor: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mx: "auto",
+                mb: 1.5,
+              }}
+            >
+              <People sx={{ color: "#43A047", fontSize: 28 }} />
             </Box>
-            <Typography className="box-title">Patient Satisfaction</Typography>
-            <div className="box-value">{metrics.patientSatisfaction}%</div>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              Patient Satisfaction
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: "bold", mt: 0.5 }}>
+              {metrics.patientSatisfaction}%
+            </Typography>
           </Paper>
         </Grid>
 
+        {/* Patient Recovered */}
         <Grid item xs={12} sm={6} md={3}>
-          <Paper className="dashboard-box">
-            <Box className="icon-container" sx={{ backgroundColor: "#F4E0FF" }}>
-              <Description sx={{ color: "#A04DFF" }} />
+          <Paper
+            sx={{
+              backgroundColor: "#FFF3E0",
+              borderRadius: "16px",
+              p: 2,
+              textAlign: "center",
+              height: "100%",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                backgroundColor: "#FFE0B2",
+                boxShadow: "0 6px 16px rgba(255,152,0,0.2)",
+                transform: "translateY(-4px)",
+              },
+            }}
+          >
+            <Box
+              sx={{
+                width: 50,
+                height: 50,
+                borderRadius: "50%",
+                backgroundColor: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mx: "auto",
+                mb: 1.5,
+              }}
+            >
+              <Description sx={{ color: "#FB8C00", fontSize: 28 }} />
             </Box>
-            <Typography className="box-title">Patient Recovered</Typography>
-            <div className="box-value">{metrics.patientsRecovered}</div>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              Patient Recovered
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: "bold", mt: 0.5 }}>
+              {metrics.patientsRecovered}
+            </Typography>
           </Paper>
         </Grid>
 
+        {/* Urgent Cases */}
         <Grid item xs={12} sm={6} md={3}>
-          <Paper className="dashboard-box">
-            <Box className="icon-container" sx={{ backgroundColor: "#FFF6D9" }}>
-              <Warning sx={{ color: "#FFC107" }} />
+          <Paper
+            sx={{
+              backgroundColor: "#FCE4EC",
+              borderRadius: "16px",
+              p: 2,
+              textAlign: "center",
+              height: "100%",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                backgroundColor: "#F8BBD0",
+                boxShadow: "0 6px 16px rgba(233,30,99,0.2)",
+                transform: "translateY(-4px)",
+              },
+            }}
+          >
+            <Box
+              sx={{
+                width: 50,
+                height: 50,
+                borderRadius: "50%",
+                backgroundColor: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mx: "auto",
+                mb: 1.5,
+              }}
+            >
+              <Warning sx={{ color: "#E91E63", fontSize: 28 }} />
             </Box>
-            <Typography className="box-title">Urgent Cases</Typography>
-            <div className="box-value">{metrics.urgentCases}</div>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              Urgent Cases
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: "bold", mt: 0.5 }}>
+              {metrics.urgentCases}
+            </Typography>
           </Paper>
         </Grid>
       </Grid>
+
 
       {/* Upcoming Appointments & AI Prescription Insights */}
       <Grid container spacing={3} className="section-container">
@@ -332,7 +460,7 @@ const Dashboard = ({ sidebarOpen }) => {
           </Paper>
         </Grid>
       </Grid>
-    </div>
+   </Box>
   );
 };
 

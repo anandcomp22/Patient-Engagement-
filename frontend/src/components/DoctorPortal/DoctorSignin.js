@@ -103,6 +103,9 @@ const DoctorSignIn = () => {
           }
         } catch (err) {
           showSnackbar("Login failed: " + (err.response?.data?.message || err.message), "error");
+          setIsSubmitting(false); 
+        } finally {
+          setIsSubmitting(false); 
         }
       }, 1500);
     }

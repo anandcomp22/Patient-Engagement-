@@ -18,6 +18,8 @@ import {
   VideoCall,
   AddCircleOutline,
   NotificationsActive,
+  Insights,
+  FitnessCenter,
 } from '@mui/icons-material';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import { useNavigate } from 'react-router-dom';
@@ -34,6 +36,25 @@ const healthProgressData = [
   { date: '2025-01-03', steps: 3500 },
   { date: '2025-01-04', steps: 5000 },
 ];
+
+const cardColors = {
+  appointments: "linear-gradient(135deg, #008CFF 0%, #00E5FF 100%)",
+  book: "linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)",
+  video: "linear-gradient(135deg, #4CAF50 0%, #81C784 100%)",
+  health: "linear-gradient(135deg, #FFD93D 0%, #FFB347 100%)",
+  goal: "linear-gradient(135deg, #9C27B0 0%, #E040FB 100%)",
+  emergency: "linear-gradient(135deg, #B71C1C 0%, #F44336 100%)"
+};
+
+const insightColors = [
+  "#E3F2FD", 
+  "#E8F5E9 ",
+  "#FFF3E0",  
+  "#EDE7F6",  
+  "#E0F2F1 ", 
+  "#FFEBEE " 
+];
+
 
 const NotificationPanel = ({ notifications }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -206,23 +227,21 @@ export default function PatientDashboard() {
 
   const cardStyles = {
     height: '100%',
-    borderLeft: '4px solid #008cffff',
-    boxShadow: '0 4px 12px rgba(30, 93, 169, 0.2)',
-    transition: 'all 0.3s ease-in-out',
-    '&:hover': {
-      boxShadow: '0 8px 20px rgba(30, 93, 169, 0.4)',
-    },
+    borderLeft: `6px solid transparent`,
+    backgroundImage: cardColors.appointments,
+    color: "white",
+    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+    borderRadius: '16px'
   };
 
   return (
-    <Box sx={{ p: 3, mt: 8 }}>
+    <Box sx={{ p: 3, mt: 3 }}>
       {confetti && <Confetti width={width} height={height} />}
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar sx={{ bgcolor: '#008cffff', width: 56, height: 56, fontSize: '20px' }}>{profileInitials}</Avatar>
           <Box>
-            <Typography variant="h5" sx={{ color: '#008cffff' }}>
+            <Typography variant="h5" sx={{ color: '#1E5DA9' }}>
               {greeting}, {patientName || "Patient"}!
             </Typography>
             <Typography variant="body1" sx={{ color: 'gray' }}>
@@ -237,10 +256,16 @@ export default function PatientDashboard() {
         {/* Upcoming Appointments */}
         <Grid item xs={12} md={4}>
           <AnimatedCard delay={0.1}>
-            <Card sx={cardStyles}>
+            <Card sx={{
+                height: "100%",
+                backgroundColor: insightColors[0],
+                borderRadius: "16px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              }}
+            >
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <CalendarToday sx={{ color: '#008cffff', mr: 2 }} />
+                  <CalendarToday sx={{ color: '#1E5DA9', mr: 2 }} />
                   <Typography variant="h6">Upcoming Appointments</Typography>
                 </Box>
                 {loading ? (
@@ -273,7 +298,7 @@ export default function PatientDashboard() {
                 )}
                 <Button
                   variant="contained"
-                  sx={{ bgcolor: '#008cffff', mt: 2, '&:hover': { bgcolor: '#008cffff' }, borderRadius: '20px', px: 3 }}
+                  sx={{ bgcolor: '#62b8ffff', mt: 2, '&:hover': { bgcolor: '#62b8ffff' }, borderRadius: '20px', px: 3 }}
                   onClick={() => navigate('/patient/appointments')}
                 >
                   View All
@@ -286,7 +311,13 @@ export default function PatientDashboard() {
         {/* Book Appointment */}
         <Grid item xs={12} md={4}>
           <AnimatedCard delay={0.2}>
-            <Card sx={cardStyles}>
+            <Card sx={{
+                height: "100%",
+                backgroundColor: insightColors[1],
+                borderRadius: "16px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              }}
+            >
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                   <AddCircleOutline sx={{ color: '#1E5DA9', mr: 2 }} />
@@ -295,7 +326,7 @@ export default function PatientDashboard() {
                 <Typography variant="body1">Schedule a new consultation</Typography>
                 <Button
                   variant="contained"
-                  sx={{ bgcolor: '#008cffff', mt: 2, '&:hover': { bgcolor: '#008cffff' }, borderRadius: '20px', px: 3 }}
+                  sx={{ bgcolor: '#62b8ffff', mt: 2, '&:hover': { bgcolor: '#62b8ffff' }, borderRadius: '20px', px: 3 }}
                   onClick={() => navigate('/patient/book')}
                 >
                   Book Now
@@ -308,16 +339,22 @@ export default function PatientDashboard() {
         {/* Video Consultation */}
         <Grid item xs={12} md={4}>
           <AnimatedCard delay={0.35}>
-            <Card sx={cardStyles}>
+            <Card sx={{
+                height: "100%",
+                backgroundColor: insightColors[2],
+                borderRadius: "16px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              }}
+            >
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <VideoCall sx={{ color: '#008cffff', mr: 2 }} />
+                  <VideoCall sx={{ color: '#1E5DA9', mr: 2 }} />
                   <Typography variant="h6">Video Consultation</Typography>
                 </Box>
                 <Typography variant="body1">Connect with your doctor online</Typography>
                 <Button
                   variant="contained"
-                  sx={{ bgcolor: '#008cffff', mt: 2, '&:hover': { bgcolor: '#008cffff' }, borderRadius: '20px', px: 3 }}
+                  sx={{ bgcolor: '#62b8ffff', mt: 2, '&:hover': { bgcolor: '#62b8ffff' }, borderRadius: '20px', px: 3 }}
                   onClick={() => navigate('/patient/video-call')}
                 >
                   Join Now
@@ -330,9 +367,18 @@ export default function PatientDashboard() {
         {/* Health Progress */}
         <Grid item xs={12} md={6}>
           <AnimatedCard delay={0.4}>
-            <Card sx={cardStyles}>
+            <Card sx={{
+                height: "100%",
+                backgroundColor: insightColors[3],
+                borderRadius: "16px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              }}
+            >
               <CardContent>
-                <Typography variant="h6">Health Progress</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Insights sx={{ color: "#1E5DA9", mr: 2 }} />
+                  <Typography variant="h6">Health Progress</Typography>
+                </Box>
                 <ProgressChart />
               </CardContent>
             </Card>
@@ -342,9 +388,18 @@ export default function PatientDashboard() {
         {/* Enhanced Goal Tracker */}
         <Grid item xs={12} md={6}>
           <AnimatedCard delay={0.5}>
-            <Card sx={cardStyles}>
+            <Card sx={{
+                height: "100%",
+                backgroundColor: insightColors[4],
+                borderRadius: "16px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              }}
+            >
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>Exercise Goal</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <FitnessCenter sx={{ color: "#1E5DA9", mr: 2 }} />
+                  <Typography variant="h6" sx={{ mb: 2 }}>Exercise Goal</Typography>
+                </Box>
                 <EnhancedGoalTracker goal={10000} currentValue={4500} />
               </CardContent>
             </Card>
@@ -355,10 +410,16 @@ export default function PatientDashboard() {
       {/* Emergency Button */}
       <Grid item xs={12} md={4} width={800} sx={{ mt: 4 }}>
           <AnimatedCard delay={0.2}>
-            <Card sx={cardStyles}>
+            <Card sx={{
+                height: "100%",
+                backgroundColor: insightColors[5],
+                borderRadius: "16px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              }}
+            >
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <VideoCall sx={{ color: '#008cffff', mr: 2 }} />
+                  <VideoCall sx={{ color: '#1E5DA9', mr: 2 }} />
                   <Typography variant="h6">Emergency Call</Typography>
                 </Box>
                 <Typography variant="body1">In case of emergency</Typography>

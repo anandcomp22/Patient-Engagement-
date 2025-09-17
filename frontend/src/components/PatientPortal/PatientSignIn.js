@@ -2,39 +2,30 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Grid,
-  Link,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  InputAdornment,
-  IconButton,
-  FormHelperText,
-  Checkbox,
-  FormControlLabel
-} from '@mui/material';
-import { 
-  Visibility, 
-  VisibilityOff,
-  Email,
-  Lock,
-  ArrowBack
-} from '@mui/icons-material';
+  Box,Typography,TextField,Button,Grid,Link,FormControl,InputLabel,OutlinedInput,InputAdornment,
+  IconButton,FormHelperText,Checkbox,FormControlLabel,CircularProgress,Alert,Snackbar,} from '@mui/material';
+import { Visibility, VisibilityOff,Email,Lock,ArrowBack,CheckCircle,Warning,Error,Info} from '@mui/icons-material'; 
 import bgImage from './image/P.png';
 
 const PatientSignIn = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('info');
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [errors, setErrors] = useState({});
+
+  const showSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -70,6 +61,8 @@ const PatientSignIn = () => {
     
     if (!formData.password) {
       newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
     }
     
     setErrors(newErrors);
@@ -79,23 +72,34 @@ const PatientSignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-      try {
-        const res = await axios.post('http://localhost:8000/patient/signin', formData);
-        if (res.status === 200) {
-          const { token, patient } = res.data;
-        
-          localStorage.setItem("token", token);
-          localStorage.setItem("patientName", `${patient.firstName} ${patient.lastName}`);
-          localStorage.setItem("patientEmail", patient.email);
-        
-          alert("Login successful");
-          navigate('/patient/dashboard');
+      setIsSubmitting(true);
+      setTimeout(async () => {
+        try {
+          const res = await axios.post('http://localhost:8000/patient/signin', formData);
+          if (res.status === 200) {
+            const { token, patient } = res.data;
+          
+            localStorage.setItem("token", token);
+            localStorage.setItem("patientName", `${patient.firstName} ${patient.lastName}`);
+            localStorage.setItem("patientEmail", patient.email);
+          
+            if(res.status == 200) {
+              showSnackbar('Sign in successful! Redirecting...', 'success');
+            setTimeout(() => navigate('/patient/dashboard'), 1000); 
+          }
+          }
+        } catch (err) {
+          showSnackbar("Login failed: " + (err.response?.data?.message || err.message), "error");
+          setIsSubmitting(false); 
+        } finally {
+          setIsSubmitting(false); 
         }
-        
-      } catch (err) {
-        alert("Login failed: " + err.response?.data?.message || err.message);
-      }
-    }
+    }, 1500);
+  }
+};
+
+const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -105,10 +109,13 @@ const PatientSignIn = () => {
           backgroundSize: "cover",
           backgroundPosition: "center",
           minHeight: "100vh",
+          width: "100%", 
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           padding: 2,
+          position: "fixed",
+          overflow: "hidden",
         }}
       >
         <Box
@@ -119,6 +126,8 @@ const PatientSignIn = () => {
             padding: 4,
             borderRadius: 3,
             boxShadow: 3,
+            position: "fixed",
+            zIndex: 2,
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -208,23 +217,36 @@ const PatientSignIn = () => {
                 Forgot password?
               </Link>
             </Box>
-    
+
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{
-                mt: 3,
+              disabled={isSubmitting}
+              sx={{ 
+                mt: 2,
                 mb: 2,
                 py: 1.5,
-                backgroundColor: '#1E5DA9',
-                '&:hover': {
-                  backgroundColor: '#154281',
-                },
+                fontSize: '1rem',
+                  background: "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)",
+                  color: 'white',
+                    '&:hover': {
+                  background: "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)"
+                  },
+                  '&.Mui-disabled': {
+                color: 'text.disabled'
+                }
               }}
             >
-              Sign In
-            </Button>
+          {isSubmitting ? (
+        <>
+        <CircularProgress size={24} sx={{ color: 'inherit', mr: 2 }} />
+          Signing In...
+        </>
+        ) : (
+          'Sign In'
+        )}
+        </Button>
     
             <Grid container justifyContent="center">
               <Grid item>
@@ -236,6 +258,27 @@ const PatientSignIn = () => {
                 </Typography>
               </Grid>
             </Grid>
+
+            <Snackbar
+              open={snackbarOpen}
+              autoHideDuration={6000}
+              onClose={handleCloseSnackbar}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+             >
+             <Alert 
+              onClose={handleCloseSnackbar} 
+              severity={snackbarSeverity}
+              sx={{ width: '100%' }}
+              iconMapping={{
+               info: <Info fontSize="inherit" />,
+                success: <CheckCircle fontSize="inherit" />,
+                warning: <Warning fontSize="inherit" />,
+                error: <Error fontSize="inherit" /> 
+                }}
+              >
+              {snackbarMessage}
+                </Alert>
+              </Snackbar>
           </Box>
         </Box>
       </Box>

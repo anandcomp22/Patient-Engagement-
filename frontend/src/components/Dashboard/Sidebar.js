@@ -33,7 +33,7 @@ const Sidebar = ({ open, onToggle }) => {
     { text: "Appointments", icon: <CalendarMonth />, to: "/doctor/appointments" },
     { text: "Patients Details", icon: <People />, to: "/doctor/patients" },
     { text: "Prescriptions", icon: <Medication />, to: "/doctor/prescriptions" },
-    { text: "Video Calls", icon: <VideoCall />, to: "/doctor/livevideocall" },
+    { text: "Video Calls", icon: <VideoCall />, to: "/doctor/video-call" },
     { text: "Analytics", icon: <Analytics />, to: "/doctor/analysis" },
   ];
 
