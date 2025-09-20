@@ -17,8 +17,9 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import io from "socket.io-client";
 import "./Dashboard.css";
+const API_BASE = process.env.REACT_APP_API_URL;
 
-const socket = io("http://localhost:8000");
+const socket = io(API_BASE);
 
 const Dashboard = ({ sidebarOpen }) => {
   const [medicalNews, setMedicalNews] = useState([]);
@@ -67,13 +68,13 @@ const Dashboard = ({ sidebarOpen }) => {
       try {
         const token = localStorage.getItem("token");
         const res = await axios.get(
-          "http://localhost:8000/doctor/appointment",
+          `${API_BASE}/doctor/appointments`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
-        );
+        ); 
         const allAppointments = res.data;
 
         const today = new Date().toISOString().split("T")[0];
@@ -100,7 +101,7 @@ const Dashboard = ({ sidebarOpen }) => {
               new Date(app.date) > now && app.appstatus === "confirmed"
           )
           .sort((a, b) => new Date(a.date) - new Date(b.date))
-          .slice(0, 3); // Limit to top 3
+          .slice(0, 3); 
 
         setMetrics({
           todayAppointments,
@@ -127,7 +128,7 @@ const Dashboard = ({ sidebarOpen }) => {
     const fetchNews = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8000/api/news/medical-news"
+          `${API_BASE}/api/news/medical-news`
         );
         setMedicalNews(res.data);
       } catch (err) {
