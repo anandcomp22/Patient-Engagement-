@@ -1,0 +1,9 @@
+Name: Lanolin
+
+introduction: Indications: Temporarily relieves minor burns, dry, chapped, fissured and macerated skin and lips, also relieves Psoriais, Eczema, mild sunburn, abrasions and contusions, diaper dermatitis, hemorrhoids, and prickly heat.
+
+dosage_text: Directions: Apply a thin film to clean, dry skin three times daily. May be covered with sterile gauze, if desired.
+
+how_to_use: Warnings: For external use only. Discontinue use if signs of irritation appear. If condition worsens consult a doctor. Do not use over deep, infected, or puncture wounds.
+
+sources: OpenFDA label set_id: 00100102-c245-4b63-a4ff-794cacda6f17

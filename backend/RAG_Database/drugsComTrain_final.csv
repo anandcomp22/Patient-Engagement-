@@ -97409,3 +97409,24 @@ uniqueID,drugName,condition,rating
 191035,Campral,Alcohol Dependence,10
 47128,Thyroid desiccated,Underactive Thyroid,10
 215220,Lubiprostone,"Constipation, Chronic",9
+1000001,Paracetamol (Acetaminophen),Pain relief / Fever, 8
+1000002,Ibuprofen,Pain / Inflammation / Fever,8
+1000003,Diclofenac,Arthritis / Pain / Inflammation,9
+1000004,Amoxicillin,Bacterial Infections,8
+1000005,Azithromycin,Bacterial Infections (Respiratory/ Skin/ STDs), 9
+1000006,Cefixime,Urinary Tract Infections / Respiratory Infections,9 
+1000007,Metformin,Type 2 Diabetes, 9
+1000008,Atorvastatin,High Cholesterol, 8
+1000009,Losartan,Hypertension,6
+1000010,Amlodipine,Hypertension / Angina,8
+1000011,ORS (Oral Rehydration Salts),Dehydration / Diarrhea,9
+1000012,Cetirizine,Allergic Rhinitis / Urticaria,7
+1000013,Ranitidine,Acidity / GERD / Ulcers,8
+1000014,Famotidine,Acidity / GERD / Ulcers,7
+1000015,Omeprazole,GERD / Acid Reflux / Ulcers,7
+1000016,Pantoprazole,GERD / Acid Reflux / Ulcers,9
+1000017,Salbutamol (Albuterol),Asthma / COPD,9
+1000018,Iron + Folic Acid,Anemia,9
+1000019,Vitamin D (Cholecalciferol),Vitamin D Deficiency / Bone Health,9
+1000020,Calcium supplements,Calcium Deficiency / Osteoporosis,8
+1000021,Insulin,Diabetes (Type 1 and Type 2),8

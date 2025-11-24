@@ -1,0 +1,9 @@
+Name: Lactic acid
+
+introduction: USES: • For the temporary relief of the symptoms including: • nausea with pain • nausea with pregnancy • nausea • nausea with vertigo • vomiting • nausea with headache These statements are based upon homeopathic principles. They have not been reviewed by the Food and Drug Administration.
+
+dosage_text: DIRECTIONS: 1-10 drops under the tongue, 3 times a day or as directed by a health professional. Consult a physician for use in children under 12 years of age.
+
+how_to_use: WARNINGS: If pregnant or breast-feeding, ask a health professional before use. Keep out of reach of children. In case of overdose, contact a physician or Poison Control Center right away. Tamper Evident: Sealed for your protection. Do not use if seal is broken or missing.
+
+sources: OpenFDA label set_id: 025ed334-29dd-4519-b9f6-cf560e73c294

@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const { Doctor } = require("../../db/models");
 const { generateToken } = require("../../utils/auth");
 const authMiddleware = require("../../middleware/authMiddleware");
+const { Appointment } = require("../../db/models");
 
 
 router.get("/dashboard", authMiddleware, (req, res) => {
@@ -13,39 +14,53 @@ router.get("/dashboard", authMiddleware, (req, res) => {
 
 router.post("/signup", async (req, res) => {
   try {
-    const { email, password, ...rest } = req.body;
+    const {
+    firstName, lastName, email, phone, licenseNumber, specialty,
+    qualifications, experience, hospital, country, state, district, password
+  } = req.body;
+
     const existing = await Doctor.findOne({ email });
-    if (existing) return res.status(400).json({ message: "Email already exists" });
+    if (existing) return res.status(400).json({ message: "Email already registered" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const doctorCount = await Doctor.countDocuments();
 
     const newDoctor = new Doctor({
-      ...rest,
+      doctorId: Math.floor(Math.random() * 100000),
+      firstName,
+      lastName,
       email,
-      password: hashedPassword,
-      doctorId: 1000 + doctorCount, 
+      phone,
+      licenseNumber,
+      specialty,
+      qualifications,
+      experience,
+      hospital,
+      country,
+      state,
+      district,
+      password: hashedPassword
     });
 
     await newDoctor.save();
-    res.status(201).json({ message: "Doctor registered successfully" });
+    res.status(201).json({ message: 'Doctor registered successfully', doctor: newDoctor });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: 'Error registering doctor', error });
   }
 });
 
 router.post("/signin", async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await Doctor.findOne({ email });
-    if (!user) return res.status(404).json({ message: "Doctor not found" });
+  const { email, password } = req.body;
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid password" });
+  const doctor = await Doctor.findOne({ email });
+  if (!doctor) return res.status(401).json({ message: 'Invalid credentials' });
 
-    const token = generateToken(user, "doctor");
+  const isMatch = await bcrypt.compare(password, doctor.password);
+  if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
 
-    res.status(200).json({ message: "Login successful", token, doctor: user });
+  const token = generateToken(doctor, "doctor");
+
+  res.status(200).json({ message: 'Login successful', token, doctor });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -64,9 +79,7 @@ router.get("/me", authMiddleware, async (req, res) => {
 });
 
 
-const { Appointment } = require("../../db/models");
-
-router.get('/appointment', authMiddleware, async (req, res) => {
+router.get('/app', authMiddleware, async (req, res) => {
   console.log(" /appointment route hit");
   try {
     console.log("Decoded user in appointment route:", req.user);
@@ -79,6 +92,7 @@ router.get('/appointment', authMiddleware, async (req, res) => {
     return res.status(500).json({ message: "Failed to fetch appointments" });
   }
 });
+
 
 router.get("/doctorprescript", authMiddleware, (req, res) => {
   const scriptPath = `"C:/Users/morea/Downloads/Patient-Engagement-/backend/Traning_Model/optimized_test.py"`;

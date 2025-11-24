@@ -1,0 +1,107 @@
+{
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2025-10-01",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 530
+    }
+  },
+  "results": [
+    {
+      "spl_product_data_elements": [
+        "Mentholatum Pain Relieving menthol, methyl salicylate CARBOXYPOLYMETHYLENE LANOLIN OIL MINERAL OIL POLYSORBATE 60 WATER SORBITAN MONOSTEARATE TROLAMINE MENTHOL, UNSPECIFIED FORM MENTHOL METHYL SALICYLATE SALICYLIC ACID"
+      ],
+      "active_ingredient": [
+        "Active ingredients Menthol 6% Methyl salicylate 20%"
+      ],
+      "purpose": [
+        "Purpose Menthol - Topical analgesic Methyl salicylate - Topical analgesic"
+      ],
+      "indications_and_usage": [
+        "Uses temporarily relieves minor aches and pains of muscles and joints due to arthritis simple backache strains sprains"
+      ],
+      "warnings": [
+        "Warnings For external use only When using this product use only as directed do not get into eyes or on mucous membranes do not apply to wounds or to damaged skin do not bandage tightly do not use with a heating pad, other heat sources, or right after a shower/bath do not use in combination with other external analgesic products Stop use and ask a doctor if condition worsens excessive irritation, burning or discomfort of the skin develops symptoms persist for more than 7 days or clear up and occur again within a few days"
+      ],
+      "warnings_and_cautions": [
+        "For external use only"
+      ],
+      "when_using": [
+        "When using this product use only as directed do not get into eyes or on mucous membranes do not apply to wounds or to damaged skin do not bandage tightly do not use with a heating pad, other heat sources, or right after a shower/bath do not use in combination with other external analgesic products"
+      ],
+      "stop_use": [
+        "Stop use and ask a doctor if condition worsens excessive irritation, burning or discomfort of the skin develops symptoms persist for more than 7 days or clear up and occur again within a few days"
+      ],
+      "pregnancy_or_breast_feeding": [
+        "If pregnant or breast-feeding, ask a healthcare professional before use."
+      ],
+      "keep_out_of_reach_of_children": [
+        "Keep Out of Reach of Children. If swallowed, get medical help or contact a Poison Control Center right away."
+      ],
+      "dosage_and_administration": [
+        "Directions adults and children 12 years and over: apply to affected area not more than 3 to 4 times daily children under 12 years: ask a doctor"
+      ],
+      "inactive_ingredient": [
+        "Inactive ingredients carbomer, lanolin oil, polysorbate 60, purified water, sorbitan monosterate, trolamine"
+      ],
+      "package_label_principal_display_panel": [
+        "Package/Label Principal Display Panel Mentholatum Pain Relieving Lotion"
+      ],
+      "set_id": "0056b952-9870-485a-9f35-f985472875a9",
+      "id": "29791c3e-3ae3-2db5-e063-6394a90a2075",
+      "effective_time": "20241217",
+      "version": "3",
+      "openfda": {
+        "application_number": [
+          "M017"
+        ],
+        "brand_name": [
+          "Mentholatum Pain Relieving"
+        ],
+        "generic_name": [
+          "MENTHOL, METHYL SALICYLATE"
+        ],
+        "manufacturer_name": [
+          "The Mentholatum Company"
+        ],
+        "product_ndc": [
+          "10742-8169"
+        ],
+        "product_type": [
+          "HUMAN OTC DRUG"
+        ],
+        "route": [
+          "TOPICAL"
+        ],
+        "substance_name": [
+          "MENTHOL, UNSPECIFIED FORM",
+          "METHYL SALICYLATE"
+        ],
+        "rxcui": [
+          "282812"
+        ],
+        "spl_id": [
+          "29791c3e-3ae3-2db5-e063-6394a90a2075"
+        ],
+        "spl_set_id": [
+          "0056b952-9870-485a-9f35-f985472875a9"
+        ],
+        "package_ndc": [
+          "10742-8169-1",
+          "10742-8169-2"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "unii": [
+          "L7T10EIP3A",
+          "LAV5U5022Y"
+        ]
+      }
+    }
+  ]
+}

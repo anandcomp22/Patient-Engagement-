@@ -1,0 +1,9 @@
+Name: Nystatin
+
+introduction: INDICATIONS AND USAGE Nyamyc® (Nystatin Topical Powder, USP) is indicated in the treatment of cutaneous or mucocutaneous mycotic infections caused by Candida albicans and other susceptible Candida species. Nyamyc® (Nystatin Topical Powder, USP) is not indicated for systemic, oral, intravaginal or ophthalmic use.
+
+dosage_text: DOSAGE AND ADMINISTRATION Very moist lesions are best treated with the topical dusting powder. Adults and Pediatric Patients (Neonates and Older) Apply to candidal lesions two or three times daily until healing is complete. For fungal infection of the feet caused by Candida species, the powder should be dusted on the feet, as well as, in all foot wear.
+
+how_to_use: HOW SUPPLIED Nyamyc® (Nystatin Topical Powder, USP) 100,000 units nystatin per gram is available as follow: Bottles of 15 g (NDC 0832-0465-15) Bottles of 30 g (NDC 0832-0465-30) Bottles of 60 g (NDC 0832-0465-60) STORAGE Nyamyc® (Nystatin Topical Powder, USP) Store at 20° to 25°C (68° to 77°F); excursions permitted to 15° to 30°C (59° to 86°F) [See USP Controlled Room Temperature]. Avoid excessive heat (40°C/104°F). Keep tightly closed. Keep out of reach of children. Nyamyc is a registered trademark of Upsher-Smith Laboratories, LLC.
+
+sources: OpenFDA label set_id: 01b44f91-9b68-464a-9693-b5d3e793bf3c

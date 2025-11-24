@@ -1,0 +1,9 @@
+Name: Benzocaine
+
+introduction: Uses temporarily relieves itching
+
+dosage_text: Directions Adults and children 12 years and older: apply a fingertip amount (approximately 1 inch strip) to the affected area not more than 3 to 4 times daily. Children under 12 years: ask a doctor.
+
+how_to_use: Warnings For external use only. When using this product avoid contact with the eyes. Stop use and ask a doctor if condition worsens, or if symptoms persists for more than 7 days or clear up and occur again within a few days. Do not apply over large areas of the body. Keep out of reach of children. If swallowed, get medical help or contact a Poison Control Center right away.
+
+sources: OpenFDA label set_id: 0007e3ea-882b-4000-8e70-2bcec2c08613

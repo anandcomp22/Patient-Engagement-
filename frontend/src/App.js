@@ -15,13 +15,13 @@ import PatientAppointments from './components/PatientPortal/PatientAppointments'
 import BookAppointment from './components/PatientPortal/BookAppointment';
 import PatientDashboard from './components/PatientPortal/PatientDashboard';
 import HomePage from './components/Home/HomePage';
-import DoctorSignin from './components/DoctorPortal/DoctorSignin';
+import DoctorSignin from './components/DoctorPortal/DoctorSignin'; 
 import DoctorSignUp from './components/DoctorPortal/DoctorSignup';
 import PatientLogin from './components/PatientPortal/PatientSignIn';
 import PatientSidebar from './components/PatientPortal/PatientSidebar';
 import PatientNavbar from './components/PatientPortal/PatientNavbar';
 import PatientVideoCall from './components/PatientPortal/PatientVideoCall';
-import PayPalPaymentPage from './pages/PayPalPaymentPage';
+import PayPalPaymentPage from './PaymentGateway/PayPalButton';
 import Chatbot from './components/PatientPortal/Chatbot'; 
 import AnalysisPage from './components/Dashboard/Analysis';
 import DoctorSettings from './components/Dashboard/DoctorSetting/DoctorSettings';
@@ -47,9 +47,6 @@ function App() {
     <Router>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-
-        {/* Chatbot visible on all pages */}
-        <Chatbot />
 
         <Routes>
           {/* Public routes */}
@@ -83,6 +80,8 @@ function App() {
                       <Route path="video-call" element={<PatientVideoCall />} />
                       <Route path="upload-report" element={<UploadReport />} />
                     </Routes>
+
+                    <Chatbot />
                   </Box>
                 </Box>
               </Box>

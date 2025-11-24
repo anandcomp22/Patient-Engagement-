@@ -1,0 +1,9 @@
+Name: Efinaconazole
+
+introduction: 1 INDICATIONS AND USAGE JUBLIA (efinaconazole) topical solution, 10% is an azole antifungal indicated for the topical treatment of onychomycosis of the toenail(s) due to Trichophyton rubrum and Trichophyton mentagrophytes . JUBLIA is an azole antifungal indicated for the topical treatment of onychomycosis of the toenail(s) due to Trichophyton rubrum and Trichophyton mentagrophytes . (1)
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION Apply JUBLIA to affected toenails once daily for 48 weeks, using the integrated flow-through brush applicator. When applying JUBLIA, ensure the toenail, the toenail folds, toenail bed, hyponychium, and the undersurface of the toenail plate, are completely covered. JUBLIA is for topical use only and not for oral, ophthalmic, or intravaginal use. • Apply JUBLIA to affected toenails once daily for 48 weeks using the integrated flow-through brush applicator. (2) • When applying JUBLIA, ensure the toenail, the toenail folds, toenail bed, hyponychium, and the undersurface of the toenail plate, are completely covered. (2) • For topical use only. Not for oral, ophthalmic, or intravaginal use. (2)
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING JUBLIA (efinaconazole) topical solution, 10% is a clear, colorless to pale yellow solution supplied in a white plastic bottle with an integrated flow-through brush applicator as follows: • 4 mL (NDC 0187-5400-04) • 8 mL (NDC 0187-5400-08) Storage and Handling Conditions: Store at 20°C to 25°C (68°F to 77°F); excursions permitted to 15°C to 30°C (59°F to 86°F) [see USP Controlled Room Temperature]. • Solution is flammable; keep away from heat or flame. • Protect from freezing. • Keep out of reach of children. • Keep bottle tightly closed. • Store in upright position.
+
+sources: OpenFDA label set_id: 922d4d25-c530-11e1-9b21-0800200c9a66

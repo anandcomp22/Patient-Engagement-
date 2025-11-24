@@ -1,0 +1,9 @@
+Name: Halcinonide
+
+introduction: INDICATIONS AND USAGE Halcinonide cream, USP, 0.1% is indicated for the relief of the inflammatory and pruritic manifestations of corticosteroid-responsive dermatoses.
+
+dosage_text: DOSAGE AND ADMINISTRATION Apply the 0.1% halcinonide cream, USP, to the affected area two to three times daily. Rub in gently. Occlusive Dressing Technique Occlusive dressings may be used for the management of psoriasis or other recalcitrant conditions. Gently rub a small amount of cream into the lesion until it disappears. Reapply the preparation leaving a thin coating on the lesion, cover with a pliable nonporous film, and seal the edges. If needed, additional moisture may be provided by covering the lesion with a dampened clean cotton cloth before the nonporous film is applied or by briefly wetting the affected area with water immediately prior to applying the medication. The frequency of changing dressings is best determined on an individual basis. It may be convenient to apply halcinonide cream under an occlusive dressing in the evening and to remove the dressing in the morning (i.e., 12-hour occlusion). When utilizing the 12-hour occlusion regimen, additional cream should be applied, without occlusion, during the day. Reapplication is essential at each dressing change. If an infection develops, the use of occlusive dressings should be discontinued and appropriate antimicrobial therapy instituted.
+
+how_to_use: HOW SUPPLIED Halcinonide cream, USP, 0.1 % is smooth, soft homogeneous white to off-white cream, essentially free of foreign matter and is supplied as: NOC 57664-698-36 Tube containing 60 g
+
+sources: OpenFDA label set_id: aed461bb-e49e-44c4-b42f-b5b261c072a0

@@ -1,0 +1,9 @@
+Name: Raspberry
+
+introduction: Directions: Apply a small amount twice daily to the affected area. Make sure skin is clean and dry. Gently massage until completely absorbed.
+
+dosage_text: Concentrated antioxidant nourishment for a youthful and radiant glow.
+
+how_to_use: Apply a small amount twice daily to the affected area. Make sure skin is clean and dry. Gently massage until completely absorbed.
+
+sources: OpenFDA label set_id: 23cda3da-d59c-6d00-e063-6294a90a83be

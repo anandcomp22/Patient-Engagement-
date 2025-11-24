@@ -1,0 +1,9 @@
+Name: Ferrous fumarate
+
+introduction: INDICATIONS: Integra FTM is indicated for the treatment of iron deficiency anemia, and folate deficiency anemia. Integra FTM is indicated in pregnancy for the prevention and treatment of iron deficiency and to supply a maintenance dosage of folic acid.
+
+dosage_text: DOSAGE AND ADMINISTRATION: Adults (persons over 12 years of age), One (1) capsule daily, between meals, or as prescribed by a physician. Do not exceed recommended dosage. Do not administer to children under the age of 12.
+
+how_to_use: HOW SUPPLIED: Integra F TM are maroon Vcaps ® capsules printed in white with "Integra F" on the cap and "US" logo on the body. Packed in child resistant caps and light resistant bottles of 90 capsules (52747-0711-60) and 30 capsules (52747-0711-30). The listed product numbers are not National Drug Codes. Instead, US Pharmaceutical Corporation has assigned these product codes formatted according to standard industry practice to meet the formatting requirements of pharmacy and healthcare insurance computer systems. CAUTION: Rx only.
+
+sources: OpenFDA label set_id: 025fee85-53a8-4161-a806-44fd95d0ca74

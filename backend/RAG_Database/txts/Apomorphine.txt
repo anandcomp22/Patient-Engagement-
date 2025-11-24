@@ -1,0 +1,9 @@
+Name: Apomorphine
+
+introduction: Take 15 minutes before meals
+
+dosage_text: DIRECTIONS Adults and children 12 years and older 10 drops in a little water 3 times per day Children between 12 years and 6 years of age 7 drops in a little water 3 times per day Children under 6 years 5 drops in a glass of water 3 times per day
+
+how_to_use: WARNINGS Stop use and ask doctor if symptoms persist more than 5 days. If pregnant or breast-feeding ask a health professional before use. Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away. Contains ethyl alcohol 30%
+
+sources: OpenFDA label set_id: 444c1f4c-dd0c-4525-bb65-c0c211c9487f

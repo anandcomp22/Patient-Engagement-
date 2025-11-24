@@ -1,0 +1,9 @@
+Name: Cyanocobalamin
+
+introduction: INDICATIONS: PNV-DHA is a multivitamin/multimineral nutritional supplement indicated for use in the dietary management of patients with nutritional deficiencies or are in need of nutritional supplementation.
+
+dosage_text: DOSAGE AND ADMINISTRATION: Before, during and/or after pregnancy, one softgel daily or as directed by a physician.
+
+how_to_use: HOW SUPPLIED: PNV-DHA is supplied in child-resistant bottles of 30 softgels (NDC# 42192-321-30). Store at 20° - 25°C (68° - 77°F); excursions permitted to 15° - 30°C (59° - 86°F) [See USP Controlled Room Temperature.] WARNING: Ingestion of more than 3 grams of omega-3 fatty acids (such as DHA) per day has been shown to have potential antithrombotic effects, including an increased bleeding time and International Normalized Ratio (INR). Administration of omega-3 fatty acids should be avoided in patients taking anticoagulants and in those known to have an inherited or acquired predisposition to bleeding.
+
+sources: OpenFDA label set_id: 038fe2e7-dc16-485c-b5fb-746db7231347

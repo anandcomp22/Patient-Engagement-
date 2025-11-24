@@ -1,0 +1,9 @@
+Name: Mupirocin
+
+introduction: 1 INDICATIONS AND USAGE Mupirocin cream is indicated for the treatment of secondarily infected traumatic skin lesions (up to 10 cm in length or 100 cm 2 in area) due to susceptible isolates of Staphylococcus aureus (S. aureus) and Streptococcus pyogenes (S. pyogenes) . Mupirocin cream is an RNA synthetase inhibitor antibacterial indicated for the treatment of secondarily infected traumatic skin lesions (up to 10 cm in length or 100 cm 2 in area) due to susceptible isolates of Staphylococcus aureus and Streptococcus pyogenes . ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION For Topical Use Only. Apply a small amount of mupirocin cream, with a cotton swab or gauze pad, to the affected area 3 times daily for 10 days. Cover the treated area with gauze dressing if desired. Re-evaluate patients not showing a clinical response within 3 to 5 days. Mupirocin cream is not for intranasal, ophthalmic, or other mucosal use [see Warnings and Precautions ( 5.2 , 5.6 )]. Do not apply mupirocin cream concurrently with any other lotions, creams or ointments [see Clinical Pharmacology ( 12.3 )]. For Topical Use Only. ( 2 ) Apply a small amount of mupirocin cream, with a cotton swab or gauze pad, to the affected area 3 times daily for 10 days. ( 2 ) Re-evaluate patients not showing a clinical response within 3 to 5 days. ( 2 ) Not for intranasal, ophthalmic, or other mucosal use. ( 2 )
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING Mupirocin cream USP, 2% is a white to off white cream that contains 20 mg (2% w/w) of mupirocin per gram in an oil-and water-based emulsion. Mupirocin cream USP, 2% is supplied in 15-gram and 30-gram tubes. NDC 46708-624-15 (15-gram tube) NDC 46708-624-30 (30-gram tube) Store at 20° to 25°C (68° to 77°F) [see USP Controlled Room Temperature]. Do not freeze.
+
+sources: OpenFDA label set_id: 0580458d-7178-4031-8ac7-0cda281ade8b

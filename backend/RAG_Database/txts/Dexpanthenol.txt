@@ -1,0 +1,9 @@
+Name: Dexpanthenol
+
+introduction: INDICATIONS AND USAGE In disorders requiring parenteral administration of vitamins, i.e. pre- and post-operative treatment, when requirements are increased as in fever, severe burns, increased metabolism, pregnancy, gastrointestinal disorders interfering with intake or absorption of vitamins, prolonged or wasting diseases, alcoholism and where other deficiencies exist.
+
+dosage_text: DOSAGE AND ADMINISTRATION Usually 0.25 to 2 mL by intramuscular or slow intravenous injection. High concentrations given intravenously may be diluted using parenteral infusion solutions. (See PRECAUTIONS .) Parenteral drug products should be inspected visually for particulate matter and discoloration prior to administration, whenever the solution and container permit (see HOW SUPPLIED ).
+
+how_to_use: HOW SUPPLIED Vitamin B-Complex 100 Injection is available in a 30 mL multiple-dose vial individually boxed. Phase separation due to reduced solubility can occur under certain conditions of shipping or storage (e.g. accidental freezing), which may produce visible particles. Do not use product if these do not redissolve on warming to body temperature and shaking well. Refrigeration of the product may cause darkening of the solution due to the riboflavin content. The colour does not affect the safety or efficacy of the product. PROTECT FROM LIGHT: Store in carton until contents are used. Store under refrigeration 2° to 8°C (36° to 46°F). Do not permit to freeze. Manufactured for: Mylan Institutional LLC Morgantown, WV 26505 U.S.A. Manufactured by: Mylan Institutional Galway, Ireland 0415L107 Revised: 9/2021 MI:VITBIJ:R4 WARNINGS Anaphylactogenesis may occur with parenteral thiamine. Use with caution. An intradermal test dose is recommended prior to administration in patients suspected of being sensitive to the drug.
+
+sources: OpenFDA label set_id: 282ccec8-9bcd-4571-9b91-bbb96ef2620d

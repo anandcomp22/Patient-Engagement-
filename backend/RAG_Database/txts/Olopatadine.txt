@@ -1,0 +1,9 @@
+Name: Olopatadine
+
+introduction: Uses temporarily relieves itchy and red eyes due to pollen, ragweed, grass, animal hair and dander
+
+dosage_text: Directions adults and children 2 years of age and older: put 1 drop in the affected eye(s) twice daily, every 6 to 8 hours, no more than twice per day if using other ophthalmic products while using this product, wait at least 5 minutes between each product replace cap after each use children under 2 years of age: consult a doctor
+
+how_to_use: Warnings For external use only
+
+sources: OpenFDA label set_id: 010b0c92-21ad-4e96-ac14-14683131da17

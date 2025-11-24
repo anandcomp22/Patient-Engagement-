@@ -1,0 +1,9 @@
+Name: Dehydroepiandrosterone
+
+introduction: HOMEOPATHIC INDICATIONS: Temporary relief of symptoms related to hormone imbalances of insufficiencies in men and women, including low energy, inability to handle stress, trouble focusing, changes in mood, infertility, irregular menstrual cycles (females), and lack of libido.** **These statements are based upon homeopathic principles. They have not been reviewed by the Food and Drug Administration.
+
+dosage_text: DIRECTIONS: 1-10 drops under the tongue, 3 times a day or as directed by your health professional. Consult a physician for use in children under 12 years of age.
+
+how_to_use: WARNINGS: Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away. If pregnant or breast-feeding, ask a healthcare professional before use. Tamper seal: sealed for your protection. Do not use if seal is broken or missing.
+
+sources: OpenFDA label set_id: 123f5269-45eb-4dcd-be66-76c6665b8d13

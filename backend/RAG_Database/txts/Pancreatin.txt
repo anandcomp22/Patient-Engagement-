@@ -1,0 +1,9 @@
+Name: Pancreatin
+
+introduction: Uses Helps promote and maintain healthy digestive functions and normal blood sugar levels. Directions To be taken 20 minutes away from food. Place drops directly under the tongue or into ¼ oz of water. Adults and adolescents (12 years and older): Take 10 drops two to three times daily or as recommended by your healthcare practitioner. Children (under 12 years): Take under the direction of your healthcare practitioner.
+
+dosage_text: Directions To be taken 20 minutes away from food. Place drops directly under the tongue or into ¼ oz of water. Adults and adolescents (12 years and older): Take 10 drops two to three times daily or as recommended by your healthcare practitioner. Children (under 12 years): Take under the direction of your healthcare practitioner.
+
+how_to_use: Warnings Stop use and ask a doctor if symptoms persist or worsen. If pregnant or breastfeeding, ask a health professional before use. Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away
+
+sources: OpenFDA label set_id: 525694c5-4215-6e87-e054-00144ff8d46c

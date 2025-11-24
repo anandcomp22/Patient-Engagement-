@@ -7,14 +7,7 @@ const fs = require("fs");
 require("dotenv").config();
 const { spawn } = require("child_process");
 
-const {
-  Prescription,
-  Doctor,
-  FeePay,
-  Appointment,
-  Patient,
-  videocallSchem,
-  connectToDatabase,
+const { Prescription, Doctor, FeePay, Appointment, Patient, videocallSchem, connectToDatabase,
 } = require("./db/models");
 
 const appointmentRouter = require("./routes/DoctorRoutes/appointment.js");
@@ -28,6 +21,7 @@ const summary = require('./routes/DoctorRoutes/videoCall.js');
 const auth = require("./middleware/authMiddleware");
 const analysis = require('./routes/DoctorRoutes/analytics.js');
 const aiprescript = require("./routes/ChatBotRoutes/ai.js");
+const RAGRoutes = require("./routes/RAGRoutes/RAGRoutes.js");
 
 const app = express();
 app.use(cors());
@@ -51,14 +45,15 @@ const io = new Server(server, {
 
 app.use("/prescriptions", auth, prescriptionRoutes); 
 app.use("/feespay", auth, feespayRouter); 
-app.use("/doctor", doctorRouter);
-app.use("/appointment", auth, appointmentRouter);;
+app.use("/doctor", doctorRouter); 
+app.use("/appointment", auth, appointmentRouter);
 app.use("/patient", patientRouter);
 app.use('/api/news', newsRoute);
 app.use('/api/paypal', paypalRoute);
 app.use('/api/videocall', summary);
 app.use('/api/analytics', analysis);
 app.use('/api/ai',aiprescript)
+app.use("/rag", RAGRoutes);
 
 
 io.on("connection", (socket) => {
@@ -121,7 +116,7 @@ io.on("connection", (socket) => {
 });
 
 
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.PORT || 2000;
 server.listen(PORT, () => {
   console.log(`Server started at http://localhost:${PORT}`);
 });

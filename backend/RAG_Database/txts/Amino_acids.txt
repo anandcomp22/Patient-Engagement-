@@ -1,0 +1,9 @@
+Name: Amino acids
+
+introduction: Uses Regulating immunity
+
+dosage_text: Instructions Once a day , 2 capsule each time , taken with warm water Seal and place in a cool and dry place This product cannot replace medication for treatment
+
+how_to_use: Warnings For internal use only
+
+sources: OpenFDA label set_id: 07a411a9-b2c9-66e4-e063-6394a90a3e17

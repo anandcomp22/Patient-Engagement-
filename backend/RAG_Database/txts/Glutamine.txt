@@ -1,0 +1,9 @@
+Name: Glutamine
+
+introduction: Uses: Temporarily supports the body to rebalance Human Growth Hormone (HGH) output. Symptoms of imbalanced HGH may include: poor muscle/ fat balance, dry wrinkled-looking skin, low energy, sleeplessness, weak immune system.*
+
+dosage_text: Directions: Adults: Hold the spray-top close to your open mouth and spray twice directly under your tongue, three times a day. Some people notice improvement within two or three weeks, others take longer.
+
+how_to_use: Warnings: Not for use on children. If symptoms continue to recur, or if sleeplessness persists continuously for more than two weeks, consult a physician. As with all medicines, if you are pregnant or breast feeding , consult a heatlh professional before using this product. Keep out of reach of children . In case of overdose, get medical or contact a Poison Control Center right away. Keep out of reach of children.
+
+sources: OpenFDA label set_id: 2b7ee28f-474e-414b-bf74-8b2baf382947

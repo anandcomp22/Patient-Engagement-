@@ -1,0 +1,9 @@
+Name: Arginine
+
+introduction: USES: Temporarily relieves these symptoms due to aging and/or a run-down condition: • low energy • poor muscle/fat balance • occasional sleeplessness
+
+dosage_text: DIRECTIONS: Adults only. Spray twice under the tongue three times a day.
+
+how_to_use: WARNINGS: Do not use if you have ever had an allergic reaction to this product or any of its ingredients. Ask a doctor before use if you have consistent sleeplessness that persists for more than two weeks. Stop use and ask a doctor if symptoms persist, worsen or if new symptoms occur. Keep out of reach of children. In case of overdose, get medical help or call a Poison Control Center right away. If pregnant or breast-feeding, ask a health professional before using product. Do not use if TAMPER EVIDENT seal around neck of bottle is missing or broken. Store at room temperature.
+
+sources: OpenFDA label set_id: 04cded9a-0431-4e87-9055-ec4f38112559

@@ -1,0 +1,9 @@
+Name: Nepafenac
+
+introduction: 1 INDICATIONS AND USAGE ILEVRO ® 0.3% is indicated for the treatment of pain and inflammation associated with cataract surgery. ILEVRO ® 0.3% is a nonsteroidal, anti-inflammatory prodrug indicated for the treatment of pain and inflammation associated with cataract surgery ( 1 ).
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION One drop of ILEVRO ® 0.3% should be applied to the affected eye one-time-daily beginning 1 day prior to cataract surgery, continued on the day of surgery and through the first 2 weeks of the postoperative period. An additional drop should be administered 30 to 120 minutes prior to surgery. ( 2 ) 2.1 Recommended Dosing One drop of ILEVRO ® 0.3% should be applied to the affected eye one time daily beginning 1 day prior to cataract surgery, continued on the day of surgery and through the first 2 weeks of the postoperative period. An additional drop should be administered 30 to 120 minutes prior to surgery. 2.2 Use with Other Topical Ophthalmic Medications ILEVRO ® 0.3% may be administered in conjunction with other topical ophthalmic medications such as beta-blockers, carbonic anhydrase inhibitors, alpha-agonists, cycloplegics, and mydriatics. If more than one topical ophthalmic medication is being used, the medicines must be administered at least 5 minutes apart.
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING ILEVRO ® 0.3% is supplied in a white, oval, low density polyethylene dispenser with a natural low density polyethylene dispensing plug and gray polypropylene cap. 3 mL in 4 mL bottle NDC 82667-400-03 Storage: Store at 2°C to 25°C (36°F to 77°F). Protect from light.
+
+sources: OpenFDA label set_id: 10f411d3-a81e-074a-e063-6294a90ab547

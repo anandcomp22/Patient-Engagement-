@@ -1,0 +1,9 @@
+Name: Evening Primrose Oil
+
+introduction: Apply serum to face and neck every morning and/or night. Keeping skin moisturized is important for all skin types. In every step of skin care, always use circular, upward motions with a gentle touch on your face.
+
+dosage_text: The antioxidants in this serum come from the rich oils of carrot, avocado, rosehip and evening primrose. DMAE serum also contains vitamins and minerals including vitamins A, B, C and E
+
+how_to_use: Directions: Apply serum to face and neck every morning and/or night. Keeping skin moisturized is important for all skin types. In every step of skin care, always use circular, upward motions with a gentle touch on your face.
+
+sources: OpenFDA label set_id: 23bf7a7f-d9fe-fe04-e063-6294a90a4d95

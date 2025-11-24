@@ -1,0 +1,9 @@
+Name: Carisoprodol
+
+introduction: 1 INDICATIONS AND USAGE Carisoprodol is indicated for the relief of discomfort associated with acute, painful musculoskeletal conditions in adults. Limitation of Use Carisoprodol should only be used for short periods (up to two or three weeks) because adequate evidence of effectiveness for more prolonged use has not been established and because acute, painful musculoskeletal conditions are generally of short duration. [ see Dosage and Administration (2) ]. Carisoprodol is a muscle relaxant indicated for the relief of discomfort associated with acute, painful musculoskeletal conditions in adults. (1) Limitations of Use Should only be used for acute treatment periods up to two or three weeks ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION The recommended dose of carisoprodol is 350 mg three times a day and at bedtime. The recommended maximum duration of carisoprodol use is up to two or three weeks. Recommended dose is 350 mg three times a day and at bedtime. (2)
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING 350 mg Tablets: round, convex, white tablets, inscribed with 111 on one side and “O” on the other side; available in bottles of 100 (NDC 69584-111-10), bottles of 500 (NDC 69584-111-50) and bottles of 1000 (NDC 69584-111-90). Storage Store at controlled room temperature 20° - 25°C (68° - 77°F).
+
+sources: OpenFDA label set_id: 03c3455f-e217-4a7e-908f-609333dc35fc

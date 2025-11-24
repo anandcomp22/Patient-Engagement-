@@ -1,0 +1,9 @@
+Name: Fluoride
+
+introduction: Use aids in the prevention of dental cavities
+
+dosage_text: Directions Adults and children 6 years of age and older: use once a day after brushing your teeth with a toothpaste vigorously swish 10 milliliters of rinse between your teeth for 1 minute and then spit out do not swallow the rinse do not eat or drink for 30 minutes after rinsing instruct children under 12 years of age in good rinsing habits (to minimize swallowing) supervise children as necessary until capable of using without supervision Children under 6 years of age: consult a dentist or doctor
+
+how_to_use: Warnings for this product
+
+sources: OpenFDA label set_id: 001777fb-196c-499a-94c8-6cdcef0958e9

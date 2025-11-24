@@ -1,0 +1,138 @@
+{
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2025-10-01",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 125
+    }
+  },
+  "results": [
+    {
+      "spl_product_data_elements": [
+        "Lithium Sulphuratum Lithium Sulphuratum SUCROSE LITHIUM SULFATE LITHIUM CATION Lithium Sulphuratum Lithium Sulphuratum LITHIUM SULFATE LITHIUM CATION SUCROSE Lithium Sulphuratum Lithium Sulphuratum LITHIUM SULFATE LITHIUM CATION SUCROSE Lithium Sulphuratum Lithium Sulphuratum LITHIUM SULFATE LITHIUM CATION SUCROSE Lithium Sulphuratum Lithium Sulphuratum LITHIUM SULFATE LITHIUM CATION SUCROSE Lithium Sulphuratum Lithium Sulphuratum SUCROSE LITHIUM SULFATE LITHIUM CATION Lithium Sulphuratum Lithium Sulphuratum LITHIUM SULFATE LITHIUM CATION SUCROSE Lithium Sulphuratum Lithium Sulphuratum SUCROSE LITHIUM SULFATE LITHIUM CATION"
+      ],
+      "active_ingredient": [
+        "",
+        ""
+      ],
+      "dosage_forms_and_strengths": [
+        ""
+      ],
+      "purpose": [
+        ""
+      ],
+      "indications_and_usage": [
+        ""
+      ],
+      "warnings": [
+        ""
+      ],
+      "pregnancy_or_breast_feeding": [
+        ""
+      ],
+      "ask_doctor": [
+        ""
+      ],
+      "keep_out_of_reach_of_children": [
+        ""
+      ],
+      "instructions_for_use": [
+        ""
+      ],
+      "dosage_and_administration": [
+        ""
+      ],
+      "route": [
+        ""
+      ],
+      "inactive_ingredient": [
+        ""
+      ],
+      "questions": [
+        ""
+      ],
+      "package_label_principal_display_panel": [
+        "Lithium Sulphuratum 6C 5g Lithium Sulphuratum 6C 30g Lithium Sulphuratum 6C 100g Lithium Sulphuratum 12C 5g Lithium Sulphuratum 12C 30g Lithium Sulphuratum 12C 100g Lithium Sulphuratum 30C 1g Lithium Sulphuratum 30C 5g Lithium Sulphuratum 30C 30g Lithium Sulphuratum 30C 100g Lithium Sulphuratum 100C 1g Lithium Sulphuratum 100C 5g Lithium Sulphuratum 100C 30g Lithium Sulphuratum 100C 100g Lithium Sulphuratum 200C 1g Lithium Sulphuratum 200C 5g Lithium Sulphuratum 200C 30g Lithium Sulphuratum 200C 100g Lithium Sulphuratum 500C 1g Lithium Sulphuratum 500C 5g Lithium Sulphuratum 500C 30g Lithium Sulphuratum 500C 100g Lithium Sulphuratum 1M 1g Lithium Sulphuratum 1M 5g Lithium Sulphuratum 1M 30g Lithium Sulphuratum 1M 100g Lithium Sulphuratum LM1 30g"
+      ],
+      "set_id": "03280bb4-794d-57bb-e063-6394a90a854f",
+      "id": "03280bb4-794e-57bb-e063-6394a90a854f",
+      "effective_time": "20230817",
+      "version": "1",
+      "openfda": {
+        "brand_name": [
+          "Lithium Sulphuratum"
+        ],
+        "generic_name": [
+          "LITHIUM SULPHURATUM"
+        ],
+        "manufacturer_name": [
+          "Hahnemann Laboratories, INC."
+        ],
+        "product_ndc": [
+          "37662-3753",
+          "37662-3760",
+          "37662-3754",
+          "37662-3755",
+          "37662-3757",
+          "37662-3758",
+          "37662-3756",
+          "37662-3759"
+        ],
+        "product_type": [
+          "HUMAN OTC DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "LITHIUM SULFATE"
+        ],
+        "spl_id": [
+          "03280bb4-794e-57bb-e063-6394a90a854f"
+        ],
+        "spl_set_id": [
+          "03280bb4-794d-57bb-e063-6394a90a854f"
+        ],
+        "package_ndc": [
+          "37662-3760-1",
+          "37662-3753-1",
+          "37662-3753-2",
+          "37662-3753-3",
+          "37662-3754-1",
+          "37662-3754-2",
+          "37662-3754-3",
+          "37662-3755-1",
+          "37662-3755-2",
+          "37662-3755-3",
+          "37662-3755-4",
+          "37662-3757-1",
+          "37662-3757-2",
+          "37662-3757-3",
+          "37662-3757-4",
+          "37662-3758-1",
+          "37662-3758-2",
+          "37662-3758-3",
+          "37662-3758-4",
+          "37662-3756-1",
+          "37662-3756-2",
+          "37662-3756-3",
+          "37662-3756-4",
+          "37662-3759-1",
+          "37662-3759-2",
+          "37662-3759-3",
+          "37662-3759-4"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "unii": [
+          "919XA137JK"
+        ]
+      }
+    }
+  ]
+}

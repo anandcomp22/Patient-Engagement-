@@ -1,0 +1,7 @@
+Name: Aloe vera
+
+introduction: Use Aloe is commonly known for its soothing and cooling qualities for the skin.Combined with the natural antioxidants of Vitamin E and Cocoa Butter,this lotion helps restore your skin after exposure to the sun and all other outdoor elements. With regular use it also moisturizes and helps maintain your tan longer, while leavingyour skin feeling silky smooth.
+
+how_to_use: Warnings For external use only
+
+sources: OpenFDA label set_id: 14b3c8e3-68e4-411c-e063-6394a90a7bd0

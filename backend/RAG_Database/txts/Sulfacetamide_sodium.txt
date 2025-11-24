@@ -1,0 +1,9 @@
+Name: Sulfacetamide sodium
+
+introduction: INDICATIONS: This product is indicated for use in the topical control of acne vulgaris, acne rosacea and seborrheic dermatitis.
+
+dosage_text: DOSAGE AND ADMINISTRATION: Cleanse affected areas. Apply a thin layer to the affected areas with light massaging, 1 to 3 times daily or as directed by a physician.
+
+how_to_use: HOW SUPPLIED: This product is supplied in the following size(s): 2 oz. (57 g) bottles, NDC 44523-535-02 To report a serious adverse event or obtain product information, call 1-866-762-2365. Manufactured for: BIOCOMP PHARMA ® , INC San Antonio, TX 78230 1355 826015 I826015R0215 WARNINGS: Sulfonamides are known to cause Stevens-Johnson syndrome in hypersensitive individuals. Stevens-Johnson syndrome also has been reported following the use of sodium sulfacetamide topically. Cases of drug-induced systemic lupus erythematosus from topical sulfacetamide also have been reported. In one of these cases, there was a fatal outcome. KEEP OUT OF THE REACH OF CHILDREN.
+
+sources: OpenFDA label set_id: 01db0daf-1704-47c9-8845-6d5ec56e33ec

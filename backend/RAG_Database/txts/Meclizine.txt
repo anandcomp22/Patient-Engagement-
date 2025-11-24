@@ -1,0 +1,9 @@
+Name: Meclizine
+
+introduction: Uses For the prevention and treatment of nausea, vomiting or dizziness associated with motion sickness. For other uses consult your doctor
+
+dosage_text: Directions take dose one hour before travel starts tablets can be chewed or swallowed whole with water adults & children 12 years and over: take 1-2 tablets once daily children under 12 years: ask a doctor
+
+how_to_use: Warnings Ask a doctor before use if you have glaucoma a breathing problem such as emphysema or chronic bronchitis trouble urinating due to an elarged prostate gland Ask a doctor or pharmacist before use if you are taking sedatives or tranquilizers When using this product you may get drowsy avoid alcoholic drinks alcohol, sedatives and tranquilizers may increse drowsiness be careful when driving a moor vehicle or operating machinery
+
+sources: OpenFDA label set_id: 02d1af4d-d97d-4019-a5bf-3ec391238676

@@ -1,0 +1,9 @@
+Name: Silver
+
+introduction: Directions: FOR ORAL USE ONLY.
+
+dosage_text: Take 3-4 times daily. Ages 12 and older: 10 drops. Ages 2-11: 5 drops. Under age 2: Consult a doctor.
+
+how_to_use: Warnings: Claims based on traditional homeopathic practice, not accepted medical evidence. Not FDA evaluated. Do not use if allergic to any ingredient. Consult a doctor before use for serious conditions or if conditions worsen or persist. If pregnant or nursing, consult a doctor before use. Do not use if safety seal is broken or missing. REFRIGERATE AFTER OPENING. BEST WHEN USED WITHIN 90 DAYS OF OPENING.
+
+sources: OpenFDA label set_id: 006ba7c8-3333-4b4a-a483-f3b48fcf1442

@@ -1,0 +1,9 @@
+Name: Ubiquinone
+
+introduction: Enriched with Mu-conotoxin Cnlllc, supports the skin's natural renewal process and helps reduce the appearance of fine lines, giving your eye area a more youthful, revitalized look.
+
+dosage_text: Directions Take out the eye mask, gently unfold it and remove the base film and apply it to the eyes.The silver aluminum film should face outward. Adjust the mask according to the eye shape and gently press it to ensure it adheres fully.Apply it for 15 to 20 minutes and then remove it. Gently massage the essence in circular motions until it is fully absorbed.
+
+how_to_use: FOR EXTERNAL USE ONLY.
+
+sources: OpenFDA label set_id: 3732c9f4-720e-4ea1-e063-6294a90ab3a1

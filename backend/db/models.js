@@ -42,18 +42,22 @@ const feepaySchema = new mongoose.Schema({
     fees: { type: Number, required: true },
     transactionId :{ type: Number, required: true, unique: true }
 });
+ 
 
 const appointmentSchema = new mongoose.Schema({
-    appointmentId: { type: Number, required: true},
-    date: { type: Date, required: true },
-    patientId: { type: Number, required: true },
-    doctorId: { type: Number, required: true },
-    appstatus: {type: String, 
-            enum: ['confirmed', 'pending', 'cancelled']},
-    paymentstatus: {type: String, 
-            enum: ['paid', 'pending', 'fail']}
+  appointmentId: { type: Number, unique: true },
+  doctorId: { type: Number, required: true,  },
+  doctorName: { type: String, required: true }, 
+  patientId: { type: Number, required: true },
+  patientName: { type: String, required: true }, 
+  patientEmail: { type: String, required: true }, 
+  date: { type: Date, required: true },
+  time: { type: String, required: true }, 
+  reason: { type: String, default: "General Checkup" },
+  appstatus: { type: String, default: "confirmed" },
+  paymentstatus: { type: String, default: "pending" }
+}, { timestamps: true });
 
-});
 
 const patientSchema = new mongoose.Schema({
     patientId: { type: Number, required: true, unique: true },
@@ -85,20 +89,20 @@ const patientSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: ['doctor', 'patient'], required: true },
-    userId: { type: Number, required: true }, // links to doctorId or patientId
+    userId: { type: Number, required: true },
   });
   
 
 const videocallSchema = new mongoose.Schema({
-    appointmentId: { type: Number, required: true, unique: true },
-    doctorId: { type: Number, required: true, unique: true },
-    patientId: { type: Number, required: true, unique: true },
+    appointmentId: { type: Number, required: true },
+    doctorId: { type: Number, required: true },
+    patientId: { type: Number, required: true },
     roomId:{ type: String, required: true, unique:true},
     appstatus: {type: String, 
         enum: ['confirmed', 'pending', 'cancelled']},
     
     callduration: { type: Number},
-    recordinglink: { type: String, unique: true}
+    recordinglink: { type: String}
 })
 
 const VideoCallSummarySchema = new mongoose.Schema({
@@ -109,7 +113,7 @@ const VideoCallSummarySchema = new mongoose.Schema({
     patientEmail: String,
     startTime: Date,
     endTime: Date,
-    transcription: String,
+    transcription: String, 
     detectedCondition: String,
     medications: [
       {
@@ -133,7 +137,7 @@ const connectToDatabase = async function () {
     } catch (error) {
         console.error(" Connection to MongoDB failed:", error.message);
         process.exit(1);
-    }
+    } 
 };
 
 const Prescription = mongoose.model('Prescription', prescriptionSchema);

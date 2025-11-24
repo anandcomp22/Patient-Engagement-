@@ -1,0 +1,9 @@
+Name: Tolnaftate
+
+introduction: For effective treatment of most athlete's foot and ringworm. Relieves itching, scaling, cracking, burning, redness, soreness, irritation, and discomfort. Helps prevent most athlete's foot (dermatophytosis) with daily use.
+
+dosage_text: For athlete's foot and ringworm: use daily for 4 weeks. Clean the affected area and dry thoroughly. Apply a thin layer of the product over affected area twice daily (morning and night) or as directed by a doctor. Supervise children in the use of this product. This product is not effective for the treatment of ringworm of the scalp or nails. For athlete's foot: pay special attention to spaces between the toes, wear well-fitting, ventilated shoes, and change shoes and socks at least once daily. To prevent athlete's foot, apply once or twice daily (morning and/or night). Apply to skin around the nail and cuticle.
+
+how_to_use: For external use only. Do not use on children under 2 years of age unless directed by a doctor. When using this product avoid contact with eyes. Stop use and ask a doctor if: irritation occurs, there is no improvement within 4 weeks (for athlete's foot and ringworm).
+
+sources: OpenFDA label set_id: 013d6107-e3b0-0264-e063-6394a90ae1e2

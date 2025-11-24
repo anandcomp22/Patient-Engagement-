@@ -1,0 +1,122 @@
+{
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2025-10-01",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 59
+    }
+  },
+  "results": [
+    {
+      "spl_product_data_elements": [
+        "PostDay One-Step Levonorgestrel LEVONORGESTREL LEVONORGESTREL SILICON DIOXIDE STARCH, CORN LACTOSE MONOHYDRATE MAGNESIUM STEARATE STARCH, POTATO TALC off-white G;78"
+      ],
+      "spl_unclassified_section": [
+        "Drug Facts",
+        "*Compare to the active ingredient of Plan B One-Step ® One Tablet. One Step. Not for regular birth control. • The sooner you take it the more effective it will be • Take as soon as possible within 72 hours (3 days) after unprotected sex • Will not harm an existing pregnancy DISTRIBUTED BY HomeHealthBrands, LLC 301 W. Atlantic Ave. ste. 05 Delray Beach, FL 33444 833-337-6872 sales@homehealthbrands.com MANUFACTURED BY Glenmark Pharmaceuticals Limited Covale-Bardez Goa 403515, INDIA MADE IN INDIA *This product is not manufactured or distributed by Foundation Consumer Healthcare LLC, distributor of Plan B One-Step®."
+      ],
+      "active_ingredient": [
+        "Active ingredient Levonorgestrel 1.5 mg"
+      ],
+      "purpose": [
+        "Purpose Emergency contraceptive"
+      ],
+      "indications_and_usage": [
+        "Use for women to reduce chance of pregnancy after unprotected sex (if a contraceptive failed or if you did not use birth control)"
+      ],
+      "warnings": [
+        "Warnings Allergy alert: Do not use if you have ever had an allergic reaction to levonorgestrel Sexually transmitted diseases (STDs) alert: This product does not protect against HIV/AIDS or other STDs Do not use • if you are already pregnant (because it will not work) • for regular birth control Ask a doctor or pharmacist before use if you are taking efavirenz (HIV medication) or rifampin (tuberculosis treatment) or medication for seizures (epilepsy). These medications may reduce the effectiveness of levonorgestrel. When using this product you may have • menstrual changes • tiredness • breast pain • nausea • headache • vomiting • lower stomach (abdominal) pain • dizziness Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away. (1-800-222-1222)"
+      ],
+      "keep_out_of_reach_of_children": [
+        "Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away. (1-800-222-1222)"
+      ],
+      "dosage_and_administration": [
+        "Directions • take as soon as possible within 72 hours (3 days) after unprotected sex. The sooner you take it the better it will work. • if you vomit within 2 hours after taking the medication, call a healthcare professional to find out if you should repeat the dose"
+      ],
+      "storage_and_handling": [
+        "Other information • read the instructions, warnings, and enclosed product leaflet before use • this product works mainly by preventing ovulation (egg release). It may also prevent fertilization of a released egg (joining of sperm and egg) or attachment of a fertilized egg to the uterus (implantation). • do not use if carton is open or the blister seal is broken or missing • store at 20-25°C (68° to 77°F)"
+      ],
+      "inactive_ingredient": [
+        "Inactive ingredients silicon dioxide, corn starch, lactose monohydrate, magnesium stearate, potato starch, talc"
+      ],
+      "questions": [
+        "Questions? Call 833-337-6872"
+      ],
+      "package_label_principal_display_panel": [
+        "Packaging PostDay One-Step"
+      ],
+      "set_id": "01c8c95c-6fbe-4068-915d-74418a6bb570",
+      "id": "5e63d013-fee0-4ed8-bb10-96053a391952",
+      "effective_time": "20250423",
+      "version": "1",
+      "openfda": {
+        "application_number": [
+          "ANDA207044"
+        ],
+        "brand_name": [
+          "PostDay One-Step"
+        ],
+        "generic_name": [
+          "LEVONORGESTREL"
+        ],
+        "manufacturer_name": [
+          "Home Health Brands, LLC"
+        ],
+        "product_ndc": [
+          "85506-100"
+        ],
+        "product_type": [
+          "HUMAN OTC DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "LEVONORGESTREL"
+        ],
+        "rxcui": [
+          "483325",
+          "2049247"
+        ],
+        "spl_id": [
+          "5e63d013-fee0-4ed8-bb10-96053a391952"
+        ],
+        "spl_set_id": [
+          "01c8c95c-6fbe-4068-915d-74418a6bb570"
+        ],
+        "package_ndc": [
+          "85506-100-10"
+        ],
+        "original_packager_product_ndc": [
+          "72657-108"
+        ],
+        "upc": [
+          "0369953617421"
+        ],
+        "nui": [
+          "N0000175830",
+          "M0447349",
+          "N0000175602",
+          "N0000175832"
+        ],
+        "pharm_class_pe": [
+          "Inhibit Ovum Fertilization [PE]"
+        ],
+        "pharm_class_cs": [
+          "Progesterone Congeners [CS]"
+        ],
+        "pharm_class_epc": [
+          "Progestin [EPC]",
+          "Progestin-containing Intrauterine System [EPC]"
+        ],
+        "unii": [
+          "5W7SIA7YZW"
+        ]
+      }
+    }
+  ]
+}

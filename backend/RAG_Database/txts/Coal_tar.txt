@@ -1,0 +1,9 @@
+Name: Coal tar
+
+introduction: Use controls the symptom of: dandruff seborrheic dermatitis psoriasis
+
+dosage_text: Directions for best results use at least twice a week or as directed by a doctor wet hair thoroughly massage shampoo into the scalp lather, leave on hair and scalp for several minutes. rinse and repeat
+
+how_to_use: Warnings For external use only. Ask a doctor before using this product if condition covers a large area of the body. When using this product avoid contact with the eyes. If contact occurs, rinse eyes thoroughly with water use caution in exposing skin to sunlight after applying this product. It may increase your tendency to sunburn for up to 24 hours after application. do not use for prolonged periods without consulting a doctor. do not use this product with other forms of psoriasis therapy such as ultraviolet radiation or prescription drugs unless directed to do so by a doctor. Stop use and ask a doctor if condition worsens or does not improve after regular use of this product as directed. Keep out of reach of children. If swallowed, get medical help or contact a Poison Control Center (1-800-222-1222) right away.
+
+sources: OpenFDA label set_id: 0464b4ff-1be1-4d84-b7fd-b771ebc1e16c

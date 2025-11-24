@@ -1,0 +1,9 @@
+Name: Dronedarone
+
+introduction: 1 INDICATIONS AND USAGE MULTAQ ® is indicated to reduce the risk of hospitalization for atrial fibrillation in patients in sinus rhythm with a history of paroxysmal or persistent atrial fibrillation (AF) [see Clinical Studies (14) ] . MULTAQ is an antiarrhythmic drug indicated to reduce the risk of hospitalization for atrial fibrillation (AF) in patients in sinus rhythm with a history of paroxysmal or persistent AF ( 1 , 14 ).
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION The recommended dosage of MULTAQ is 400 mg twice daily in adults. MULTAQ should be taken as one tablet with the morning meal and one tablet with the evening meal. Treatment with Class I or III antiarrhythmics (e.g., amiodarone, flecainide, propafenone, quinidine, disopyramide, dofetilide, sotalol) or drugs that are strong inhibitors of CYP3A (e.g., ketoconazole) must be stopped before starting MULTAQ [see Contraindications (4) ] . Verify that females of reproductive potential are not pregnant prior to initiating MULTAQ [see Warnings and Precautions (5.10) , Use in Specific Populations (8.1 , 8.3) ]. One tablet of 400 mg twice a day with morning and evening meals ( 2 )
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING MULTAQ 400-mg tablets are provided as white film-coated tablets for oral administration, oblong-shaped, engraved with a double wave marking on one side and "4142" code on the other side in: Bottles of approximately 1260 film-coated tablets, NDC 55154-8104-2 Store at room temperature between 68°F to 77°F (20°C to 25°C): excursions permitted to 59°F–86°F (15°C–30°C), [see USP controlled room temperature] .
+
+sources: OpenFDA label set_id: 3bd4006a-8bad-4909-ac6d-b6d84390155c

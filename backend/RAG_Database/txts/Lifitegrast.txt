@@ -1,0 +1,9 @@
+Name: Lifitegrast
+
+introduction: 1 INDICATIONS AND USAGE Xiidra ® (lifitegrast ophthalmic solution) 5% is indicated for the treatment of the signs and symptoms of dry eye disease (DED). Xiidra (lifitegrast ophthalmic solution) 5% is a lymphocyte function-associated antigen-1 (LFA-1) antagonist indicated for the treatment of the signs and symptoms of dry eye disease (DED). ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION Instill one drop of Xiidra twice daily (approximately 12 hours apart) into each eye using a single-use container. Discard the single‑use container immediately after using in each eye. Contact lenses should be removed prior to the administration of Xiidra and may be reinserted 15 minutes following administration. One drop twice daily in each eye (approximately 12 hours apart). ( 2 )
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING Xiidra (lifitegrast ophthalmic solution) 5% (50 mg/mL) is supplied in a foil pouch containing 5 low-density polyethylene 0.2 mL single-use containers. Carton of 60 single-use containers NDC 24208-911-12 Storage: Store at 20°C to 25°C (68°F to 77°F). Store single-use containers in the original foil pouch.
+
+sources: OpenFDA label set_id: 1a914080-a3c0-44be-b601-0ae3160e77eb

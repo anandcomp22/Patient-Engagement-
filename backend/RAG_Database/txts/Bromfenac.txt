@@ -1,0 +1,9 @@
+Name: Bromfenac
+
+introduction: 1 INDICATIONS AND USAGE Bromfenac Ophthalmic Solution 0.09% is indicated for the treatment of postoperative inflammation and reduction of ocular pain in patients who have undergone cataract surgery. Bromfenac is a nonsteroidal anti-inflammatory drug (NSAID) indicated for the treatment of postoperative inflammation and reduction of ocular pain in patients who have undergone cataract extraction (1) .
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION Instill one drop into the affected eye once daily beginning 1 day prior to surgery, continued on the day of surgery and through the first 14 days post-surgery (2.1) . 2.1 Recommended Dosing For the treatment of postoperative inflammation in patients who have undergone cataract extraction, one drop of bromfenac ophthalmic solution should be applied to the affected eye once daily beginning 1 day prior to cataract surgery, continued on the day of surgery, and through the first 14 days of the postoperative period. 2.2 Use with Other Topical Ophthalmic Medications Bromfenac ophthalmic solution may be administered in conjunction with other topical ophthalmic medications such as alpha-agonists, beta-blockers, carbonic anhydrase inhibitors, cycloplegics, and mydriatics. Drops should be administered at least 5 minutes apart.
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING Bromfenac Ophthalmic Solution 0.09% is supplied in a white LDPE plastic squeeze bottle with a LDPE white dropper-tip and polypropylene gray cap as follows: 1.7 mL in 6 mL container - 72485-649-71 STORAGE Store at 20º - 25ºC (68º - 77ºF) [see USP Controlled Room Temperature].
+
+sources: OpenFDA label set_id: 08a0591e-6cb3-30ce-e063-6394a90a33fb

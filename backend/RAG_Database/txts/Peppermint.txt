@@ -1,0 +1,9 @@
+Name: Peppermint
+
+introduction: Removing warts
+
+dosage_text: Wipe the aflected area clean, take out this product and applyit evenly on the aflected area, Remember notto opply it on healthy skin, lf there is a layer of hard skin on the surfoce of the affected area, you can trim itslightly and apply it to facilitate penetration, Use it consistently for 3-5days.Exloliates naturally.
+
+how_to_use: Please keep out of reach of children. Do not swallow,Please clean your hands before use to ensure the bestresults from the product, Discontinue use if signs of iritatlon or rash occur. Store in a cool and dry place
+
+sources: OpenFDA label set_id: 198084ba-8b2d-b620-e063-6394a90af599

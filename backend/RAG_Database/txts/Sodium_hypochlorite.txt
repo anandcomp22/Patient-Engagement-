@@ -1,0 +1,9 @@
+Name: Sodium hypochlorite
+
+introduction: Uses: For temporary relief of minor: headache* fatigue* swollen tonsils* nausea* dizziness* itching* coughing* burning pains* *Claims based on traditional homeopathic practice, not accepted medical evidence. Not FDA evaluated.
+
+dosage_text: Adults & children ages 12 years and over: Take 10 drops under the tongue 1-3 times a day, or as directed by your healthcare professional. Consult a physician for use in children under 12 years of age.
+
+how_to_use: Warnings: If pregnant or breastfeeding , ask a health professional before use. Do not use if clear seal over the cap is broken or missing. Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away. Stop use and ask a doctor if headache, fatigue, swollen tonsils, nausea, dizziness, itching, coughing, burning pains, or other symptoms do not improve within 7 days or are accompanied by fever.
+
+sources: OpenFDA label set_id: ba73a050-9a5d-1549-e053-2a95a90a62aa

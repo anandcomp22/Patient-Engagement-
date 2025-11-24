@@ -1,0 +1,9 @@
+Name: Cyclosporine
+
+introduction: 1 INDICATIONS AND USAGE VEVYE is indicated for the treatment of the signs and symptoms of dry eye disease. VEVYE (cyclosporine ophthalmic solution) 0.1% is a calcineurin inhibitor immunosuppressant indicated for the treatment of the signs and symptoms of dry eye disease. ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION Wash hands before using. Instill one drop of VEVYE twice a day in each eye approximately 12 hours apart. If used with other eye drops, a 15-minute interval between products should occur. Instill one drop of VEVYE twice a day in each eye approximately 12 hours apart. ( 2 )
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING VEVYE is a sterile, clear, colorless, non-aqueous, non-preserved ophthalmic solution packaged in multiple-dose eye drop bottles delivering single drops of approximately 0.01 mL volume. Each unit contains 2 mL of VEVYE in a 5 mL transparent squeezable polypropylene bottle with a transparent polyethylene tip and a white polyethylene cap with tamper-evident ring. Commercial NDC: 82667-900-02 Sample NDC: 82667-900-00 Storage and Handling Do not use if tamper-evident ring attached to the white cap is not intact. After first opening the tamper-evident ring of the cap remains on the bottle neck. Retain the cap and keep the bottle tightly closed when not in use. Store at 15°C to 25°C (59°F to 77°F). Do not freeze or refrigerate. After opening, VEVYE can be used until the expiration date on the bottle.
+
+sources: OpenFDA label set_id: 0a60fccf-7e1b-44fe-e063-6394a90aadd5

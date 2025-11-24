@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2025-10-01",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 26
+    }
+  },
+  "results": [
+    {
+      "spl_product_data_elements": [
+        "Scopolamine Scopolamine SCOPOLAMINE SCOPOLAMINE POVIDONE K30 DIMETHICONE"
+      ],
+      "spl_unclassified_section": [
+        "SPL UNCLASSIFIED"
+      ],
+      "package_label_principal_display_panel": [
+        "PACKAGE LABEL.PRINCIPAL DISPLAY PANEL Scopolamine transdermal system, 1 mg/3 days Carton of 4 transdermal systems NDC 70771-1787-4 Rx only 4's carton"
+      ],
+      "set_id": "016df9f3-61d5-45e9-b1d6-791a5d2f26d5",
+      "id": "2bd0ca3f-183d-4af2-8c0e-962115d97fed",
+      "effective_time": "20250823",
+      "version": "3",
+      "openfda": {
+        "application_number": [
+          "ANDA217893"
+        ],
+        "brand_name": [
+          "Scopolamine"
+        ],
+        "generic_name": [
+          "SCOPOLAMINE"
+        ],
+        "manufacturer_name": [
+          "Zydus Lifesciences Limited"
+        ],
+        "product_ndc": [
+          "70771-1787"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "TRANSDERMAL"
+        ],
+        "substance_name": [
+          "SCOPOLAMINE"
+        ],
+        "rxcui": [
+          "226552"
+        ],
+        "spl_id": [
+          "2bd0ca3f-183d-4af2-8c0e-962115d97fed"
+        ],
+        "spl_set_id": [
+          "016df9f3-61d5-45e9-b1d6-791a5d2f26d5"
+        ],
+        "package_ndc": [
+          "70771-1787-2",
+          "70771-1787-7",
+          "70771-1787-1",
+          "70771-1787-4"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "nui": [
+          "N0000175574",
+          "N0000175370"
+        ],
+        "pharm_class_epc": [
+          "Anticholinergic [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Cholinergic Antagonists [MoA]"
+        ],
+        "unii": [
+          "DL48G20X8X"
+        ]
+      }
+    }
+  ]
+}

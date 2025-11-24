@@ -1,0 +1,9 @@
+Name: Flurandrenolide
+
+introduction: INDICATIONS AND USAGE Flurandrenolide Lotion USP, 0.05% is indicated for the relief of the inflammatory and pruritic manifestations of corticosteroid-responsive dermatoses.
+
+dosage_text: DOSAGE AND ADMINISTRATION Shake well before using. A small quantity of Flurandrenolide Lotion USP, 0.05% should be rubbed gently into the affected area 2 or 3 times daily. Therapy should be discontinued when control is achieved. If no improvement is seen within 2 weeks, reassessment of the diagnosis may be necessary. Flurandrenolide Lotion USP, 0.05% should not be used with occlusive dressings unless directed by a physician. Tight-fitting diapers or plastic pants may constitute occlusive dressings.
+
+how_to_use: HOW SUPPLIED Flurandrenolide Lotion USP, 0.05% is supplied in plastic squeeze bottles as follows: 120 mL (NDC 72162-1439-2) Keep out of reach of children. Storage: Avoid freezing. Keep tightly closed. Protect from light. Store at 20° to 25°C (68° to 77°F) with excursions permitted to 15° to 30°C (59° to 86°F) [see USP Controlled Room Temperature].
+
+sources: OpenFDA label set_id: 2718df54-7dc1-4ebc-8258-607bedcf5813

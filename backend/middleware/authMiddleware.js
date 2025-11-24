@@ -11,17 +11,28 @@ const authMiddleware = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const doctor = await Doctor.findById(decoded.id).select("-password");
-    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
 
+    const doctorIdFromToken = decoded.doctorId;
+    if (!doctorIdFromToken) {
+      return res.status(401).json({ message: "Invalid token payload" });
+    }
+
+    const queryDoctorId = Number(doctorIdFromToken);
+
+      const doctor = await Doctor.findOne({ doctorId: queryDoctorId }).select("-password");
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+    
     req.user = {
     doctorId: doctor.doctorId,
-    id: doctor._id,
+    mongoId: doctor._id,
     email: doctor.email,
-  };
+    role: decoded.role || "doctor"
+};
 
-    next();
+
+    next(); 
   } catch (err) {
+    console.error("Auth error:", err);
     return res.status(401).json({ message: "Invalid token" });
   }
 };

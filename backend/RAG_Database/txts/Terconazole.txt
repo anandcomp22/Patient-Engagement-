@@ -1,0 +1,9 @@
+Name: Terconazole
+
+introduction: INDICATIONS AND USAGE Terconazole vaginal cream 0.4% is indicated for the local treatment of vulvovaginal candidiasis (moniliasis). As terconazole vaginal cream 0.4% is effective only for vulvovaginitis caused by the genus Candida , the diagnosis should be confirmed by KOH smears and/or cultures.
+
+dosage_text: DOSAGE AND ADMINISTRATION One full applicator (5 g) of terconazole vaginal cream 0.4% (20 mg terconazole) should be administered intravaginally once daily at bedtime for seven consecutive days. Before prescribing another course of therapy, the diagnosis should be reconfirmed by smears and/or cultures and other pathogens commonly associated with vulvovaginitis ruled out. The therapeutic effect of terconazole vaginal cream 0.4% is not affected by menstruation.
+
+how_to_use: HOW SUPPLIED Terconazole Vaginal Cream 0.4% is available in: NDC 0168-0346-46 45 gram tube, with a measured dose applicator. Store at 20° to 25°C (68° to 77°F) [see USP Controlled Room Temperature]. E. FOUGERA & CO. A division of Fougera PHARMACEUTICALS INC. Melville, New York 11747 I2346C R09/14 #22 -------------------------------------------------------------------------------------------------------------------------------------------- WARNINGS Anaphylaxis and toxic epidermal necrolysis have been reported during terconazole therapy. Terconazole therapy should be discontinued if anaphylaxis or toxic epidermal necrolysis develops.
+
+sources: OpenFDA label set_id: 10e84353-93d2-461d-8b79-e9294df047ae

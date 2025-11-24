@@ -1,0 +1,9 @@
+Name: Butoconazole
+
+introduction: INDICATIONS AND USAGE GYNAZOLE • 1 ® Butoconazole Nitrate Vaginal Cream USP, 2% is indicated for the local treatment of vulvovaginal candidiasis (infections caused by Candida ). The diagnosis should be confirmed by KOH smears and/or cultures (see CLINICAL STUDIES ). Note: GYNAZOLE • 1 ® Butoconazole Nitrate Vaginal Cream USP, 2% is safe and effective in non-pregnant women; however, the safety and effectiveness of this product in pregnant women has not been established (see PRECAUTIONS - Pregnancy ).
+
+dosage_text: DOSAGE AND ADMINISTRATION The recommended dose of GYNAZOLE • 1 ® Butoconazole Nitrate Vaginal Cream USP, 2% is one applicatorful of cream (approximately 5 grams of the cream) intravaginally. This amount of cream contains approximately 100 mg of butoconazole nitrate.
+
+how_to_use: HOW SUPPLIED GYNAZOLE•1 ® Butoconazole Nitrate Vaginal Cream USP, 2% is available in cartons containing one single-dose prefilled disposable applicator (NDC 45802- 396 -01). Store at 25°C (77°F); excursions permitted to 15°-30°C (59°-86°F) [see USP Controlled Room Temperature]. Avoid heat above 30°C (86°F). WARNINGS This cream contains mineral oil. Mineral oil may weaken latex or rubber products such as condoms or vaginal contraceptive diaphragms; therefore, use of such products within 72 hours following treatment with GYNAZOLE•1 ® Butoconazole Nitrate Vaginal Cream USP, 2% is not recommended. Recurrent vaginal yeast infections, especially those that are difficult to eradicate, can be an early sign of infection with the human immunodeficiency virus (HIV) in women who are considered at risk for HIV infection.
+
+sources: OpenFDA label set_id: 125d8ede-db38-4eb9-a6be-19208687f36a

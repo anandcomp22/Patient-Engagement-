@@ -1,0 +1,9 @@
+Name: Adapalene
+
+introduction: 1 INDICATIONS AND USAGE Adapalene and benzoyl peroxide gel 0.1% / 2.5% is indicated for the topical treatment of acne vulgaris in patients 9 years of age and older. Adapalene and benzoyl peroxide gel 0.1% / 2.5% is a combination of adapalene, a retinoid, and benzoyl peroxide, and is indicated for the topical treatment of acne vulgaris in patients 9 years of age and older. (1)
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION For topical use only; adapalene and benzoyl peroxide gel 0.1% / 2.5% is not for oral, ophthalmic, or intravaginal use. Apply a thin film of adapalene and benzoyl peroxide gel 0.1% / 2.5% to affected areas of the face and/or trunk once daily after washing. Use a pea-sized amount for each area of the face (e.g., forehead, chin, each cheek). Avoid the eyes, lips and mucous membranes. Adapalene and benzoyl peroxide gel 0.1% / 2.5% is not for oral, ophthalmic, or intravaginal use. (2) Apply a thin film of adapalene and benzoyl peroxide gel 0.1% / 2.5% to affected areas of the face and/or trunk once daily after washing. Use a pea-sized amount for each area of the face (e.g., forehead, chin, each cheek). Avoid the eyes, lips and mucous membranes. (2)
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING Adapalene and benzoyl peroxide gel 0.1% / 2.5% is white to very pale yellow in color and opaque in appearance. NDC: 72162-2296-2: 45 g in a BOTTLE, PUMP Store at 20° to 25°C (68° to 77°F); excursions permitted to 15° to 30°C (59° to 86°F) [see USP Controlled Room Temperature]. Repackaged/Relabeled by: Bryant Ranch Prepack, Inc. Burbank, CA 91504
+
+sources: OpenFDA label set_id: 049ea4d9-c60e-4406-b199-da5abe92eced

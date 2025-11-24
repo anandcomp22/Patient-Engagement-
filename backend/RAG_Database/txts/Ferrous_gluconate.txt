@@ -1,0 +1,9 @@
+Name: Ferrous gluconate
+
+introduction: INDICATIONS AND USAGE Prenatal and Postnatal prescriptive Folic Acid
+
+dosage_text: DOSAGE AND ADMINISTRATION Usual adult dose is 1 tablet once or twice daily or as prescribed by a licensed practitioner.
+
+how_to_use: HOW SUPPLIED Bottles of 30: 85477-0322-30 Storage KEEP THIS AND ALL MEDICATION OUR OF THE REACH OF CHILDREN. WARNINGS WARNING: Accidental overdose of iron-containing products is a leading cause of fatal poisoning in children under age 6. Keep this product out of the reach of children. In case of accidental overdose, call a doctor or Poison Control Center immediately.
+
+sources: OpenFDA label set_id: 3c362de4-1ed9-83be-e063-6394a90a10fc

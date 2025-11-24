@@ -1,3 +1,5 @@
 node_modules
 .env.venv/
 .venv/
+rag_venv/
+rag_venv/

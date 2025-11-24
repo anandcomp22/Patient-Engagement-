@@ -1,0 +1,9 @@
+Name: Parathyroid hormone
+
+introduction: Uses Temporarily relieves discomfort caused by kidney issues, including occasional mild to severe aches, urinary obstruction, intense nausea with or without vomiting, and inability to completely empty the bladder.* *CLAIMS BASED ON TRADITIONAL HOMEOPATHIC PRACTICE, NOT ACCEPTED MEDICAL EVIDENCE, NOT FDA EVALUATED. This product is not intended to diagnose, treat, cure, or prevent any disease.
+
+dosage_text: How to Use Mix with half a cup of water 3-4 times per day. Ages 12 or older, 10 drops. Ages 12-2, 5 drops. Ages 2 and under, consult your Doctor.
+
+how_to_use: Warnings and Storage: Ask a professional before use if pregnant or breastfeeding or if you have severe symptoms. Keep away from children. If you have a reaction to this product that is not positive, discontinue use. Store in a cool and dry place. *CLAIMS BASED ON TRADITIONAL HOMEOPATHIC PRACTICE, NOT ACCEPTED MEDICAL EVIDENCE, NOT FDA EVALUATED. This product is not intended to diagnose, treat, cure, or prevent any disease.
+
+sources: OpenFDA label set_id: 2cebe108-e58e-2e75-e063-6394a90a6f96

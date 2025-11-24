@@ -1,0 +1,9 @@
+Name: Azelaic acid
+
+introduction: Use Treats and controls symptoms of Rosacea Reduces redness and inflammation associated with Rosacea Promotes even skin tone Minimizes the appearance of blood vessels
+
+dosage_text: Rosacea Therapy Moisturizing Cream Active ingredient: Active ingredient: Azelaic Acid 5% Tranexamic Acid 1% Purpose: Rosacea Treatment
+
+how_to_use: Warnings For external use only
+
+sources: OpenFDA label set_id: 0324f0b9-3e5c-0c3c-e063-6394a90a93d6

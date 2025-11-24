@@ -1,0 +1,9 @@
+Name: Cranberry
+
+introduction: Immune support suring times of: Seasonal colds and flu
+
+dosage_text: Take 15 minutes before meals Adults and children 12 years and older 5 pellets 3 times per day Children between 12 years and 6 years of age 3 pellets 3 times per day Children under 6 years 1 pellet 3 times per day to be disoolved into a little water
+
+how_to_use: Stop use and ask doctor if symptoms persist more than 5 days or worsen. If pregnant or breast-feeding ask a health professional before use. Keep out of reach of children.
+
+sources: OpenFDA label set_id: 23886c49-5992-4a59-af52-e24eb3c9fbc5

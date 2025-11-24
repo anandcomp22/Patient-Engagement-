@@ -1,0 +1,9 @@
+Name: Paromomycin
+
+introduction: INDICATIONS AND USAGE Paromomycin sulfate is indicated for intestinal amebiasis–acute and chronic (NOTE-It is not effective in extraintestinal amebiasis); management of hepatic coma–as adjunctive therapy. To reduce the development of drug-resistant bacteria and maintain the effectiveness of HUMATIN™ Capsules and other antibacterial drugs, HUMATIN™ Capsules should be used only to treat or prevent infections that are proven or strongly suspected to be caused by susceptible bacteria. When culture and susceptibility information are available, they should be considered in selecting or modifying antibacterial therapy. In the absence of such data, local epidemiology and susceptibility patterns may contribute to the empiric selection of therapy.
+
+dosage_text: DOSAGE AND ADMINISTRATION Intestinal amebiasis: Adults and Pediatric Patients: Usual dose—25 to 35 mg/kg body weight daily, administered in three doses with meals, for five to ten days. Management of hepatic coma: Adults: Usual dose—4 g daily in divided doses, given at regular intervals for five to six days.
+
+how_to_use: HOW SUPPLIED HUMATIN™ Capsules each contain paromomycin sulfate equivalent to 250 mg paromomycin, are supplied as follows: NDC 80725-250-01: Bottles of 100 The capsule is Dark Blue Opaque /White Opaque, imprinted with "HP 38" in black ink on the cap and on the body.
+
+sources: OpenFDA label set_id: a725f022-ec3c-430d-8021-96c861b9893c

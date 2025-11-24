@@ -1,0 +1,7 @@
+Name: Riboflavin
+
+introduction: INDICATIONS AND USAGE Dialyvite with Zinc is a prescription folic acid supplement with Zinc and additional nutrients indicated for use in improving the nutritional status of renal dialysis patients.
+
+dosage_text: DOSAGE AND ADMINISTRATION Take one tablet per day or as directed by your physician, orally.
+
+sources: OpenFDA label set_id: 06508e37-5ae6-4a17-bf60-b3828c6082a7

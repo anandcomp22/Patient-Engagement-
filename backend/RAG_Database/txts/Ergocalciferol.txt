@@ -1,0 +1,9 @@
+Name: Ergocalciferol
+
+introduction: INDICATIONS AND USAGE Ergocalciferol is indicated for use in the treatment of hypoparathyroidism, refractory rickets, also known as vitamin D resistant rickets, and familial hypophosphatemia.
+
+dosage_text: DOSAGE AND ADMINISTRATION THE RANGE BETWEEN THERAPEUTIC AND TOXIC DOSES IS NARROW. Vitamin D Resistant Rickets: 12,000 to 500,000 USP units daily. Hypoparathyroidism: 50,000 to 200,000 USP units daily concomitantly with calcium lactate 4 g, six times per day. DOSAGE MUST BE INDIVIDUALIZED UNDER CLOSE MEDICAL SUPERVISION. Calcium intake should be adequate. Blood calcium and phosphorous determinations must be made every 2 weeks or more frequently if necessary. X-rays of the bones should be taken every month until condition is corrected and stabilized.
+
+how_to_use: HOW SUPPLIED Each green, oval softgel is imprinted with PA140 and contains 1,250 mcg (50,000 USP units vitamin D) of ergocalciferol, USP, and is available in NDC 71335-2246-1: 4 Capsules in a BOTTLE NDC 71335-2246-2: 12 Capsules in a BOTTLE NDC 71335-2246-3: 8 Capsules in a BOTTLE Store at 25° C (77° F); excursions permitted to 15° to 30° C (59° to 86° F) [See USP Controlled Room Temperature]. Protect from light and moisture. Dispense in a tight, light-resistant container as defined in the USP. Repackaged/Relabeled by: Bryant Ranch Prepack, Inc. Burbank, CA 91504 WARNINGS Hypersensitivity to vitamin D may be one etiologic factor in infants with idiopathic hypercalcemia. In these cases vitamin D must be strictly restricted. Keep out of the reach of children.
+
+sources: OpenFDA label set_id: 0d230fd8-2ea7-4dd6-a506-5f7804e539fc

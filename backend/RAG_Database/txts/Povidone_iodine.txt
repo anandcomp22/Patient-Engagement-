@@ -1,0 +1,9 @@
+Name: Povidone iodine
+
+introduction: Uses First aid to help prevent infection in minor cuts scrapes burns
+
+dosage_text: Directions clean the affected area spray a small amount of the product on the area 1 to 3 times daily may be covered with a sterile bandage if bandaged, let dry first
+
+how_to_use: Warnings For external use only
+
+sources: OpenFDA label set_id: 00002127-02bc-4c66-b0c3-ca29d8224afc

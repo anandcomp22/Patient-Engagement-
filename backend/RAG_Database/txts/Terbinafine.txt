@@ -1,0 +1,9 @@
+Name: Terbinafine
+
+introduction: 1 INDICATIONS AND USAGE Terbinafine tablets are indicated for the treatment of onychomycosis of the toenail or fingernail due to dermatophytes (tinea unguium). Prior to initiating treatment, appropriate nail specimens for laboratory testing [potassium hydroxide (KOH) preparation, fungal culture, or nail biopsy] should be obtained to confirm the diagnosis of onychomycosis. Terbinafine tablets are an allylamine antifungal indicated for the treatment of onychomycosis of the toenail or fingernail due to dermatophytes (tinea unguium).
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION • Prior to administering, evaluate patients for evidence of chronic or active liver disease. (2.1) • Fingernail onychomycosis: One tablet, once daily for 6 weeks. (2.2) • Toenail onychomycosis: One tablet, once daily for 12 weeks. (2.2) 2.1 Assessment Prior to Initiation Before administering terbinafine tablets, evaluate patients for evidence of chronic or active liver disease [see Contraindications (4) and Warnings and Precautions (5.1) ]. 2.2 Dosage Fingernail onychomycosis: One 250 mg tablet once daily for 6 weeks. Toenail onychomycosis: One 250 mg tablet once daily for 12 weeks. The optimal clinical effect is seen some months after mycological cure and cessation of treatment. This is related to the period required for outgrowth of healthy nail.
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING Terbinafine Tablets USP, 250 mg are supplied as white to off-white, round uncoated, biconvex beveled edge tablets having ‘D’ debossed on one side and ‘74’ on the other side. Bottles of 30 NDC 68788-7450-03 Bottles of 100 NDC 68788-7450-01 Store at 20° to 25°C (68° to 77°F); excursions permitted to 15° to 30°C (59° to 86°F) [see USP Controlled Room Temperature]. Protect from light.
+
+sources: OpenFDA label set_id: 085e0809-6b7f-447e-976e-8276c29daad6

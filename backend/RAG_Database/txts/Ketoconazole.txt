@@ -1,0 +1,9 @@
+Name: Ketoconazole
+
+introduction: INDICATIONS & USAGE Ketoconazole shampoo, 2% is indicated for the treatment of tinea (pityriasis) versicolor caused by or presumed to be caused by Pityrosporum orbiculare (also known as Malassezia furfur or M. orbiculare ) . Note: Tinea (pityriasis) versicolor may give rise to hyperpigmented or hypopigmented patches on the trunk which may extend to the neck, arms and upper thighs. Treatment of the infection may not immediately result in normalization of pigment to the affected sites. Normalization of pigment following successful therapy is variable and may take months, depending on individual skin type and incidental sun exposure. Although tinea versicolor is not contagious, it may recur because the organism that causes the disease is part of the normal skin flora.
+
+dosage_text: DOSAGE & ADMINISTRATION Apply the shampoo to the damp skin of the affected area and a wide margin surrounding this area. Lather, leave in place for 5 minutes, and then rinse off with water. One application of the shampoo should be sufficient.
+
+how_to_use: HOW SUPPLIED Ketoconazole Shampoo, 2% is a red-orange color liquid supplied in a 4-fluid ounce (120 mL) non-breakable plastic bottle (NDC 70954-662-10). Storage conditions: Store at 20° to 25°C (68° to 77°F); excursions permitted to 15° to 30°C (59° to 86°F) [see USP Controlled Room Temperature]. Protect from light. All trademarks are the property of their respective owners. Distributed by: ANI Pharmaceuticals, Inc. Baudette, MN 56623 Issued: 07/2024 LB4643-01
+
+sources: OpenFDA label set_id: 00c1cac8-a865-4583-aaba-3a0f21fb31e6

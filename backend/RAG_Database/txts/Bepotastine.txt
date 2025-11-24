@@ -1,0 +1,9 @@
+Name: Bepotastine
+
+introduction: 1 INDICATIONS AND USAGE BEPREVE ® (bepotastine besilate ophthalmic solution) 1.5% is a histamine H 1 receptor antagonist indicated for the treatment of itching associated with signs and symptoms of allergic conjunctivitis. BEPREVE is a histamine H1 receptor antagonist indicated for the treatment of itching associated with allergic conjunctivitis. ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION Instill one drop of BEPREVE into the affected eye(s) twice a day. Remove contact lenses prior to instillation of BEPREVE. • Instill one drop into the affected eye(s) twice a day. ( 2 ) • Remove contact lenses prior to instillation of BEPREVE. ( 2 )
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING BEPREVE (bepotastine besilate ophthalmic solution) 1.5% is supplied in a white low density polyethylene bottle with a sterile linear low density polyethylene controlled dropper tip and a white polypropylene cap in the following sizes: NDC 24208-629-02 5 mL Bottle NDC 24208-629-01 10 mL Bottle Storage: Store at 15°C to 25°C (59°F to 77°F).
+
+sources: OpenFDA label set_id: 68bbf6a0-c4b5-47c1-8a1c-08220fbdbce6

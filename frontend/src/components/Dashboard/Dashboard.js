@@ -24,6 +24,7 @@ const socket = io(API_BASE);
 const Dashboard = ({ sidebarOpen }) => {
   const [medicalNews, setMedicalNews] = useState([]);
   const [showAllInsights, setShowAllInsights] = useState(false);
+  const [showAllAppointments, setShowAllAppointments] = useState(false);
   const [DoctorName, setDoctorName] = useState("");
   const [greeting, setGreeting] = useState("");
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
@@ -68,7 +69,7 @@ const Dashboard = ({ sidebarOpen }) => {
       try {
         const token = localStorage.getItem("token");
         const res = await axios.get(
-          `${API_BASE}/doctor/appointments`,
+          `${API_BASE}/doctor/app`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -101,7 +102,6 @@ const Dashboard = ({ sidebarOpen }) => {
               new Date(app.date) > now && app.appstatus === "confirmed"
           )
           .sort((a, b) => new Date(a.date) - new Date(b.date))
-          .slice(0, 3); 
 
         setMetrics({
           todayAppointments,
@@ -144,6 +144,10 @@ const Dashboard = ({ sidebarOpen }) => {
   const handleToggleInsights = () => {
     setShowAllInsights(!showAllInsights);
   };
+
+  const handleViewAll = () => {
+  setShowAllAppointments(true);
+};
 
   return (
     <Box sx={{ p: 3, mt: 3 }}>
@@ -333,10 +337,16 @@ const Dashboard = ({ sidebarOpen }) => {
         {/* Upcoming Appointments */}
         <Grid item xs={12} md={6}>
           <Paper className="section-box">
+            <Typography variant="h6" className="section-title">
+              Upcoming Appointments
+            </Typography>
             {upcomingAppointments.length === 0 ? (
               <Typography>No upcoming appointments.</Typography>
             ) : (
-              upcomingAppointments.map((appointment, index) => (
+              (showAllAppointments
+                ? upcomingAppointments
+                : upcomingAppointments.slice(0, 3)
+              ).map((appointment, index) => (
                 <Box key={index} className="appointment-card">
                   <Avatar
                     sx={{
@@ -346,12 +356,12 @@ const Dashboard = ({ sidebarOpen }) => {
                       height: 40,
                     }}
                   >
-                    {appointment.patientId?.toString().charAt(0) || "P"}
+                    {appointment.patientName?.toString().charAt(0) || "P"}
                   </Avatar>
 
                   <Box className="appointment-details">
                     <Typography className="appointment-name">
-                      <strong>Patient ID: {appointment.patientId}</strong>
+                      <strong>Patient: {appointment.patientName} - {(appointment.patientId)}</strong>
                     </Typography>
                     <Typography className="appointment-info">
                       Status: {appointment.appstatus}
@@ -360,9 +370,7 @@ const Dashboard = ({ sidebarOpen }) => {
 
                   <Box className="appointment-meta">
                     <Typography className="appointment-time">
-                      <AccessTime
-                        sx={{ fontSize: 16, marginRight: "5px" }}
-                      />
+                      <AccessTime sx={{ fontSize: 16, marginRight: "5px" }} />
                       {new Date(appointment.date).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -372,9 +380,21 @@ const Dashboard = ({ sidebarOpen }) => {
                 </Box>
               ))
             )}
-            <Typography className="view-all">View all appointments</Typography>
+
+            {/* Toggle View All / View Less */}
+            {upcomingAppointments.length > 3 && (
+              <Typography
+                className="view-all"
+                onClick={() => setShowAllAppointments(!showAllAppointments)}
+                sx={{ cursor: "pointer", color: "#1976d2", mt: 1 }}
+              >
+                {showAllAppointments ? "View less" : "View all appointments"}
+              </Typography>
+            )}
           </Paper>
         </Grid>
+
+            
 
         {/* AI Insights */}
         <Grid item xs={12} md={6}>

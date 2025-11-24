@@ -1,0 +1,9 @@
+Name: Yohimbine
+
+introduction: Indications and Usage Indicated in loss of sex drive and erectile dysfunction. Helpful for those who want to build their muscles. Also increases testosterone levels in the bloodstream
+
+dosage_text: Dosage and Administration 2 tablespoonful twice daily in half a cup of water or as directed by a licensed homeopathic practitioner
+
+how_to_use: Warnings Do not: use if you have an allergy or hypersensitivity to components of the formula Stop use and ask a doctor if: condition worsens If symptoms persists for more than 7 days
+
+sources: OpenFDA label set_id: 1cb79d9c-1de2-3b54-e063-6294a90a667f

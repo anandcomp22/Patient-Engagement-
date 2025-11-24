@@ -1,0 +1,9 @@
+Name: Psyllium
+
+introduction: Use For relief of occasional constipation and to induce regularity. Generally produces bowel movements within 12-72 hours.
+
+dosage_text: Directions Mix this product (child or adult dose) with at least 8 ounces (a full glass) of water or other fluid. Taking this product without enough fluid may cause choking. See choking warnings. Adults and children 12 years and older One teaspoon 1 to 3 times daily Children 6 years to under 12 years of age ½ teaspoon 1 to 3 times daily Childre4n under 6 years of age Consult a doctor
+
+how_to_use: Warnings Allergy alert: As with any natural grain product, inhaled or ingested psyllium powder may cause an allergic reaction in people sensitive to psyllium. Choking Taking this product without adequate fluid may cause it to swell and block your throat or esophagus and may cause choking. Do not take this product if you have difficulty in swallowing. If you experience chest pain, vomiting or difficulty in swallowing or breathing after taking this product, seek immediate medical attention.
+
+sources: OpenFDA label set_id: 04dbe9aa-ed18-4d76-a840-d010445a8643

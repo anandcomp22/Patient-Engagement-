@@ -1,0 +1,9 @@
+Name: Calcium acetate
+
+introduction: 1 INDICATIONS AND USAGE Calcium acetate is a phosphate binder indicated to reduce serum phosphorus in patients with end stage renal disease (ESRD). Calcium acetate is a phosphate binder indicated for the reduction of serum phosphorus in patients with end stage renal disease. ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION The recommended initial dose of calcium acetate for the adult dialysis patient is 2 capsules with each meal. Increase the dose gradually to lower serum phosphorus levels to the target range, as long as hypercalcemia does not develop. Most patients require 3-4 capsules with each meal. Starting dose is 2 capsules with each meal. (2) Titrate the dose every 2-3 weeks until acceptable serum phosphorus level is reached. Most patients require 3-4 capsules with each meal. (2)
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING Each capsule is of size ‘00el’ hard gelatin capsule shell with blue opaque cap and white opaque body imprinted with “667 mg” on cap and “IG 377” on body in black ink filled with white to off white powder. Supplied in Bottles of 60 (NDC 69097-862-03) and 200 (NDC 69097-862-83). STORAGE: Store at 20° to 25°C (68° to 77°F) [see USP Controlled Room Temperature].
+
+sources: OpenFDA label set_id: 000c044a-12ef-4484-942e-99552b777d58

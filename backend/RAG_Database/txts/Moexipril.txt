@@ -1,0 +1,9 @@
+Name: Moexipril
+
+introduction: INDICATIONS AND USAGE Moexipril hydrochloride tablets are indicated for treatment of patients with hypertension. It may be used alone or in combination with thiazide diuretics. In using moexipril hydrochloride tablets, consideration should be given to the fact that another ACE inhibitor, captopril, has caused agranulocytosis, particularly in patients with renal impairment or collagen-vascular disease. Available data are insufficient to show that moexipril hydrochloride tablets do not have a similar risk (see WARNINGS ). In considering use of moexipril hydrochloride tablets, it should be noted that in controlled trials ACE inhibitors have an effect on blood pressure that is less in black patients than in non-blacks. In addition, ACE inhibitors (for which adequate data are available) cause a higher rate of angioedema in black than in non-black patients (see WARNINGS, Angioedema ).
+
+dosage_text: DOSAGE AND ADMINISTRATION
+
+how_to_use: HOW SUPPLIED Moexipril Hydrochloride, USP 7.5 mg tablets are light beige, round, film-coated scored tablets, debossed with “ C ” above and “ E ” below the score on one side and “ 266 ” on other side. They are supplied as follows: Bottles of 90 NDC 62135-967-90 Moexipril Hydrochloride, USP 15 mg tablets are dark beige, round, film-coated scored tablets, debossed with “ C ” above and “ E ” below the score on one side and “ 267 ” on other side. They are supplied as follows: Bottles of 90 NDC 62135-969-90 Store, tightly closed, at 20° to 25°C (68° to 77°F). Excursions permitted between 15° and 30°C (59° and 86°F) [See USP Controlled Room Temperature]. Protect from excessive moisture. If product package is subdivided, dispense in tight containers as described in USP-NF. Manufactured for: Chartwell RX, LLC. Congers, NY 10920 L72585 Rev. 03/2025 WARNINGS
+
+sources: OpenFDA label set_id: 5c24072c-9769-4cb5-b8da-bf814d21391d

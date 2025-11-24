@@ -1,0 +1,9 @@
+Name: Naftifine
+
+introduction: 1 INDICATIONS AND USAGE Naftifine hydrochloride cream is indicated for the treatment of interdigital tinea pedis, tinea cruris, and tinea corporis caused by the organism Trichophyton rubrum . Naftifine hydrochloride cream is an allylamine antifungal indicated for the treatment of interdigital tinea pedis, tinea cruris, and tinea corporis caused by the organism Trichophyton rubrum . ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION For topical use only. Naftifine hydrochloride cream is not for ophthalmic, oral, or intravaginal use. Apply a thin layer of naftifine hydrochloride cream once-daily to the affected areas plus a ½ inch margin of healthy surrounding skin for 2 weeks. For topical use only. Naftifine hydrochloride cream is not for ophthalmic, oral, or intravaginal use. ( 2 ) Apply a thin layer of naftifine hydrochloride cream once-daily to the affected areas plus a ½ inch margin of healthy surrounding skin for 2 weeks. ( 2 )
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING Naftifine hydrochloride cream, USP 2%, is a white to off-white cream supplied in the following size: 45 gram tubes – NDC 70700-161-18 60 gram tubes – NDC 70700-161-17 Store naftifine hydrochloride cream at 25°C (77°F); excursions permitted to 15° to 30°C (59° to 86°F) [see USP Controlled Room Temperature].
+
+sources: OpenFDA label set_id: 567f7418-e65c-740f-6233-741f5274fe1c

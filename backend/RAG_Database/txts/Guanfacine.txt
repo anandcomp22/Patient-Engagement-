@@ -1,0 +1,9 @@
+Name: Guanfacine
+
+introduction: INDICATIONS AND USAGE Guanfacine Tablets, USP are indicated in the management of hypertension. Guanfacine hydrochloride may be given alone or in combination with other antihypertensive agents, especially thiazide-type diuretics.
+
+dosage_text: DOSAGE AND ADMINISTRATION The recommended initial dose of guanfacine hydrochloride when given alone or in combination with another antihypertensive drug is 1 mg daily given at bedtime to minimize somnolence. If after 3 to 4 weeks of therapy 1 mg does not give a satisfactory result, a dose of 2 mg may be given, although most of the effect of guanfacine hydrochloride is seen at 1 mg (see CLINICAL PHARMACOLOGY ). Higher daily doses have been used, but adverse reactions increase significantly with doses above 3 mg/day. The frequency of rebound hypertension is low, but it can occur. When rebound occurs, it does so after 2 - 4 days, which is delayed compared with clonidine hydrochloride. This is consistent with the longer half-life of guanfacine. In most cases, after abrupt withdrawal of guanfacine, blood pressure returns to pretreatment levels slowly (within 2 - 4 days) without ill effects.
+
+how_to_use: HOW SUPPLIED Guanfacine Tablets, USP are available in the following dosing strengths (expressed in equivalent amounts of guanfacine): 1 mg—white round tablets, debossed “i3” on one side and “18” on the other side in bottles of 100 (NDC 73141-018-04). 2 mg—White round tablets, debossed “i3” on one side and “19” on the other side in bottles of 100 (NDC 73141-019-04). Store at controlled temperature, between 20°C and 25°C (68°F and 77°F). Dispense in a tight, light-resistant container. Distributed by: A2A Integrated Pharmaceuticals Franklin, KY 42134 PI0019-02 R02/25 Revised: February 2025
+
+sources: OpenFDA label set_id: 00c3b4d2-fc4d-4e68-9157-eb29d927deaf

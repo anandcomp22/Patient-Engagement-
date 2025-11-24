@@ -1,0 +1,9 @@
+Name: Ammonium lactate
+
+introduction: INDICATIONS AND USAGE Ammonium Lactate Cream, 12% is indicated for the treatment of ichthyosis vulgaris and xerosis.
+
+dosage_text: DOSAGE AND ADMINISTRATION Apply to the affected areas and rub in thoroughly. Use twice daily or as directed by a physician.
+
+how_to_use: HOW SUPPLIED Ammonium Lactate Cream, 12% is available as follows: NDC: 70518-3619-00 PACKAGING: 2 in 1 CARTON, 140 g in 1 TUBE TYPE 0 Store at 20° to 25°C (68° to 77°F)[see USP Controlled Room Temperature]. Repackaged and Distributed By: Remedy Repack, Inc. 625 Kolter Dr. Suite #4 Indiana, PA 1-724-465-8762 WARNING Sun exposure to areas of the skin treated with Ammonium Lactate Cream, 12% should be minimized or avoided (see PRECAUTIONS section). The use of Ammonium Lactate Cream, 12% should be discontinued if any hypersensitivity is observed.
+
+sources: OpenFDA label set_id: 030e8bd1-0ff3-479f-aa77-16fab701a111

@@ -1,0 +1,9 @@
+Name: Goldenseal
+
+introduction: INDICATIONS & USAGE SECTION Formulated for symptoms associated with food and environmental allergens such as congestion, swollen glands, runny nose, cough, rashes and stomach upset.
+
+dosage_text: DOSAGE & ADMINISTRATION SECTION Directions: Ages 12 and up take 6 drops by mouth (ages 0 to 11, give 3 drops) as needed or directed by a health professional. Sensitive persons begin with 1 drop and gradually increase to full dose.
+
+how_to_use: WARNINGS SECTION WARNINGS: Keep out of reach of children. Do not use if tamper-evident seal is broken or missing. If symptoms worsen or persist for more than a few days, consult a doctor. If pregnant or breast-feeding , ask a doctor before use.
+
+sources: OpenFDA label set_id: 017f0210-195d-11d7-e063-6294a90aa750

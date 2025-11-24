@@ -1,0 +1,9 @@
+Name: Docosanol
+
+introduction: Uses treats cold sores/fever blisters on the face or lips shortens healing time and duration of symptoms: tingling, pain, burning, and/or itching
+
+dosage_text: Directions adults and children 12 years or over: wash hands before and after applying cream apply to affected area on the face or lips at the first sign of cold sore/fever blister (tingle). early treatment ensures the best results rub in gently but completely use 5 times a day until healed children under 12 years: ask a doctor
+
+how_to_use: Warnings Allergy Alert: This product may cause a severe allergic reaction. Symptoms may include: hives facial swelling wheezing/difficulty shock rash If an allergic reaction occurs, stop use and seek medical help right away. For external use only
+
+sources: OpenFDA label set_id: 0608ee6e-21ec-49d2-b9b6-b03d263f2d98

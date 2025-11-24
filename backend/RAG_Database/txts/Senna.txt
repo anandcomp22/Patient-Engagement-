@@ -1,0 +1,9 @@
+Name: Senna
+
+introduction: INDICATIONS: For the temporary relief of feelings of being stuck.
+
+dosage_text: DIRECTIONS: Feel the emotion fully, breathe deeply-connected breaths. Put 5 drops under tongue to release emotion. Continue 5 drops 2 times daily as needed. Consult a physician for use in children under 12 years of age.
+
+how_to_use: WARNINGS: If pregnant or breast-feeding, ask a health professional before use. Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away. Do not use if seal is broken or missing.
+
+sources: OpenFDA label set_id: 0804f33c-28d8-4d5d-8002-36e1daa6cca3

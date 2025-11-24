@@ -1,0 +1,9 @@
+Name: Econazole
+
+introduction: 1 INDICATIONS AND USAGE Ecoza (econazole nitrate) topical foam, 1%, is indicated for the treatment of interdigital tinea pedis caused by Trichophyton rubrum, Trichophyton mentagrophytes, and Epidermophyton floccosum in patients 12 years of age and older. Ecoza is an azole antifungal indicated for the treatment of interdigital tinea pedis caused by Trichophyton rubrum, Trichophyton mentagrophytes , and Epidermophyton floccosum in patients 12 years of age and older. ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION Ecoza topical foam, 1% is for topical use only. Ecoza topical foam, 1% is not for oral, ophthalmic, or intravaginal use. Ecoza topical foam, 1% should be applied to cover affected areas once daily for 4 weeks. For topical use only; not for oral, ophthalmic, or intravaginal use. ( 2 ) Apply once daily for 4 weeks. ( 2 )
+
+how_to_use: 16 HOW SUPPLIED/ STORAGE AND HANDLING Ecoza topical foam, 1% is white to off-white foam supplied in 10g (NDC 81811-100-10) and 70g (NDC 81811-100-70) aluminum pressurized canister. Store at controlled room temperature 20°C to 25°C (68°F to 77°F) with excursions permitted between 15°C and 30°C (59°F and 86°F). Do not refrigerate or freeze. Ecoza topical foam is flammable. Avoid heat, flame, and smoking during and immediately following application. Contents under pressure. Do not puncture and/or incinerate the containers. Do not expose containers to heat and/or store at temperatures above 120°F (49°C) even when empty. Do not store in direct sunlight.
+
+sources: OpenFDA label set_id: 0bb5fa27-32ed-ed13-e063-6394a90a1577

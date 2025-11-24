@@ -1,0 +1,115 @@
+{
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2025-10-01",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 44
+    }
+  },
+  "results": [
+    {
+      "spl_product_data_elements": [
+        "Arnica Echinacea Arnica Echinacea SORBIC ACID POLYOXYL 40 STEARATE FRANKINCENSE OIL STEARYL ALCOHOL TEA TREE OIL MYRRH OIL ARNICA MONTANA FLOWER ARNICA MONTANA FLOWER HAMAMELIS VIRGINIANA TOP HAMAMELIS VIRGINIANA TOP ECHINACEA, UNSPECIFIED ECHINACEA, UNSPECIFIED WATER COMFREY ROOT COMFREY ROOT LAVENDER OIL CITRUS PARADISI SEED CETYL ALCOHOL XANTHAN GUM ISOPROPYL MYRISTATE CALENDULA OFFICINALIS FLOWERING TOP CALENDULA OFFICINALIS FLOWERING TOP BELLIS PERENNIS BELLIS PERENNIS ACONITUM NAPELLUS ACONITUM NAPELLUS CALCIUM SULFIDE CALCIUM SULFIDE MERCURY MERCURY STEARIC ACID ACHILLEA MILLEFOLIUM ACHILLEA MILLEFOLIUM CHAMOMILE CHAMOMILE ARNICA MONTANA ARNICA MONTANA ATROPA BELLADONNA ATROPA BELLADONNA ST. JOHN'S WORT ST. JOHN'S WORT"
+      ],
+      "indications_and_usage": [
+        "Directions: FOR TOPICAL USE ONLY."
+      ],
+      "dosage_and_administration": [
+        "Apply to skin as needed. Under age 2: Consult a doctor."
+      ],
+      "active_ingredient": [
+        "Active Ingredients: Arnica (Arnica e flor.) 3X, Bellis (Daisy) 5X, Echinacea (Purple coneflower) 5X, Hamamelis (Witch hazel) 5X, Hypericum (St. John’s Wort) 5X, Achillea (Yarrow) 6X, Aconitum (Monkshood) 6X, Arnica (e pl.tota) 6X, Atropa belladonna (Nightshade) 6X, Calendula (Calendula ex herba) 6X, Chamomilla (Chamomile) 6X, Hepar sulfuris (Liver of lime) 9X, Symphytum (Comfrey) 9X, Mercurius vivus (Mercury amidonitrate) 9X"
+      ],
+      "inactive_ingredient": [
+        "Inactive Ingredients: Spring water, Stearic acid, Isopropyl myristate, Lavender oil, Cetyl alcohol, Polyoxyl 40 stearate, Stearyl alcohol, Xanthan gum, Distilled water, Sorbic acid, Tea tree oil, Frankincense oil, Grapefruit seed extract, Myrrh oil Prepared using rhythmical processes."
+      ],
+      "purpose": [
+        "Uses: Temporary relief of bruises, sprains and minor cuts."
+      ],
+      "keep_out_of_reach_of_children": [
+        "KEEP OUT OF REACH OF CHILDREN."
+      ],
+      "warnings": [
+        "Warnings: FOR EXTERNAL USE ONLY. Claims based on traditional homeopathic practice, not accepted medical evidence. Not FDA evaluated. Do not use if allergic to any ingredient. Consult a doctor before use for serious conditions, if conditions worsen or persist, or accidental ingestion occurs. If pregnant or nursing, consult a doctor before use. Avoid contact with eyes. Do not use if safety seal is broken or missing."
+      ],
+      "questions": [
+        "Questions? Call 866.642.2858 Made with care by Uriel, East Troy, WI 53120 shopuriel.com Lot:"
+      ],
+      "package_label_principal_display_panel": [
+        "Arnica Echinacea Cream"
+      ],
+      "set_id": "05b85d50-0e3e-4365-e063-6294a90a3782",
+      "id": "278525b8-2576-58e7-e063-6294a90ad468",
+      "effective_time": "20241122",
+      "version": "3",
+      "openfda": {
+        "brand_name": [
+          "Arnica Echinacea"
+        ],
+        "generic_name": [
+          "ARNICA ECHINACEA"
+        ],
+        "manufacturer_name": [
+          "Uriel Pharmacy, Inc."
+        ],
+        "product_ndc": [
+          "48951-1362"
+        ],
+        "product_type": [
+          "HUMAN OTC DRUG"
+        ],
+        "route": [
+          "TOPICAL"
+        ],
+        "substance_name": [
+          "ACHILLEA MILLEFOLIUM",
+          "ACONITUM NAPELLUS",
+          "ARNICA MONTANA",
+          "ARNICA MONTANA FLOWER",
+          "ATROPA BELLADONNA",
+          "BELLIS PERENNIS",
+          "CALCIUM SULFIDE",
+          "CALENDULA OFFICINALIS FLOWERING TOP",
+          "CHAMOMILE",
+          "COMFREY ROOT",
+          "ECHINACEA, UNSPECIFIED",
+          "HAMAMELIS VIRGINIANA TOP",
+          "MERCURY",
+          "ST. JOHN'S WORT"
+        ],
+        "spl_id": [
+          "278525b8-2576-58e7-e063-6294a90ad468"
+        ],
+        "spl_set_id": [
+          "05b85d50-0e3e-4365-e063-6294a90a3782"
+        ],
+        "package_ndc": [
+          "48951-1362-5"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "unii": [
+          "2FXJ6SW4PK",
+          "U0NQ8555JD",
+          "O80TY208ZW",
+          "OZ0E5Y15PZ",
+          "WQZ3G9PF0H",
+          "2HU33I03UY",
+          "1MBW07J51Q",
+          "18E7415PXQ",
+          "FGL3685T2X",
+          "M9VVZ08EKQ",
+          "4N9P6CC1DX",
+          "UDA30A2JJY",
+          "FXS1BY2PGL",
+          "UFH8805FKA"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+torch
+sentence-transformers
+chromadb
+transformers
+huggingface-hub
+numpy
+scipy
+scikit-learn
+tqdm
+uvicorn
+fastapi
+python-dotenv

@@ -1,0 +1,9 @@
+Name: Penciclovir
+
+introduction: 1 INDICATIONS AND USAGE Penciclovir cream 1% is a deoxynucleoside analog HSV DNA polymerase inhibitor indicated for the treatment of recurrent herpes labialis (cold sores) in adults and children 12 years of age or older. Penciclovir cream 1% is a deoxynucleoside analog HSV DNA polymerase inhibitor indicated for the treatment of recurrent herpes labialis (cold sores) in adults and pediatric patients 12 years of age and older. ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION Apply penciclovir cream 1% every 2 hours during waking hours for a period of 4 days. Start treatment as early as possible (i.e., during the prodrome or when lesions appear). Apply penciclovir cream 1% every 2 hours during waking hours for a period of 4 days. ( 2 ) Start treatment as early as possible (i.e., during the prodrome or when lesions appear). ( 2 )
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING Penciclovir cream 1% is supplied in a 5 gram tube containing 10 mg of penciclovir per gram in a cream base, which is equivalent to 1% (w/w). The white cream is available as follows: NDC 0093 - 3186 - 20 - carton containing one 5 gram tube Store at 20° to 25°C (68° to 77°F); excursions permitted to 15° to 30°C (59° to 86°F) [see USP Controlled Room Temperature].
+
+sources: OpenFDA label set_id: 5d95b934-2ba6-41b9-928f-6d2ce12f93f5

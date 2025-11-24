@@ -1,0 +1,9 @@
+Name: Sodium hyaluronate
+
+introduction: Uses Step1: After using the basic lotion Step2: Apply appropriate amount to the palm, smear on the whole face, neck and other easily exposed parts Step3: Apply evenly and gently so that it absorbs into a film
+
+dosage_text: Dosage Squeeze out an appropriate amount of sunscreen and spread evenly on skin.
+
+how_to_use: Warnings For external use only.
+
+sources: OpenFDA label set_id: 22982b28-37df-ed81-e063-6394a90a77db

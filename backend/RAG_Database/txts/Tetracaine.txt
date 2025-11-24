@@ -1,0 +1,9 @@
+Name: Tetracaine
+
+introduction: 1 INDICATIONS AND USAGE Tetracaine Hydrochloride Ophthalmic Solution 0.5% is indicated for procedures requiring a rapid and short-acting topical ophthalmic anesthetic. Tetracaine Hydrochloride Ophthalmic Solution 0.5% is an ester local anesthetic indicated for procedures requiring a rapid and short-acting topical ophthalmic anesthetic. ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION One drop topically in the eye(s) as needed. Discard unused portion. ( 2.1 ) 2.1 Topical Administration One drop topically in the eye as needed. Discard unused portion. 2.2 Sterile Field Administration Open package using standard aseptic technique. The DROP‑TAINER ® dispenser may then be allowed to fall upon a sterile surface. The entire outer surface of the DROP‑TAINER ® dispenser and its contents are sterile.
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING Tetracaine Hydrochloride Ophthalmic Solution 0.5% STERI-UNITS® is supplied as single patient use, 4 mL filled in 4-mL natural medium- or low-density polyethylene plastic DROP-TAINER® dispensers and natural low-density polyethylene tips with white polypropylene caps in a carton of 12. Each sterilized DROP-TAINER® dispenser is packaged in a clear PVC and Tyvek blister. This product does not contain a preservative; discard unused portion. NDC: 70518-4183-00 NDC: 70518-4183-01 PACKAGING: 12 in 2 CARTON PACKAGING: 1-4 mL BOTTLE, DROPPER TYPE 0 Storage: Store at 2°C to 25°C (36°F to 77°F). Protect from light. Do not use if solution contains crystals, is cloudy, or discolored. Repackaged and Distributed By: Remedy Repack, Inc. 625 Kolter Dr. Suite #4 Indiana, PA 1-724-465-8762
+
+sources: OpenFDA label set_id: 01fba5f8-a60a-444c-9abd-299540b8815a

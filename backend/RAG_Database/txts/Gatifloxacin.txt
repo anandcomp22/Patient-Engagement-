@@ -1,0 +1,9 @@
+Name: Gatifloxacin
+
+introduction: 1 INDICATIONS AND USAGE ZYMAXID ® is indicated for the treatment of bacterial conjunctivitis caused by susceptible strains of the following organisms: Aerobic gram-positive bacteria: Staphylococcus aureus Staphylococcus epidermidis Streptococcus mitis group * Streptococcus oralis * Streptococcus pneumoniae Aerobic gram-negative bacteria: Haemophilus influenzae *Efficacy for these organisms were studied in fewer than 10 infections . ZYMAXID ® is a quinolone antimicrobial indicated for the treatment of bacterial conjunctivitis caused by susceptible strains of the following organisms: Haemophilus influenzae, Staphylococcus aureus, Staphylococcus epidermidis, Streptococcus mitis group , Streptococcus oralis, Streptococcus pneumoniae ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION Day 1: Instill one drop every two hours in the affected eye(s) while awake, up to 8 times. Day 2 through Day 7: Instill one drop two to four times daily in the affected eye(s) while awake. Day 1: Instill one drop every two hours in the affected eye(s) while awake, up to 8 times on Day 1. Days 2 through 7: Instill one drop two to four times daily in the affected eye(s) while awake on Days 2 through 7. ( 2 )
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING ZYMAXID ® (gatifloxacin ophthalmic solution) 0.5% is supplied sterile in a white, low density polyethylene (LDPE) bottle with a controlled dropper tip, and a tan, high impact polystyrene (HIPS) cap in the following size: 2.5 mL in 5 mL bottle: NDC 0023-3615-25 Storage: Store at 15°-25°C (59°-77°F). Protect from freezing.
+
+sources: OpenFDA label set_id: 1160b16c-929a-4e85-9c0b-1d8c96a7678b

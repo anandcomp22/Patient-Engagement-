@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2025-10-01",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 232
+    }
+  },
+  "results": [
+    {
+      "spl_product_data_elements": [
+        "Miconazole Nitrate Athletes Foot Powder Spray Talc Free DISTEARDIMONIUM HECTORITE ISOBUTANE KAOLIN ALCOHOL ZEA MAYS SUBSP. MAYS WHOLE MICONAZOLE NITRATE MICONAZOLE"
+      ],
+      "active_ingredient": [
+        "Active ingredient Miconazole nitrate 2%"
+      ],
+      "purpose": [
+        "Purpose Antifungal"
+      ],
+      "indications_and_usage": [
+        "Uses cures most athlete's foot (linea pedis), ringworm (linea corporis) and jock itch (linea cruris) relieves symptoms of athlete's foot, including itching, burning and cracking"
+      ],
+      "warnings": [
+        "For external use only. Flammable: Do not use while smoking or near heat or flame. Do not puncture or incinerate. Contents under pressure. Do not store at temperature above 120ºF. Intentional misuse by deliberately concentrating and inhaling contents can be harmful or fatal. When using this product avoid contact with the eyes or mouth use only as directed Stop use and ask a doctor if irritation occurs no improvement within 4 weeks for athlete's foot and ringworm; 2 weeks for jock itch Keep out of reach of children. If swallowed, get medical help or contact a Poison Control Center right away. Do not use on children under 2 years of age unless directed by a doctor. Do not use on children under 2 years of age unless directed by a doctor."
+      ],
+      "safe_handling_warning": [
+        "Flammable: Do not use while smoking or near heat or flame. Do not puncture or incinerate. Contents under pressure. Do not store at temperature above 120ºF. Intentional misuse by deliberately concentrating and inhaling contents can be harmful or fatal."
+      ],
+      "when_using": [
+        "When using this product avoid contact with the eyes or mouth use only as directed"
+      ],
+      "stop_use": [
+        "Stop use and ask a doctor if irritation occurs no improvement within 4 weeks for athlete's foot and ringworm; 2 weeks for jock itch"
+      ],
+      "keep_out_of_reach_of_children": [
+        "Keep out of reach of children. If swallowed, get medical help or contact a Poison Control Center right away. Do not use on children under 2 years of age unless directed by a doctor."
+      ],
+      "do_not_use": [
+        "Do not use on children under 2 years of age unless directed by a doctor."
+      ],
+      "dosage_and_administration": [
+        "Directions wash affected area and dry thoroughly shake can well and spray a thin layer over affected area twice daily (morning and night) or as directed by a doctor supervise children in the use of this product for athlete's foot: pay special attention to spaces between the toes; wear well-fitting, ventilated shoes, and change shoes and socks at least once daily use daily for 4 weeks for athlete's foot and ringworm; use daily for 2 weeks for jock itch; if conditions persists, consult a doctor this product is not effective on the scalp or nails if nozzle clogs, clean with a pin"
+      ],
+      "other_safety_information": [
+        "Other information store between 20º and 30ºC (68ºF and 86º)"
+      ],
+      "inactive_ingredient": [
+        "Inactive ingredients disteardimonium hectorite, isobutane, kaolin, SD alcohol 40-B, zea mays (corn) starch"
+      ],
+      "questions": [
+        "Questions? Call 1-866-964-0939"
+      ],
+      "package_label_principal_display_panel": [
+        "Principal Display Panel meijer MEDICATED athlete's foot Miconazole Nitrate | Antifungal Powder Spray TALC-FREE Cures most athlete's foot Relieves itching, cracking & burning NET WT 4.6 OZ (130g) AF Miconazole Powder Spray"
+      ],
+      "set_id": "0201dfee-75a3-4aad-9dee-eedc38db1758",
+      "id": "2474d4ae-87b7-2b9e-e063-6394a90a67bf",
+      "effective_time": "20241014",
+      "version": "6",
+      "openfda": {
+        "application_number": [
+          "M005"
+        ],
+        "brand_name": [
+          "Miconazole Nitrate"
+        ],
+        "generic_name": [
+          "ATHLETES FOOT POWDER SPRAY TALC FREE"
+        ],
+        "manufacturer_name": [
+          "Meijer Distribution Inc"
+        ],
+        "product_ndc": [
+          "41250-196"
+        ],
+        "product_type": [
+          "HUMAN OTC DRUG"
+        ],
+        "route": [
+          "TOPICAL"
+        ],
+        "substance_name": [
+          "MICONAZOLE NITRATE"
+        ],
+        "rxcui": [
+          "998428"
+        ],
+        "spl_id": [
+          "2474d4ae-87b7-2b9e-e063-6394a90a67bf"
+        ],
+        "spl_set_id": [
+          "0201dfee-75a3-4aad-9dee-eedc38db1758"
+        ],
+        "package_ndc": [
+          "41250-196-46"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "unii": [
+          "VW4H1CYW1K"
+        ]
+      }
+    }
+  ]
+}

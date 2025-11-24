@@ -1,0 +1,9 @@
+Name: Benzyl alcohol
+
+introduction: Uses Temporary Pain Relief
+
+dosage_text: Directions Adults and children over 12 years clean and dry affected area Apply to affected area not more than 3 to 4 times daily Children 12 years or younger ask a doctor
+
+how_to_use: Warnings For external Use Only Do not use in eyes in large quantities over raw or blistered areas, or on deep puncture wounds, animal bites, or serious burns for more than one week unless directed by a doctor
+
+sources: OpenFDA label set_id: 039a2036-54b2-cf28-e063-6294a90a8ce6

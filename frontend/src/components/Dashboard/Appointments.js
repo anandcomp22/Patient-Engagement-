@@ -11,8 +11,10 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
+import axios from "axios";
+const API_BASE = process.env.REACT_APP_API_URL;
 
-const socket = io("http://localhost:8000");
+const socket = io(API_BASE);
 
 const Appointments = () => {
   const navigate = useNavigate();
@@ -29,25 +31,18 @@ const Appointments = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  
 
 const fetchAppointments = async () => {
   setLoading(true);
   setError("");
   try {
     const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:8000/doctor/appointment", {
-      headers: {
-        "Authorization": `Bearer ${token}`, 
-      },
+    const res = await axios.get(`${API_BASE}/appointment/appointments`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { t: new Date().getTime() }
     });
 
-    if (!res.ok) {
-      throw new Error("Unauthorized or failed to fetch");
-    }
-
-    const data = await res.json();
-    setAppointmentsData(data.appointments || data);
+    setAppointmentsData(res.data);
   } catch (err) {
     console.error(err);
     setError("Failed to load appointments.");
@@ -55,9 +50,6 @@ const fetchAppointments = async () => {
     setLoading(false);
   }
 };
-
-  
-  
 
   useEffect(() => {
     fetchAppointments();
@@ -68,7 +60,7 @@ const fetchAppointments = async () => {
   useEffect(() => {
     if (!Array.isArray(appointmentsData)) return;
     let filtered = appointmentsData.filter(appt =>
-      appt.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      appt.patientName?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     if (sortBy === "time") {
       filtered.sort((a, b) => new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`));
@@ -79,16 +71,24 @@ const fetchAppointments = async () => {
   }, [searchTerm, sortBy, appointmentsData]);  
   
 
-  const handleDelete = async (id) => {
-    await fetch(`http://localhost:8000/appointment/delete/${id}`, { method: "DELETE" });
+  const handleDelete = async (appointmentId) => {
+  try {
+    await axios.delete(`${API_BASE}/appointments/delete/${appointmentId}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    });
     socket.emit("appointment-update");
-  };
+    fetchAppointments();
+  } catch (err) { console.error(err); }
+};
 
-  const handleViewDetails = async (id) => {
-    const res = await fetch(`http://localhost:8000/appointment/details/${id}`);
-    const data = await res.json();
-    setViewDialog(data);
-  };
+  const handleViewDetails = async (appointmentId) => {
+  try {
+    const res = await axios.get(`${API_BASE}/doctor/appointments/details/${appointmentId}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    });
+    setViewDialog(res.data);
+  } catch (err) { console.error(err); }
+};
 
   const changeDate = (days) => {
     setSelectedDate(prev => {
@@ -99,38 +99,40 @@ const fetchAppointments = async () => {
   };
 
   const handleAddAppointment = async () => {
+  try {
     const token = localStorage.getItem("token");
-  
-    const res = await fetch("http://localhost:8000/appointment/book", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}` 
-      },
-      body: JSON.stringify(formData),
-    });
-  
-    const data = await res.json();
-  
+    const { data } = await axios.post(`${API_BASE}/doctor/appointments/book`,
+      formData,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
     if (data.success) {
       setShowForm(false);
       setFormData({ date: "", patientId: "", doctorId: "" });
       socket.emit("appointment-update");
+      fetchAppointments();
     } else {
       alert(data.message || "Failed to book appointment");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Booking failed");
+  }
+};
+
   
   const handleReschedule = async () => {
-    await fetch(`http://localhost:8000/appointment/reschedule`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ appointmentId: rescheduleDialog.id, newDate: rescheduleDate })
-    });
+  try {
+    const token = localStorage.getItem("token");
+    await axios.put(`${API_BASE}/doctor/appointments/reschedule`, {
+      appointmentId: rescheduleDialog.appointmentId, newDate: rescheduleDate
+    }, { headers: { Authorization: `Bearer ${token}` }});
     setRescheduleDialog(null);
     setRescheduleDate("");
     socket.emit("appointment-update");
-  };
+    fetchAppointments();
+  } catch (err) { console.error(err); }
+};
+
 
 
   return (
@@ -192,28 +194,32 @@ const fetchAppointments = async () => {
         <Typography color="error" sx={{ mt: 4 }}>{error}</Typography>
       ) : (
         filteredAppointments.map((item) => (
-          <Card key={item.id} sx={{ mb: 2, p: 2 }}>
+          <Card key={item.appointmentId || item._id} sx={{ mb: 2, p: 2 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <Avatar>{item.name?.[0]}</Avatar>
-                <Box>
-                  <Typography variant="h6">{item.name}</Typography>
-                  <Typography variant="body2" color="textSecondary">{item.details}</Typography>
-                </Box>
+                <Avatar>{item.patientName?.[0]}</Avatar>
+                  <Box>
+                    <Typography variant="h6">{item.patientName}</Typography>
+                    <Typography variant="body2" color="textSecondary">{item.reason || "No reason provided"}</Typography>
+                  </Box>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <AccessTimeIcon fontSize="small" />
                 <Typography variant="body2">{item.time}</Typography>
-                <Chip label={item.status} color={item.status === "Confirmed" ? "success" : "warning"} variant="outlined" />
-              </Box>
+                <Chip 
+                  label={item.appstatus} 
+                  color={item.appstatus === "confirmed" ? "success" : item.appstatus === "Appointment Done" ? "info" : "warning"} 
+                  variant="outlined" 
+                />
+              </Box> 
             </Box>
 
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2 }}>
-              <Button variant="outlined" size="small" onClick={() => handleViewDetails(item.id)}>View</Button>
+              <Button variant="outlined" size="small" onClick={() => handleViewDetails(item.appointmentId)}>View</Button>
               <Button variant="outlined" size="small" onClick={() => setRescheduleDialog(item)}>Reschedule</Button>
               <Button variant="contained" size="small" onClick={async () => {
                 try {
-                  const res = await fetch(`http://localhost:8000/appointment/room/${item.id}`);
+                  const res = await fetch(`${API_BASE}/appointment/room/${item.appointmentId}`);
                   const data = await res.json();
                   if (data.roomId) {
                     navigate(`/video-call/${data.roomId}`, {
@@ -228,7 +234,7 @@ const fetchAppointments = async () => {
               }}>
                 Start Video
               </Button>
-              <Button variant="outlined" color="error" size="small" onClick={() => handleDelete(item.id)}>Cancel</Button>
+              <Button variant="outlined" color="error" size="small" onClick={() => handleDelete(item.appointmentId)}>Cancel</Button>
             </Box>
           </Card>
         ))

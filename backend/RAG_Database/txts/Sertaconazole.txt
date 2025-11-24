@@ -1,0 +1,9 @@
+Name: Sertaconazole
+
+introduction: 1 INDICATIONS AND USAGE ERTACZO ® cream, 2%, is indicated for the topical treatment of interdigital tinea pedis in immunocompetent adult and pediatric patients 12 years of age and older caused by Trichophyton rubrum , Trichophyton mentagrophytes, and Epidermophyton floccosum . ERTACZO cream, 2% is an azole antifungal indicated for the topical treatment of interdigital tinea pedis in immunocompetent adult and pediatric patients 12 years of age and older caused by Trichophyton rubrum, Trichophyton mentagrophytes , and Epidermophyton floccosum . ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION Apply ERTACZO cream, 2% twice daily for 4 weeks. Apply a sufficient amount of ERTACZO cream, 2% to cover both the affected areas between the toes and the immediately surrounding healthy skin. Use ERTACZO cream, 2% for the full treatment time recommended by the physician, even though symptoms may have improved. Dry the affected area(s) thoroughly before application, if using ERTACZO cream, 2% after bathing. Wash hands after use. Avoid the use of occlusive dressings or wrappings. For topical use. Not for ophthalmic, oral, or intravaginal use. Apply ERTACZO cream, 2% to the affected and immediate surrounding area(s) twice daily for 4 weeks. ( 2 ) Not for ophthalmic, oral, or intravaginal use. ( 2 )
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING ERTACZO cream, 2%, is white in color and supplied in tubes in the following size: 60-gram tube NDC 73159-004-60 Store at 20° to 25°C (68° to 77°F); excursions permitted to 15° to 30°C (59° to 86°F) [see USP Controlled Room Temperature].
+
+sources: OpenFDA label set_id: 27d51f01-3282-34ea-e063-6394a90a91ed

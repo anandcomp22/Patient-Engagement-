@@ -1,0 +1,9 @@
+Name: Bimatoprost
+
+introduction: 1 INDICATIONS AND USAGE Bimatoprost ophthalmic solution 0.03% is indicated for the reduction of elevated intraocular pressure in patients with open angle glaucoma or ocular hypertension. Bimatoprost ophthalmic solution 0.03% is a prostaglandin analog indicated for the reduction of elevated intraocular pressure in patients with open angle glaucoma or ocular hypertension. ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION The recommended dosage is one drop in the affected eye(s) once daily in the evening. Bimatoprost ophthalmic solution 0.03% should not be administered more than once daily since it has been shown that more frequent administration of prostaglandin analogs may decrease the intraocular pressure lowering effect. Reduction of the intraocular pressure starts approximately 4 hours after the first administration with maximum effect reached within approximately 8 to 12 hours. Bimatoprost ophthalmic solution 0.03% may be used concomitantly with other topical ophthalmic drug products to lower intraocular pressure. If more than one topical ophthalmic drug is being used, the drugs should be administered at least five (5) minutes apart. One drop in the affected eye(s) once daily in the evening. ( 2 )
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING Bimatoprost ophthalmic solution 0.03% is a clear, colorless sterile solution. Practically free from visible particles packed in opaque white LDPE container with LDPE nozzle and turquoise color HDPE cap. 0.03% 2.5 mL fill in 5 mL bottle NDC 65862-802-44 5 mL fill in 10 mL bottle NDC 65862-802-05 7.5 mL fill in 10 mL bottle NDC 65862-802-10 Storage: Store at 2°C to 25°C (36°F to 77°F). After opening, bimatoprost ophthalmic solution, 0.03% can be used until the expiration date stamped on the bottle.
+
+sources: OpenFDA label set_id: 059a60ec-aee2-4c13-8307-05cd92e8729a

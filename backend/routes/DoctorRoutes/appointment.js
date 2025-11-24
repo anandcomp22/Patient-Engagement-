@@ -1,52 +1,74 @@
 const express = require('express');
 const router = express.Router();
-const { Appointment, videocall, Patient } = require('../../db/models'); 
+const { Appointment, videocall, Patient, Doctor } = require('../../db/models'); 
 const { v4: uuidv4 } = require('uuid');
 const authMiddleware = require('../../middleware/authMiddleware');
 
-router.get("/appointments", async (req, res) => {
+router.get('/appointments', authMiddleware, async (req, res) => {
   try {
-    const appointments = await Appointment.find();
-    res.status(200).json(appointments);
+    const doctorId = req.user.doctorId;
+    const appointments = await Appointment.find({ doctorId }).sort({ date: -1 });
+    return res.status(200).json(appointments);
+    
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch appointments" });
+    return res.status(500).json({ message: "Failed to fetch appointments", err });
   }
 });
 
+
 router.post('/book', authMiddleware, async (req, res) => {
-    try {
-        const { date, patientId, doctorId } = req.body;
+  try {
+    const { patientId, patientName, patientEmail, doctorId, doctorName, date, time, reason } = req.body;
 
-        const appointmentId = Math.floor(Math.random() * 100000); 
-        const roomId = uuidv4();
+    const doctor = await Doctor.findOne({ doctorId });
+    const patient = await Patient.findOne({ patientId });
 
-        const appointment = new Appointment({
-            appointmentId,
-            date,
-            patientId,
-            doctorId,
-            appstatus: 'confirmed',
-            paymentstatus: 'paid'
-        });
-
-        const videocallEntry = new videocall({
-            appointmentId,
-            patientId,
-            doctorId,
-            roomId,
-            appstatus: 'confirmed',
-        });
-
-        await appointment.save();
-        await videocallEntry.save();
-
-        res.status(201).json({ success: true, message: "Appointment booked", appointmentId, roomId });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: "Failed to book appointment" });
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: "Doctor not found" });
     }
+
+    if (!patient) {
+      return res.status(404).json({ success: false, message: "patient not found" });
+    }
+
+    const appointmentId = Math.floor(10000 + Math.random() * 90000);
+    const roomId = uuidv4();
+
+    const appointment = new Appointment({
+      appointmentId,
+      date,
+      time,
+      reason,
+      patientId,
+      patientName,
+      patientEmail,
+      doctorId,
+      doctorName,
+      appstatus: 'confirmed',
+      paymentstatus: 'paid'
+    });
+
+    const videocallEntry = new videocall({
+      appointmentId,
+      patientId,
+      doctorId,
+      roomId,
+      appstatus: 'confirmed'
+    });
+
+    await appointment.save();
+    await videocallEntry.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Appointment booked successfully",
+      appointment,
+      roomId,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Failed to book appointment" });
+  }
 });
 
 router.get("/details/:appointmentId", async (req, res) => {
@@ -137,7 +159,7 @@ router.get('/room/:appointmentId', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error fetching room and patient data" });
-  }
+  } 
 });
 
 

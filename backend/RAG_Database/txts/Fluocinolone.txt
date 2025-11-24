@@ -1,0 +1,9 @@
+Name: Fluocinolone
+
+introduction: INDICATIONS AND USAGE Fluocinolone Acetonide Topical Solution is indicated for the relief of the inflammatory and pruritic manifestations of corticosteroid-responsive dermatoses.
+
+dosage_text: DOSAGE AND ADMINISTRATION Fluocinolone Acetonide Solution is generally applied to the affected area as a thin film from two to four times daily depending on the severity of the condition. In hairy sites, the hair should be parted to allow direct contact with the lesion. Occlusive dressing may be used for the management of psoriasis or recalcitrant conditions. If an infection develops, the use of occlusive dressings should be discontinued and appropriate antimicrobial therapy instituted.
+
+how_to_use: HOW SUPPLIED Fluocinolone Acetonide Topical Solution USP, 0.01% is available in 20 mL (NDC 51672-1365-2) and 60 mL (NDC 51672-1365-4) bottles. STORAGE Store at 20° to 25°C (68° to 77°F) [see USP Controlled Room Temperature]. Avoid excessive heat. Protect from freezing.
+
+sources: OpenFDA label set_id: 02352ed1-3568-441f-add8-45201351a11c

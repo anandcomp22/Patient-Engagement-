@@ -1,0 +1,9 @@
+Name: Ferric citrate
+
+introduction: Indications and Usage : Convalescence, General weakness, Nervous debility, loss of appetite, anemia, and chlorosis.
+
+dosage_text: Dosage and Administration: Adults: 1 tablespoonful 3 times a day before meal. Children: 1 teaspoonful before meal. Or to be used as directed by registered Homeopathic physician
+
+how_to_use: Warnings: Do not: use if you have an allergy or hypersensitivity to components of the formula use if pregnant or nursing Stop use and ask a doctor if: condition worsens If symptoms persists for more than 7 days
+
+sources: OpenFDA label set_id: 188cd9a0-f850-4fa2-e063-6394a90aa0f3

@@ -1,0 +1,9 @@
+Name: Diflorasone
+
+introduction: INDICATIONS AND USAGE Topical corticosteroids are indicated for relief of the inflammatory and pruritic manifestations of corticosteroid-responsive dermatoses.
+
+dosage_text: DOSAGE AND ADMINISTRATION Diflorasone diacetate ointment should be applied to the affected area as a thin film from one to three times daily depending on the severity or resistant nature of the condition. Occlusive dressings may be used for the management of psoriasis or recalcitrant conditions. If an infection develops, the use of occlusive dressings should be discontinued and appropriate antimicrobial therapy initiated.
+
+how_to_use: HOW SUPPLIED Diflorasone Diacetate Ointment USP, 0.05% is available in 60 gram (NDC 71800-009-60) tubes. Store at 20° to 25°C (68° to 77°F) [see USP Controlled Room Temperature].
+
+sources: OpenFDA label set_id: 0705869c-b801-4477-b8fe-e06b1cd37352

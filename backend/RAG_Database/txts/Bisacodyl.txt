@@ -1,0 +1,9 @@
+Name: Bisacodyl
+
+introduction: Directions -detach one suppository from the strip -remove wrapper before inserting into the rectum adults and children 12 years of age and older 1 suppository once daily children 6 to under 12 years 1/2 suppository once daily children under 6 years do not use
+
+dosage_text: Directions -detach one suppository from the strip -remove wrapper before inserting into the rectum adults and children 12 years of age and older 1 suppository once daily children 6 to under 12 years 1/2 suppository once daily children under 6 years do not use
+
+how_to_use: Warnings For rectal use only.
+
+sources: OpenFDA label set_id: 015e41d2-7543-4210-8345-626f5ae5f81d

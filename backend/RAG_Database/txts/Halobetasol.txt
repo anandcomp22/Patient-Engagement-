@@ -1,0 +1,9 @@
+Name: Halobetasol
+
+introduction: INDICATIONS AND USAGE Halobetasol Propionate Ointment 0.05% is a super-high potency corticosteroid indicated for the relief of the inflammatory and pruritic manifestations of corticosteroid-responsive dermatoses. Treatment beyond two consecutive weeks is not recommended, and the total dosage should not exceed 50 g/week because of the potential for the drug to suppress the hypothalamic-pituitary-adrenal (HPA) axis. Use in children under 12 years of age is not recommended. As with other highly active corticosteroids, therapy should be discontinued when control has been achieved. If no improvement is seen within 2 weeks, reassessment of the diagnosis may be necessary.
+
+dosage_text: DOSAGE AND ADMINISTRATION Apply a thin layer of Halobetasol Propionate Ointment to the affected skin once or twice daily, as directed by your physician, and rub in gently and completely. Halobetasol Propionate Ointment is a super-high potency topical corticosteroid; therefore, treatment should be limited to two weeks, and amounts greater than 50 g/wk should not be used. As with other corticosteroids, therapy should be discontinued when control is achieved. If no improvement is seen within 2 weeks, reassessment of diagnosis may be necessary. Halobetasol Propionate Ointment should not be used with occlusive dressings.
+
+how_to_use: HOW SUPPLIED Halobetasol Propionate Ointment, 0.05% NDC: 72162-2258-2: 50 g in a TUBE STORAGE Store at 20°-25°C (68°-77°F) [see USP Controlled Room Temperature]. Repackaged/Relabeled by: Bryant Ranch Prepack, Inc. Burbank, CA 91504
+
+sources: OpenFDA label set_id: 14766ad1-d61d-4838-92e1-849a929f4dbd

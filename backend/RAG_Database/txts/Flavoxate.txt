@@ -1,0 +1,9 @@
+Name: Flavoxate
+
+introduction: INDICATIONS AND USAGE Flavoxate HCl tablets are indicated for symptomatic relief of dysuria, urgency, nocturia, suprapubic pain, frequency and incontinence as may occur in cystitis, prostatitis, urethritis, urethrocystitis/urethrotrigonitis. Flavoxate HCl tablets are not indicated for definitive treatment, but are compatible with drugs used for the treatment of urinary tract infections.
+
+dosage_text: DOSAGE AND ADMINISTRATION Adults and children over 12 years of age: One or two 100 mg tablets 3 or 4 times a day. With improvement of symptoms, the dose may be reduced. This drug cannot be recommended for infants and children under 12 years of age because safety and efficacy have not been demonstrated in this age group.
+
+how_to_use: HOW SUPPLIED Flavoxate HCl Tablets, 100 mg, are supplied as round, white, film-coated tablets debossed "PAD" and "0115" on one side and plain on the other side, in bottles of 100. 100 mg 100's: NDC 0574- 0115 -01 Store at 20° to 25°C (68° to 77°F) [see USP Controlled Room Temperature] Manufactured For Padagis ® Minneapolis, MN 55427 www.padagis.com Rev 05-23 7H700 RC PH3 Code 917A00 WARNINGS Flavoxate HCl should be given cautiously in patients with suspected glaucoma.
+
+sources: OpenFDA label set_id: a9c44c4b-5b3c-45bf-9bc9-ce858e3d06c5

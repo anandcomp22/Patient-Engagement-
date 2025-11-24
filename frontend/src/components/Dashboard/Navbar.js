@@ -8,7 +8,6 @@ import {
 } from "@mui/material";
 import { Notifications, Settings } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
-//import "./Navbar.css";
 
 
 const Navbar = ({ sidebarOpen }) => {

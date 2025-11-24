@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2025-10-01",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 402
+    }
+  },
+  "results": [
+    {
+      "spl_product_data_elements": [
+        "Signature Care Allergy Relief Loratadine LORATADINE LORATADINE LACTOSE MONOHYDRATE MAGNESIUM STEARATE POVIDONE, UNSPECIFIED L612"
+      ],
+      "active_ingredient": [
+        "Active ingredient (in each tablet) Loratadine 10 mg"
+      ],
+      "purpose": [
+        "Purpose Antihistamine"
+      ],
+      "indications_and_usage": [
+        "Uses temporarily relieves these symptoms due to hay fever or other upper respiratory allergies: • runny nose • itchy, watery eyes • sneezing • itching of the nose or throat"
+      ],
+      "warnings": [
+        "Warnings Do not use if you have ever had an allergic reaction to this product or any of its ingredients Ask a doctor before use if you have liver or kidney disease. Your doctor should determine if you need a different dose. When using this product do not take more than directed. Taking more than directed may cause drowsiness. Stop use and ask a doctor if an allergic reaction to this product occurs. Seek medical help right away. If pregnant or breast-feeding, ask a health professional before use. Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away. (1-800-222-1222)"
+      ],
+      "do_not_use": [
+        "Do not use if you have ever had an allergic reaction to this product or any of its ingredients"
+      ],
+      "ask_doctor": [
+        "Ask a doctor before use if you have liver or kidney disease. Your doctor should determine if you need a different dose."
+      ],
+      "when_using": [
+        "When using this product do not take more than directed. Taking more than directed may cause drowsiness."
+      ],
+      "stop_use": [
+        "Stop use and ask a doctor if an allergic reaction to this product occurs. Seek medical help right away."
+      ],
+      "pregnancy_or_breast_feeding": [
+        "If pregnant or breast-feeding, ask a health professional before use."
+      ],
+      "keep_out_of_reach_of_children": [
+        "Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away. (1-800-222-1222)"
+      ],
+      "dosage_and_administration": [
+        "Directions adults and children 6 years and over 1 tablet daily; not more than 1 tablet in 24 hours children under 6 years of age ask a doctor consumers with liver or kidney disease ask a doctor"
+      ],
+      "dosage_and_administration_table": [
+        "<table width=\"100%\"> <col width=\"38%\"/> <col width=\"47%\"/> <tbody> <tr> <td styleCode=\"Botrule Lrule Toprule \" valign=\"top\"> <paragraph>adults and children 6 years and over</paragraph> </td> <td styleCode=\"Rrule Botrule Lrule Toprule \" valign=\"top\"> <paragraph>1 tablet daily; not more than 1 tablet in 24 hours</paragraph> </td> </tr> <tr> <td styleCode=\"Lrule Botrule \" valign=\"top\"> <paragraph>children under 6 years of age</paragraph> </td> <td styleCode=\"Rrule Lrule Botrule \" valign=\"top\"> <paragraph>ask a doctor</paragraph> </td> </tr> <tr> <td styleCode=\"Botrule Lrule \" valign=\"top\"> <paragraph>consumers with liver or kidney disease</paragraph> </td> <td styleCode=\"Rrule Botrule Lrule \" valign=\"top\"> <paragraph>ask a doctor</paragraph> </td> </tr> </tbody> </table>"
+      ],
+      "storage_and_handling": [
+        "Other information • do not use if printed foil under cap is broken or missing • store between 20 ° to 25 ° C (68 ° to 77 ° F)"
+      ],
+      "inactive_ingredient": [
+        "Inactive ingredients lactose monohydrate, magnesium stearate, povidone, pregelatinized starch"
+      ],
+      "questions": [
+        "Questions or comments? 1-888-723-3929"
+      ],
+      "package_label_principal_display_panel": [
+        "Principal Display Panel 24 HOUR | ORIGINAL PRESCRIPTION STRENGTH Allergy Relief Loratadine Tablets 10 mg Antihistamine Actual Size Compare to Claritin ® Tablets active ingredient Indoor & outdoor allergies Non-drowsy* 24 Hour relief of: sneezing; runny nose; itchy, watery eyes; itchy throat or nose 60 TABLETS *When taken as directed. See Drug Facts Panel. Signature Care Allergy Relief"
+      ],
+      "set_id": "002b4031-5869-4c0f-9be3-5d289746cefc",
+      "id": "211bd285-6b6a-4833-bb31-1ba75ad1429e",
+      "effective_time": "20191216",
+      "version": "3",
+      "openfda": {
+        "application_number": [
+          "ANDA076301"
+        ],
+        "brand_name": [
+          "Signature Care Allergy Relief"
+        ],
+        "generic_name": [
+          "LORATADINE"
+        ],
+        "manufacturer_name": [
+          "Safeway"
+        ],
+        "product_ndc": [
+          "21130-123"
+        ],
+        "product_type": [
+          "HUMAN OTC DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "LORATADINE"
+        ],
+        "rxcui": [
+          "311372"
+        ],
+        "spl_id": [
+          "211bd285-6b6a-4833-bb31-1ba75ad1429e"
+        ],
+        "spl_set_id": [
+          "002b4031-5869-4c0f-9be3-5d289746cefc"
+        ],
+        "package_ndc": [
+          "21130-123-72"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "unii": [
+          "7AJO3BO7QN"
+        ]
+      }
+    }
+  ]
+}

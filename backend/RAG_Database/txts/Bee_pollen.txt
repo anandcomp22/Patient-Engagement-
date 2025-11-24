@@ -1,0 +1,9 @@
+Name: Bee pollen
+
+introduction: INDICATIONS: For temporary relief of sore throat, fever, persistent cough, and fatigue associated with flu.
+
+dosage_text: DIRECTIONS: 10 drops orally, 3 times a day. Consult a physician for use in children under 12 years of age.
+
+how_to_use: WARNINGS: If pregnant or breast-feeding, ask a health care professional before use. Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away. Do not use if tamper evident seal is broken or missing.Store in cool, dry place. WARNING: Severe or persistent sore throat or sore throat accompanied by high fever, headache, nausea, and vomiting may be serious. Consult a physician promptly. Do not use more than two days or administer to children under 3 years of age unless directed by physician.
+
+sources: OpenFDA label set_id: 1f4a9fda-c53e-4c0c-b624-aa48436c0aea

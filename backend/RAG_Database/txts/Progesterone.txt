@@ -1,0 +1,9 @@
+Name: Progesterone
+
+introduction: 1 INDICATIONS AND USAGE Estradiol and progesterone capsules are a combination of an estrogen and progesterone indicated in a woman with a uterus for the treatment of moderate to severe vasomotor symptoms due to menopause. (1.1) 1.1 Treatment of Moderate to Severe Vasomotor Symptoms Due to Menopause
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION Use estrogen, alone or in combination with a progestogen, at the lowest effective dose and the shortest duration consistent with treatment goals and risks for the individual woman. Re-evaluate postmenopausal women periodically as clinically appropriate to determine whether treatment is still necessary. One capsule orally each evening with food. (2.1) 2.1 Treatment of Moderate to Severe Vasomotor Symptoms Due to Menopause Take a single estradiol and progesterone capsule orally each evening with food. Generally, start therapy with estradiol and progesterone capsules, 0.5 mg/100 mg dosage strength. Make dosage adjustment based on the clinical response. Attempt to taper or discontinue estradiol and progesterone capsules at 3 to 6 month intervals.
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING 16.1 How Supplied Estradiol and progesterone capsules, 1 mg/100 mg, are available as oval shaped, opaque, pink soft gelatin capsules, printed with “1A1”. Estradiol and progesterone capsules, 1 mg/100 mg, are supplied as follows: Blister package of 30 capsules: NDC 69238-1690-3 Keep out of reach of children. Packages are not child-resistant. 16.2 Storage and Handling Store at 20° to 25ºC (68° to 77ºF), excursions permitted between 15º to 30ºC (59º to 86ºF) [see USP Controlled Room Temperature].
+
+sources: OpenFDA label set_id: 08ac4bbb-49c3-4b76-989c-3cbb913c66ce

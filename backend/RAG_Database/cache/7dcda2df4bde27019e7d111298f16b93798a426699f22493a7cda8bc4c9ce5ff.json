@@ -1,0 +1,168 @@
+{
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2025-10-01",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 270
+    }
+  },
+  "results": [
+    {
+      "spl_product_data_elements": [
+        "Histastat Pollen Baptisia Tinctoria, Echinacea (Angustifolia), Adrenalinum, Allium Cepa, Ambrosia Artemisiaefolia, Arsenicum Album, Euphrasia Officinalis, Histaminum Hydrochloricum, Natrum Muriaticum, Natrum Sulphuricum, Nux Vomica, Phosphorus, Pulsatilla (Pratensis), Sabadilla, Sinapis Nigra, Solidago Virgaurea, Sulphur, Wyethia Helenioides BAPTISIA TINCTORIA ROOT BAPTISIA TINCTORIA ROOT ECHINACEA ANGUSTIFOLIA WHOLE ECHINACEA ANGUSTIFOLIA EPINEPHRINE EPINEPHRINE ONION ONION AMBROSIA ARTEMISIIFOLIA WHOLE AMBROSIA ARTEMISIIFOLIA ARSENIC TRIOXIDE ARSENIC CATION (3+) EUPHRASIA STRICTA EUPHRASIA STRICTA HISTAMINE DIHYDROCHLORIDE HISTAMINE SODIUM CHLORIDE CHLORIDE ION SODIUM SULFATE SODIUM SULFATE ANHYDROUS STRYCHNOS NUX-VOMICA SEED STRYCHNOS NUX-VOMICA SEED PHOSPHORUS PHOSPHORUS PULSATILLA PRATENSIS WHOLE PULSATILLA PRATENSIS WHOLE SCHOENOCAULON OFFICINALE SEED SCHOENOCAULON OFFICINALE SEED BLACK MUSTARD SEED BLACK MUSTARD SEED SOLIDAGO VIRGAUREA FLOWERING TOP SOLIDAGO VIRGAUREA FLOWERING TOP SULFUR SULFUR WYETHIA HELENIOIDES ROOT WYETHIA HELENIOIDES ROOT WATER ALCOHOL"
+      ],
+      "active_ingredient": [
+        "ACTIVE INGREDIENTS: (in each drop): 6.24% of Adrenalinum 12X, Allium Cepa 12X, Ambrosia Artemisiaefolia 12X, Arsenicum Album 12X, Euphrasia Officinalis 12X, Histaminum Hydrochloricum 12X, Natrum Muriaticum 12X, Natrum Sulphuricum 12X, Nux Vomica 12X, Phosphorus 12X, Pulsatilla 12X, Sabadilla 12X, Sinapis Nigra 12X, Solidago Virgaurea 12X, Sulphur 12X, Wyethia Helenioides 12X; 0.10% of Baptisia Tinctoria 3X, Echinacea 3X."
+      ],
+      "purpose": [
+        "PURPOSE: May temporarily relieve sinus congestion, runny nose, and sneezing.** **Claims based on traditional homeopathic practice, not accepted medical evidence. Not FDA evaluated."
+      ],
+      "warnings": [
+        "WARNINGS: If pregnant or breast-feeding, ask a health professional before use. Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away. Do not use if tamper evident seal is broken or missing. Store in a cool, dry place."
+      ],
+      "keep_out_of_reach_of_children": [
+        "KEEP OUT OF REACH OF CHILDREN: In case of overdose, get medical help or contact a Poison Control Center right away."
+      ],
+      "dosage_and_administration": [
+        "DIRECTIONS: Adults and children 5 to 10 drops orally, 3 times daily or as otherwise directed by a health care professional. If symptoms persist for more than 7 days, consult your health care professional. Consult a physician for use in children under 12 years of age."
+      ],
+      "indications_and_usage": [
+        "INDICATIONS: May temporarily relieve sinus congestion, runny nose, and sneezing.** **Claims based on traditional homeopathic practice, not accepted medical evidence. Not FDA evaluated."
+      ],
+      "inactive_ingredient": [
+        "INACTIVE INGREDIENTS: Demineralized water, 20% Ethanol."
+      ],
+      "questions": [
+        "QUESTIONS: Dist. by Energique, Inc. 201 Apple Blvd. Woodbine, IA 51579 800.869.8078"
+      ],
+      "package_label_principal_display_panel": [
+        "PACKAGE LABEL DISPLAY: ENERGIQUE SINCE 1987 HOMEOPATHIC REMEDY HISTASTAT POLLEN 1 fl. oz. (30 ml) HISTASTAT POLLEN"
+      ],
+      "set_id": "00478787-ccec-4101-a0da-fd337037c3ee",
+      "id": "cb42e9ee-cc8f-417e-8d39-3e4a72e8204d",
+      "effective_time": "20230512",
+      "version": "1",
+      "openfda": {
+        "brand_name": [
+          "Histastat Pollen"
+        ],
+        "generic_name": [
+          "BAPTISIA TINCTORIA, ECHINACEA (ANGUSTIFOLIA), ADRENALINUM, ALLIUM CEPA, AMBROSIA ARTEMISIAEFOLIA, ARSENICUM ALBUM, EUPHRASIA OFFICINALIS, HISTAMINUM HYDROCHLORICUM, NATRUM MURIATICUM, NATRUM SULPHURICUM, NUX VOMICA, PHOSPHORUS, PULSATILLA (PRATENSIS), SABADILLA, SINAPIS NIGRA, SOLIDAGO VIRGAUREA, SULPHUR, WYETHIA HELENIOIDES"
+        ],
+        "manufacturer_name": [
+          "Energique, Inc."
+        ],
+        "product_ndc": [
+          "44911-0674"
+        ],
+        "product_type": [
+          "HUMAN OTC DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "AMBROSIA ARTEMISIIFOLIA WHOLE",
+          "ARSENIC TRIOXIDE",
+          "BAPTISIA TINCTORIA ROOT",
+          "BLACK MUSTARD SEED",
+          "ECHINACEA ANGUSTIFOLIA WHOLE",
+          "EPINEPHRINE",
+          "EUPHRASIA STRICTA",
+          "HISTAMINE DIHYDROCHLORIDE",
+          "ONION",
+          "PHOSPHORUS",
+          "PULSATILLA PRATENSIS WHOLE",
+          "SCHOENOCAULON OFFICINALE SEED",
+          "SODIUM CHLORIDE",
+          "SODIUM SULFATE",
+          "SOLIDAGO VIRGAUREA FLOWERING TOP",
+          "STRYCHNOS NUX-VOMICA SEED",
+          "SULFUR",
+          "WYETHIA HELENIOIDES ROOT"
+        ],
+        "spl_id": [
+          "cb42e9ee-cc8f-417e-8d39-3e4a72e8204d"
+        ],
+        "spl_set_id": [
+          "00478787-ccec-4101-a0da-fd337037c3ee"
+        ],
+        "package_ndc": [
+          "44911-0674-1"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "upc": [
+          "0363113700947"
+        ],
+        "nui": [
+          "N0000000209",
+          "N0000000245",
+          "N0000175552",
+          "N0000175555",
+          "N0000175570",
+          "M0003647",
+          "N0000185371",
+          "N0000175629",
+          "N0000184306",
+          "M0000728",
+          "M0006342",
+          "M0022575",
+          "N0000185375",
+          "N0000185001",
+          "M0016962",
+          "M0516536"
+        ],
+        "pharm_class_moa": [
+          "Adrenergic alpha-Agonists [MoA]",
+          "Adrenergic beta-Agonists [MoA]"
+        ],
+        "pharm_class_epc": [
+          "alpha-Adrenergic Agonist [EPC]",
+          "beta-Adrenergic Agonist [EPC]",
+          "Catecholamine [EPC]",
+          "Non-Standardized Food Allergenic Extract [EPC]",
+          "Non-Standardized Plant Allergenic Extract [EPC]"
+        ],
+        "pharm_class_cs": [
+          "Catecholamines [CS]",
+          "Allergens [CS]",
+          "Dietary Proteins [CS]",
+          "Vegetable Proteins [CS]",
+          "Plant Proteins [CS]",
+          "Seed Storage Proteins [CS]"
+        ],
+        "pharm_class_pe": [
+          "Increased Histamine Release [PE]",
+          "Cell-mediated Immunity [PE]",
+          "Increased IgG Production [PE]"
+        ],
+        "unii": [
+          "9W34L2CQ9A",
+          "S7V92P67HO",
+          "5EF0HWI5WU",
+          "8LTY55LQ8D",
+          "VB06AV5US8",
+          "YKH834O4BH",
+          "C9642I91WL",
+          "3POA0Q644U",
+          "492225Q21H",
+          "27YLU75U4W",
+          "8E272251DI",
+          "6NAF1689IO",
+          "451W47IQ8X",
+          "0YPR65R21J",
+          "5405K23S50",
+          "269XH13919",
+          "70FD1KFU70",
+          "J10PD1AQ0N"
+        ]
+      }
+    }
+  ]
+}

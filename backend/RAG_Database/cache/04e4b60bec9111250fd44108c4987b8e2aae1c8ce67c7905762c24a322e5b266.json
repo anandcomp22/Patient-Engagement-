@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2025-10-01",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 267
+    }
+  },
+  "results": [
+    {
+      "spl_product_data_elements": [
+        "EMF Protect and Balance Alfalfa, Cadmium Sulphuratum, Calcarea Carbonica, Cuprum Metallicum, Ferrum Metallicum, Fucus Vesiculosus, Hypericum Perforatum, Kali Phosphoricum, Magnesia Phosphorica, Manganum Metallicum, Mercurius Vivus, Plumbum Metallicum, Silicea, Symphytum Officinale, Tarentula Hispana, X-Ray, Ytterbium Oxide MEDICAGO SATIVA WHOLE ALFALFA CADMIUM SULFIDE CADMIUM CATION OYSTER SHELL CALCIUM CARBONATE, CRUDE OYSTER SHELL CALCIUM CARBONATE, CRUDE COPPER COPPER IRON IRON FUCUS VESICULOSUS FUCUS VESICULOSUS HYPERICUM PERFORATUM WHOLE HYPERICUM PERFORATUM DIBASIC POTASSIUM PHOSPHATE PHOSPHATE ION MAGNESIUM PHOSPHATE, DIBASIC TRIHYDRATE MAGNESIUM CATION MANGANESE MANGANESE MERCURY MERCURY LEAD LEAD SILICON DIOXIDE SILICON DIOXIDE COMFREY ROOT COMFREY ROOT LYCOSA TARANTULA LYCOSA TARANTULA ALCOHOL, X-RAY EXPOSED (1000 RAD) ALCOHOL, X-RAY EXPOSED (1000 RAD) YTTERBIUM OXIDE YTTERBIUM OXIDE WATER ALCOHOL"
+      ],
+      "active_ingredient": [
+        "ACTIVE INGREDIENT: Alfalfa 3X, Cadmium Sulphuratum 12X, Calcarea Carbonica 8X, Cuprum Metallicum 30X, Ferrum Metallicum 8X, Fucus Vesiculosus 3X, Hypericum Perforatum 12X, Kali Phosphoricum 3X, Magnesia Phosphorica 12X, Manganum Metallicum 12X, Mercurius Vivus 12X, Plumbum Metallicum 12X, Silicea 30X, Symphytum Officinale 6X, Tarentula Hispana 16X, X-Ray 20X, 24X, 30X, Ytterbium Oxide 12X."
+      ],
+      "purpose": [
+        "PURPOSE: Alfalfa – Body Aches, Cadmium Sulphuratum - Nervousness, Calcarea Carbonica – Muscle Cramps, Cuprum Metallicum - Fatigue, Ferrum Metallicum – Body Aches, Fucus Vesiculosus - Nervousness, Hypericum Perforatum – Muscle Cramps, Kali Phosphoricum – Jet Lag, Magnesia Phosphorica – Body Aches, Manganum Metallicum - Nervousness, Mercurius Vivus – Jet Lag, Plumbum Metallicum – Body Aches, Silicea - Nervousness, Symphytum Officinale – Muscle Cramps, Tarentula Hispana - Fatigue, X-Ray – Jet Lag, Ytterbium Oxide – Body Aches"
+      ],
+      "indications_and_usage": [
+        "USES: • For the temporary relief of symptoms including: • jet lag • body aches • nervousness • muscle cramps • fatigue These statements are based upon homeopathic principles. They have not been reviewed by the Food and Drug Administration."
+      ],
+      "warnings": [
+        "WARNINGS: If pregnant or breastfeeding, ask a health professional before use. Keep out of reach of children. In case of overdose, contact a physician or Poison Control Center right away. Tamper Evident: Sealed for your protection. Do not use if seal is broken or missing."
+      ],
+      "keep_out_of_reach_of_children": [
+        "KEEP OUT OF REACH OF CHILDREN: In case of overdose, contact a physician or Poison Control Center right away."
+      ],
+      "dosage_and_administration": [
+        "DIRECTIONS: 1-10 drops under the tongue, 3 times a day or as directed by a health professional. Consult a physician for use in children under 12 years of age."
+      ],
+      "inactive_ingredient": [
+        "INACTIVE INGREDIENTS: Demineralized water, 25% ethanol"
+      ],
+      "questions": [
+        "QUESTIONS: Dist. By: Deseret Biologicals, Inc. 469 W. Parkland Drive Sandy, UT 84070 www.desbio.com 800-827-8204"
+      ],
+      "package_label_principal_display_panel": [
+        "PACKAGE LABEL DISPLAY: DesBio EMF Protect and Balance Homeopathic NDC 43742-2247-1 1 FL OZ (30 ml) EMF Protect and Balance"
+      ],
+      "set_id": "00a2c1c7-2c04-4c71-9276-24ba87288d61",
+      "id": "28cea847-ae77-45be-8a85-5b5d92fd4d87",
+      "effective_time": "20250317",
+      "version": "1",
+      "openfda": {
+        "brand_name": [
+          "EMF Protect and Balance"
+        ],
+        "generic_name": [
+          "ALFALFA, CADMIUM SULPHURATUM, CALCAREA CARBONICA, CUPRUM METALLICUM, FERRUM METALLICUM, FUCUS VESICULOSUS, HYPERICUM PERFORATUM, KALI PHOSPHORICUM, MAGNESIA PHOSPHORICA, MANGANUM METALLICUM, MERCURIUS VIVUS, PLUMBUM METALLICUM, SILICEA, SYMPHYTUM OFFICINALE, TARENTULA HISPANA, X-RAY, YTTERBIUM OXIDE"
+        ],
+        "manufacturer_name": [
+          "Deseret Biologicals, Inc."
+        ],
+        "product_ndc": [
+          "43742-2247"
+        ],
+        "product_type": [
+          "HUMAN OTC DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "ALCOHOL, X-RAY EXPOSED (1000 RAD)",
+          "CADMIUM SULFIDE",
+          "COMFREY ROOT",
+          "COPPER",
+          "DIBASIC POTASSIUM PHOSPHATE",
+          "FUCUS VESICULOSUS",
+          "HYPERICUM PERFORATUM WHOLE",
+          "IRON",
+          "LEAD",
+          "LYCOSA TARANTULA",
+          "MAGNESIUM PHOSPHATE, DIBASIC TRIHYDRATE",
+          "MANGANESE",
+          "MEDICAGO SATIVA WHOLE",
+          "MERCURY",
+          "OYSTER SHELL CALCIUM CARBONATE, CRUDE",
+          "SILICON DIOXIDE",
+          "YTTERBIUM OXIDE"
+        ],
+        "spl_id": [
+          "28cea847-ae77-45be-8a85-5b5d92fd4d87"
+        ],
+        "spl_set_id": [
+          "00a2c1c7-2c04-4c71-9276-24ba87288d61"
+        ],
+        "package_ndc": [
+          "43742-2247-1"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "upc": [
+          "0810151881805"
+        ],
+        "nui": [
+          "M0005152",
+          "N0000175831",
+          "N0000008595",
+          "N0000008924",
+          "N0000175830"
+        ],
+        "pharm_class_cs": [
+          "Copper [CS]"
+        ],
+        "pharm_class_epc": [
+          "Copper-containing Intrauterine Device [EPC]"
+        ],
+        "pharm_class_pe": [
+          "Decreased Embryonic Implantation [PE]",
+          "Decreased Sperm Motility [PE]",
+          "Inhibit Ovum Fertilization [PE]"
+        ],
+        "unii": [
+          "6PRJ93602P",
+          "057EZR4Z7Q",
+          "M9VVZ08EKQ",
+          "789U1901C5",
+          "CI71S98N1Z",
+          "535G2ABX9M",
+          "XK4IUX8MNB",
+          "E1UOL152H7",
+          "2P299V784P",
+          "86M454L2TT",
+          "HF539G9L3Q",
+          "42Z2K6ZL8P",
+          "DJO934BRBD",
+          "FXS1BY2PGL",
+          "2E32821G6I",
+          "ETJ7Z6XBU4",
+          "T66CZ53RP4"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+Name: Erythromycin
+
+introduction: INDICATIONS AND USAGE Erythromycin Topical Solution USP, 2% is indicated for the topical treatment of acne vulgaris.
+
+dosage_text: DOSAGE AND ADMINISTRATION Erythromycin Topical Solution USP, 2% should be applied over the affected areas twice a day (morning and evening) after the skin is thoroughly washed with warm water and soap and patted dry. Acne lesions on the face, neck, shoulders, chest, and back may be treated in this manner. This medication should be applied with applicator top. If fingertips are used, wash hands after application. Drying and peeling may be controlled by reducing the frequency of applications.
+
+how_to_use: HOW SUPPLIED Erythromycin Topical Solution USP, 2% is available as follows: 60 mL bottle with applicator (NDC 72162-2075-6) Repackaged/Relabeled by: Bryant Ranch Prepack, Inc. Burbank, CA 91504 WARNINGS Pseudomembranous colitis has been reported with nearly all antibacterial agents, including erythromycin, and may range in severity from mild to life-threatening. Therefore, it is important to consider this diagnosis in patients who present with diarrhea subsequent to the administration of antibacterial agents. Treatment with antibacterial agents alters the normal flora of the colon and may permit overgrowth of clostridia. Studies indicate that a toxin produced by Clostridium difficile is one primary cause of “antibiotic-associated colitis”. After the diagnosis of pseudomembranous colitis has been established, therapeutic measures should be initiated. Mild cases of pseudomembranous colitis usually respond to drug discontinuation alone. In moderate to severe cases, consideration should be given to management with fluids and electrolytes, protein supplementation and treatment with an antibacterial drug clinically effective against C. difficile colitis.
+
+sources: OpenFDA label set_id: 00c4f27e-59e2-4173-99b1-59dd295e83de

@@ -1,0 +1,9 @@
+Name: Ospemifene
+
+introduction: 1 INDICATIONS AND USAGE OSPHENA is indicated for: OSPHENA is an estrogen agonist/antagonist indicated for: The treatment of moderate to severe dyspareunia, a symptom of vulvar and vaginal atrophy, due to menopause. ( 1.1 ) The treatment of moderate to severe vaginal dryness, a symptom of vulvar and vaginal atrophy, due to menopause. ( 1.2 ) 1.1 The Treatment of Moderate to Severe Dyspareunia, a Symptom of Vulvar and Vaginal Atrophy, due to Menopause. 1.2 The Treatment of Moderate to Severe Vaginal Dryness, a Symptom of Vulvar and Vaginal Atrophy, due to Menopause.
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION OSPHENA is an estrogen agonist/antagonist which has agonistic effects on the endometrium [see Warnings and Precautions (5.2) ]. Use OSPHENA for the shortest duration consistent with treatment goals and risks for the individual woman. Reevaluate postmenopausal women periodically as clinically appropriate to determine if treatment is still necessary. One tablet taken orally once daily with food. ( 2.1 , 2.2 ) 2.1 Treatment of Moderate to Severe Dyspareunia, a Symptom of Vulvar and Vaginal Atrophy, Due to Menopause One 60 mg tablet taken orally with food once daily. 2.2 Treatment of Moderate to Severe Vaginal Dryness, a Symptom of Vulvar and Vaginal Atrophy, Due to Menopause One 60 mg tablet taken orally with food once daily.
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING 16.1 How Supplied OSPHENA tablets are white to off-white, oval, biconvex, film coated tablets containing 60 mg of ospemifene and engraved with "60" on one side. They are available as follows: NDC 55494-580-90 Bottle of 90 tablets NDC 55494-580-30 Bottle of 30 tablets 16.2 Storage and Handling Store at 20ºC to 25ºC (68ºF to 77ºF); excursions permitted to 15ºC to 30ºC (59ºF to 86ºF) [see USP Controlled Room Temperature].
+
+sources: OpenFDA label set_id: 9accbcc9-78ee-4f84-9b7e-704f2ab1c413

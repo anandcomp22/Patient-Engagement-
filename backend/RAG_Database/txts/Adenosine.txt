@@ -1,0 +1,9 @@
+Name: Adenosine
+
+introduction: How to use; At the last stage of basic care, apply an appropriate amount to the face, neck, arms, and legs that are easily exposed to UV rays.
+
+dosage_text: topical use only
+
+how_to_use: Precautions when using 1. When using cosmetics or after use, if there are any abnormal symptoms or side effects such as red spots, swelling, or itching in the area of use due to direct sunlight, consult with a specialist. 2. Refrain from using on areas with scars, etc. 3. Precautions for storage and handling A) Keep out of reach of children B) Store away from direct sunlight.
+
+sources: OpenFDA label set_id: 00301649-549d-e4af-e063-6394a90a0a1b

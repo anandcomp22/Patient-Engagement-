@@ -1,0 +1,9 @@
+Name: Saw palmetto
+
+introduction: Uses* Temporarily relieves symptoms associated with urinary tract infections burning sensation when urinating frequent urge to urinate painful urination bladder inflammation
+
+dosage_text: Directions adults and children 12 years of age and older: take at least 15 minutes prior to eating food or drinking. Slightly chew one (1) tablet and allow it to dissolve in the mouth. Use 3 times a day or up to 6 times a day for intense symptoms. Reduce to one tablet daily for 7 days after symptoms improve. children under 12 years of age: do not use
+
+how_to_use: Warnings Stop use and ask a doctor if symptoms persist, worsen, reoccur or are severe you experience fever, chills, back pain, or bloody urine an allergic reaction occurs, seek medical help right away If pregnant or breastfeeding, ask a health professional before use. Keep out of the reach of children. In case of an overdose, get medical help or contact a Poison Control Center right away.
+
+sources: OpenFDA label set_id: 0427bbc9-f4cc-0eb6-e063-6294a90a7199

@@ -1,0 +1,9 @@
+Name: Docusate
+
+introduction: Uses for temporary relief of occasional constipation and irregularity this product generally produces bowel movement in 12 to 72 hours
+
+dosage_text: Directions take with a glass of water adults and children 12 years of age and over take 1 to 3 softgels daily. This dose may be taken as a single daily dose or in divided doses. children 2 to under 12 years of age take 1 softgel daily children under 2 years of age ask a doctor
+
+how_to_use: Warnings Ask a doctor before use if you have stomach pain nausea vomiting a sudden change in bowel habits that lasts more than 2 weeks Ask a doctor or pharmacist before use if you are presently taking mineral oil. Stop use and ask a doctor if you have rectal bleeding or no bowel movement after using a laxative. These could be sign of a serious condition. you need to use a laxative for more than 1 week If pregnant or breast-feeding, ask a health care professional before use. Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away
+
+sources: OpenFDA label set_id: 0109add7-b539-4bb0-98c5-168f0287bd2a

@@ -1,0 +1,9 @@
+Name: Alcaftadine
+
+introduction: 1 INDICATIONS AND USAGE LASTACAFT ® is an H 1 histamine receptor antagonist indicated for the prevention of itching associated with allergic conjunctivitis. LASTACAFT ® is an H 1 histamine receptor antagonist indicated for the prevention of itching associated with allergic conjunctivitis. ( 1 )
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION Instill one drop in each eye once daily. If more than 1 topical ophthalmic medicinal product is being used, each one should be administered at least 5 minutes apart. Instill one drop in each eye once daily. ( 2 )
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING LASTACAFT ® (alcaftadine ophthalmic solution) 0.25% is supplied in an opaque, white low-density polyethylene bottle with a white polystyrene cap. 3 mL fill in 5 mL bottle NDC 0023-4290-03 Storage: Store at 15°C to 25°C (59°F to 77°F). After opening, LASTACAFT ® can be used until the expiration date on the bottle.
+
+sources: OpenFDA label set_id: 17d37e8d-7825-424b-b6ca-0a85d0bf4694

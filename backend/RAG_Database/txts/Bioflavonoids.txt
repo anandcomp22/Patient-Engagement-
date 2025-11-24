@@ -1,0 +1,9 @@
+Name: Bioflavonoids
+
+introduction: INDICATIONS: For temporary relief of cold clammy feet, numbness of limbs, painful calves upon walking, muscular weakness of the lower extremities.
+
+dosage_text: DIRECTIONS: 10 drops orally, 3 times a day. Consult a physician for use in children under 12 years of age.
+
+how_to_use: WARNINGS: If pregnant or breast-feeding, ask a health care professional before use. Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away. Do not use if tamper evident seal is broken or missing. Store in cool, dry place.
+
+sources: OpenFDA label set_id: 465fb3c6-88e6-4099-a26a-33991ec5a106

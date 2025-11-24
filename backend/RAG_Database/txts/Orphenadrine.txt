@@ -1,0 +1,9 @@
+Name: Orphenadrine
+
+introduction: INDICATIONS AND USAGE Orphenadrine citrate extended-release tablets are indicated as an adjunct to rest, physical therapy, and other measures for the relief of discomfort associated with acute painful musculoskeletal conditions.
+
+dosage_text: DOSAGE AND ADMINISTRATION Adults Two tablets per day; one in the morning and one in the evening.
+
+how_to_use: HOW SUPPLIED Orphenadrine citrate extended-release tablets 100 mg are round, white to off-white tablets, debossed NL4 on one side and plain on the other side and are supplied as: NDC 82868-040-14 in bottles of 14 tablets Store at 20°-25°C (68°-77°F) [see USP Controlled Room Temperature]. Dispense in a tight, light-resistant container. Manufactured by Novel Laboratories, Inc. Somerset, NJ 08873 Manufactured For Lupin Pharmaceuticals, Inc. Baltimore, MD 21202 PI4800000204 Rev: 06/2017 WARNINGS Some patients may experience transient episodes of light-headedness, dizziness or syncope. Orphenadrine may impair the ability of the patient to engage in potentially hazardous activities such as operating machinery or driving a motor vehicle; ambulatory patients should therefore be cautioned accordingly.
+
+sources: OpenFDA label set_id: 106be130-b4f8-5ca1-e063-6294a90a1590

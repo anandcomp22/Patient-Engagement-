@@ -1,0 +1,9 @@
+Name: Clove
+
+introduction: INDICATIONS: May temporarily relieve swollen sensation, minor throat pain, and burning of the throat.** **Claims based on traditional homeopathic practice, not accepted medical evidence. Not FDA evaluated.
+
+dosage_text: DIRECTIONS: Adults and children spray orally 4-6 times daily or as otherwise directed by a health care professional. Consult a physician for use in children under 12 years of age.
+
+how_to_use: WARNINGS: If pregnant or breastfeeding, ask a health professional before use. Keep out of reach of children. In case of overdose, get medical help or contact a Poison Control Center right away. Do not use if tamper evident seal is broken or missing. Store in a cool, dry place. Warning - Severe or persistent sore throat or sore throat accompanied by high fever, headache, nausea, and vomiting may be serious. Consult physician promptly. Do not use more than 2 days or administer to children under 3 years of age unless directed by physician.
+
+sources: OpenFDA label set_id: 125ffbf4-681e-451c-a96d-0b6416619474

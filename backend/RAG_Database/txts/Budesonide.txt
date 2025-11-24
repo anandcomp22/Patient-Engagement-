@@ -1,0 +1,9 @@
+Name: Budesonide
+
+introduction: 1 INDICATIONS AND USAGE Budesonide extended-release tablets are indicated for the induction of remission in patients with active, mild to moderate ulcerative colitis. Budesonide extended-release tablets are a glucocorticosteroid indicated for the induction of remission in patients with active, mild to moderate ulcerative colitis ( 1 ).
+
+dosage_text: 2 DOSAGE AND ADMINISTRATION The recommended dosage for the induction of remission in adult patients with active, mild to moderate ulcerative colitis is one 9 mg tablet to be taken once daily in the morning with or without food for up to 8 weeks ( 2.1 ). 2.1 Mild to Moderate Ulcerative Colitis The recommended dosage for the induction of remission in adult patients with active, mild to moderate ulcerative colitis is 9 mg taken orally once daily in the morning with or without food for up to 8 weeks. Budesonide extended-release tablets should be swallowed whole and not chewed, crushed or broken. 2.2 CYP3A4 Inhibitors If concomitant administration with ketoconazole, or any other CYP3A4 inhibitor, is indicated, patients should be closely monitored for increased signs and/or symptoms of hypercorticism. Avoid grapefruit juice, which is known to inhibit CYP3A4, when taking budesonide extended-release tablets. In these cases, discontinuation of budesonide extended-release tablets or the CYP3A4 inhibitor should be considered [see Drug Interactions (7) and Clinical Pharmacology (12.3) ].
+
+how_to_use: 16 HOW SUPPLIED/STORAGE AND HANDLING Budesonide extended-release tablets 9 mg, are white, round, biconvex, film-coated tablets imprinted with “ WPI ” and “ 2510 ” on one side and plain on the other. Tablets are supplied in bottles of 30, NDC 51407-824-30. Store at 20° to 25°C (68° to 77°F) [see USP Controlled Room Temperature]. Keep container tightly closed. Protect from light and moisture.
+
+sources: OpenFDA label set_id: 04532cd4-cc79-ef53-e063-6394a90a90ae

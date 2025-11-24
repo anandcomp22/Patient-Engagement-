@@ -1,0 +1,9 @@
+Name: Desoximetasone
+
+introduction: INDICATIONS AND USAGE Desoximetasone cream USP, 0.05%, desoximetasone cream USP, 0.25%, and desoximetasone gel USP, 0.05% are indicated for the relief of the inflammatory and pruritic manifestations of corticosteroid-responsive dermatoses.
+
+dosage_text: DOSAGE AND ADMINISTRATION Apply a thin film of desoximetasone cream USP, 0.05%, desoximetasone cream USP, 0.25%, or desoximetasone gel USP, 0.05% to the affected skin areas twice daily. Rub in gently.
+
+how_to_use: HOW SUPPLIED Product: 50090-5571 NDC: 50090-5571-0 15 g in a TUBE / 1 in a CARTON WARNINGS Keep out of reach of children.
+
+sources: OpenFDA label set_id: 0e72952e-8e9f-467a-8191-2bc157087d60

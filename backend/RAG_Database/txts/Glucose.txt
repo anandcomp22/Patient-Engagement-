@@ -1,0 +1,9 @@
+Name: Glucose
+
+introduction: For daily facial skin care
+
+dosage_text: Cream for moisturizing the skin and reducing fine lines
+
+how_to_use: keep out of children
+
+sources: OpenFDA label set_id: 21ea3c79-52c5-493d-e063-6394a90a3399

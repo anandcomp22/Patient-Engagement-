@@ -1,0 +1,9 @@
+Name: Selenium sulfide
+
+introduction: Use helps prevent recurrence of flaking and itching associated with dandruff.
+
+dosage_text: Directions ♦ shake well ♦ wet hair ♦ massage onto scalp ♦ rinse ♦ repeat if desired ♦ for best results use at least twice a week or as directed by a doctor ♦ for maximum dandruff control, use every time you shampoo.
+
+how_to_use: Warnings For external use only When using this product ♦ avoid contact with the eyes. If contact occurs, rinse eyes thoroughly with water. Stop use and ask a doctor if ♦ condition worsens or does not improve after regular use as directed. Keep out of reach of children. If swallowed, get medical help or contact a Poison Control Center (1-800-222-1222) right away.
+
+sources: OpenFDA label set_id: 0187b034-44d7-4b84-af04-d018bc9750f3

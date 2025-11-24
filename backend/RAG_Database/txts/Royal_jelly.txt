@@ -1,0 +1,9 @@
+Name: Royal jelly
+
+introduction: Directions: FOR TOPICAL USE ONLY.
+
+dosage_text: Apply to skin as needed. Under age 2: Consult a doctor.
+
+how_to_use: Warnings: FOR EXTERNAL USE ONLY. Claims based on traditional homeopathic practice, not accepted medical evidence. Not FDA evaluated. Do not use if allergic to any ingredient. Consult a doctor before use for serious conditions, if conditions worsen or persist, or accidental ingestion occurs. Contains traces of lactose. If pregnant or nursing, consult a doctor before use. Avoid contact with eyes. Do not use if safety seal is broken or missing.
+
+sources: OpenFDA label set_id: 06e9e1ff-911f-c048-e063-6394a90ad431
