@@ -1,4 +1,4 @@
-from backend.RAG_Pipeline.rag_engine import extract_keywords_from_summary
-
-summary = "Patient has fever, cough, chest tightness and mild asthma issue."
-print(extract_keywords_from_summary(summary))
+import torch
+print("CUDA Available:", torch.cuda.is_available())
+print("GPU Count:", torch.cuda.device_count())
+print("GPU Name:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "No GPU")

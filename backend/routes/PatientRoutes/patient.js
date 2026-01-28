@@ -5,6 +5,7 @@ const { Patient } = require("../../db/models");
 const { generateToken } = require("../../utils/auth");
 const authMiddleware = require("../../middleware/authMiddleware");
 const { Appointment } = require("../../db/models");
+const { Doctor } = require("../../db/models");
 
 const router = express.Router();
 
@@ -22,6 +23,53 @@ router.post("/upload-report", upload.single("report"), (req, res) => {
   console.log("File:", req.file);
   res.json({ message: "Report uploaded successfully" });
 });
+
+router.get("/doctors", async (req, res) => {
+  const doctors = await Doctor.find({ isActive: true });
+  res.json(doctors);
+});
+
+router.post("/lock", async (req, res) => {
+  const { slotId } = req.body;
+
+  const slot = await Slot.findOne({
+    _id: slotId,
+    status: "AVAILABLE"
+  });
+
+  if (!slot) return res.status(400).json({ message: "Slot not available" });
+
+  slot.status = "LOCKED";
+  slot.lockExpiry = new Date(Date.now() + 10 * 60 * 1000);
+  await slot.save();
+
+  res.json({ message: "Slot locked", slot });
+});
+
+router.post("/confirm", async (req, res) => {
+  const { slotId, doctorId, patientId, paymentId } = req.body;
+
+  const slot = await Slot.findById(slotId);
+  if (!slot || slot.status !== "LOCKED")
+    return res.status(400).json({ message: "Invalid slot" });
+
+  slot.status = "BOOKED";
+  slot.lockExpiry = null;
+  await slot.save();
+
+  const appointment = await Appointment.create({
+    doctorId,
+    patientId,
+    slotId,
+    paymentId,
+    status: "CONFIRMED",
+    roomId: uuid(),
+    callStatus: "NOT_STARTED"
+  });
+
+  res.json({ message: "Appointment confirmed", appointment });
+});
+
 
 router.get("/", authMiddleware, async (req, res) => {
   try {
@@ -49,14 +97,24 @@ router.post("/", async (req, res) => {
   });
 
 
-router.get("/appointments", authMiddleware, async (req, res) => {
+  /*router.get("/patients", authMiddleware, async (req, res) => {
   try {
-    const appointments = await Appointment.find({ patientId: req.user.patientId });
-    res.json(appointments);
+    const doctorId = req.user.id;
+
+    const appointments = await Appointment.find({ doctorId }).populate("patientId");
+
+    const patients = appointments.map(a => ({
+      ...a.patientId._doc,
+      lastVisit: a.lastVisit,
+      nextAppointment: a.date,
+      conditions: a.conditions || []
+    }));
+
+    res.json(patients);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching appointments" });
+    res.status(500).json({ error: "Failed to fetch patients" });
   }
-});
+});*/
 
 
 router.post("/signup", async (req, res) => {
@@ -72,7 +130,7 @@ router.post("/signup", async (req, res) => {
       ...rest,
       email,
       password: hashedPassword, 
-      patientId: 1000 + patientCount,
+      patientId: Math.floor(Math.random() * 100000) + patientCount,
     });
 
     await newPatient.save();

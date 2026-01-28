@@ -1,31 +1,41 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Sidebar from './components/Dashboard/Sidebar';
-import Navbar from './components/Dashboard/Navbar';
-import Dashboard from './components/Dashboard/Dashboard';
-import Patients from './components/Dashboard/PatientsDetail'; 
-import Appointments from './components/Dashboard/Appointments';
-import LiveVideoCall from './components/Dashboard/LiveVideoCall';
-import DoctorVideoCall from './components/Dashboard/VideoCall';
-import Prescriptions from './components/Dashboard/Prescriptions';
-import AboutUs from './components/Dashboard/AboutUs';
-import PatientSignUp from './components/PatientPortal/PatientSignUp';
-import PatientAppointments from './components/PatientPortal/PatientAppointments';
-import BookAppointment from './components/PatientPortal/BookAppointment';
-import PatientDashboard from './components/PatientPortal/PatientDashboard';
+import Sidebar from './components/Doctor/Dashboard/Sidebar';
+import Navbar from './components/Doctor/Dashboard/Navbar';
+import Dashboard from './components/Doctor/Dashboard/Dashboard';
+import Patients from './components/Doctor/Dashboard/PatientsDetail'; 
+import Appointments from './components/Doctor/Dashboard/Appointments';
+import LiveVideoCall from './components/Doctor/VideoCallMech/LiveVideoCall';
+import DoctorVideoCall from './components/Doctor/VideoCallMech/VideoCall';
+import Prescriptions from './components/Doctor/Dashboard/Prescriptions';
+import AboutUs from './components/Doctor/Dashboard/AboutUs';
+import PatientSignUp from './components/Patient/PatientPortal/PatientSignUp';
+import PatientAppointments from './components/Patient/Dashboard/PatientAppointments';
+import BookAppointment from './components/Patient/Dashboard/BookAppointment';
+import PatientDashboard from './components/Patient/Dashboard/PatientDashboard';
 import HomePage from './components/Home/HomePage';
-import DoctorSignin from './components/DoctorPortal/DoctorSignin'; 
-import DoctorSignUp from './components/DoctorPortal/DoctorSignup';
-import PatientLogin from './components/PatientPortal/PatientSignIn';
-import PatientSidebar from './components/PatientPortal/PatientSidebar';
-import PatientNavbar from './components/PatientPortal/PatientNavbar';
-import PatientVideoCall from './components/PatientPortal/PatientVideoCall';
+import DoctorSignin from './components/Doctor/DoctorPortal/DoctorSignin'; 
+import DoctorSignUp from './components/Doctor/DoctorPortal/DoctorSignup';
+import PatientLogin from './components/Patient/PatientPortal/PatientSignIn';
+import PatientSidebar from './components/Patient/Dashboard/PatientSidebar';
+import PatientNavbar from './components/Patient/Dashboard/PatientNavbar';
+import PatientVideoCall from './components/Patient/VideoCallMech/PatientVideoCall';
 import PayPalPaymentPage from './PaymentGateway/PayPalButton';
-import Chatbot from './components/PatientPortal/Chatbot'; 
-import AnalysisPage from './components/Dashboard/Analysis';
-import DoctorSettings from './components/Dashboard/DoctorSetting/DoctorSettings';
-import UploadReport from './components/PatientPortal/UploadedReport';
+import Chatbot from './components/Patient/ChatBot/Chatbot'; 
+import AnalysisPage from './components/Doctor/Dashboard/Analysis';
+import DoctorSettings from './components/Doctor/DoctorSetting/DoctorSettings';
+import UploadReport from './components/Patient/Dashboard/UploadedReport';
+import AdminSidebar from "../src/components/Administration/AdminSidebar";
+import AdminNavbar from "../src/components/Administration/AdminNavbar";
+import AdminDashboard from "../src/components/Administration/AdminDashboard";
+import AdminPayments from "../src/components/Administration/AdminPayments";
+import AdminAnalytics from "../src/components/Administration/AdminAnalytics";
+import AdminActivityLogs from "../src/components/Administration/AdminActivityLogs";
+import AdminRoleManagement from "../src/components/Administration/AdminRoleManagement";
+import AdminLogin from "../src/components/Administration/AdminLogin";
+import AdminRegister from "../src/components/Administration/AdminRegister";
+
 import './App.css';
 import { LoginOutlined } from '@mui/icons-material';
 
@@ -55,6 +65,8 @@ function App() {
           <Route path="/doctor/signup" element={<DoctorSignUp />} />
           <Route path="/patient/signin" element={<PatientLogin />} />
           <Route path="/patient/signup" element={<PatientSignUp />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/register" element={<AdminRegister />} />
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/paypal" element={<PayPalPaymentPage />} />
 
@@ -124,6 +136,35 @@ function App() {
               </Box>
             }
           />
+
+          {/* Admin portal */}
+          <Route
+            path="/admin/*"
+            element={
+              <Box sx={{ display: "flex" }}>
+                <AdminSidebar open={sidebarOpen} onToggle={toggleSidebar} />
+                <Box
+                  sx={{
+                    flexGrow: 1,
+                    ml: sidebarOpen ? "250px" : "70px",
+                    transition: "margin-left 0.3s ease-in-out",
+                    mt: 8,
+                    p: 3,
+                  }}
+                >
+                  <AdminNavbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar} />
+                  <Routes>
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="payments" element={<AdminPayments />} />
+                    <Route path="analytics" element={<AdminAnalytics />} />
+                    <Route path="logs" element={<AdminActivityLogs />} />
+                    <Route path="roles" element={<AdminRoleManagement />} />
+                  </Routes>
+                </Box>
+              </Box>
+            }
+          />
+
       </Routes>
       </ThemeProvider>
     </Router>

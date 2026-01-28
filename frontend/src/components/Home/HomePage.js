@@ -3,7 +3,7 @@ import { AppBar, Toolbar, Typography, Box, Button, Paper, Grid, Container,Breadc
    Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} from '@mui/material';
 import { Favorite, ContactMail, HomeRounded, InfoRounded, Phone, NavigateNext, Visibility,
   LocalHospital, Spa, Description, Vaccines, MonitorHeart, Psychology, MedicalInformation, Schedule, Videocam, SupportAgent,
-  Groups, FeaturedPlayListRounded, MailOutlineRounded, CheckCircle, SentimentSatisfiedAlt, EventAvailable,PersonSearch } from '@mui/icons-material';
+  Groups, FeaturedPlayListRounded, MailOutlineRounded, CheckCircle, SentimentSatisfiedAlt, EventAvailable,PersonSearch, AdminPanelSettings  } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -181,7 +181,7 @@ const patientFeatures = [
 const benefits = [
   { icon: <Schedule fontSize="large" />, title: "Easy Scheduling", description: "Book appointments at your convenience" },
   { icon: <Videocam fontSize="large" />, title: "Video Consultations", description: "Connect with doctors face-to-face online" },
-  { icon: <Groups fontSize="large" />, title: "Expert Doctors", description: "Choose from qualified healthcare professionals" },
+  { icon: <Groups fontSize="large" />, title: "Expert Doctors", description: "Qualified healthcare professionals" },
   { icon: <SupportAgent fontSize="large" />, title: "24/7 Support", description: "Access healthcare support team anytime" }
 ];
 
@@ -215,6 +215,7 @@ const HomePage = () => {
           borderBottomRightRadius: 20,
           transition: "all 0.4s ease",
           boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+          width: '100%',
         }}
       >
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -236,6 +237,22 @@ const HomePage = () => {
 
           {/* Right - Navigation Links */}
           <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button 
+              startIcon={<AdminPanelSettings />} 
+              sx={{ 
+                color: 'white', 
+                fontWeight: 'bold', 
+                textTransform: 'none',
+                border: '1px solid rgba(255,255,255,0.6)',
+                borderRadius: 2,
+                '&:hover': {
+                  backgroundColor: 'rgba(255,255,255,0.15)'
+                }
+              }}
+              onClick={() => navigate('/admin/login')}
+            >
+              Admin Login
+            </Button>
             <Button 
               startIcon={<HomeRounded />} 
               sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
@@ -274,7 +291,7 @@ const HomePage = () => {
 
 
       {/* Main Content */}
-      <Container maxWidth='false' >
+      <Container maxWidth={false} >
         {/* Login Options Section - Now at the top */}
         <Box sx={{ 
           width: '100%',
@@ -289,7 +306,7 @@ const HomePage = () => {
           <Typography variant="h3" sx={{ mb: 4, fontWeight: 'bold', color: '#0062b2ff' }}>
             Welcome to AidME Healthcare
           </Typography>
-          <Typography variant="h5" sx={{ mb: 6 }}>
+          <Typography variant="h5" sx={{ mb: 4 }}>
             Please select your login option
           </Typography>
 
@@ -298,6 +315,7 @@ const HomePage = () => {
               <Paper elevation={3} sx={{ 
                 p: 4,
                 borderRadius: 2,
+                background: 'linear-gradient(135deg, #bde1fb, #ffffff)',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -334,7 +352,7 @@ const HomePage = () => {
                   variant="contained" 
                   size="large"
                   sx={{
-                    bgcolor: "linear-gradient(135deg, #83c9fbff 0%, #0062b2ff 100%)",
+                    bgcolor: "linear-gradient(135deg, rgb(109, 192, 251) 0%, #0062b2ff 100%)",
                     '&:hover': { bgcolor: '#154281' }
                   }}
                   onClick={() => navigate('/doctor/signin')}
@@ -348,6 +366,7 @@ const HomePage = () => {
               <Paper elevation={3} sx={{ 
                 p: 4,
                 borderRadius: 2,
+                background: 'linear-gradient(135deg, #cee9fd, #ffffff)',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -383,7 +402,7 @@ const HomePage = () => {
                   variant="contained" 
                   size="large"
                   sx={{
-                    bgcolor: "linear-gradient(135deg, #83c9fbff 0%, #0062b2ff 100%)",
+                    bgcolor: "linear-gradient(135deg, rgb(165, 215, 250) 0%, #0062b2ff 100%)",
                     '&:hover': { bgcolor: '#154281' }
                   }}
                   onClick={() => navigate('/patient/signin')}
@@ -456,7 +475,7 @@ const HomePage = () => {
 
         {/* Features Provided by AidME Section */}
         <Box id="features-section" ref={featuresRef} sx={{ mb: 6 }}>
-          <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#2a72caff' }}>
+          <Typography variant="h4" sx={{ mb: 1, fontWeight: 'bold', color: '#2a72caff' }}>
             Features Provided by AidME
           </Typography>
           <Typography variant="body1" sx={{ mb: 3 }}>
@@ -526,7 +545,7 @@ const HomePage = () => {
           <Box sx={{ mb: 10 }}>
             <Typography
               variant="h4"
-              sx={{ mb: 6, fontWeight: 'bold', color: '#2a72ca', textAlign: 'center' }}
+              sx={{ mb: 4, fontWeight: 'bold', color: '#2a72ca', textAlign: 'center' }}
             >
               Our Success Metrics
             </Typography>
@@ -618,7 +637,7 @@ const HomePage = () => {
               p: 2,
               fontSize: '1rem',
               bgcolor: '#86c8ffff',
-              borderColor: '#2a72caff'
+              background: 'linear-gradient(135deg, #9acff5, #e0eff9)',
             }}
           />
         </Box>

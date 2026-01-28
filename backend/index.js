@@ -1,14 +1,15 @@
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
-const { Server } = require("socket.io");
+const { Server } = require("socket.io"); 
 const path = require("path");
 const fs = require("fs");
 require("dotenv").config();
 const { spawn } = require("child_process");
-
+//require("../backend/cron/unlockSlots");
 const { Prescription, Doctor, FeePay, Appointment, Patient, videocallSchem, connectToDatabase,
 } = require("./db/models");
+
 
 const appointmentRouter = require("./routes/DoctorRoutes/appointment.js");
 const doctorRouter = require("./routes/DoctorRoutes/doctor.js");
@@ -22,6 +23,15 @@ const auth = require("./middleware/authMiddleware");
 const analysis = require('./routes/DoctorRoutes/analytics.js');
 const aiprescript = require("./routes/ChatBotRoutes/ai.js");
 const RAGRoutes = require("./routes/RAGRoutes/RAGRoutes.js");
+const adminDashboard = require("./routes/AdminRoutes/dashboard");
+const adminDoctors = require("./routes/AdminRoutes/adminDoctors");
+const adminRoutes = require("./routes/AdminRoutes/admin");
+const adminAppointments = require("./routes/AdminRoutes/appointments");
+const adminPayments = require("./routes/AdminRoutes/payments");
+const adminAnalytics = require("./routes/AdminRoutes/analytics");
+const adminLogs = require("./routes/AdminRoutes/logs");
+//const adminAdmins = require("./routes/AdminRoutes/admin");
+const adminAuthRoutes = require("./routes/AdminRoutes/auth");
 
 const app = express();
 app.use(cors());
@@ -43,6 +53,7 @@ const io = new Server(server, {
   },
 });
 
+app.set("io", io);
 app.use("/prescriptions", auth, prescriptionRoutes); 
 app.use("/feespay", auth, feespayRouter); 
 app.use("/doctor", doctorRouter); 
@@ -54,7 +65,19 @@ app.use('/api/videocall', summary);
 app.use('/api/analytics', analysis);
 app.use('/api/ai',aiprescript)
 app.use("/rag", RAGRoutes);
-
+app.use("/uploads", express.static("uploads"));
+app.use("/admin/dashboard", adminDashboard);
+app.use("/admin/doctors", adminDoctors);
+app.use("/admin/appointments", adminAppointments);
+app.use("/admin", adminRoutes);
+app.use("/admin/payments", adminPayments);
+app.use("/admin/analytics", adminAnalytics);
+app.use("/slot", patientRouter);
+app.use("/payment", patientRouter);
+app.use("/appointment", patientRouter);
+app.use("/admin/logs", adminLogs);
+//app.use("/admin/admin", adminAdmins);
+app.use("/admin/auth", adminAuthRoutes);
 
 io.on("connection", (socket) => {
   console.log("🔌 Client connected:", socket.id);
@@ -63,8 +86,10 @@ io.on("connection", (socket) => {
     console.log(`Event received: ${event}`, args);
   });
 
-  socket.on("join-room", ({ roomId }) => {
+  socket.on("join-room", ({ roomId, role }) => {
     socket.join(roomId);
+
+    socket.to(roomId).emit("peer-joined", { role });
   });
 
   socket.on("offer", ({ roomId, offer }) => {
@@ -86,9 +111,9 @@ io.on("connection", (socket) => {
     socket.leave(roomId);
   });
 
-  socket.on("appointment-update", () => {
+  /*socket.on("appointment-update", () => {
     io.emit("appointment-updated");
-  });
+  });*/
 
   const python = spawn("python", ["transcriber.py"]);
 
