@@ -6,47 +6,60 @@ const { Doctor } = require("../../db/models");
 const { generateToken } = require("../../utils/auth");
 const authMiddleware = require("../../middleware/authMiddleware");
 const { Appointment } = require("../../db/models");
+const upload = require("../../middleware/upload");
 
 
 router.get("/dashboard", authMiddleware, (req, res) => {
   res.json({ message: "Protected data for authenticated users only", user: req.user });
 });
 
-router.post("/signup", async (req, res) => {
-  try {
-    const {
-    firstName, lastName, email, phone, licenseNumber, specialty,
-    qualifications, experience, hospital, country, state, district, password
-  } = req.body;
+router.post(
+  "/signup",
+  upload.fields([
+    { name: 'license', maxCount: 1 },
+    { name: 'profileImage', maxCount: 1 }
+  ]),
+  async (req, res) => {
+    try {
+      const {
+        firstName, lastName, email, phone, licenseNumber, specialty,
+        qualifications, experience, hospital, country, state, district, password
+      } = req.body;
 
-    const existing = await Doctor.findOne({ email });
-    if (existing) return res.status(400).json({ message: "Email already registered" });
+      const existing = await Doctor.findOne({ email });
+      if (existing) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newDoctor = new Doctor({
-      doctorId: Math.floor(Math.random() * 100000),
-      firstName,
-      lastName,
-      email,
-      phone,
-      licenseNumber,
-      specialty,
-      qualifications,
-      experience,
-      hospital,
-      country,
-      state,
-      district,
-      password: hashedPassword
-    });
+      const newDoctor = new Doctor({
+        doctorId: Math.floor(Math.random() * 100000),
+        firstName,
+        lastName,
+        email,
+        phone,
+        licenseNumber,
+        specialty,
+        qualifications,
+        experience,
+        hospital,
+        country,
+        state,
+        district,
+        password: hashedPassword,
+        image: req.files?.profileImage?.[0]?.filename,
+        licenseDocument: req.files?.license?.[0]?.filename,
+        verificationStatus: "pending"
+      });
 
-    await newDoctor.save();
-    res.status(201).json({ message: 'Doctor registered successfully', doctor: newDoctor });
-  } catch (err) {
-    res.status(500).json({ message: 'Error registering doctor', error });
+      await newDoctor.save();
+      res.status(201).json({ message: "Doctor registered successfully" });
+    } catch (err) {
+      res.status(500).json({ message: "Error registering doctor", error: err.message });
+    }
   }
-});
+);
 
 router.post("/signin", async (req, res) => {
   try {
@@ -63,6 +76,7 @@ router.post("/signin", async (req, res) => {
   res.status(200).json({ message: 'Login successful', token, doctor });
   } catch (err) {
     res.status(500).json({ message: err.message });
+    console.log("TOKEN doctorId:", req.user.doctorId);
   }
 });
 
@@ -78,13 +92,38 @@ router.get("/me", authMiddleware, async (req, res) => {
   }
 });
 
+router.get("/patients", authMiddleware, async (req, res) => {
+  try {
+    const doctorId = req.user.doctorId;
+
+    const appointments = await Appointment.find({ doctorId })
+    .populate("patient", "gender firstName lastName email phone dob");
+
+    const patients = appointments.map(a => ({
+      patientId: a.patientId,
+      firstName: a.patient.firstName,
+      lastName: a.patient.lastName,
+      email: a.patient.email,
+      phone: a.patient.phone,
+      patientAge: a.patientAge,
+      gender: a.patient.gender || "N/A",
+      lastVisit: a.updatedAt,
+      nextAppointment: a.appointmentDate,
+      conditions: []
+    }));
+
+    res.json(patients);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch patients" });
+  }
+});
 
 router.get('/app', authMiddleware, async (req, res) => {
   console.log(" /appointment route hit");
   try {
     console.log("Decoded user in appointment route:", req.user);
-    const doctorId = req.user.doctorId;
-    const appointments = await Appointment.find({ doctorId }).sort({ date: -1 });
+    const doctorId = Number(req.user.doctorId);
+    const appointments = await Appointment.find({ doctorId }).sort({ appointmentDate: -1 });
     return res.status(200).json(appointments);
     
   } catch (err) {

@@ -30,4 +30,15 @@ router.post("/session/answer", async (req, res) => {
     res.json(r.data);
 });
 
+router.post("/session/detect-condition", async (req, res) => {
+  try {
+    const r = await axios.post(`${PYTHON_RAG_URL}/session/detect-condition`, req.body);
+    res.json(r.data);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "RAG API error", details: err.message });
+  }
+});
+
+
 module.exports = router;

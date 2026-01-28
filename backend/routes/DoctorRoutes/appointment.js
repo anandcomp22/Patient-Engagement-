@@ -4,7 +4,7 @@ const { Appointment, videocall, Patient, Doctor } = require('../../db/models');
 const { v4: uuidv4 } = require('uuid');
 const authMiddleware = require('../../middleware/authMiddleware');
 
-router.get('/appointments', authMiddleware, async (req, res) => {
+/*router.get('/appointments', authMiddleware, async (req, res) => {
   try {
     const doctorId = req.user.doctorId;
     const appointments = await Appointment.find({ doctorId }).sort({ date: -1 });
@@ -13,15 +13,48 @@ router.get('/appointments', authMiddleware, async (req, res) => {
   } catch (err) {
     return res.status(500).json({ message: "Failed to fetch appointments", err });
   }
+});*/
+
+router.get('/app', authMiddleware, async (req, res) => {
+  console.log(" /appointment route hit");
+  try {
+    console.log("Decoded user in appointment route:", req.user);
+    const doctorId = Number(req.user.doctorId);
+    const appointments = await Appointment.find({ doctorId }).sort({ appointmentDate: -1 });
+    return res.status(200).json(appointments);
+    
+  } catch (err) {
+    console.error("Error fetching appointments:", err);
+    return res.status(500).json({ message: "Failed to fetch appointments" });
+  }
 });
 
+/*router.get("/join/:appointmentId", async (req, res) => {
+  const appt = await Appointment.findById(req.params.appointmentId);
+
+  if (!appt || appt.callStatus !== "ACTIVE") {
+    return res.status(403).json({ message: "Call not active yet" });
+  }
+
+  res.json({ roomId: appt.roomId });
+});*/
 
 router.post('/book', authMiddleware, async (req, res) => {
+  console.log("REQ BODY ", req.body);
   try {
-    const { patientId, patientName, patientEmail, doctorId, doctorName, date, time, reason } = req.body;
+    const {
+      appointmentDate,
+      doctorId,
+      patientId,
+      date,
+      time 
+    } = req.body;
 
-    const doctor = await Doctor.findOne({ doctorId });
-    const patient = await Patient.findOne({ patientId });
+    const dId = Number(doctorId);
+    const pId = Number(patientId);
+
+    const doctor = await Doctor.findOne({ doctorId: dId });
+    const patient = await Patient.findOne({ patientId: pId });
 
     if (!doctor) {
       return res.status(404).json({ success: false, message: "Doctor not found" });
@@ -31,43 +64,59 @@ router.post('/book', authMiddleware, async (req, res) => {
       return res.status(404).json({ success: false, message: "patient not found" });
     }
 
-    const appointmentId = Math.floor(10000 + Math.random() * 90000);
-    const roomId = uuidv4();
-
-    const appointment = new Appointment({
-      appointmentId,
-      date,
-      time,
-      reason,
-      patientId,
-      patientName,
-      patientEmail,
-      doctorId,
-      doctorName,
-      appstatus: 'confirmed',
-      paymentstatus: 'paid'
+    const exists = await Appointment.findOne({
+      doctorId: dId,
+      appointmentDate: new Date(appointmentDate),
+      startTime: time
     });
+
+    if (exists) {
+      return res.status(409).json({ message: "Slot already booked" });
+    }
+
+      const appointment = await Appointment.create({
+        patient: patient._id,
+        patientId,
+        doctorId,
+        doctorName: `Dr. ${doctor.firstName} ${doctor.lastName}`,
+        patientName: `${patient.firstName} ${patient.lastName}`,
+        patientEmail: patient.email,
+        patientPhone: patient.phone,
+        patientAge: new Date().getFullYear() - new Date(patient.dob).getFullYear(),
+        appointmentDate: new Date(appointmentDate), // ensure it's a Date
+        startTime: time,
+        endTime: "30 mins",
+        appstatus: "confirmed",
+        paymentstatus: "pending"
+      });
+
+    //await appointment.save();
 
     const videocallEntry = new videocall({
-      appointmentId,
-      patientId,
-      doctorId,
-      roomId,
-      appstatus: 'confirmed'
+      appointmentId: appointment._id,
+      doctorId: dId,
+      patientId: pId,
+      roomId: uuidv4(),
+      appstatus: "confirmed"
     });
-
-    await appointment.save();
     await videocallEntry.save();
+
+
+    req.app.get("io").emit("appointment-updated");
 
     res.status(201).json({
       success: true,
       message: "Appointment booked successfully",
       appointment,
-      roomId,
+      roomId: videocallEntry.roomId
     });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Failed to book appointment" });
+    console.error("Appointment booking error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to book appointment"
+    });
   }
 });
 
@@ -116,23 +165,31 @@ router.put("/complete/:appointmentId", async (req, res) => {
   }
 });
 
-router.put('/reschedule', async (req, res) => {
-    const { appointmentId, newDate } = req.body;
-  
-    try {
-      const updated = await Appointment.findOneAndUpdate(
-        { appointmentId: Number(appointmentId) },
-        { date: new Date(newDate) },
-        { new: true }
-      );
-  
-      if (!updated) return res.status(404).json({ success: false, message: "Appointment not found" });
-  
-      res.status(200).json({ success: true, updated });
-    } catch (err) {
-      console.error("Error during reschedule:", err);
-      res.status(500).json({ success: false, message: "Error rescheduling" });
-    }
+  router.post("/reschedule", async (req, res) => {
+    const { appointmentId, newSlotId } = req.body;
+
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) return res.status(404).json({ message: "Not found" });
+
+    await Slot.findByIdAndUpdate(appointment.slotId, {
+      status: "AVAILABLE"
+    });
+
+    const newSlot = await Slot.findOne({
+      _id: newSlotId,
+      status: "AVAILABLE"
+    });
+
+    if (!newSlot) return res.status(400).json({ message: "Slot busy" });
+
+    newSlot.status = "BOOKED";
+    await newSlot.save();
+
+    appointment.slotId = newSlotId;
+    appointment.status = "RESCHEDULED";
+    await appointment.save();
+
+    res.json({ message: "Rescheduled", appointment });
   });
   
 

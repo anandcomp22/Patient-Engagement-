@@ -1,16 +1,106 @@
 const mongoose = require('mongoose');
 require("dotenv").config();
+const bcrypt = require("bcryptjs");
+
+const AdminSchema = new mongoose.Schema({
+  firstName: {
+    type: String,
+    required: true,
+    trim: true
+  }, 
+
+  lastName: {
+    type: String,
+    required: true,
+    trim: true
+  },
+
+  email: {
+    type: String,
+    required: true, 
+    unique: true,
+    lowercase: true
+  },
+
+  phone: {
+    type: String,
+    required: true
+  },
+
+  password: {
+    type: String,
+    required: true
+  },
+
+  role: {
+    type: String,
+    enum: ["admin", "superadmin"],
+    default: "admin"
+  },
+
+  permissions: {
+    type: [String],
+    default: []
+    // example: ["DOCTOR_VERIFY", "VIEW_REPORTS"]
+  },
+
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Admin"
+  },
+
+  lastLogin: {
+    type: Date
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+/* Hash password */
+AdminSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+/* Compare password */
+AdminSchema.methods.comparePassword = function (password) {
+  return bcrypt.compare(password, this.password);
+};
+
+const AdminLogSchema = new mongoose.Schema({
+  action: String,
+  entity: String,
+  ip: String,
+  entityId: mongoose.Schema.Types.ObjectId,
+  adminId: mongoose.Schema.Types.ObjectId,
+  meta: Object,
+}, { timestamps: true });
 
 const prescriptionSchema = new mongoose.Schema({
-    doctorId: { type: Number, required: true, unique: true },
-    patientId: { type: Number, required: true, unique: true },
-    patientname: { type: String, required: true },
-    medicine: { type: String, required: true },
-    age: { type: Number, required: true },
-    dosage: { type: String, required: true },
-    date: { type: Date, required: true },
-    notes: { type: String, default: "No additional notes" }
+  patientName: { type: String, required: true },
+  appointmentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Appointment"
+  },
+  doctorId: { type: Number, required: true },
+  patientId: { type: Number, required: true },
+  medicine: { type: String, required: true },
+  dob: { type: Date, required: true },
+  dosage: { type: String, required: true },
+  date: { type: Date, required: true },
+  notes: { type: String, default: "No additional notes" }
 });
+
 
 const doctorSchema = new mongoose.Schema({
     doctorId: { type: Number, required: true, unique: true },
@@ -26,11 +116,19 @@ const doctorSchema = new mongoose.Schema({
     hospital: { type: String, required: true },
     country: { type: String, required: true },
     state: { type: String, required: true },
-    district: { type: String, required: true }
+    district: { type: String, required: true },   
+    profileImage: { type: String },
+    licenseDocument: { type: String }, 
+    verificationStatus: {
+      type: String,
+      enum: ["pending", "verified", "rejected"],
+      default: "pending"
+    },
+    isActive: { type: Boolean, default: true }
   }, { timestamps: true });
 
 const feepaySchema = new mongoose.Schema({
-    patientId: { type: Number, required: true, unique: true },
+    patientId: { type: Number, required: true},
     patientname: { type: String, required: true },
     doctorId: { type: Number, required: true },
     doctorname: { type: String, required: true },
@@ -45,19 +143,64 @@ const feepaySchema = new mongoose.Schema({
  
 
 const appointmentSchema = new mongoose.Schema({
-  appointmentId: { type: Number, unique: true },
-  doctorId: { type: Number, required: true,  },
-  doctorName: { type: String, required: true }, 
+  appointmentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    default: () => new mongoose.Types.ObjectId(),
+    unique: true
+  },
+
+  patient: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Patient",
+    required: true
+  },
+
+  doctorId: { type: Number, required: true },
+  doctorName: { type: String, required: true },
+  slotId: mongoose.Schema.Types.ObjectId,
   patientId: { type: Number, required: true },
-  patientName: { type: String, required: true }, 
-  patientEmail: { type: String, required: true }, 
-  date: { type: Date, required: true },
-  time: { type: String, required: true }, 
+  patientName: { type: String, required: true },
+  patientEmail: { type: String, required: true },
+  patientPhone: { type: String, required: true },
+  patientAge: { type: Number, required: true },
+  roomId: String,
+  paymentId: String,
+  appointmentDate: { type: Date, required: true },
+  startTime: { type: String },
+  endTime: { type: String },
+  callStatus: {
+    type: String,
+    enum: ["NOT_STARTED", "ACTIVE", "ENDED"],
+    default: "NOT_STARTED"
+  },
   reason: { type: String, default: "General Checkup" },
-  appstatus: { type: String, default: "confirmed" },
-  paymentstatus: { type: String, default: "pending" }
+  type: { type: String, enum: ["video", "in-person"] },
+  appstatus: {
+    type: String,
+    enum: ["confirmed", "pending", "cancelled", "completed"],
+    default: "confirmed"
+  },
+
+  paymentstatus: {
+    type: String,
+    enum: ["paid", "pending", "failed"],
+    default: "pending"
+  },
+
+  meetingLink: String
 }, { timestamps: true });
 
+const slotSchema = new mongoose.Schema({
+  doctorId: Number,
+  date: String,
+  time: String,
+  status: {
+    type: String,
+    enum: ["AVAILABLE", "LOCKED", "BOOKED"],
+    default: "AVAILABLE"
+  },
+  lockExpiry: Date
+});
 
 const patientSchema = new mongoose.Schema({
     patientId: { type: Number, required: true, unique: true },
@@ -66,7 +209,7 @@ const patientSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     phone: { type: String, required: true },
-    age: { type: Number, required: true },
+    dob: { type: Date, required: true },
     country: { type: String },
     state: { type: String },
     district: { type: String },
@@ -94,16 +237,36 @@ const patientSchema = new mongoose.Schema({
   
 
 const videocallSchema = new mongoose.Schema({
-    appointmentId: { type: Number, required: true },
-    doctorId: { type: Number, required: true },
-    patientId: { type: Number, required: true },
-    roomId:{ type: String, required: true, unique:true},
-    appstatus: {type: String, 
-        enum: ['confirmed', 'pending', 'cancelled']},
-    
-    callduration: { type: Number},
-    recordinglink: { type: String}
-})
+  appointmentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Appointment",
+    required: true
+  },
+  doctorId: {
+    type: Number,
+    required: true,
+    index: true
+  },
+  patientId: {
+    type: Number,
+    required: true,
+    index: true
+  },
+  roomId: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  appstatus: {
+  type: String,
+  enum: ["confirmed", "pending", "cancelled", "appointment done"],
+  default: "confirmed",
+  lowercase: true
+  },
+  callduration: Number,
+  recordinglink: String
+}, { timestamps: true });
+
 
 const VideoCallSummarySchema = new mongoose.Schema({
     roomId: String,
@@ -148,5 +311,8 @@ const Patient = mongoose.model('Patient', patientSchema);
 const videocall = mongoose.model('videocall', videocallSchema);
 const User = mongoose.model('User', userSchema);
 const videocallSchem = mongoose.model("VideoCallSummary", VideoCallSummarySchema);
+const Slot = mongoose.model('Slot', slotSchema);
+const AdminLog = mongoose.model('AdminLog', AdminLogSchema);
+const Admin = mongoose.model('Admin', AdminSchema);
 
-module.exports = { Prescription, Doctor, FeePay, Appointment,Patient,videocall,User,videocallSchem, connectToDatabase };
+module.exports = { Prescription, Doctor, FeePay, Appointment, Patient, videocall, User, videocallSchem, Slot, AdminLog, Admin,connectToDatabase };
