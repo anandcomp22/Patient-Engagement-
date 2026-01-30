@@ -35,6 +35,9 @@ import AdminActivityLogs from "../src/components/Administration/AdminActivityLog
 import AdminRoleManagement from "../src/components/Administration/AdminRoleManagement";
 import AdminLogin from "../src/components/Administration/AdminLogin";
 import AdminRegister from "../src/components/Administration/AdminRegister";
+import AdminVerification from '../src/components/Administration/AdminDoctorVerification';
+import AdminLayout from "../src/components/Administration/layouts/AdminLayout";
+
 
 import './App.css';
 import { LoginOutlined } from '@mui/icons-material';
@@ -137,35 +140,38 @@ function App() {
             }
           />
 
-          {/* Admin portal */}
-          <Route
-            path="/admin/*"
-            element={
-              <Box sx={{ display: "flex" }}>
-                <AdminSidebar open={sidebarOpen} onToggle={toggleSidebar} />
-                <Box
-                  sx={{
-                    flexGrow: 1,
-                    ml: sidebarOpen ? "250px" : "70px",
-                    transition: "margin-left 0.3s ease-in-out",
-                    mt: 8,
-                    p: 3,
-                  }}
-                >
-                  <AdminNavbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar} />
-                  <Routes>
-                    <Route path="dashboard" element={<AdminDashboard />} />
-                    <Route path="payments" element={<AdminPayments />} />
-                    <Route path="analytics" element={<AdminAnalytics />} />
-                    <Route path="logs" element={<AdminActivityLogs />} />
-                    <Route path="roles" element={<AdminRoleManagement />} />
-                  </Routes>
-                </Box>
-              </Box>
-            }
-          />
+          {/* ADMIN PORTAL */}
+            <Route
+              path="/admin/*"
+              element={
+                <Box sx={{ display: "flex" }}>
+                  <AdminSidebar open={sidebarOpen} onToggle={toggleSidebar} />
 
-      </Routes>
+                  <Box
+                    sx={{
+                      flexGrow: 1,
+                      ml: sidebarOpen ? "250px" : "70px",
+                      transition: "margin-left 0.3s ease-in-out",
+                      mt: 8,
+                      p: 3,
+                    }}
+                  >
+                    <AdminNavbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar} />
+
+                    {/* ✅ ADMIN ROUTES */}
+                    <Routes>
+                      <Route path="dashboard" element={<AdminDashboard />} />
+                      <Route path="verify" element={<AdminVerification />} />
+                      <Route path="payments" element={<AdminPayments />} />
+                      <Route path="analytics" element={<AdminAnalytics />} />
+                      <Route path="logs" element={<AdminActivityLogs />} />
+                      <Route path="roles" element={<AdminRoleManagement />} />
+                    </Routes>
+                  </Box>
+                </Box>
+              }
+            />
+          </Routes>
       </ThemeProvider>
     </Router>
   );

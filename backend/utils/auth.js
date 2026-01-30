@@ -15,7 +15,11 @@ const generateToken = (user, role) => {
     payload.patientId = user.patientId;
   }
 
-  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+  if (role === 'admin') {
+    payload.adminId = user.adminId;
+  }
+
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
 };
 
 module.exports = { generateToken };

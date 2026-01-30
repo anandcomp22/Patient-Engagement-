@@ -36,7 +36,7 @@ const Appointments = () => {
   const [rescheduleDate, setRescheduleDate] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("time");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); 
   const [error, setError] = useState("");
 
 
@@ -106,9 +106,10 @@ const fetchAppointments = async () => {
     });
   };
 
-  const handleAddAppointment = async () => {
+const handleAddAppointment = async () => {
   try {
     const token = localStorage.getItem("token");
+
     const payload = {
       appointmentDate: formData.appointmentDate,
       patientId: Number(formData.patientId),
@@ -120,33 +121,37 @@ const fetchAppointments = async () => {
       reason: formData.reason
     };
 
+    const res = await axios.post(
+      `${API_BASE}/appointments/book`,
+      payload,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-  await axios.post(
-    `${API_BASE}/appointments/book`,
-    payload,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-
-    if (data.success) {
+    if (res.data.success) {
       setShowForm(false);
       setFormData({
+        appointmentDate: "",
         patientId: "",
+        patientAge: "",
+        patientPhone: "",
         patientName: "",
         patientEmail: "",
         doctorName: "",
-        appointmentDate: "",
         reason: ""
       });
+
       socket.emit("appointment-update");
       fetchAppointments();
     } else {
-      alert(data.message || "Failed to book appointment");
+      alert(res.data.message || "Failed to book appointment");
     }
+
   } catch (err) {
     console.error(err);
     alert("Booking failed");
   }
 };
+
 
 const formatDateTime = (iso) => {
   if (!iso) return { date: "N/A", time: "N/A" };
@@ -240,60 +245,40 @@ const formatDateTime = (iso) => {
       ) : error ? (
         <Typography color="error" sx={{ mt: 4 }}>{error}</Typography>
       ) : filteredAppointments.length === 0 ? (
-        <Box
-          sx={{
-            mt: 6,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Card
+          <Box
             sx={{
-              p: 5,
-              maxWidth: 400,
-              textAlign: "center",
-              borderRadius: 3,
-              background: "linear-gradient(135deg, #f9f9ff, #ffffff)",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-            }}
+            height: "50vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            color: "text.secondary",
+            gap: 2,
+          }}
           >
-            <EventBusyIcon
-              sx={{
-                fontSize: 64,
-                color: "#1976d2",
-                mb: 2,
-              }}
-            />
+          <Card sx={{ p: 4, boxShadow: "none", bgcolor: "transparent", textAlign: "center",alignItems: "center",justifyContent: "center",}}>
+              <EventBusyIcon
+                sx={{
+                  fontSize: 64,
+                  color: "#1976d2",
+                  mb: 2,
+                }}
+              />
 
-            <Typography variant="h6" fontWeight="bold">
-              No Appointments
-            </Typography>
+              <Typography variant="h5" fontWeight="bold" color="text.primary">
+                No Appointments
+              </Typography>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ mt: 1 }}
-            >
-              There are no appointments scheduled for this date.
-            </Typography>
-
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              sx={{
-                mt: 2,
-                px: 3,
-                borderRadius: 2,
-                backgroundColor: "#1976d2",
-                "&:hover": { backgroundColor: "#1976d2" },
-              }}
-              onClick={() => setShowForm(true)}
-            >
-              Add Appointment
-            </Button>
-          </Card>
-        </Box>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mt: 1, maxWidth: 360 }}
+              >
+                There are no appointments scheduled for this date.
+              </Typography>
+            </Card>
+          </Box>
       ) : (
 
         filteredAppointments.map((item) => {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import backgroundImage from './image/D.png';
+import backgroundImage from '../Dashboard/image/D.png';
 import { 
   Container,
   Box,

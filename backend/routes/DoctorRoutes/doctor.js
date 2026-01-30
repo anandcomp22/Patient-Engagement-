@@ -109,7 +109,7 @@ router.get("/patients", authMiddleware, async (req, res) => {
       gender: a.patient.gender || "N/A",
       lastVisit: a.updatedAt,
       nextAppointment: a.appointmentDate,
-      conditions: []
+      conditions: a.conditions ||[]
     }));
 
     res.json(patients);
@@ -161,4 +161,22 @@ router.get("/doctorprescript", authMiddleware, (req, res) => {
   });
 });
 
+router.get("/today-count", authMiddleware, async (req, res) => {
+  const doctorId = req.user.doctorId;
+
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+
+  const count = await Appointment.countDocuments({
+    doctorId,
+    appointmentDate: { $gte: start, $lte: end },
+    appstatus: { $ne: "cancelled" }
+  });
+
+  res.json({ count });
+});
+ 
 module.exports = router;

@@ -30,7 +30,7 @@ const adminAppointments = require("./routes/AdminRoutes/appointments");
 const adminPayments = require("./routes/AdminRoutes/payments");
 const adminAnalytics = require("./routes/AdminRoutes/analytics");
 const adminLogs = require("./routes/AdminRoutes/logs");
-//const adminAdmins = require("./routes/AdminRoutes/admin");
+const adminVerifyRoutes = require("./routes/AdminRoutes/admin.js");
 const adminAuthRoutes = require("./routes/AdminRoutes/auth");
 
 const app = express();
@@ -74,9 +74,9 @@ app.use("/admin/payments", adminPayments);
 app.use("/admin/analytics", adminAnalytics);
 app.use("/slot", patientRouter);
 app.use("/payment", patientRouter);
-app.use("/appointment", patientRouter);
+//app.use("/appointment", patientRouter);
 app.use("/admin/logs", adminLogs);
-//app.use("/admin/admin", adminAdmins);
+app.use("/admin/verify", adminVerifyRoutes);
 app.use("/admin/auth", adminAuthRoutes);
 
 io.on("connection", (socket) => {

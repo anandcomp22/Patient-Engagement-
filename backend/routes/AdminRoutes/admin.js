@@ -42,4 +42,59 @@ router.get("/dashboard/metrics", adminAuth, async (req, res) => {
   });
 });
 
+/**
+ * GET /admin/verify?status=pending
+ */
+router.get("/", adminAuth, async (req, res) => {
+  const { status } = req.query;
+
+  const filter = status ? { verificationStatus: status } : {};
+
+  const doctors = await Doctor.find(filter).sort({ createdAt: -1 });
+  res.json(doctors);
+});
+
+/**
+ * PATCH /admin/verify/:id/approve
+ */
+router.patch("/:id/approve", adminAuth, async (req, res) => {
+  const doctor = await Doctor.findByIdAndUpdate(
+    req.params.id,
+    {
+      verificationStatus: "verified",
+      verifiedAt: new Date(),
+      verifiedBy: req.admin.id,
+    },
+    { new: true }
+  );
+
+  if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+
+  res.json({ success: true, doctor });
+});
+
+/**
+ * PATCH /admin/verify/:id/reject
+ */
+router.patch("/:id/reject", adminAuth, async (req, res) => {
+  const doctor = await Doctor.findByIdAndUpdate(
+    req.params.id,
+    {
+      verificationStatus: "rejected",
+      verifiedAt: new Date(),
+      verifiedBy: req.admin.id,
+    },
+    { new: true }
+  );
+
+  if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+
+  res.json({ success: true, doctor });
+});
+
+router.get("/count", adminAuth, async (req, res) => {
+  const count = await Doctor.countDocuments({ verificationStatus: "pending" });
+  res.json({ count });
+});
+
 module.exports = router;

@@ -11,8 +11,7 @@ import {
   ChevronLeft as ChevronLeftIcon
 } from '@mui/icons-material';
 import DescriptionIcon from "@mui/icons-material/Description";
-import Aidme from "../../Doctor/icons/logo.png";
-
+import Aidme from "../../Doctor/Dashboard/icons/logo.png";
 
 const PatientSidebar = ({ open, onToggle }) => {
   const { pathname } = useLocation();

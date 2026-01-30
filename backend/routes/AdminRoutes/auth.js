@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const Admin = require("../../db/models").Admin;
 const bcrypt = require("bcryptjs");
 const adminAuth = require("../../middleware/adminAuth");
+//const { generateToken } = require("../../utils/auth");
 require("dotenv").config();
 const JWT_SECRET_ADMIN = "adminsecretjwtkey456";
 

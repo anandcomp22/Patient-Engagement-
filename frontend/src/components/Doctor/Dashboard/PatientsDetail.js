@@ -86,6 +86,50 @@ const formatDateTime = (iso) => {
       </Box>
 
       <Grid container spacing={3}>
+        {patients.length === 0 && (
+          <Card
+            sx={{
+              mt: 10, // spacing from top
+              mx: "auto", // center horizontally
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              boxShadow: "none",
+              gap: 2,
+            }}
+          >
+            <Avatar
+              sx={{
+                bgcolor: "#e3f2fd",
+                color: "#1976d2",
+                width: 72,
+                height: 72,
+              }}
+            >
+              👨‍⚕️
+            </Avatar>
+
+            <Typography variant="h5" fontWeight={600} color="text.primary">
+              No Patients Yet
+            </Typography>
+
+            <Typography variant="body2" sx={{ mt: 0.5, color: "gray" }}>
+              You haven’t consulted or added any patients yet.
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 0, color: "gray" }}>
+              Once a patient books an appointment, they’ll appear here automatically.
+            </Typography>
+
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              sx={{ mt: 2 }}
+            >
+              Add Patient
+            </Button>
+          </Card>
+        )}
         {patients.map((patient, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Card sx={{

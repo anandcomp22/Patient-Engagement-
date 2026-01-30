@@ -124,6 +124,11 @@ const doctorSchema = new mongoose.Schema({
       enum: ["pending", "verified", "rejected"],
       default: "pending"
     },
+      verifiedAt: Date,
+  verifiedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Admin",
+  },
     isActive: { type: Boolean, default: true }
   }, { timestamps: true });
 

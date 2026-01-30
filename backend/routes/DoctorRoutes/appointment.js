@@ -40,67 +40,56 @@ router.get('/app', authMiddleware, async (req, res) => {
 });*/
 
 router.post('/book', authMiddleware, async (req, res) => {
-  console.log("REQ BODY ", req.body);
   try {
-    const {
-      appointmentDate,
-      doctorId,
-      patientId,
-      date,
-      time 
-    } = req.body;
+    const { appointmentDate, patientId, time, reason } = req.body;
 
-    const dId = Number(doctorId);
+    const dId = Number(req.user.doctorId);
     const pId = Number(patientId);
+
+    if (!dId || isNaN(dId)) {
+      return res.status(400).json({ message: "Invalid doctorId" });
+    }
 
     const doctor = await Doctor.findOne({ doctorId: dId });
     const patient = await Patient.findOne({ patientId: pId });
 
-    if (!doctor) {
-      return res.status(404).json({ success: false, message: "Doctor not found" });
-    }
-
-    if (!patient) {
-      return res.status(404).json({ success: false, message: "patient not found" });
-    }
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+    if (!patient) return res.status(404).json({ message: "Patient not found" });
 
     const exists = await Appointment.findOne({
       doctorId: dId,
-      appointmentDate: new Date(appointmentDate),
-      startTime: time
+      startTime: time,
+      appointmentDate: new Date(appointmentDate)
     });
 
     if (exists) {
       return res.status(409).json({ message: "Slot already booked" });
     }
 
-      const appointment = await Appointment.create({
-        patient: patient._id,
-        patientId,
-        doctorId,
-        doctorName: `Dr. ${doctor.firstName} ${doctor.lastName}`,
-        patientName: `${patient.firstName} ${patient.lastName}`,
-        patientEmail: patient.email,
-        patientPhone: patient.phone,
-        patientAge: new Date().getFullYear() - new Date(patient.dob).getFullYear(),
-        appointmentDate: new Date(appointmentDate), // ensure it's a Date
-        startTime: time,
-        endTime: "30 mins",
-        appstatus: "confirmed",
-        paymentstatus: "pending"
-      });
+    const appointment = await Appointment.create({
+      patient: patient._id,
+      patientId: pId,
+      doctorId: dId,
+      doctorName: `Dr. ${doctor.firstName} ${doctor.lastName}`,
+      patientName: `${patient.firstName} ${patient.lastName}`,
+      patientEmail: patient.email,
+      patientPhone: patient.phone,
+      patientAge: new Date().getFullYear() - new Date(patient.dob).getFullYear(),
+      appointmentDate: new Date(appointmentDate),
+      startTime: time,
+      endTime: "30 mins",
+      reason: reason || "General Checkup",
+      appstatus: "confirmed",
+      paymentstatus: "pending"
+    });
 
-    //await appointment.save();
-
-    const videocallEntry = new videocall({
+    const videocallEntry = await videocall.create({
       appointmentId: appointment._id,
       doctorId: dId,
       patientId: pId,
       roomId: uuidv4(),
       appstatus: "confirmed"
     });
-    await videocallEntry.save();
-
 
     req.app.get("io").emit("appointment-updated");
 
@@ -113,12 +102,10 @@ router.post('/book', authMiddleware, async (req, res) => {
 
   } catch (err) {
     console.error("Appointment booking error:", err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to book appointment"
-    });
+    res.status(500).json({ message: "Failed to book appointment" });
   }
 });
+
 
 router.get("/details/:appointmentId", async (req, res) => {
   try {

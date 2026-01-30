@@ -5,7 +5,7 @@ import {
   Box,Typography,TextField,Button,Grid,Link,FormControl,InputLabel,OutlinedInput,InputAdornment,
   IconButton,FormHelperText,Checkbox,FormControlLabel,CircularProgress,Alert,Snackbar,} from '@mui/material';
 import { Visibility, VisibilityOff,Email,Lock,ArrowBack,CheckCircle,Warning,Error,Info} from '@mui/icons-material'; 
-import bgImage from './image/P.png';
+import bgImage from '../Dashboard/image/P.png';
 
 const PatientSignIn = () => {
   const navigate = useNavigate();
