@@ -418,7 +418,7 @@ useEffect(() => {
                 body: JSON.stringify({
                   email: patientEmail,
                   link: `${window.location.origin}/patient/video-call?roomId=${roomId}`,
-                  doctorName,
+                  doctorName: name,
                 }),
               });
 
