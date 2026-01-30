@@ -68,8 +68,8 @@ function App() {
           <Route path="/doctor/signup" element={<DoctorSignUp />} />
           <Route path="/patient/signin" element={<PatientLogin />} />
           <Route path="/patient/signup" element={<PatientSignUp />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/register" element={<AdminRegister />} />
+          <Route path="/admin/auth/login" element={<AdminLogin />} />
+          <Route path="/admin/auth/register" element={<AdminRegister />} />
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/paypal" element={<PayPalPaymentPage />} />
 

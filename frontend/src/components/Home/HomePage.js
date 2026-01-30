@@ -249,7 +249,7 @@ const HomePage = () => {
                   backgroundColor: 'rgba(255,255,255,0.15)'
                 }
               }}
-              onClick={() => navigate('/admin/login')}
+              onClick={() => navigate('/admin/auth/login')}
             >
               Admin Login
             </Button>
