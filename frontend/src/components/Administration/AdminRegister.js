@@ -364,7 +364,7 @@ const AdminSignUp = () => {
 
             <Typography align="center" mt={2} variant="body2">
               Already have Account?{" "}
-              <Link href="/admin/login" sx={{ color: "#1E5DA9" }}>
+              <Link href="/admin/auth/login" sx={{ color: "#1E5DA9" }}>
                 Login
               </Link>
             </Typography>

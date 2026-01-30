@@ -33,7 +33,7 @@ const AdminLogin = () => {
     setError("");
 
     try {
-      const res = await axios.post(`${API}/admin/auth/login`, {
+      const res = await axios.post(`http://localhost:8000/admin/auth/login`, {
         email,
         password
       });
@@ -168,7 +168,7 @@ const AdminLogin = () => {
           <Grid item>
             <Typography variant="body2">
               Don't have an account?{' '}
-              <Link href="/admin/register" variant="body2" sx={{ color: '#1E5DA9' }}>
+              <Link href="/admin/auth/register" variant="body2" sx={{ color: '#1E5DA9' }}>
                 Register as Administrator
               </Link>
             </Typography>
