@@ -1,6 +1,15 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Box, Tooltip,} from "@mui/material";
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  Box,
+  Tooltip,
+} from "@mui/material";
 import {
   Dashboard,
   CalendarMonth,
@@ -14,7 +23,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
   LoginOutlined,
 } from "@mui/icons-material";
-import Aidme from "../icons/logo.png";
+import Aidme from "./icons/logo.png";
 
 const Sidebar = ({ open, onToggle }) => {
   const { pathname } = useLocation();

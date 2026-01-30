@@ -81,13 +81,27 @@ const Dashboard = ({ sidebarOpen }) => {
         ); 
         const allAppointments = res.data;
 
-        const today = new Date().toISOString().split("T")[0];
+        const isToday = (date) => {
+        const d = new Date(date);
         const now = new Date();
+        return (
+          d.getDate() === now.getDate() &&
+          d.getMonth() === now.getMonth() &&
+          d.getFullYear() === now.getFullYear()
+        );
+      };
 
-        const todayAppointments = allAppointments.filter(
-          (app) =>
-            new Date(app.appointmentDate).toISOString().split("T")[0] === today
-        ).length;
+      const now = new Date();
+
+      const todayAppointments = allAppointments.filter(app => {
+        const d = new Date(app.appointmentDate);
+        return (
+          isToday(d) &&
+          d > now &&
+          app.appstatus?.toLowerCase() !== "cancelled"
+        );
+      }).length;
+
 
         const patientsRecovered = allAppointments.filter(
           (app) => app.appstatus?.toLowerCase() === "appointment done"
