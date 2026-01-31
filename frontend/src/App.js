@@ -15,9 +15,7 @@ import PatientAppointments from './components/Patient/Dashboard/PatientAppointme
 import BookAppointment from './components/Patient/Dashboard/BookAppointment';
 import PatientDashboard from './components/Patient/Dashboard/PatientDashboard';
 import HomePage from './components/Home/HomePage';
-import DoctorSignin from './components/Doctor/DoctorPortal/DoctorSignin'; 
 import DoctorSignUp from './components/Doctor/DoctorPortal/DoctorSignup';
-import PatientLogin from './components/Patient/PatientPortal/PatientSignIn';
 import PatientSidebar from './components/Patient/Dashboard/PatientSidebar';
 import PatientNavbar from './components/Patient/Dashboard/PatientNavbar';
 import PatientVideoCall from './components/Patient/VideoCallMech/PatientVideoCall';
@@ -64,9 +62,7 @@ function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/doctor/signin" element={<DoctorSignin />} />
           <Route path="/doctor/signup" element={<DoctorSignUp />} />
-          <Route path="/patient/signin" element={<PatientLogin />} />
           <Route path="/patient/signup" element={<PatientSignUp />} />
           <Route path="/admin/auth/login" element={<AdminLogin />} />
           <Route path="/admin/auth/register" element={<AdminRegister />} />

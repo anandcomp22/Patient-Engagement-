@@ -1,11 +1,19 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { AppBar, Toolbar, Typography, Box, Button, Paper, Grid, Container,Breadcrumbs,Link,Chip,Avatar,Divider,
-   Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} from '@mui/material';
+   Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Checkbox, FormControlLabel,InputAdornment,IconButton, FormHelperText, CircularProgress,Snackbar,Alert} from '@mui/material';
 import { Favorite, ContactMail, HomeRounded, InfoRounded, Phone, NavigateNext, Visibility,
   LocalHospital, Spa, Description, Vaccines, MonitorHeart, Psychology, MedicalInformation, Schedule, Videocam, SupportAgent,
-  Groups, FeaturedPlayListRounded, MailOutlineRounded, CheckCircle, SentimentSatisfiedAlt, EventAvailable,PersonSearch, AdminPanelSettings  } from '@mui/icons-material';
+  Groups, FeaturedPlayListRounded, MailOutlineRounded, CheckCircle, SentimentSatisfiedAlt, EventAvailable,PersonSearch, AdminPanelSettingsLock, 
+  FlashOn, Lock, AdminPanelSettings, Email, VisibilityOff} from '@mui/icons-material';
+  import Close from "@mui/icons-material/Close";
+import VideocamIcon from '@mui/icons-material/Videocam';
+import PersonIcon from '@mui/icons-material/Person';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import LockIcon from '@mui/icons-material/Lock';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import BoltIcon from '@mui/icons-material/Bolt';
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
 
 const specialties = ["General Physician","Dermatology","Obstetrics & Gynaecology","Orthopaedics","ENT","Neurology","Cardiology","Urology","Gastroenterology/GI",
   "Psychiatry","Paediatrics","Pulmonology/Respiratory","Endocrinology","Nephrology","Neurosurgery","Rheumatology","Ophthalmology","Surgical Gastroenterology",
@@ -179,19 +187,315 @@ const patientFeatures = [
 
 
 const benefits = [
-  { icon: <Schedule fontSize="large" />, title: "Easy Scheduling", description: "Book appointments at your convenience" },
-  { icon: <Videocam fontSize="large" />, title: "Video Consultations", description: "Connect with doctors face-to-face online" },
-  { icon: <Groups fontSize="large" />, title: "Expert Doctors", description: "Qualified healthcare professionals" },
-  { icon: <SupportAgent fontSize="large" />, title: "24/7 Support", description: "Access healthcare support team anytime" }
+  {
+    icon: <VideocamIcon />,
+    title: "Instant Video Consultations",
+    description: "Connect with board-certified doctors in minutes through high-quality video calls. No waiting rooms, no travel time – just convenient healthcare from anywhere in the world."
+  },
+  {
+    icon: <PersonIcon />,
+    title: "World-Class Specialists",
+    description: "Access to over 500 verified specialists across all medical fields. Every doctor is thoroughly vetted, licensed, and brings years of experience to your care."
+  },
+  {
+    icon: <AccessTimeIcon />,
+    title: "Round-the-Clock Support",
+    description: "24/7 medical support and emergency consultations available whenever you need them. Healthcare assistance that never sleeps, ensuring peace of mind day and night."
+  },
+  {
+    icon: <LockIcon />,
+    title: "Enterprise-Grade Security",
+    description: "Bank-level encryption and HIPAA-compliant infrastructure ensure your medical data remains completely confidential and secure at all times."
+  },
+  {
+    icon: <AttachMoneyIcon />,
+    title: "Transparent Pricing",
+    description: "Clear, upfront pricing with no hidden fees. Quality healthcare that’s affordable and accessible to everyone, with flexible payment options available."
+  },
+  {
+    icon: <BoltIcon />,
+    title: "Lightning Fast Access",
+    description: "Get medical advice in minutes, not days. Our AI-powered system ensures quick appointment scheduling and instant prescription delivery to your pharmacy."
+  }
 ];
+
+const Navbar = () => {
+  const navigate = useNavigate();
+
+  const navButtonStyle = {
+    position: "relative",
+    color: "#1c2b4a",
+    fontWeight: 500,
+    textTransform: "none",
+    backgroundColor: "transparent",
+    fontSize: "0.95rem",
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      left: 0,
+      bottom: -6,
+      width: "0%",
+      height: "2px",
+      backgroundColor: "#0d6efd",
+      transition: "width 0.3s ease",
+    },
+    "&:hover": {
+      backgroundColor: "transparent",
+    },
+    "&:hover::after": {
+      width: "100%",
+    },
+  };
+
+  return (
+    <AppBar
+      position="sticky"
+        elevation={4}
+        sx={{
+          background: "linear-gradient(135deg, rgb(219, 236, 249) 0%, rgb(159, 212, 255) 100%)",
+          borderBottomLeftRadius: 20,
+          borderBottomRightRadius: 20,
+          transition: "all 0.4s ease",
+          boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+          width: '100%',
+        }}
+    >
+      <Toolbar
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
+          alignItems: "center",
+          px: { xs: 2, md: 6 },
+          minHeight: 72,
+        }}
+      >
+        {/* LEFT — LOGO + BRAND */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <img
+            src="/main1.png"
+            alt="Icon"
+            style={{
+              width: "48px",
+              height: "48px",
+              borderRadius: "50%",
+            }}
+          />
+
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 800,
+              color: "#787878", // ✅ Brand white
+              letterSpacing: "0.5px",
+            }}
+          >
+            AidME
+          </Typography>
+        </Box>
+
+        {/* CENTER — NAV LINKS */}
+        <Box sx={{ display: "flex", gap: 4, justifyContent: "center" }}>
+          {["Home", "Features", "Specialties", "About", "Contact"].map((item) => (
+            <Button
+              key={item}
+              sx={{
+                color: "#787878", // ✅ White nav text
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: "0.95rem",
+                position: "relative",
+                "&::after": {
+                  content: '""',
+                  position: "absolute",
+                  width: "0%",
+                  height: "2px",
+                  left: 0,
+                  bottom: -4,
+                  backgroundColor: "#406aff",
+                  transition: "width 0.3s ease",
+                },
+                "&:hover::after": {
+                  width: "100%",
+                },
+                "&:hover": {
+                  backgroundColor: "transparent", // ✅ navbar shape unchanged
+                },
+              }}
+              onClick={() => {
+                if (item === "Home") 
+                  document
+                    .getElementById("header-section")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                if (item === "Features")
+                  document
+                    .getElementById("features-section")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                if (item === "Specialties")
+                  document
+                    .getElementById("specialties-section")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                if (item === "About") navigate("/aboutus");
+                if (item === "Contact")
+                  document
+                    .getElementById("contact-section")
+                    ?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              {item}
+            </Button>
+          ))}
+        </Box>
+
+        {/* RIGHT — ADMIN LOGIN */}
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            variant="outlined"
+            sx={{
+              borderRadius: 2,
+              px: 3,
+              fontWeight: 600,
+              textTransform: "none",
+              borderColor: "#0d6efd",
+              color: "#0d6efd",
+              "&:hover": {
+                backgroundColor: "#eef5ff",
+                borderColor: "#0d6efd",
+              },
+            }}
+            onClick={() => navigate("/admin/auth/login")}
+          >
+            Admin Login
+          </Button>
+        </Box>
+      </Toolbar>
+    </AppBar>
+  );
+};
 
 const HomePage = () => {
   const featuresRef = useRef(null);
   const contactRef = useRef(null);
-  const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState(null);
+  const [loginType, setLoginType] = useState("doctor");
+
+  const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
+    const [formData, setFormData] = useState({
+      email: '',
+      password: ''
+    });
+    const [errors, setErrors] = useState({});
+    const [verificationStatus, setVerificationStatus] = useState(() => {
+      const savedStatus = localStorage.getItem('doctorVerificationStatus');
+      return savedStatus ? JSON.parse(savedStatus) : null;
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('info');
+
+    const [openSpecialty, setOpenSpecialty] = React.useState(false);
+    const [selectedSpecialty, setSelectedSpecialty] = React.useState("");
+
+
+      useEffect(() => {
+    if (verificationStatus) {
+      localStorage.setItem('doctorVerificationStatus', JSON.stringify(verificationStatus));
+    }
+  }, [verificationStatus]);
+
+  const showSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleRememberMe = (e) => {
+    setRememberMe(e.target.checked);
+  };
+
+  const validate = () => {
+    const newErrors = {};
+
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Email is invalid';
+
+    if (!formData.password) newErrors.password = 'Password is required';
+    else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+
+    if (loginType === "doctor" && verificationStatus !== 'verified') {
+      newErrors.verification = 'Medical license must be verified';
+      showSnackbar('Please complete license verification first', 'error');
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const endpoint = loginType === "doctor" 
+        ? "http://localhost:8000/doctor/signin" 
+        : "http://localhost:8000/patient/signin";
+
+      const res = await axios.post(endpoint, formData);
+      const data = res.data;
+
+      if (loginType === "doctor") {
+        localStorage.setItem("doctorName", `${data.doctor.firstName} ${data.doctor.lastName}`);
+        localStorage.setItem("doctorEmail", data.doctor.email);
+      } else {
+        localStorage.setItem("patientName", `${data.patient.firstName} ${data.patient.lastName}`);
+        localStorage.setItem("patientEmail", data.patient.email);
+      }
+
+      localStorage.setItem("token", data.token);
+
+      showSnackbar("Login successful! Redirecting...", "success");
+
+      setTimeout(() => {
+        navigate(loginType === "doctor" ? "/doctor/dashboard" : "/patient/dashboard");
+      }, 1000);
+
+      } catch (err) {
+        showSnackbar("Login failed: " + (err.response?.data?.message || err.message), "error");
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+
+  const handleCloseSnackbar = (event, reason) => {
+  if (reason === 'clickaway') return;
+  setSnackbarOpen(false);
+};
 
   const handleOpen = (feature) => {
     setSelectedFeature(feature);
@@ -205,221 +509,305 @@ const HomePage = () => {
 
   return (
     <>
-      {/* Navigation Bar */}
-      <AppBar
-        position="sticky"
-        elevation={4}
-        sx={{
-          background: "linear-gradient(135deg, #83c9fbff 0%, #0062b2ff 100%)",
-          borderBottomLeftRadius: 20,
-          borderBottomRightRadius: 20,
-          transition: "all 0.4s ease",
-          boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-          width: '100%',
-        }}
-      >
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          
-          {/* Left - Logo and Brand */}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <div>
-              <img 
-                src="/main1.png" 
-                alt="Icon" 
-                style={{ width: "60px", height: "50px", borderRadius: "50%" }} 
-              />
-            </div>
-            
-            <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'white' }}>
-              AidME
-            </Typography>
-          </Box>
-
-          {/* Right - Navigation Links */}
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button 
-              startIcon={<AdminPanelSettings />} 
-              sx={{ 
-                color: 'white', 
-                fontWeight: 'bold', 
-                textTransform: 'none',
-                border: '1px solid rgba(255,255,255,0.6)',
-                borderRadius: 2,
-                '&:hover': {
-                  backgroundColor: 'rgba(255,255,255,0.15)'
-                }
-              }}
-              onClick={() => navigate('/admin/auth/login')}
-            >
-              Admin Login
-            </Button>
-            <Button 
-              startIcon={<HomeRounded />} 
-              sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
-              onClick={() => navigate('/')}
-            >
-              Home
-            </Button>
-            <Button 
-              startIcon={<FeaturedPlayListRounded />} 
-              sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
-              onClick={() => {
-                document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Features
-            </Button>
-            <Button 
-              startIcon={<MailOutlineRounded />} 
-              sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
-              onClick={() => {
-                document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Contact
-            </Button>
-            <Button 
-              startIcon={<InfoRounded />} 
-              sx={{ color: 'white', fontWeight: 'bold', textTransform: 'none' }}
-              onClick={() => navigate('/aboutus')}
-            >
-              About Us
-            </Button>
-          </Box>
-        </Toolbar>
-      </AppBar>
-
+    <Navbar /> 
 
       {/* Main Content */}
-      <Container maxWidth={false} >
-        {/* Login Options Section - Now at the top */}
-        <Box sx={{ 
-          width: '100%',
-            minHeight: '50vh',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            textAlign: 'center',
-            py: 8,
-          }}>
-          <Typography variant="h3" sx={{ mb: 4, fontWeight: 'bold', color: '#0062b2ff' }}>
-            Welcome to AidME Healthcare
-          </Typography>
-          <Typography variant="h5" sx={{ mb: 4 }}>
-            Please select your login option
-          </Typography>
+      <Container maxWidth={true} >
+        {/* HERO LOGIN SECTION */}
+          <Box 
+          id ="header-section"
+            sx={{
+              minHeight: "100vh",
+              px: { xs: 2, md: 10 },
+              display: "flex",
+              alignItems: "center",
+              background:
+                "radial-gradient(circle at top, #eef6ff 0%, #ffffff 60%)",
+            }}
+          >
+            <Grid container spacing={8} alignItems="center">
+              {/* LEFT CONTENT */}
+              <Grid item xs={12} md={6}>
+                <Chip
+                  icon={<FlashOn sx={{ color: "#ff9800" }} />}
+                  label="Instant Booking"
+                  sx={{
+                    mb: 3,
+                    px: 2,
+                    py: 1,
+                    borderRadius: 3,
+                    bgcolor: "#ffffff",
+                    fontWeight: 600,
+                    boxShadow: 2,
+                  }}
+                />
 
-          <Grid container spacing={4} justifyContent="center">
-            <Grid item xs={12} md={6}>
-              <Paper elevation={3} sx={{ 
-                p: 4,
-                borderRadius: 2,
-                background: 'linear-gradient(135deg, #bde1fb, #ffffff)',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'scale(1.02)'
-                }
-              }}>
-                <Box 
-                  sx={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'center', 
-                    mb: 3 
+                <Typography
+                  variant="h2"
+                  fontWeight={800}
+                  sx={{ color: "#0b428f", lineHeight: 1.1 }}
+                >
+                  Healthcare <br />
+                  That <br />
+                  Understands <br />
+                  You
+                </Typography>
+
+                <Typography
+                  variant="body1"
+                  sx={{
+                    mt: 3,
+                    maxWidth: 520,
+                    color: "#5f6f86",
+                    fontSize: "1.05rem",
+                    lineHeight: 1.7,
                   }}
                 >
-                  {/* Image above Doctor Login */}
-                  <Box
-                    component="img"
-                    src="/doc1.png" 
-                    alt="Doctor Login"
-                    sx={{ width: 80, height: 80, mb: 2 }}
-                  />
+                  Experience the future of medicine with AI-driven diagnostics,
+                  instant video consultations, and personalized care plans. Your
+                  health journey, reimagined.
+                </Typography>
 
-                  <Typography variant="h5" gutterBottom>
-                    Doctor Login
+                <Box sx={{ display: "flex", gap: 4, mt: 6 }}>
+                  <Box>
+                    <Typography variant="h4" fontWeight={800} color="#2d79d6">
+                      10K+
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Happy Patients
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="h4" fontWeight={800} color="#2d79d6">
+                      500+
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Doctors
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="h4" fontWeight={800} color="#2d79d6">
+                      4.9
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Rating
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+
+              {/* RIGHT LOGIN CARD */}
+              <Grid item xs={12} md={6}>
+                <Paper
+                  elevation={6}
+                  sx={{
+                    p: 4,
+                    borderRadius: 4,
+                    maxWidth: 420,
+                    mx: "auto",
+                    background: "linear-gradient(135deg, #f4f9ff, #ffffff)",
+                    boxShadow: "0 20px 60px rgba(13,110,253,0.15)",
+                  }}
+                >
+                  {/* LOGIN TOGGLE */}
+                  <form onSubmit={handleSubmit}>
+                  <Box sx={{ display: "flex", mb: 3 }}>
+                    <Button
+                      fullWidth
+                      variant={loginType === "doctor" ? "contained" : "outlined"}
+                      sx={{ borderRadius: 2 }}
+                      onClick={() => setLoginType("doctor")}
+                    >
+                      Doctor Login
+                    </Button>
+
+                    <Button
+                      fullWidth
+                      variant={loginType === "patient" ? "contained" : "outlined"}
+                      sx={{ ml: 1, borderRadius: 2 }}
+                      onClick={() => setLoginType("patient")}
+                    >
+                      Patient Login
+                    </Button>
+                  </Box>
+
+                  {/* TITLE */}
+                  {/*<Typography variant="h6" fontWeight="bold" mb={2}>
+                    {loginType === "doctor" ? "Doctor Portal" : "Patient Portal"}
+                  </Typography>*/}
+
+                  {/* EMAIL/USERNAME */}
+                  <Typography
+                    variant="body2"
+                    fontWeight={600}
+                    sx={{ mb: 0.5 }}
+                  >
+                    {loginType === "doctor" ? "Doctor ID / Email" : "Patient ID / Email"}
                   </Typography>
-                </Box>
-                <Typography variant="body1" sx={{ mb: 3 }}>
-                  Access your doctor dashboard to manage appointments, prescriptions, and patient records.
-                </Typography>
-                <Button 
-                  variant="contained" 
-                  size="large"
-                  sx={{
-                    bgcolor: "linear-gradient(135deg, rgb(109, 192, 251) 0%, #0062b2ff 100%)",
-                    '&:hover': { bgcolor: '#154281' }
-                  }}
-                  onClick={() => navigate('/doctor/signin')}
-                >
-                  Doctor Portal
-                </Button>
-              </Paper>
-            </Grid>
 
-            <Grid item xs={12} md={6}>
-              <Paper elevation={3} sx={{ 
-                p: 4,
-                borderRadius: 2,
-                background: 'linear-gradient(135deg, #cee9fd, #ffffff)',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'scale(1.02)'
-                }
-              }}>
-                <Box 
-                  sx={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'center', 
-                    mb: 3 
-                  }}
-                >
-                  {/* Image above Doctor Login */}
-                  <Box
-                    component="img"
-                    src="/patient1.png" 
-                    alt="Patient Login"
-                    sx={{ width: 80, height: 80, mb: 2 }}
+                  <TextField
+                    fullWidth
+                    placeholder={loginType === "doctor" ? "Enter Doctor ID or Email" : "Enter Patient ID or Email"}
+                    variant="outlined"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    error={!!errors.email}
+                    helperText={errors.email}
+                    sx={{
+                      mb: 2,
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 3,
+                        backgroundColor: "#ffffff",
+                        "& fieldset": {
+                          borderColor: "#dbe7ff",
+                          borderWidth: 2,
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "#0d6efd",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#0d6efd",
+                        },
+                      },
+                    }}
+                    InputLabelProps={{ shrink: true }}
                   />
-                <Typography variant="h5" gutterBottom>
-                  Patient Login
-                </Typography>
-                </Box>
-                <Typography variant="body1" sx={{ mb: 3 }}>
-                  Access your patient portal to book appointments, view prescriptions, and connect with doctors.
-                </Typography>
-                <Button 
-                  variant="contained" 
-                  size="large"
-                  sx={{
-                    bgcolor: "linear-gradient(135deg, rgb(165, 215, 250) 0%, #0062b2ff 100%)",
-                    '&:hover': { bgcolor: '#154281' }
-                  }}
-                  onClick={() => navigate('/patient/signin')}
-                >
-                  Patient Portal
-                </Button>
-              </Paper>
+
+                  {/* PASSWORD */}
+                  <Typography
+                    variant="body2"
+                    fontWeight={600}
+                  >
+                    Password
+                  </Typography>
+
+                  <TextField
+                    fullWidth
+                    placeholder="••••••••"
+                    variant="outlined"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formData.password}
+                    onChange={handleChange}
+                    error={!!errors.password}
+                    helperText={errors.password}
+                    sx={{
+                      mb: 0,
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 3,
+                        backgroundColor: "#ffffff",
+                        "& fieldset": {
+                          borderColor: "#dbe7ff",
+                          borderWidth: 2,
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "#0d6efd",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#0d6efd",
+                        },
+                      },
+                    }}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={handleClickShowPassword}
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  {/* REMEMBER ME & FORGOT PASSWORD */}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0 }}>
+                    <FormControlLabel
+                      control={<Checkbox checked={rememberMe} onChange={handleRememberMe} />}
+                      label="Remember me"
+                    />
+                    <Link 
+                      href="/doctor/forgot-password" 
+                      variant="body2" 
+                      sx={{ color: '#1E5DA9' }}
+                    >
+                    Forgot password?
+                    </Link>
+                  </Box>
+
+                  {/* LOGIN BUTTON */}
+                  <Button
+                    fullWidth
+                    type="submit"
+                    variant="contained"
+                    size="large"
+                    disabled={isSubmitting}
+                    sx={{ mt: 2, borderRadius: 2 }}
+                  >
+                    {isSubmitting ? (
+                      <CircularProgress size={24} sx={{ color: 'inherit', mr: 2 }} /> 
+                      ) : null}
+                    Sign In {loginType === "doctor" ? "Doctor" : "Patient"}
+                  </Button>
+
+                  {/* Snackbar for messages */}
+                  <Snackbar
+                    open={snackbarOpen}
+                    autoHideDuration={4000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                  >
+                    <Alert 
+                      onClose={handleCloseSnackbar} 
+                      severity={snackbarSeverity} 
+                      variant="filled"
+                      sx={{ width: '100%' }}
+                    >
+                      {snackbarMessage}
+                    </Alert>
+                  </Snackbar>
+                  </form>
+
+                  {/* REGISTER */}
+                  <Typography
+                    variant="body2"
+                    sx={{ mt: 1.5, textAlign: "center", color: "text.secondary" }}
+                  >
+                    Don&apos;t have an account?{" "}
+                    <Box
+                      component="span"
+                      sx={{
+                        color: "primary.main",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                      onClick={() =>
+                        navigate(
+                          loginType === "doctor"
+                            ? "/doctor/signup"
+                            : "/patient/signup"
+                        )
+                      }
+                    >
+                      Register as {loginType === "doctor" ? "Doctor" : "Patient"}
+                    </Box>
+                  </Typography>
+                </Paper>
+              </Grid>
             </Grid>
-          </Grid>
-        </Box>
+          </Box>
 
         {/* What is AidME Section */}
         <Box sx={{ 
           backgroundColor: '#f0f7ff',
           borderRadius: 2,
           p: 4,
-          mb: 6,
+          mb: 8,
           borderLeft: '4px solid #1E5DA9'
         }}>
           <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold', color: '#2a72caff' }}>
@@ -442,10 +830,28 @@ const HomePage = () => {
         </Box>
 
         {/* Browse by Specialties Section */}
-        <Box sx={{ mb: 6 }}>
-          <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#2a72caff' }}>
+        <Box id="specialties-section" sx={{ mb: 8 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              mb: 2,
+              fontWeight: 'bold',
+              textAlign: 'center',
+              background: 'linear-gradient(90deg, #6fadf8, #070a0c)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: '0 2px 10px rgba(42,114,202,0.25)',
+            }}
+          >
             Browse by Specialties
           </Typography>
+          <Typography 
+            variant="body1" 
+            sx={{ mb: 4, textAlign: 'center', color: '#4a4a4a' }}
+          >
+            Multiple specialties to choose from for your healthcare needs
+          </Typography>
+
           <Grid container spacing={2}>
             {specialties.map((specialty, index) => (
               <Grid item xs={6} sm={4} md={3} key={index}>
@@ -464,21 +870,123 @@ const HomePage = () => {
                       backgroundColor: '#f0f7ff'
                     }
                   }}
-                  onClick={() => navigate(`/doctors?specialty=${encodeURIComponent(specialty)}`)}
+                  onClick={() => {
+                    setSelectedSpecialty(specialty);
+                    setOpenSpecialty(true);
+                  }}
                 >
                   {specialty}
                 </Button>
               </Grid>
             ))}
           </Grid>
+          <Dialog
+            open={openSpecialty}
+            onClose={() => setOpenSpecialty(false)}
+            maxWidth="sm"
+            fullWidth
+            BackdropProps={{
+              sx: {
+                backdropFilter: "blur(6px)",
+                backgroundColor: "rgba(0,0,0,0.6)",
+              },
+            }}
+            PaperProps={{
+              sx: {
+                borderRadius: 4,
+                p: 3,
+              },
+            }}
+          >
+            {/* Close button */}
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <IconButton onClick={() => setOpenSpecialty(false)}>
+                <Close />
+              </IconButton>
+            </Box>
+
+            {/* Title */}
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: "bold",
+                mb: 1,
+                color: "#0b5ed7",
+              }}
+            >
+              {selectedSpecialty}
+            </Typography>
+
+            {/* Description */}
+            <Typography variant="body2" sx={{ color: "#6b7a99", mb: 3 }}>
+              Our advanced AI-powered system helps analyze symptoms related to{" "}
+              <b>{selectedSpecialty}</b> and connects you with the right specialist
+              instantly.
+            </Typography>
+
+            {/* Key Features */}
+            <Typography sx={{ fontWeight: 600, mb: 1 }}>
+              Key Features:
+            </Typography>
+
+            <Box component="ul" sx={{ pl: 3, color: "#6b7a99" }}>
+              <li>AI-assisted preliminary diagnosis</li>
+              <li>Experienced & verified doctors</li>
+              <li>Fast appointment booking</li>
+              <li>Secure & confidential consultations</li>
+            </Box>
+
+            {/* Important note */}
+            <Box
+              sx={{
+                mt: 3,
+                p: 2,
+                borderLeft: "4px solid #0b5ed7",
+                backgroundColor: "#f0f6ff",
+                borderRadius: 1,
+              }}
+            >
+              <Typography variant="body2">
+                <b>Important:</b> This information is for guidance only. Always consult
+                a licensed physician for diagnosis and treatment.
+              </Typography>
+            </Box>
+
+            {/* Action */}
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, borderRadius: 2 }}
+              onClick={() =>
+                navigate(`/doctors?specialty=${encodeURIComponent(selectedSpecialty)}`)
+              }
+            >
+              Find Doctors
+            </Button>
+          </Dialog>
+
         </Box>
 
         {/* Features Provided by AidME Section */}
-        <Box id="features-section" ref={featuresRef} sx={{ mb: 6 }}>
-          <Typography variant="h4" sx={{ mb: 1, fontWeight: 'bold', color: '#2a72caff' }}>
+        <Box id="features-section" ref={featuresRef} sx={{ mb: 8 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              mb: 2,
+              fontWeight: 'bold',
+              textAlign: 'center',
+              background: 'linear-gradient(90deg, #6fadf8, #004aa4)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: '0 2px 10px rgba(42,114,202,0.25)',
+            }}
+          >
             Features Provided by AidME
           </Typography>
-          <Typography variant="body1" sx={{ mb: 3 }}>
+          <Typography 
+            variant="body1" 
+            sx={{ mb: 6, textAlign: 'center', color: '#4a4a4a' }}
+          >
             Our advanced healthcare platform offers these innovative features to patients:
           </Typography>
           <Grid container spacing={3}>
@@ -541,14 +1049,79 @@ const HomePage = () => {
           </DialogActions>
         </Dialog>
 
-          {/* Success Rate Section with Animated Circular Progress */}
-          <Box sx={{ mb: 10 }}>
+        {/* Benefits Section */}
+        <Box sx={{ mb: 8, mt: 4 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              mb: 2,
+              fontWeight: 'bold',
+              textAlign: 'center',
+              background: 'linear-gradient(90deg, #6fadf8, #004aa4)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: '0 2px 10px rgba(42,114,202,0.25)',
+            }}
+          >
+            Why Choose AidME?
+          </Typography>
+
+          <Typography 
+            variant="body1" 
+            sx={{ mb: 6, textAlign: 'center', color: '#4a4a4a' }}
+          >
+            Experience the benefits of modern healthcare technology combined with expert medical care
+          </Typography>
+
+          <Grid container spacing={4}>
+            {benefits.map((benefit, index) => (
+              <Grid item xs={12} md={6} key={index}>
+                <Paper 
+                  elevation={2} 
+                  sx={{
+                    p: 3,
+                    borderRadius: 3,
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 2,
+                    backgroundColor: '#f0f6ff',
+                    transition: 'transform 0.3s ease',
+                    '&:hover': { transform: 'translateY(-6px)' },
+                  }}
+                >
+                  <Avatar sx={{ bgcolor: '#2a72caff', width: 56, height: 56 }}>
+                    {benefit.icon}
+                  </Avatar>
+                  <Box>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                      {benefit.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {benefit.description}
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+
+        {/* Success Rate Section with Animated Circular Progress */}
+          <Box sx={{ mb: 8 }}>
             <Typography
-              variant="h4"
-              sx={{ mb: 4, fontWeight: 'bold', color: '#2a72ca', textAlign: 'center' }}
-            >
-              Our Success Metrics
-            </Typography>
+            variant="h4"
+            sx={{
+              mb: 2,
+              fontWeight: 'bold',
+              textAlign: 'center',
+              background: 'linear-gradient(90deg, #6fadf8, #004aa4)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: '0 2px 10px rgba(42,114,202,0.25)',
+            }}
+          >
+            Our Success Metrics
+          </Typography>
 
             <Grid container spacing={4} justifyContent="center">
             {[
@@ -581,41 +1154,6 @@ const HomePage = () => {
             ))}
           </Grid>
           </Box>
-
-        {/* Benefits Section */}
-        <Box sx={{ mb: 8, mt: 4 }}>
-          <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#2a72caff', textAlign: 'center' }}>
-            Why Choose AidME?
-          </Typography>
-          <Grid container spacing={4}>
-            {benefits.map((benefit, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
-                <Paper elevation={3} sx={{
-                    p: 4,
-                    borderRadius: 4,
-                    textAlign: 'center',
-                    boxShadow: 3,
-                    background: 'linear-gradient(135deg, #e3f2fd, #ffffff)',
-                    transition: 'transform 0.3s ease',
-                    '&:hover': { transform: 'translateY(-6px)' },
-                }}>
-                  <Box sx={{ 
-                    color: '#2a72caff',
-                    mb: 2
-                  }}>
-                    {benefit.icon}
-                  </Box>
-                  <Typography variant="h5" sx={{ mb: 1, fontWeight: 'bold' }}>
-                    {benefit.title}
-                  </Typography>
-                  <Typography variant="body1">
-                    {benefit.description}
-                  </Typography>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
 
         {/* Find Doctors Section */}
         <Box id="contact-section" ref={contactRef} sx={{ mt: 4, mb: 6 }}>

@@ -27,6 +27,11 @@ const AdminSchema = new mongoose.Schema({
     required: true
   },
 
+  dob: {
+    type: Date,
+    required: true
+  },
+
   password: {
     type: String,
     required: true
@@ -105,9 +110,11 @@ const prescriptionSchema = new mongoose.Schema({
 const doctorSchema = new mongoose.Schema({
     doctorId: { type: Number, required: true, unique: true },
     firstName: { type: String, required: true },
+    middleName: { type: String },
     lastName: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
+    dob: { type: Date, required: true },
     phone: { type: String, required: true },
     licenseNumber: { type: String, required: true },
     specialty: { type: String, required: true },

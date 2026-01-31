@@ -22,7 +22,7 @@ router.post(
   async (req, res) => {
     try {
       const {
-        firstName, lastName, email, phone, licenseNumber, specialty,
+        firstName,middleName, lastName, email, phone,dob, licenseNumber, specialty,
         qualifications, experience, hospital, country, state, district, password
       } = req.body;
 
@@ -36,9 +36,11 @@ router.post(
       const newDoctor = new Doctor({
         doctorId: Math.floor(Math.random() * 100000),
         firstName,
+        middleName,
         lastName,
         email,
         phone,
+        dob,  
         licenseNumber,
         specialty,
         qualifications,

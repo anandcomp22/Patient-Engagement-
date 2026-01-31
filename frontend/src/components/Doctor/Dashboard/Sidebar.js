@@ -40,7 +40,7 @@ const Sidebar = ({ open, onToggle }) => {
   const footerItems = [
     { text: "Settings", icon: <Settings />, to: "/doctor/settings" },
     { text: "Help & Support", icon: <Help />, to: "/aboutus" },
-    { text: "Logout", icon: <LoginOutlined />, to: "/doctor/signin" },
+    { text: "Logout", icon: <LoginOutlined />, to: "/" },
   ];
 
   return (

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import axios from "axios";
 import {
   Container, Box, Typography, TextField, Button, Grid, IconButton,
@@ -7,7 +7,8 @@ import {
   Card, CardContent, Chip, Avatar, Dialog, DialogTitle, DialogContent,
   DialogActions, Divider, List, ListItem, ListItemIcon, ListItemText,
   LinearProgress, Alert, CircularProgress, FormHelperText, FormControlLabel,
-  Checkbox, Snackbar, Link
+  Checkbox, Snackbar, Link,
+  Paper
 } from "@mui/material";
 
 import {
@@ -17,7 +18,7 @@ import {
   LocationOn, Lock
 } from "@mui/icons-material";
 import bgImage from './img/P.png';
-
+ 
 
 // Sample location and specialty data
 const countries = ['India', 'United States', 'United Kingdom', 'Canada', 'Australia'];
@@ -52,14 +53,17 @@ const [verificationStatus, setVerificationStatus] = useState('');
 const [licenseFile, setLicenseFile] = useState(null);
 const [uploadProgress, setUploadProgress] = useState(0);
 const fileInputRef = useRef(null);
+const [RegisterType, setRegisterType] = useState("doctor");
 const [showPassword, setShowPassword] = useState(false);
 const [profileImage, setProfileImage] = useState(null);
 const [imagePreview, setImagePreview] = useState(null);
 const [formData, setFormData] = useState({
     firstName: '',
+    middleName: '',
     lastName: '',
     email: '',
     phone: '',
+    dob: '',
     licenseNumber: '',
     specialty: '', 
     qualifications: [],
@@ -144,6 +148,7 @@ const handleLicenseUpload = (event) => {
   if (file) {
     setLicenseFile(file); // ✅ REQUIRED
     setUploadProgress(30); // fake progress step
+    setVerificationStep(2);
     setTimeout(() => setUploadProgress(100), 1500); // simulate upload
     setTimeout(() => {
       setVerificationStatus("verified"); // simulate success
@@ -165,6 +170,25 @@ const handleLicenseUpload = (event) => {
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
+  };
+
+  const inputStyle = {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 3,
+      backgroundColor: "#ffffff",
+      "& fieldset": {
+        borderColor: "#dbe7ff",
+        borderWidth: 2,
+      },
+      "&:hover fieldset": {
+        borderColor: "#0d6efd",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#0d6efd",
+      },
+    },
+
+    mb: 1,
   };
 
   const validate = () => {
@@ -209,10 +233,6 @@ const handleLicenseUpload = (event) => {
       newErrors.password = 'Password must be at least 8 characters';
     }
     
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-    
     if (!formData.termsAccepted) {
       newErrors.termsAccepted = 'You must accept the terms and conditions';
     }
@@ -223,6 +243,14 @@ const handleLicenseUpload = (event) => {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+
+  if (formData.password !== formData.confirmPassword) {
+  setSnackbarSeverity("error");
+  setSnackbarMessage("Passwords do not match");
+  setSnackbarOpen(true);
+  return;
+}
+
   if (!validate()) return;
 
   try {
@@ -231,7 +259,11 @@ const handleSubmit = async (e) => {
     const form = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (key !== "confirmPassword" && value !== null) {
-        form.append(key, value);
+        if (Array.isArray(value)) {
+          value.forEach(v => form.append(`${key}[]`, v));
+        } else {
+          form.append(key, value);
+        }
       }
     });
 
@@ -250,10 +282,16 @@ const handleSubmit = async (e) => {
     );
 
     if (response.status === 201) {
-      setSnackbarMessage("Doctor Registered Successfully!");
+      setSnackbarMessage(
+          "Doctor registered successfully. Please login to continue."
+        );
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      navigate("/doctor/signin");
+      
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
+
     }
   } catch (err) {
     setSnackbarMessage(err.response?.data?.message || "Registration failed");
@@ -268,182 +306,233 @@ const handleSubmit = async (e) => {
     <Box
       sx={{
         backgroundImage: `url(${bgImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
         minHeight: "100vh",
-        width: "100%",
+        px: { xs: 2, md: 10 },
         display: "flex",
-        justifyContent: "center",
-        padding: 2,
-        overflowY: "auto" 
+        alignItems: "center",
+        width: "100%",
+        background: "radial-gradient(circle at top, #eef6ff 0%, #ffffff 60%)",
       }}
     >
-    <Card sx={{
-      width: "100%",
-      maxWidth: 650,
-      borderRadius: 3,
-      boxShadow: 6
-    }}>
-    <CardContent sx={{ position: "relative" , pt: 4 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
-          <ArrowBack />
-        </IconButton>
-        <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
-          Doctor Registration
+    <Grid
+      container
+      spacing={3}
+      sx={{ height: "100vh" }} 
+    >
+      <Grid
+        item
+        xs={12}
+        md={4}
+        sx={{
+          position: "sticky",
+          top: 200,
+          height: "fit-content"
+        }}
+      >
+        <Chip
+          icon={<LocalHospital />}
+          label="Doctor Registration"
+          sx={{
+            mb: 3,
+            px: 2,
+            py: 1,
+            borderRadius: 3,
+            bgcolor: "#ffffff",
+            fontWeight: 600,
+            boxShadow: 2,
+          }}
+        />
+
+        <Typography variant="h3" fontWeight="800" color="#0b428f" lineHeight={1.2}>
+          Join Our Medical
+          <br />
+          Network
         </Typography>
-      </Box>
+
+        <Typography
+          variant="body1"
+          sx={{ mt: 3, color: "#5f6f86", maxWidth: 520, lineHeight: 1.7 }}
+        >
+          Register as a verified doctor to consult patients,<br /> manage appointments,
+          and access the healthcare platform.
+        </Typography>
+      </Grid>
+
       
-      <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+      <Grid
+          item
+          xs={12}
+          md={8}
+          sx={{
+            height: "100vh",
+            pr: 1 
+          }}
+        >
+        <Paper
+            elevation={6}
+            sx={{
+              p: 2.5,
+              borderRadius: 4,
+              width: "100%",
+              mx: "auto",
+              background: "linear-gradient(135deg, #f4f9ff, #ffffff)",
+              boxShadow: "0 20px 60px rgba(13,110,253,0.15)",
+              mt: 10,
+              mb: 10
+            }}
+          >
+            <form onSubmit={handleSubmit} sx={{ mt: 2, width: "100%" }}>
+              <Box sx={{ display: "flex", mb: 4, gap: 2, justifyContent: 'space-between', alignItems: 'center', px: 20}}>
+                <Button
+                  variant={RegisterType === "doctor" ? "contained" : "outlined"}
+                  fullWidth
+                  sx={{
+                    borderRadius: 2,
+                  }}
+                  onClick={() => navigate("/")}
+                >
+                  Doctor Register 
+                </Button>
+              </Box>
+
         <Grid container spacing={1.5}>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body2" fontWeight={600}>First Name</Typography>
             <TextField
               fullWidth
-              label="First Name"
               name="firstName"
+              size="small"
               value={formData.firstName}
               onChange={handleChange}
               error={!!errors.firstName}
               helperText={errors.firstName}
-              sx={{
-                '& .MuiInputBase-root': {
-                  paddingTop: '6px',
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                      <Person color="action" />
-                    </Box>
-                  </InputAdornment>
-                ),
-              }}
+              sx={inputStyle}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body2" fontWeight={600}>Middle Name</Typography>
             <TextField
               fullWidth
-              label="Last Name"
+              size="small"
+              name="middleName"
+              value={formData.middleName}
+              onChange={handleChange}
+              error={!!errors.middleName}
+              helperText={errors.middleName}
+              sx={inputStyle}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body2" fontWeight={600}>Last Name</Typography>
+            <TextField
+              fullWidth
+              size="small"
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
               error={!!errors.lastName}
               helperText={errors.lastName}
-              sx={{
-                '& .MuiInputBase-root': {
-                  paddingTop: '6px',
-                },
-              }}
+              sx={inputStyle}
+            />
+          </Grid>
+          </Grid>
+
+          <Grid container spacing={1.5}>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body2" fontWeight={600}>Date of Birth</Typography>
+            <TextField
+              fullWidth
+              type="date"
+              size="small"
+              name="dob"
+              value={formData.dob}
+              onChange={handleChange}
+              sx={inputStyle}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body2" fontWeight={600}>Medical License Number</Typography>
+            <TextField
+              fullWidth
+              name="licenseNumber"
+              size="small"
+              value={formData.licenseNumber}
+              onChange={handleChange}
+              error={!!errors.licenseNumber}
+              helperText={errors.licenseNumber}
+              sx={inputStyle}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <Typography variant="body2" fontWeight={600}>Years of Experience</Typography>
+            <TextField
+              fullWidth
+              name="experience"
+              type="number"
+              size="small"
+              value={formData.experience}
+              onChange={handleChange}
+              error={!!errors.experience}
+              helperText={errors.experience}
+              sx={inputStyle}
               InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                      <Person color="action" />
-                    </Box>
-                  </InputAdornment>
-                ),
+                inputProps: { min: 0, max: 60 }
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          </Grid>
+
+          <Grid container spacing={1.5}>
+          <Grid item xs={12} md={5}>
+            <Typography variant="body2" fontWeight={600}>Email</Typography>
             <TextField
               fullWidth
-              label="Email Address"
               name="email"
+              size="small"
               type="email"
               value={formData.email}
               onChange={handleChange}
               error={!!errors.email}
               helperText={errors.email}
-              sx={{
-                '& .MuiInputBase-root': {
-                  paddingTop: '6px',
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                      <Email color="action" />
-                    </Box>
-                  </InputAdornment>
-                ),
-              }}
+              sx={inputStyle}
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={3}>
+            <Typography variant="body2" fontWeight={600}>Phone Number</Typography>
             <TextField
               fullWidth
-              label="Phone Number"
               name="phone"
+              size="small"
               value={formData.phone}
               onChange={handleChange}
               error={!!errors.phone}
               helperText={errors.phone}
-              sx={{
-                '& .MuiInputBase-root': {
-                  paddingTop: '6px',
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                      <Phone color="action" />
-                    </Box>
-                  </InputAdornment>
-                ),
-              }}
+              sx={inputStyle}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Medical License Number"
-              name="licenseNumber"
-              value={formData.licenseNumber}
-              onChange={handleChange}
-              error={!!errors.licenseNumber}
-              helperText={errors.licenseNumber}
-              sx={{
-                '& .MuiInputBase-root': {
-                  paddingTop: '6px',
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                      <Badge color="action" />
-                    </Box>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth error={!!errors.specialty}>
-              <InputLabel>Specialty</InputLabel>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body2" fontWeight={600}>Specialty</Typography>
+            <FormControl fullWidth error={!!errors.specialty} size="small">
               <Select
                 name="specialty"
                 value={formData.specialty}
                 onChange={handleChange}
-                label="Specialty"
                 sx={{
-                  '& .MuiSelect-select': {
-                    paddingTop: '24px',
-                    paddingBottom: '8px',
+                  ...inputStyle,
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#dbe7ff",
+                    borderWidth: 2,
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#0d6efd",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#0d6efd",
                   },
                 }}
-                startAdornment={
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 1.5 }}>
-                      <Work color="action" />
-                    </Box>
-                  </InputAdornment>
-                }
               >
                 {specialties.map((specialty) => (
                   <MenuItem key={specialty} value={specialty}>
@@ -454,29 +543,31 @@ const handleSubmit = async (e) => {
               {errors.specialty && <FormHelperText>{errors.specialty}</FormHelperText>}
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth error={!!errors.qualifications}>
-              <InputLabel>Qualifications</InputLabel>
+          </Grid>
+
+          <Grid container spacing={1.5} >
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" fontWeight={600}>Qualifications</Typography>
+            <FormControl fullWidth error={!!errors.qualifications} size="small">
               <Select
                 multiple
                 name="qualifications"
                 value={formData.qualifications}
                 onChange={handleQualificationChange}
-                label="Qualifications"
                 renderValue={(selected) => selected.join(', ')}
                 sx={{
-                  '& .MuiSelect-select': {
-                    paddingTop: '24px',
-                    paddingBottom: '8px',
+                  ...inputStyle,
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#dbe7ff",
+                    borderWidth: 2,
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#0d6efd",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#0d6efd",
                   },
                 }}
-                startAdornment={
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 1.5 }}>
-                      <School color="action" />
-                    </Box>
-                  </InputAdornment>
-                }
               >
                 {qualifications.map((qualification) => (
                   <MenuItem key={qualification} value={qualification}>
@@ -487,80 +578,31 @@ const handleSubmit = async (e) => {
               {errors.qualifications && <FormHelperText>{errors.qualifications}</FormHelperText>}
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
+
+          <Grid item xs={12} md={8}>
+            <Typography variant="body2" fontWeight={600}>Hospital/Clinic Name</Typography>
             <TextField
               fullWidth
-              label="Years of Experience"
-              name="experience"
-              type="number"
-              value={formData.experience}
-              onChange={handleChange}
-              error={!!errors.experience}
-              helperText={errors.experience}
-              sx={{
-                  '& .MuiSelect-select': {
-                    paddingTop: '24px',
-                    paddingBottom: '8px',
-                  },
-                }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 1.5 }}>
-                      <Work color="action" />
-                    </Box>
-                  </InputAdornment>
-                ),
-                inputProps: { min: 0, max: 60 }
-              }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Hospital/Clinic Name"
               name="hospital"
+              size="small"
               value={formData.hospital}
               onChange={handleChange}
               error={!!errors.hospital}
               helperText={errors.hospital}
-              sx={{
-                '& .MuiInputBase-root': {
-                  paddingTop: '6px',
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                      <LocalHospital color="action" />
-                    </Box>
-                  </InputAdornment>
-                ),
-              }}
+              sx={inputStyle}
             />
           </Grid>
+          </Grid>
+
+          <Grid container spacing={1.5}>
           <Grid item xs={12} sm={4}>
-            <FormControl fullWidth error={!!errors.country}>
-              <InputLabel>Country</InputLabel>
+            <Typography variant="body2" fontWeight={600}>Country</Typography>
+            <FormControl fullWidth error={!!errors.country} size="small">
               <Select
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
-                label="Country"
-                sx={{
-                  '& .MuiSelect-select': {
-                    paddingTop: '24px',
-                    paddingBottom: '8px',
-                  },
-                }}
-                startAdornment={
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 1.5 }}>
-                      <LocationOn color="action" />
-                    </Box>
-                  </InputAdornment>
-                }
+                sx={inputStyle}
               >
                 {countries.map((country) => (
                   <MenuItem key={country} value={country}>
@@ -572,20 +614,14 @@ const handleSubmit = async (e) => {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <FormControl fullWidth error={!!errors.state}>
-              <InputLabel>State</InputLabel>
+            <Typography variant="body2" fontWeight={600}>State</Typography>
+            <FormControl fullWidth error={!!errors.state} size="small">
               <Select
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
-                label="State"
                 disabled={!formData.country}
-                sx={{
-                  '& .MuiSelect-select': {
-                    paddingTop: '24px',
-                    paddingBottom: '8px',
-                  },
-                }}
+                sx={inputStyle}
               >
                 {availableStates.map((state) => (
                   <MenuItem key={state} value={state}>
@@ -597,20 +633,14 @@ const handleSubmit = async (e) => {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <FormControl fullWidth error={!!errors.district}>
-              <InputLabel>District</InputLabel>
+            <Typography variant="body2" fontWeight={600}>District</Typography>
+            <FormControl fullWidth error={!!errors.district} size="small" >
               <Select
                 name="district"
                 value={formData.district}
                 onChange={handleChange}
-                label="District"
                 disabled={!formData.state}
-                sx={{
-                  '& .MuiSelect-select': {
-                    paddingTop: '24px',
-                    paddingBottom: '8px',
-                  },
-                }}
+                sx={inputStyle}
               >
                 {availableDistricts.map((district) => (
                   <MenuItem key={district} value={district}>
@@ -621,27 +651,32 @@ const handleSubmit = async (e) => {
               {errors.district && <FormHelperText>{errors.district}</FormHelperText>}
             </FormControl>
           </Grid>
+          </Grid>
 
+          <Grid container spacing={1.5}>
           <Grid item xs={12}>
-            <FormControl fullWidth variant="outlined" error={!!errors.password}>
-              <InputLabel>Password</InputLabel>
+            <Typography variant="body2" fontWeight={600}>Password</Typography>
+            <FormControl fullWidth variant="outlined" error={!!errors.password} size="small">
               <OutlinedInput
                 name="password"
+                placeholder="••••••••"
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={handleChange}
-                sx={{
-                  '& .MuiInputBase-root': {
-                    paddingTop: '6px',
-                  },
-                }}
-                startAdornment={
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.8 }}>
-                      <Lock color="action" />
-                    </Box>
-                  </InputAdornment>
-                }
+                  sx={{
+                    borderRadius: 3,
+                    backgroundColor: "#ffffff",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#dbe7ff",
+                      borderWidth: 2,
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#0d6efd",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#0d6efd",
+                    },
+                  }}
                 endAdornment={
                   <InputAdornment position="end">
                     <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.8 }}>
@@ -655,27 +690,34 @@ const handleSubmit = async (e) => {
                     </Box>
                   </InputAdornment>
                 }
-                label="Password"
                 />
                 {errors.password && <FormHelperText>{errors.password}</FormHelperText>}
               </FormControl>
             </Grid>
   
-            <Grid item xs={12}>
-              <FormControl fullWidth variant="outlined" error={!!errors.confirmPassword}>
-                <InputLabel>Confirm Password</InputLabel>
+            <Grid item xs={12} mb={4}>
+              <Typography variant="body2" fontWeight={600}>Confirm Password</Typography>
+              <FormControl fullWidth variant="outlined" error={!!errors.confirmPassword} size="small">
                 <OutlinedInput
                   name="confirmPassword"
+                  placeholder="••••••••"
                   type={showPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  startAdornment={
-                    <InputAdornment position="start">
-                      <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.8 }}>
-                        <Lock color="action" />
-                      </Box>
-                    </InputAdornment>
-                  }
+                    sx={{
+                      borderRadius: 3,
+                      backgroundColor: "#ffffff",
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#dbe7ff",
+                        borderWidth: 2,
+                      },
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#0d6efd",
+                      },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#0d6efd",
+                      },
+                    }}
                   endAdornment={
                     <InputAdornment position="end">
                       <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.8 }}>
@@ -689,134 +731,129 @@ const handleSubmit = async (e) => {
                       </Box>
                     </InputAdornment>
                   }
-                  label="Confirm Password"
                 />
                 {errors.confirmPassword && <FormHelperText>{errors.confirmPassword}</FormHelperText>}
               </FormControl>
+              </Grid>
             </Grid>
-        </Grid>
 
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'space-between',
-          mt: 1
-        }}>
-          <FormControlLabel
-            control={
-              <Checkbox 
-                checked={rememberMe} 
-                onChange={handleRememberMe} 
-                color="primary" 
-              />
-            }
-            label="Remember me"
-          />
-          <Link 
-            href="/doctor/forgot-password" 
-            variant="body2" 
-            sx={{ color: '#1E5DA9' }}
-          >
-            Forgot password?
-          </Link>
-        </Box>
+            <Grid container spacing={2}>
 
-        <Card variant="outlined" sx={{ mt: 2 }}>
-          <CardContent>
-            <Typography fontWeight="bold" mb={2}>
-              Profile Photo
-            </Typography>
-
-            <Box display="flex" alignItems="center" gap={2}>
-              <Avatar
-                src={imagePreview}
-                sx={{ width: 80, height: 80 }}
-              />
-
-              <Button
-                component="label"
-                variant="outlined"
-                startIcon={<CloudUpload />}
-              >
-                {profileImage ? "Update Photo" : "Upload Photo"}
-                <input
-                  hidden
-                  type="file"
-                  name="profileImage" 
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-              </Button>
-            </Box>
-          </CardContent>
-        </Card>
-
-        <Card variant="outlined" sx={{ mt: 3, mb: 2 }}>
-          <CardContent sx={{ position: "relative" }}>
-            <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-              <Badge color="primary" sx={{ mr: 1 }} />
-              License Verification
-            </Typography>
-            
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Chip
-                label={
-                  verificationStatus === 'verified' ? 'Verified' :
-                  verificationStatus === 'pending' ? 'Verification in Progress' :
-                  verificationStatus === 'rejected' ? 'Verification Failed' :
-                  'Not Verified'
-                }
-                color={
-                  verificationStatus === 'verified' ? 'success' :
-                  verificationStatus === 'pending' ? 'warning' :
-                  verificationStatus === 'rejected' ? 'error' : 'default'
-                }
-                avatar={
-                  verificationStatus === 'verified' ? (
-                    <Avatar sx={{ bgcolor: 'success.main' }}><VerifiedUser /></Avatar>
-                  ) : verificationStatus === 'pending' ? (
-                    <Avatar sx={{ bgcolor: 'warning.main' }}><CircularProgress size={20} color="inherit" /></Avatar>
-                  ) : verificationStatus === 'rejected' ? (
-                    <Avatar sx={{ bgcolor: 'error.main' }}><Error /></Avatar>
-                  ) : (
-                    <Avatar><Badge /></Avatar>
-                  )
-                }
-                sx={{ flexShrink: 0 }}
-              />
-              
-              <Box sx={{ flexGrow: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  {verificationStatus === 'verified' ? 'Your license has been verified and approved' :
-                   verificationStatus === 'pending' ? 'Verification process in progress' :
-                   verificationStatus === 'rejected' ? 'License verification failed. Please try again.' :
-                   'Medical license verification required for sign up'}
+            {/* LEFT — Profile Photo */}
+            <Grid item xs={12} md={6}>
+              <Paper elevation={6} sx={{ p: 1.7, borderRadius: 3 }}>
+                <Typography fontWeight="bold" mb={2}>
+                  Profile Photo
                 </Typography>
-              </Box>
-              
-              <Button 
-                variant="outlined"
-                startIcon={<CloudUpload />}
-                onClick={() => setVerificationDialogOpen(true)}
-                sx={{ 
-                  color: '#1E5DA9', 
-                  borderColor: '#1E5DA9',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {verificationStatus ? 'Update' : 'Verify'}
-              </Button>
-            </Box>
 
-            {verificationStatus === 'rejected' && (
-              <Alert severity="error" sx={{ mt: 2 }}>
-                <Typography variant="body2">
-                  Verification failed. Please upload a valid license document.
+                <Box display="flex" alignItems="center" gap={4}>
+                  <Avatar
+                    src={imagePreview}
+                    sx={{ width: 50, height: 50 }}
+                  />
+
+                  <Button
+                    component="label"
+                    variant="outlined"
+                    startIcon={<CloudUpload />}
+                  >
+                    {profileImage ? "Update Photo" : "Upload Photo"}
+                    <input
+                      hidden
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                  </Button>
+                </Box>
+              </Paper>
+            </Grid>
+
+
+            {/* RIGHT — License Verification */}
+            <Grid item xs={12} md={6}>
+              <Paper elevation={6} sx={{ p: 2, borderRadius: 3 }}>
+                <Typography
+                  variant="subtitle1"
+                  fontWeight="bold"
+                  mb={2}
+                  display="flex"
+                  alignItems="center"
+                  gap={1}
+                >
+                  <Badge /> License Verification
                 </Typography>
-              </Alert>
-            )}
-          </CardContent>
-        </Card>
+                      
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Chip
+                    label={
+                      verificationStatus === 'verified' ? 'Verified' :
+                      verificationStatus === 'pending' ? 'Verification in Progress' :
+                      verificationStatus === 'rejected' ? 'Verification Failed' :
+                      'Not Verified'
+                      }
+                    color={
+                      verificationStatus === 'verified' ? 'success' :
+                      verificationStatus === 'pending' ? 'warning' :
+                      verificationStatus === 'rejected' ? 'error' : 'default'
+                      }
+                    avatar={
+                      verificationStatus === 'verified' ? (
+                        <Avatar sx={{ bgcolor: 'success.main' }}><VerifiedUser /></Avatar>
+                          ) : verificationStatus === 'pending' ? (
+                        <Avatar sx={{ bgcolor: 'warning.main' }}><CircularProgress size={20} color="inherit" /></Avatar>
+                          ) : verificationStatus === 'rejected' ? (
+                        <Avatar sx={{ bgcolor: 'error.main' }}><Error /></Avatar>
+                          ) : (
+                        <Avatar><Badge /></Avatar>
+                          )
+                        }
+                      sx={{ flexShrink: 0 }}
+                    />
+                        
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {verificationStatus === 'verified' ? 'Your license has been verified and approved' :
+                        verificationStatus === 'pending' ? 'Verification process in progress' :
+                        verificationStatus === 'rejected' ? 'License verification failed. Please try again.' :
+                         'License verification required'}
+                      </Typography>
+                    </Box>
+                        
+                    <Button 
+                      variant="outlined"
+                      startIcon={<CloudUpload/>}
+                      onClick={() => setVerificationDialogOpen(true)}
+                      sx={{
+                        borderRadius: 3,
+                        backgroundColor: "#ffffff",
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "#dbe7ff",
+                          borderWidth: 5,
+                        },
+                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "#0d6efd",
+                        },
+                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "#0d6efd",
+                        },
+                        size: 'small'
+                      }}
+                    >
+                    {verificationStatus ? 'Update' : 'Verify'}
+                    </Button>
+                  </Box>
+
+                  {verificationStatus === 'rejected' && (
+                  <Alert severity="error" sx={{ mt: 2 }}>
+                    <Typography variant="body2">
+                      Verification failed. Please upload a valid license document.
+                    </Typography>
+                  </Alert>
+                )}
+                    </Paper>
+                  </Grid>
+              </Grid>
 
         {errors.verification && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -1127,6 +1164,7 @@ const handleSubmit = async (e) => {
           </DialogActions>
         </Dialog>
 
+        <Grid container spacing={1.5}>
         <Grid item xs={12}>
               <FormControlLabel
                 control={
@@ -1140,7 +1178,7 @@ const handleSubmit = async (e) => {
                 label={
                   <Typography variant="body2">
                     I accept the{' '}
-                    <Link href="#" target="_blank" rel="noopener">
+                    <Link component={RouterLink} to="/terms" target="_blank" rel="noopener">
                       Terms and Conditions
                     </Link>
                   </Typography>
@@ -1152,29 +1190,18 @@ const handleSubmit = async (e) => {
                 </Typography>
               )}
             </Grid>
+            </Grid>
 
         <Button
           type="submit"
           fullWidth
-          variant="contained"
-          disabled={verificationStatus !== 'verified' || isSubmitting}
-          sx={{ 
-            mt: 2,
-            mb: 2,
+          disabled={verificationStatus !== "verified" || isSubmitting}
+          sx={{
+            mt: 3,
             py: 1.5,
-            fontSize: '1rem',
-            background: verificationStatus !== 'verified' 
-              ? 'action.disabledBackground' 
-              : "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)",
-            color: verificationStatus !== 'verified' ? 'text.secondary' : 'white',
-            '&:hover': {
-              background: verificationStatus !== 'verified' 
-                ? 'action.disabledBackground' 
-                : "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)"
-            },
-            '&.Mui-disabled': {
-              color: 'text.disabled'
-            }
+            borderRadius: 2,
+            background: "linear-gradient(135deg, #bee3fdff, #008cffff)",
+            fontWeight: 700,
           }}
         >
           {isSubmitting ? (
@@ -1191,7 +1218,7 @@ const handleSubmit = async (e) => {
           <Grid item>
             <Typography variant="body2">
               Already have an account?{' '}
-              <Link href="/doctor/signin" variant="body2" sx={{ color: '#1E5DA9' }}>
+              <Link href="/" variant="body2" sx={{ color: '#1E5DA9' }}>
                 Login
               </Link>
             </Typography>
@@ -1218,11 +1245,12 @@ const handleSubmit = async (e) => {
             {snackbarMessage}
           </Alert>
         </Snackbar>
-        </Box>
-    </CardContent>
-  </Card>
+        </form>
+        </Paper>
+      </Grid>
+      </Grid>
     </Box>
   );
-};
+}
 
 export default DoctorSignUp;
