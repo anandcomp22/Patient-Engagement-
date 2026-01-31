@@ -2,392 +2,420 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
-  Box, Card, CardContent, Typography, Grid, TextField,
-  Button, InputAdornment, IconButton, FormControl,
-  OutlinedInput, InputLabel, FormHelperText,
-  Checkbox, FormControlLabel, Snackbar, Alert, CircularProgress, Link
+  Box,
+  Grid,
+  Typography,
+  TextField,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
+  InputAdornment,
+  OutlinedInput,
+  Paper,
+  CircularProgress,
+  Link,
+  Chip,
+  Snackbar,
+  Alert
 } from "@mui/material";
 import {
-  Person, Email, Phone, Lock,
-  Visibility, VisibilityOff, AdminPanelSettings,
-  CheckCircle, Error, ArrowBack
+  Visibility,
+  VisibilityOff,
+  ShieldOutlined,
+  Security
 } from "@mui/icons-material";
-//import bgImage from "./img/P.png";
 
 const AdminSignUp = () => {
   const navigate = useNavigate();
-
   const [showPassword, setShowPassword] = useState(false);
+  const [RegisterType, setRegisterType] = useState("admin");
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("info");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
+    dob: "", 
     password: "",
     confirmPassword: "",
-    termsAccepted: false
+    role: "",
+    terms: false
   });
 
-  const [errors, setErrors] = useState({});
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleRememberMe = (e) => {
+    setRememberMe(e.target.checked);
+  };
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
-    setFormData((prev) => ({
-      ...prev,
+    setFormData((p) => ({
+      ...p,
       [name]: type === "checkbox" ? checked : value
     }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const validate = () => {
-    const newErrors = {};
-    if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
-    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Invalid email";
-    }
-
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required";
-    } else if (!/^[0-9]{10}$/.test(formData.phone)) {
-      newErrors.phone = "Phone must be 10 digits";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Minimum 8 characters";
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    if (!formData.termsAccepted) {
-      newErrors.termsAccepted = "Accept terms & conditions";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+
+    if (!formData.terms) {
+      setSnackbarSeverity("error");
+      setSnackbarMessage("Please accept Terms & Conditions");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setSnackbarSeverity("error");
+      setSnackbarMessage("Passwords do not match");
+      setSnackbarOpen(true);
+      return;
+    }
+    setIsSubmitting(true);
 
     try {
-      setIsSubmitting(true);
-      const res = await axios.post(
-        "http://localhost:8000/admin/auth/register",
-          {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            phone: formData.phone,
-            password: formData.password,
-            role: "admin"
-          }
-      );
+      await axios.post("http://localhost:8000/admin/auth/register", {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        dob: formData.dob,
+        password: formData.password,
+        role: formData.role || "admin"
+      });
 
-      if (res.status === 201) {
-        setSnackbarMessage("Admin Registered Successfully");
-        setSnackbarSeverity("success");
-        setSnackbarOpen(true);
+      setSnackbarSeverity("success");
+      setSnackbarMessage(
+        "Admin registered successfully. Please login to continue."
+      );
+      setSnackbarOpen(true);
+
+
+      setTimeout(() => {
         navigate("/admin/auth/login");
-      }
+      }, 1000);
     } catch (err) {
-      setSnackbarMessage(err.response?.data?.message || "Registration failed");
       setSnackbarSeverity("error");
+      setSnackbarMessage(
+        err.response?.data?.message || "Registration failed"
+      );
       setSnackbarOpen(true);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const inputStyle = {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 3,
+      backgroundColor: "#ffffff",
+      "& fieldset": {
+        borderColor: "#dbe7ff",
+        borderWidth: 2,
+      },
+      "&:hover fieldset": {
+        borderColor: "#0d6efd",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#0d6efd",
+      },
+    },
+  };
+
   return (
-    <Box
+    <Box 
       sx={{
-        //backgroundImage: `url(${bgImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        minHeight: "100vh",
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 2,
-        position: "fixed",
-        overflowY: "auto"
-      }}
+      minHeight: "100vh",
+      px: { xs: 2, md: 10 },
+      display: "flex",
+      alignItems: "center",
+      width: "100%",
+      background:
+      "radial-gradient(circle at top, #eef6ff 0%, #ffffff 60%)",
+    }}
     >
-      <Card sx={{ width: "100%", maxWidth: 520, borderRadius: 3, boxShadow: 6 }}>
-        <CardContent sx={{ pt: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
-              <ArrowBack />
-            </IconButton>
-            <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
-              Admin Registration
-            </Typography>
+      < Grid container spacing={8} alignItems="center">
+        {/* LEFT CONTENT */}
+        <Grid item xs={12} md={4}>
+          <Chip
+            icon={<Security />}
+            label="Admin Access Only"
+            sx={{
+              mb: 3,
+              px: 2,
+              py: 1,
+              borderRadius: 3,
+              bgcolor: "#ffffff",
+              fontWeight: 600,
+              boxShadow: 2
+            }}
+            />
+          <Typography variant="h3" fontWeight="800" color="#0b428f" lineHeight={1.2}>
+            Healthcare
+            <br />
+            Control
+            <br />
+            Center
+          </Typography>
+          <Typography variant="body1" sx ={{ mt: 3, color: "#5f6f86", maxWidth: 520,fontSize: "1.05rem", lineHeight: 1.7}}>
+            Securely manage doctors, patients, appointments, and system operations from one centralized admin dashboard.
+          </Typography>
+
+          <Box sx={{ display: "flex", gap: 4, mt: 6 }}>
+            <Box>
+              <Typography variant="h4" fontWeight={800} color="#2d79d6">
+                100%
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Secure Access
+              </Typography>
+            </Box>
+          
+            <Box>
+              <Typography variant="h4" fontWeight={800} color="#2d79d6">
+                24/7
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Monitoring
+              </Typography>
+            </Box>
+          
+            <Box>
+              <Typography variant="h4" fontWeight={800} color="#2d79d6">
+                Full
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Control
+              </Typography>
+            </Box>
+          </Box>
+        </Grid>
+
+      {/* RIGHT FORM CARD */}
+      <Grid item xs={12} md={7}>
+        <Paper elevation={6}
+        sx={{
+          p:4,
+          borderRadius: 4,
+          maxWidth: 560,
+          width: "100%",
+          mx: "auto",
+          background: "linear-gradient(135deg, #f4f9ff, #ffffff)",
+          boxShadow: "0 20px 60px rgba(13,110,253,0.15)",
+        }}
+        >
+          {/* ADMIN REGISTER FORM */}
+          <form onSubmit={handleSubmit}>
+            <Box sx={{ display: "flex", mb: 4, gap: 2, justifyContent: 'space-between', alignItems: 'center', px: 8}}>
+              <Button
+              variant={RegisterType === "admin" ? "contained" : "contained"}
+              fullWidth
+              sx={{
+                borderRadius: 2,
+              }}
+              onClick={() => navigate("/admin/auth/register")}
+              >
+              Admin Register 
+              </Button>
           </Box>
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Grid container spacing={1.5}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="First Name"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  error={!!errors.firstName}
-                  helperText={errors.firstName}
-                  sx={{
-                    '& .MuiInputBase-root': {
-                      paddingTop: '6px',
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                        <Person />
-                        </Box>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Last Name"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  error={!!errors.lastName}
-                  helperText={errors.lastName}
-                  sx={{
-                    '& .MuiInputBase-root': {
-                      paddingTop: '6px',
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                          <Person />
-                        </Box>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  error={!!errors.email}
-                  helperText={errors.email}
-                  sx={{
-                    '& .MuiInputBase-root': {
-                      paddingTop: '6px',
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                          <Email />
-                        </Box>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  error={!!errors.phone}
-                  helperText={errors.phone}
-                  sx={{
-                    '& .MuiInputBase-root': {
-                      paddingTop: '6px',
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                          <Phone />
-                        </Box>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <FormControl fullWidth error={!!errors.password}>
-                  <InputLabel>Password</InputLabel>
-                  <OutlinedInput
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    value={formData.password}
-                    onChange={handleChange}
-                    sx={{
-                    '& .MuiInputBase-root': {
-                      paddingTop: '6px',
-                    },
-                  }}
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                          <Lock />
-                        </Box>
-                      </InputAdornment>
-                    }
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                        <IconButton onClick={() => setShowPassword(!showPassword)}>
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                        </Box>
-                      </InputAdornment>
-                    }
-                    label="Password"
-                  />
-                  <FormHelperText>{errors.password}</FormHelperText>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12}>
-                <FormControl fullWidth error={!!errors.confirmPassword}>
-                  <InputLabel>Confirm Password</InputLabel>
-                  <OutlinedInput
-                    name="confirmPassword"
-                    type={showPassword ? "text" : "password"}
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                        <Lock />
-                        </Box>
-                      </InputAdornment>
-                    }
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.8 }}>
-                          <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
-                          >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </Box>
-                      </InputAdornment>
-                    }
-                    label="Confirm Password"
-                  />
-                  {errors.confirmPassword && <FormHelperText>{errors.confirmPassword}</FormHelperText>}
-                  <FormHelperText>{errors.confirmPassword}</FormHelperText>
-                </FormControl>
-              </Grid>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <Typography variant="body2" fontWeight={600}>First Name</Typography>
+              <TextField
+                fullWidth
+                name="firstName"
+                placeholder="First Name"
+                value={formData.firstName}
+                onChange={handleChange}
+                sx={inputStyle}
+              />
             </Grid>
 
-            <FormControlLabel
-              sx={{ mt: 1 }}
-              control={
-                <Checkbox
-                  checked={formData.termsAccepted}
-                  onChange={handleChange}
-                  name="termsAccepted"
-                />
-              }
-              label={
-                <Typography variant="body2">
-                  I accept the <Link href="#">Terms & Conditions</Link>
-                </Typography>
-              }
-            />
-            {errors.termsAccepted && (
-              <Typography variant="caption" color="error">
-                {errors.termsAccepted}
-              </Typography>
-            )}
+            <Grid item xs={12} md={6}>
+              <Typography variant="body2" fontWeight={600}>Last Name</Typography>
+              <TextField
+                fullWidth
+                name="lastName"
+                placeholder="Last Name"
+                value={formData.lastName}
+                onChange={handleChange}
+                sx={inputStyle}
+              />
+            </Grid>
+          </Grid>
 
-            <Button
-              type="submit"
+        <Grid container spacing={2} mt={1}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" fontWeight={600}>Admin Email</Typography>
+            <TextField
               fullWidth
-              variant="contained"
-              disabled={isSubmitting} 
-              sx={{
-                mt: 2,
-                py: 1.5,
-                fontSize: "1rem",
-                background: "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)",
+              name="email"
+              placeholder="Admin Email"
+              value={formData.email}
+              onChange={handleChange}
+              sx={inputStyle}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" fontWeight={600}>Contact Number</Typography>
+            <TextField
+              fullWidth
+              name="phone"
+              placeholder="Contact Number"
+              value={formData.phone}
+              onChange={handleChange}
+              sx={inputStyle}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={2} mt={1}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" fontWeight={600}>Role</Typography>
+            <FormControl fullWidth sx={inputStyle}>
+              <InputLabel>Role</InputLabel>
+              <Select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                label="Role"
+              >
+                <MenuItem value="Admin">Admin</MenuItem>
+                <MenuItem value="Super Admin">Super Admin</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" fontWeight={600}>Date of Birth</Typography>
+            <TextField
+              fullWidth
+              type="date"
+              name="dob"
+              value={formData.dob}
+              onChange={handleChange}
+              sx={inputStyle}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={2} mt={1}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" fontWeight={600}>Password</Typography>
+            <TextField
+              fullWidth
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+              sx={inputStyle}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleClickShowPassword}>
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
               }}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" fontWeight={600}>Confirm Password</Typography>
+            <TextField
+              fullWidth
+              type={showPassword ? "text" : "password"}
+              name="confirmPassword"
+              placeholder="••••••••"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              sx={inputStyle}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid item xs={12}>
+          <FormControlLabel
+            control={<Checkbox name="terms" onChange={handleChange} />}
+            label="I agree to the Terms and Conditions"
+          />
+        </Grid>
+        
+        <Button
+          fullWidth
+          type="submit"
+          size="large"
+          variant="contained"
+          disabled={isSubmitting}
+          sx={{
+            mt: 2,
+            borderRadius: 2
+          }}
+          >
+          {isSubmitting ? (
+            <CircularProgress size={24} color="inherit" sx={{ mr: 2 }} />
+            ) : (
+            "SIGN UP ADMIN"
+          )}
+          </Button>
+        
+          <Typography 
+            variant="body2"
+            sx={{ mt: 1.5, textAlign: "center", color: "text.secondary" }}
             >
-              {isSubmitting ? (
-                <>
-                  <CircularProgress size={22} sx={{ mr: 1, color: "white" }} />
-                  Registering...
-                </>
-              ) : (
-                "Register Admin"
-              )}
-            </Button>
-
-            <Typography align="center" mt={2} variant="body2">
-              Already have Account?{" "}
-              <Link href="/admin/auth/login" sx={{ color: "#1E5DA9" }}>
-                Login
-              </Link>
+              Already have an account?{" "}
+            <Box
+              component="span"
+              sx={{
+                color: "primary.main",
+                fontWeight: 600,
+                cursor: "pointer",
+                "&:hover": { textDecoration: "underline" },
+              }}
+              onClick ={() => 
+                navigate("/admin/auth/login")
+              }
+              >SignIn as Admin</Box>
             </Typography>
-          </Box>
-        </CardContent>
-      </Card>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={() => setSnackbarOpen(false)}
-      >
-        <Alert
-          severity={snackbarSeverity}
-          icon={
-            snackbarSeverity === "success" ? <CheckCircle /> : <Error />
-          }
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+            <Snackbar
+              open={snackbarOpen}
+              autoHideDuration={4000}
+              onClose={() => setSnackbarOpen(false)}
+              anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+              <Alert severity={snackbarSeverity}>
+                {snackbarMessage}
+              </Alert>
+            </Snackbar>
+            </form>
+        </Paper>
+        </Grid>
+      </Grid>
     </Box>
+
   );
 };
 
 export default AdminSignUp;
+

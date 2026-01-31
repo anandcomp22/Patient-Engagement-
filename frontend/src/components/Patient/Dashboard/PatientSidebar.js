@@ -25,7 +25,7 @@ const PatientSidebar = ({ open, onToggle }) => {
 
     const footerItems = [
         { text: "Help & Support", icon: <Help />, to: "/patient/support" },
-        { text: "Logout", icon: <LoginOutlined />, to: "/patient/signin" },
+        { text: "Logout", icon: <LoginOutlined />, to: "/" },
       ];
 
   return (

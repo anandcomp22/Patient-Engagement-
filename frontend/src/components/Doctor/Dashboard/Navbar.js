@@ -28,7 +28,7 @@ const Navbar = ({ sidebarOpen }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("doctorName");
     localStorage.removeItem("doctorEmail");
-    navigate("/doctor/signin");
+    navigate("/");
   };
 
   return (

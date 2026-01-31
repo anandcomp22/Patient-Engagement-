@@ -23,7 +23,7 @@ const PatientNavbar = ({ sidebarOpen }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("patientName");
     localStorage.removeItem("patientEmail");
-    navigate("/patient/signin");
+    navigate("/");
   };
 
   return (
