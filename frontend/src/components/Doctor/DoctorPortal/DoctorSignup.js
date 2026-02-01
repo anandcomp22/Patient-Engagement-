@@ -1,9 +1,8 @@
 import React, { useState, useRef } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import axios from "axios";
-import {
-  Container, Box, Typography, TextField, Button, Grid, IconButton,
-  FormControl, InputLabel, OutlinedInput, InputAdornment, MenuItem, Select,
+import { Box, Typography, TextField, Button, Grid, IconButton,
+  FormControl, OutlinedInput, InputAdornment, MenuItem, Select,
   Card, CardContent, Chip, Avatar, Dialog, DialogTitle, DialogContent,
   DialogActions, Divider, List, ListItem, ListItemIcon, ListItemText,
   LinearProgress, Alert, CircularProgress, FormHelperText, FormControlLabel,
@@ -12,10 +11,9 @@ import {
 } from "@mui/material";
 
 import {
-  Visibility, VisibilityOff, ArrowBack, Badge, CloudUpload, Upload,
+  Visibility, VisibilityOff, Badge, CloudUpload, Upload,
   Description, Info, CheckCircle, VerifiedUser, Error, Cancel,
-  Warning, Help, Person, Email, Phone, Work, School, LocalHospital,
-  LocationOn, Lock
+  Warning, Help, LocalHospital,
 } from "@mui/icons-material";
 import bgImage from './img/P.png';
  
@@ -39,7 +37,6 @@ const qualifications = ['MBBS', 'MD', 'MS', 'DM', 'MCh', 'PhD', 'DNB'];
 const DoctorSignUp = () => {
 const navigate = useNavigate();
 
-const [rememberMe, setRememberMe] = useState(false);
 const [isSubmitting, setIsSubmitting] = useState(false);
 
 const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -104,10 +101,6 @@ const [formData, setFormData] = useState({
       }));
     }
   };
-
-  const handleRememberMe = (event) => {
-  setRememberMe(event.target.checked);
-};
 
 const handleRetryVerification = () => {
   setVerificationStep(1);
@@ -245,11 +238,11 @@ const handleSubmit = async (e) => {
   e.preventDefault();
 
   if (formData.password !== formData.confirmPassword) {
-  setSnackbarSeverity("error");
-  setSnackbarMessage("Passwords do not match");
-  setSnackbarOpen(true);
-  return;
-}
+    setSnackbarSeverity("error");
+    setSnackbarMessage("Passwords do not match");
+    setSnackbarOpen(true);
+    return;
+  }
 
   if (!validate()) return;
 

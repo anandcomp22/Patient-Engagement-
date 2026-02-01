@@ -83,7 +83,7 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
     try {
       const newPatient = new Patient(req.body);
       const savedPatient = await newPatient.save();
@@ -97,31 +97,15 @@ router.post("/", async (req, res) => {
   });
 
 
-  /*router.get("/patients", authMiddleware, async (req, res) => {
-  try {
-    const doctorId = req.user.id;
-
-    const appointments = await Appointment.find({ doctorId }).populate("patientId");
-
-    const patients = appointments.map(a => ({
-      ...a.patientId._doc,
-      lastVisit: a.lastVisit,
-      nextAppointment: a.date,
-      conditions: a.conditions || []
-    }));
-
-    res.json(patients);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch patients" });
-  }
-});*/
-
-
 router.post("/signup", async (req, res) => {
   try {
-    const { email, password, ...rest } = req.body;
+    const { email, password, confirmPassword, ...rest } = req.body;
     const existing = await Patient.findOne({ email });
     if (existing) return res.status(400).json({ message: "Email already registered" });
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);  
     const patientCount = await Patient.countDocuments();
