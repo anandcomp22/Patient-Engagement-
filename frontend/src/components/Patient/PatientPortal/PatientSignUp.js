@@ -257,17 +257,17 @@ const PatientSignUp = () => {
         />
 
         <Typography variant="h3" fontWeight="800" color="#0b428f" lineHeight={1.2}>
-          Join Our Medical
+          Easy Access to
           <br />
-          Network
+          Quality Care
         </Typography>
 
         <Typography
           variant="body1"
           sx={{ mt: 3, color: "#5f6f86", maxWidth: 520, lineHeight: 1.7 }}
         >
-          Register as a patient to book appointments
-          <br />and access healthcare services.
+          Create your account to book appointments 
+          <br />and manage your healthcare online.
         </Typography>
       </Grid>
 
@@ -290,7 +290,7 @@ const PatientSignUp = () => {
               background: "linear-gradient(135deg, #f4f9ff, #ffffff)",
               boxShadow: "0 20px 60px rgba(13,110,253,0.15)",
               mt: 10,
-              mb: 10
+              mb: 10,
             }}
             >
           <form onSubmit={handleSubmit} sx={{ mt: 2, width: "100%" }}>
