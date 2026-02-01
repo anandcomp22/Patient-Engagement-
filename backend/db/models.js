@@ -217,6 +217,7 @@ const slotSchema = new mongoose.Schema({
 const patientSchema = new mongoose.Schema({
     patientId: { type: Number, required: true, unique: true },
     firstName: { type: String, required: true },
+    middleName: { type: String },
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import axios from 'axios';
-import backgroundImage from '../Dashboard/image/D.png';
 import { 
-  Container,
   Box,
   Typography,
   TextField,
@@ -11,24 +9,18 @@ import {
   Grid,
   Link, 
   FormControl,
-  InputLabel,
+  FormControlLabel,
   OutlinedInput,
   InputAdornment,
   IconButton,
   FormHelperText,
-  MenuItem,
-  Select, Card, CardContent
+  MenuItem, Snackbar, Alert,
+  Select, Chip, Paper, Checkbox, CircularProgress
 } from '@mui/material';
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { 
   Visibility, 
   VisibilityOff,
-  Person,
-  Email,
-  Phone,
-  Lock,
-  ArrowBack,
-  LocationOn
+  LocalHospital,
 } from '@mui/icons-material';
 
 const countries = ['India', 'United States', 'United Kingdom', 'Canada', 'Australia'];
@@ -44,8 +36,16 @@ const districtsByState = {
 const PatientSignUp = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [RegisterType, setRegisterType] = useState("patient");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("info");
+  const bloodGroups = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
+
   const [formData, setFormData] = useState({
     firstName: '',
+    middleName: '',
     lastName: '',
     email: '',
     phone: '',
@@ -53,18 +53,26 @@ const PatientSignUp = () => {
     country: '',
     state: '',
     district: '',
+    gender: '',
+    bloodgroup: '',
+    allergies: '',
+    emergencyName: '',
+    emergencyContact: '',
+    emergencyRelation: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    termsAccepted: false
   });
+
   const [errors, setErrors] = useState({});
   const [availableStates, setAvailableStates] = useState([]);
   const [availableDistricts, setAvailableDistricts] = useState([]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
 
     if (name === 'country') {
@@ -89,6 +97,25 @@ const PatientSignUp = () => {
     setShowPassword(!showPassword);
   };
 
+    const inputStyle = {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 3,
+      backgroundColor: "#ffffff",
+      "& fieldset": {
+        borderColor: "#dbe7ff",
+        borderWidth: 2,
+      },
+      "&:hover fieldset": {
+        borderColor: "#0d6efd",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#0d6efd",
+      },
+    },
+
+    mb: 1,
+  };
+
   const validate = () => {
     const newErrors = {};
     
@@ -105,6 +132,27 @@ const PatientSignUp = () => {
       newErrors.phone = 'Phone number is required';
     } else if (!/^[0-9]{10}$/.test(formData.phone)) {
       newErrors.phone = 'Phone number must be 10 digits';
+    }
+
+    if (!["male", "female", "other"].includes(formData.gender)) {
+      newErrors.gender = "Invalid gender value";
+    }
+
+    if (!formData.confirmPassword)
+      newErrors.confirmPassword = "Confirm password is required";
+
+
+    if (!formData.gender) newErrors.gender = "Gender is required";
+
+    if (!formData.emergencyName)
+      newErrors.emergencyName = "Emergency contact name required";
+
+    if (!/^[0-9]{10}$/.test(formData.emergencyContact))
+      newErrors.emergencyContact = "Valid emergency number required";
+
+
+    if (!formData.termsAccepted) {
+      newErrors.termsAccepted = "You must accept the terms";
     }
     
     if (!formData.dob) {
@@ -128,23 +176,38 @@ const PatientSignUp = () => {
       newErrors.password = 'Password must be at least 8 characters';
     }
     
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      setSnackbarSeverity("error");
+      setSnackbarMessage("Passwords do not match");
+      setSnackbarOpen(true);
+      return;
+    }
+
     if (validate()) {
       try {
-        const res = await axios.post("http://localhost:8000/patient/signup", formData);
-  
+        setIsSubmitting(true);
+        const res = await axios.post("http://localhost:8000/patient/signup", {
+          ...formData,
+          emergencycontact: {
+            ename: formData.emergencyName,
+            econtact: formData.emergencyContact,
+            relation: formData.emergencyRelation
+          }
+        });
+          
         if (res.status === 201) {
-          alert("Patient Registered Successfully");
-          navigate("/patient/signin");
+          setSnackbarSeverity("success");
+          setSnackbarMessage("Patient registered successfully");
+          setSnackbarOpen(true);
+
+          setTimeout(() => navigate("/"), 1500);
         }
       } catch (err) {
         alert("Registration Failed: " + err.response?.data?.message);
@@ -155,187 +218,204 @@ const PatientSignUp = () => {
 
   return (
     <Box
-        sx={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          minHeight: "100vh",
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          padding: 2,
-          overflowY: "auto" 
-            }}
+      sx={{
+        minHeight: "100vh",
+        px: { xs: 2, md: 10 },
+        display: "flex",
+        alignItems: "center",
+        width: "100%",
+        background: "radial-gradient(circle at top, #eef6ff 0%, #ffffff 60%)",
+      }}
       >
-        <Card sx={{
-              width: "100%",
-              maxWidth: 650,
-              borderRadius: 3,
-              boxShadow: 6
-            }}>
-            <CardContent>
-    <Container maxWidth="sm" sx={{ mt: 6, mb: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-        <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
-          <ArrowBack />
-        </IconButton>
-        <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
-          Create Patient Account
+    <Grid
+      container
+      spacing={3}
+      sx={{ height: "100vh" }} 
+      >
+    <Grid
+        item
+        xs={12}
+        md={5}
+        sx={{
+          position: "sticky",
+          top: 200,
+          height: "fit-content"
+        }}
+      >
+        <Chip
+          icon={<LocalHospital />}
+          label="Patient Registration"
+          sx={{
+            mb: 3,
+            px: 2,
+            py: 1,
+            borderRadius: 3,
+            bgcolor: "#ffffff",
+            fontWeight: 600,
+            boxShadow: 2,
+          }}
+        />
+
+        <Typography variant="h3" fontWeight="800" color="#0b428f" lineHeight={1.2}>
+          Join Our Medical
+          <br />
+          Network
         </Typography>
-      </Box>
-      
-      <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
+
+        <Typography
+          variant="body1"
+          sx={{ mt: 3, color: "#5f6f86", maxWidth: 520, lineHeight: 1.7 }}
+        >
+          Register as a patient to book appointments
+          <br />and access healthcare services.
+        </Typography>
+      </Grid>
+
+      <Grid
+          item
+          xs={12}
+          md={6}
+          sx={{
+            height: "100vh",
+            pr: 1 
+          }}
+        >
+        <Paper
+            elevation={6}
+            sx={{
+              p: 2.5,
+              borderRadius: 4,
+              width: "100%",
+              mx: "auto",
+              background: "linear-gradient(135deg, #f4f9ff, #ffffff)",
+              boxShadow: "0 20px 60px rgba(13,110,253,0.15)",
+              mt: 10,
+              mb: 10
+            }}
+            >
+          <form onSubmit={handleSubmit} sx={{ mt: 2, width: "100%" }}>
+              <Box sx={{ display: "flex", mb: 4, gap: 2, justifyContent: 'space-between', alignItems: 'center', px: 20}}>
+                <Button
+                  variant={RegisterType === "patient" ? "contained" : "outlined"}
+                  fullWidth
+                  sx={{
+                    borderRadius: 2,
+                  }}
+                  onClick={() => navigate("/patient/signup")}
+                >
+                  Patient Register 
+                </Button>
+              </Box> 
+
+
+        <Grid container spacing={1.5}>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body2" fontWeight={600}>First Name</Typography>
             <TextField
               fullWidth
-              label="First Name"
               name="firstName"
+              size="small"
               value={formData.firstName}
               onChange={handleChange}
               error={!!errors.firstName}
               helperText={errors.firstName}
-              sx={{
-                '& .MuiInputBase-root': {
-                  paddingTop: '6px',
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                      <Person color="action" />
-                    </Box>
-                  </InputAdornment>
-                ),
-              }}
+              sx={inputStyle}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body2" fontWeight={600}>Middle Name</Typography>
             <TextField
               fullWidth
-              label="Last Name"
+              size="small"
+              name="middleName"
+              value={formData.middleName}
+              onChange={handleChange}
+              error={!!errors.middleName}
+              helperText={errors.middleName}
+              sx={inputStyle}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body2" fontWeight={600}>Last Name</Typography>
+            <TextField
+              fullWidth
+              size="small"
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
               error={!!errors.lastName}
               helperText={errors.lastName}
-              sx={{
-                '& .MuiInputBase-root': {
-                  paddingTop: '6px',
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                      <Person color="action" />
-                    </Box>
-                  </InputAdornment>
-                ),
-              }}
+              sx={inputStyle}
             />
           </Grid>
-          <Grid item xs={12}>
+          </Grid>
+
+        <Grid container spacing={1.5}>
+          <Grid item xs={12} md={3.5}>
+            <Typography variant="body2" fontWeight={600}>Date of Birth</Typography>
             <TextField
               fullWidth
-              label="Email Address"
+              type="date"
+              size="small"
+              name="dob"
+              value={formData.dob}
+              onChange={handleChange}
+              error={!!errors.dob}
+              helperText={errors.dob}
+              sx={inputStyle}
+            />
+          </Grid>
+          <Grid item xs={12} md={5}>
+            <Typography variant="body2" fontWeight={600}>Email</Typography>
+            <TextField
+              fullWidth
               name="email"
+              size="small"
               type="email"
               value={formData.email}
               onChange={handleChange}
               error={!!errors.email}
               helperText={errors.email}
-              sx={{
-                '& .MuiInputBase-root': {
-                  paddingTop: '6px',
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                      <Email color="action" />
-                    </Box>
-                  </InputAdornment>
-                ),
-              }}
+              sx={inputStyle}
             />
-          </Grid>
-          <Grid item xs={12}>
+          </Grid>          
+
+          <Grid item xs={12} sm={3.5}>
+            <Typography variant="body2" fontWeight={600}>Phone Number</Typography>
             <TextField
               fullWidth
-              label="Phone Number"
               name="phone"
+              size="small"
               value={formData.phone}
               onChange={handleChange}
               error={!!errors.phone}
               helperText={errors.phone}
-              sx={{
-                '& .MuiInputBase-root': {
-                  paddingTop: '6px',
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                      <Phone color="action" />
-                    </Box>
-                  </InputAdornment>
-                ),
-              }}
+              sx={inputStyle}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Date of Birth"
-              name="dob"
-              type="date"
-              value={formData.dob}
-              onChange={handleChange}
-              error={!!errors.dob}
-              helperText={errors.dob}
-              InputLabelProps={{ shrink: true }}
-              sx={{
-                '& .MuiInputBase-root': {
-                  paddingTop: '6px',
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.2 }}>
-                      <CalendarMonthIcon color="action" />
-                    </Box>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
+          </Grid>   
+        </Grid>       
 
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth error={!!errors.country}>
-              <InputLabel>Country</InputLabel>
+        <Grid container spacing={1.5}>
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" fontWeight={600}>Country</Typography>
+            <FormControl fullWidth error={!!errors.country} size="small">
               <Select
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
-                label="Country"
                 sx={{
-                  '& .MuiSelect-select': {
-                    paddingTop: '24px',
-                    paddingBottom: '8px',
+                  ...inputStyle,
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#dbe7ff",
+                    borderWidth: 2,
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#0d6efd",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#0d6efd",
                   },
                 }}
-                startAdornment={
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 1 }}>
-                      <LocationOn color="action" />
-                    </Box>
-                  </InputAdornment>
-                }
               >
                 {countries.map((country) => (
                   <MenuItem key={country} value={country}>
@@ -346,19 +426,25 @@ const PatientSignUp = () => {
               {errors.country && <FormHelperText>{errors.country}</FormHelperText>}
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth error={!!errors.state}>
-              <InputLabel>State</InputLabel>
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" fontWeight={600}>State</Typography>
+            <FormControl fullWidth error={!!errors.state} size="small">
               <Select
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
-                label="State"
                 disabled={!formData.country}
                 sx={{
-                  '& .MuiSelect-select': {
-                    paddingTop: '24px',
-                    paddingBottom: '8px',
+                  ...inputStyle,
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#dbe7ff",
+                    borderWidth: 2,
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#0d6efd",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#0d6efd",
                   },
                 }}
               >
@@ -371,19 +457,25 @@ const PatientSignUp = () => {
               {errors.state && <FormHelperText>{errors.state}</FormHelperText>}
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth error={!!errors.district}>
-              <InputLabel>District</InputLabel>
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" fontWeight={600}>District</Typography>
+            <FormControl fullWidth error={!!errors.district} size="small" >
               <Select
                 name="district"
                 value={formData.district}
                 onChange={handleChange}
-                label="District"
                 disabled={!formData.state}
                 sx={{
-                  '& .MuiSelect-select': {
-                    paddingTop: '24px',
-                    paddingBottom: '8px',
+                  ...inputStyle,
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#dbe7ff",
+                    borderWidth: 2,
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#0d6efd",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#0d6efd",
                   },
                 }}
               >
@@ -396,116 +488,259 @@ const PatientSignUp = () => {
               {errors.district && <FormHelperText>{errors.district}</FormHelperText>}
             </FormControl>
           </Grid>
+          </Grid>
+
+          <Grid container spacing={1.5}>
+            <Grid item xs={12} sm={3}>
+              <Typography variant="body2" fontWeight={600}>Gender</Typography>
+              <FormControl fullWidth size="small" error={!!errors.gender}>
+                <Select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  sx={inputStyle}
+                >
+                  <MenuItem value="male">Male</MenuItem>
+                  <MenuItem value="female">Female</MenuItem>
+                  <MenuItem value="other">Other</MenuItem>
+                </Select>
+                {errors.gender && <FormHelperText>{errors.gender}</FormHelperText>}
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <Typography variant="body2" fontWeight={600}>Blood Group</Typography>
+              <Select
+                fullWidth
+                size="small"
+                name="bloodgroup"
+                value={formData.bloodgroup}
+                onChange={handleChange}
+                sx={inputStyle}
+                >
+                {bloodGroups.map((group) => (
+                  <MenuItem key={group} value={group}>
+                    {group}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="body2" fontWeight={600}>Allergies (if any)</Typography>
+              <TextField
+                fullWidth
+                size="small"
+                multiline
+                rows={1}
+                name="allergies"
+                value={formData.allergies}
+                onChange={handleChange}
+                sx={inputStyle}
+              />
+            </Grid>
+            </Grid>
+
+        <Grid xs={12}>
+          <Typography variant="h6" mt={1} mb={1}>
+            Emergency Contact
+          </Typography>
+         <Grid container spacing={1.5}>
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" fontWeight={600}>Name</Typography>
+            <TextField
+              fullWidth
+              size="small"
+              name="emergencyName"
+              value={formData.emergencyName}
+              onChange={handleChange}
+              sx={inputStyle}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" fontWeight={600}>Contact Number</Typography>
+            <TextField
+              fullWidth
+              size="small"
+              name="emergencyContact"
+              value={formData.emergencyContact}
+              onChange={handleChange}
+              sx={inputStyle}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" fontWeight={600}>Relation</Typography>
+            <TextField
+              fullWidth
+              size="small"
+              name="emergencyRelation"
+              value={formData.emergencyRelation}
+              onChange={handleChange}
+              sx={inputStyle}
+            />
+          </Grid>
+        </Grid>
+        </Grid>
+
+        <Grid container spacing={1.5}>
           <Grid item xs={12}>
-            <FormControl fullWidth variant="outlined" error={!!errors.password}>
-              <InputLabel>Password</InputLabel>
+            <Typography variant="body2" fontWeight={600}>Password</Typography>
+            <FormControl fullWidth variant="outlined" error={!!errors.password} size="small">
               <OutlinedInput
                 name="password"
+                placeholder="••••••••"
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={handleChange}
-                sx={{
-                '& .MuiInputBase-root': {
-                  paddingTop: '6px',
-                },
-              }}
-                startAdornment={
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 1 }}>
-                      <Lock color="action" />
-                    </Box>
-                  </InputAdornment>
-                }
+                  sx={{
+                    borderRadius: 3,
+                    backgroundColor: "#ffffff",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#dbe7ff",
+                      borderWidth: 2,
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#0d6efd",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#0d6efd",
+                    },
+                  }}
                 endAdornment={
                   <InputAdornment position="end">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 1 }}>
-                      <Lock color="action" />
+                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.8 }}>
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
                     </Box>
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
                   </InputAdornment>
                 }
-                label="Password"
+                />
+                {errors.password && <FormHelperText>{errors.password}</FormHelperText>}
+              </FormControl>
+            </Grid>
+  
+            <Grid item xs={12} mb={4}>
+              <Typography variant="body2" fontWeight={600}>Confirm Password</Typography>
+              <FormControl fullWidth variant="outlined" error={!!errors.confirmPassword} size="small">
+                <OutlinedInput
+                  name="confirmPassword"
+                  placeholder="••••••••"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                    sx={{
+                      borderRadius: 3,
+                      backgroundColor: "#ffffff",
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#dbe7ff",
+                        borderWidth: 2,
+                      },
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#0d6efd",
+                      },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#0d6efd",
+                      },
+                    }}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 0.8 }}>
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </Box>
+                    </InputAdornment>
+                  }
+                />
+                {errors.confirmPassword && <FormHelperText>{errors.confirmPassword}</FormHelperText>}
+              </FormControl>
+              </Grid>
+            </Grid>
+
+      <Grid container spacing={1.5} mt={-4}>
+        <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.termsAccepted}
+                    onChange={handleChange}
+                    name="termsAccepted"
+                    color="primary"
+                  />
+                }
+                label={
+                  <Typography variant="body2">
+                    I accept the{' '}
+                    <Link component={RouterLink} to="/terms" target="_blank" rel="noopener">
+                      Terms and Conditions
+                    </Link>
+                  </Typography>
+                }
               />
-              {errors.password && <FormHelperText>{errors.password}</FormHelperText>}
-            </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            <FormControl fullWidth variant="outlined" error={!!errors.confirmPassword}>
-              <InputLabel>Confirm Password</InputLabel>
-              <OutlinedInput
-                name="confirmPassword"
-                type={showPassword ? 'text' : 'password'}
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                sx={{
-                '& .MuiInputBase-root': {
-                  paddingTop: '6px',
-                },
-              }}
-                startAdornment={
-                  <InputAdornment position="start">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 1 }}>
-                      <Lock color="action" />
-                    </Box>
-                  </InputAdornment>
-                }
-                endAdornment={
-                  <InputAdornment position="end">
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 0.5, mt: 1 }}>
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                    </Box>
-                  </InputAdornment>
-                }
-                label="Confirm Password"
-              />
-              {errors.confirmPassword && <FormHelperText>{errors.confirmPassword}</FormHelperText>}
-            </FormControl>
-          </Grid>
-        </Grid>
+              {errors.termsAccepted && (
+                <Typography variant="caption" color="error">
+                  {errors.termsAccepted}
+                </Typography>
+              )}
+            </Grid>
+            </Grid>            
         
         <Button
           type="submit"
           fullWidth
-          variant="contained"
-          sx={{ 
-            mt: 3, 
-            mb: 2,
+          disabled={isSubmitting}
+          sx={{
+            mt: 1,
             py: 1.5,
-            backgroundColor: '#1E5DA9',
-            '&:hover': {
-              backgroundColor: '#154281'
-            }
+            borderRadius: 2,
+            background: "linear-gradient(135deg, #bee3fdff, #008cffff)",
+            fontWeight: 700,
           }}
         >
-          Sign Up
+          {isSubmitting ? (
+            <>
+              <CircularProgress size={24} sx={{ color: 'inherit', mr: 2 }} />
+              Registering...
+            </>
+          ) : (
+            'Sign Up'
+          )}
         </Button>
         
         <Grid container justifyContent="flex-end">
           <Grid item>
             <Typography variant="body2">
               Already have an account?{' '}
-              <Link href="/patient/signin" variant="body2" sx={{ color: '#1E5DA9' }}>
+              <Link href="/" variant="body2" sx={{ color: '#1E5DA9' }}>
                 Sign in
               </Link>
             </Typography>
           </Grid>
         </Grid>
-      </Box>
-    </Container>
-    </CardContent>
-    </Card>
+
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={4000}
+          onClose={() => setSnackbarOpen(false)}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert severity={snackbarSeverity} variant="filled">
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
+      </form>
+      </Paper>
+      </Grid>
+    </Grid>
     </Box>
   );
 };
