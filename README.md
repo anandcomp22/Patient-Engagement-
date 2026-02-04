@@ -100,5 +100,12 @@ This starts both frontend and backend concurrently.
 
 ---
 
-## 📂 Repository Link
-[GitHub Repository – AidME Project](https://github.com/anandcomp22/Patient-Engagement-)
+## © Copyright
+© 2025 Anand More. All rights reserved.
+This repository and its contents—including source code, system architecture, UI/UX design,
+AI workflows, and documentation—are the original work of the author.
+Unauthorized copying, modification, distribution, or use of this project, in whole or in part,
+without explicit permission is prohibited.
+
+📄 Copyright Certificate:
+🔗 [View Copyright Certificate](https://drive.google.com/file/d/1Di8eHqfpf-oDosmAvz-UYSmD3gAehY22/view?usp=drive_link)
