@@ -62,7 +62,7 @@ cd client && npm install
 ### 3. Configure environment variables
 Create a `.env` file in the root directory with the following keys:
 ```
-PORT=5000
+PORT=port_number
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 HUGGINGFACE_API_KEY=your_hf_token
@@ -71,7 +71,7 @@ HUGGINGFACE_API_KEY=your_hf_token
 
 ### 4. Run the app
 ```bash
-npm run dev
+npm run dev | npm start
 ```
 This starts both frontend and backend concurrently.
 
@@ -96,7 +96,7 @@ This starts both frontend and backend concurrently.
 **Anand More**  
 📍 Pune, Maharashtra, India  
 📧 [moreanand111011@gmail.com](mailto:moreanand111011@gmail.com)  
-🔗 [LinkedIn](https://www.linkedin.com/in/anand-more-4b2887256/) | [GitHub](https://github.com/anandcomp22)
+🔗 [LinkedIn](https://www.linkedin.com/in/anand-more-4b2887256/) | [GitHub](https://github.com/anandcomp22) | [Portfolio](https://crafted-by-anand-dev.onrender.com/)
 
 ---
 
