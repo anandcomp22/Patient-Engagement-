@@ -33,7 +33,7 @@ router.post("/login", async (req, res) => {
 
 router.post("/register", async (req, res) => {
   try {
-    const { firstName, lastName, phone, email, password, role } = req.body;
+    const { firstName, lastName, dob, phone, email, password, role } = req.body;
 
     const exists = await Admin.findOne({ email });
     if (exists) {
@@ -46,6 +46,7 @@ router.post("/register", async (req, res) => {
     const newAdmin = new Admin({
       firstName,
       lastName,
+      dob,
       phone,
       email,
       password,

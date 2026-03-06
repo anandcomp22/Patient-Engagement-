@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-  Grid, Paper, Typography, Box, Button, Chip, Tabs, Tab, Stack, Divider
+  CircularProgress ,Grid, Paper, Typography, Box, Button, Chip, Tabs, Tab, Stack, Divider
 } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
 import VerifiedIcon from "@mui/icons-material/Verified";
@@ -55,9 +55,9 @@ const DUMMY_DOCTORS = [
 
 
 const AdminDoctorVerification = () => {
-  const [doctors, setDoctors] = useState(DUMMY_DOCTORS);
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState(0);
-  const USE_DUMMY = true;
   const theme = useTheme();
 
   const authHeader = {
@@ -66,27 +66,91 @@ const AdminDoctorVerification = () => {
 
   const fetchDoctors = async () => {
     try {
+      setLoading(true);  // start loading
       const res = await axios.get(`${API_BASE}/admin/verify`, authHeader);
-      setDoctors(res.data);
+      setDoctors(res.data || []);
     } catch (error) {
-      console.warn("API not ready, loading dummy data");
-      setDoctors(DUMMY_DOCTORS);
+      console.error("Failed to fetch doctors:", error);
+      setDoctors([]);
+    } finally {
+      setLoading(false); // stop loading
     }
   };
 
 
   useEffect(() => {
-    if (USE_DUMMY) {
-      setDoctors(DUMMY_DOCTORS);
-    } else {
-      fetchDoctors();
-    }
+    fetchDoctors();
+    const interval = setInterval(fetchDoctors, 100000);
+    return () => clearInterval(interval);
   }, []);
 
 
-  const updateStatus = async (id, action) => {
-    await axios.patch(`${API_BASE}/admin/verify/${id}/${action}`, {}, authHeader);
-    fetchDoctors();
+  const handleVerify = async (doctorId) => {
+    try {
+      await axios.patch(
+      `${API_BASE}/admin/verify/${doctorId}/verify`,
+      { status: "verified" },
+      authHeader
+    );
+      alert("Doctor verified successfully");
+      fetchDoctors();
+    } catch (err) {
+      console.error(err);
+      alert("Verification failed");
+    }
+  };
+
+  const handleReject = async (doctorId) => {
+    try {
+      await axios.patch(
+      `${API_BASE}/admin/verify/${doctorId}/verify`,
+      { status: "rejected" },
+      authHeader
+    );
+      alert("Doctor rejected");
+      fetchDoctors();
+    } catch (err) {
+      console.error(err);
+      alert("Rejection failed");
+    }
+  };
+
+    const renderEmptyMessage = (status) => {
+    const messages = {
+      pending: "No pending verification requests at the moment. All doctors are up to date.",
+      verified: "No verified doctors yet.",
+      rejected: "No doctors have been rejected.",
+    };
+
+    const icons = {
+      pending: <HourglassTopIcon sx={{ fontSize: 50, color: "warning.main" }} />,
+      verified: <VerifiedIcon sx={{ fontSize: 50, color: "success.main" }} />,
+      rejected: <CancelIcon sx={{ fontSize: 50, color: "error.main" }} />,
+    };
+
+    const colors = {
+      pending: "warning.main",
+      verified: "success.main",
+      rejected: "error.main",
+    };
+
+    return (
+      <Grid item xs={12}>
+        <Paper
+          sx={{
+            p: 5,
+            textAlign: "center",
+            borderRadius: 3,
+            bgcolor: alpha(theme.palette[colors[status].split(".")[0]].main, 0.1),
+          }}
+        >
+          {icons[status]}
+          <Typography variant="h6" fontWeight={600} mt={2}>
+            {messages[status]}
+          </Typography>
+        </Paper>
+      </Grid>
+    );
   };
 
   const filteredDoctors = (status) =>
@@ -155,6 +219,8 @@ const AdminDoctorVerification = () => {
                 <BadgeIcon fontSize="small" color="action" />
                 <Typography variant="body2">{doc.licenseNumber}</Typography>
               </Stack>
+              
+
             </Stack>
             <Stack direction="row" justifyContent="space-between">
               <Typography fontWeight={700}>
@@ -184,8 +250,22 @@ const AdminDoctorVerification = () => {
                 fontWeight: 500,
               }}
             />
+            {doc.licenseDocument && (
+              <Button
+                size="small"
+                variant="outlined"
+                component="a"
+                href={`http://localhost:8000/uploads/${doc.licenseDocument}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ borderRadius: 2 }}
+              >
+                View License
+              </Button>
+            )}
 
-            {showActions && (
+
+            {showActions && doc.verificationStatus === "pending" && (
               <>
                 <Divider sx={{ my: 1 }} />
                 <Stack direction="row" spacing={1}>
@@ -194,7 +274,7 @@ const AdminDoctorVerification = () => {
                     variant="contained"
                     color="success"
                     sx={{ borderRadius: 3 }}
-                    onClick={() => updateStatus(doc._id, "verify")}
+                    onClick={() => handleVerify(doc._id)}
                   >
                     Verify
                   </Button>
@@ -204,7 +284,7 @@ const AdminDoctorVerification = () => {
                     variant="outlined"
                     color="error"
                     sx={{ borderRadius: 3 }}
-                    onClick={() => updateStatus(doc._id, "reject")}
+                    onClick={() => handleReject(doc._id)}
                   >
                     Reject
                   </Button>
@@ -252,28 +332,17 @@ const AdminDoctorVerification = () => {
       {/* PENDING */}
       {tab === 0 && (
         <Grid container spacing={3}>
-          {filteredDoctors("pending").length === 0 ? (
+          {loading ? (
             <Grid item xs={12}>
-              <Paper
-                sx={{
-                  p: 4,
-                  textAlign: "center",
-                  borderRadius: 4,
-                  bgcolor: alpha(theme.palette.warning.main, 0.08),
-                }}
-              >
-                <HourglassTopIcon
-                  sx={{ fontSize: 40, color: "warning.main" }}
-                />
-                <Typography fontWeight={600} mt={1}>
-                  No pending verification requests
-                </Typography>
+              <Paper sx={{ p: 5, textAlign: "center", borderRadius: 3 }}>
+                <CircularProgress />
+                <Typography mt={2}>Loading doctors...</Typography>
               </Paper>
             </Grid>
+          ) : filteredDoctors("pending").length === 0 ? (
+            renderEmptyMessage("pending")
           ) : (
-            filteredDoctors("pending").map((doc) =>
-              renderDoctorCard(doc, true)
-            )
+            filteredDoctors("pending").map((doc) => renderDoctorCard(doc, true))
           )}
         </Grid>
       )}
@@ -282,54 +351,38 @@ const AdminDoctorVerification = () => {
       {/* VERIFIED */}
       {tab === 1 && (
         <Grid container spacing={3}>
-          {filteredDoctors("verified").length === 0 ? (
+          {loading ? (
             <Grid item xs={12}>
-              <Paper
-                sx={{
-                  p: 4,
-                  textAlign: "center",
-                  borderRadius: 4,
-                  bgcolor: alpha(theme.palette.success.main, 0.08),
-                }}
-              >
-                <VerifiedIcon sx={{ fontSize: 40, color: "success.main" }} />
-                <Typography fontWeight={600} mt={1}>
-                  No verified doctors
-                </Typography>
+              <Paper sx={{ p: 5, textAlign: "center", borderRadius: 3 }}>
+                <CircularProgress />
+                <Typography mt={2}>Loading doctors...</Typography>
               </Paper>
             </Grid>
+          ) : filteredDoctors("verified").length === 0 ? (
+            renderEmptyMessage("verified")
           ) : (
-            filteredDoctors("verified").map((doc) =>
-              renderDoctorCard(doc)
-            )
+            filteredDoctors("verified").map((doc) => renderDoctorCard(doc, false))
           )}
+
         </Grid>
       )}
 
       {/* REJECTED */}
       {tab === 2 && (
         <Grid container spacing={3}>
-          {filteredDoctors("rejected").length === 0 ? (
+          {loading ? (
             <Grid item xs={12}>
-              <Paper
-                sx={{
-                  p: 4,
-                  textAlign: "center",
-                  borderRadius: 4,
-                  bgcolor: alpha(theme.palette.error.main, 0.08),
-                }}
-              >
-                <CancelIcon sx={{ fontSize: 40, color: "error.main" }} />
-                <Typography fontWeight={600} mt={1}>
-                  No rejected doctors
-                </Typography>
+              <Paper sx={{ p: 5, textAlign: "center", borderRadius: 3 }}>
+                <CircularProgress />
+                <Typography mt={2}>Loading doctors...</Typography>
               </Paper>
             </Grid>
+          ) : filteredDoctors("rejected").length === 0 ? (
+            renderEmptyMessage("rejected")
           ) : (
-            filteredDoctors("rejected").map((doc) =>
-              renderDoctorCard(doc)
-            )
+            filteredDoctors("rejected").map((doc) => renderDoctorCard(doc, false))
           )}
+
         </Grid>
       )}
     </Box>

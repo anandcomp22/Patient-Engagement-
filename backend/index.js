@@ -25,12 +25,11 @@ const aiprescript = require("./routes/ChatBotRoutes/ai.js");
 const RAGRoutes = require("./routes/RAGRoutes/RAGRoutes.js");
 const adminDashboard = require("./routes/AdminRoutes/dashboard");
 const adminDoctors = require("./routes/AdminRoutes/adminDoctors");
-const adminRoutes = require("./routes/AdminRoutes/admin");
 const adminAppointments = require("./routes/AdminRoutes/appointments");
 const adminPayments = require("./routes/AdminRoutes/payments");
 const adminAnalytics = require("./routes/AdminRoutes/analytics");
 const adminLogs = require("./routes/AdminRoutes/logs");
-const adminVerifyRoutes = require("./routes/AdminRoutes/admin.js");
+const adminVerifyRoutes = require("./routes/AdminRoutes/admin");
 const adminAuthRoutes = require("./routes/AdminRoutes/auth");
 
 const app = express();
@@ -65,11 +64,9 @@ app.use('/api/videocall', summary);
 app.use('/api/analytics', analysis);
 app.use('/api/ai',aiprescript)
 app.use("/rag", RAGRoutes);
-app.use("/uploads", express.static("uploads"));
 app.use("/admin/dashboard", adminDashboard);
 app.use("/admin/doctors", adminDoctors);
 app.use("/admin/appointments", adminAppointments);
-app.use("/admin", adminRoutes);
 app.use("/admin/payments", adminPayments);
 app.use("/admin/analytics", adminAnalytics);
 app.use("/slot", patientRouter);
@@ -78,6 +75,10 @@ app.use("/payment", patientRouter);
 app.use("/admin/logs", adminLogs);
 app.use("/admin/verify", adminVerifyRoutes);
 app.use("/admin/auth", adminAuthRoutes);
+
+
+app.use("/uploads", express.static("uploads"));
+
 
 io.on("connection", (socket) => {
   console.log("🔌 Client connected:", socket.id);

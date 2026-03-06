@@ -34,7 +34,7 @@ import AdminRoleManagement from "../src/components/Administration/AdminRoleManag
 import AdminLogin from "../src/components/Administration/AdminLogin";
 import AdminRegister from "../src/components/Administration/AdminRegister";
 import AdminVerification from '../src/components/Administration/AdminDoctorVerification';
-import AdminLayout from "../src/components/Administration/layouts/AdminLayout";
+import AdminLayout from "../src/components/Administration/layouts/AdminLayout"
 
 
 import './App.css';
