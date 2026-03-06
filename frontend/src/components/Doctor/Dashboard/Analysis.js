@@ -1,6 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import "./Analysis.css";
 import Chart from "chart.js/auto";
+import AnalyticsStatCard from "./AnalysisStatCard";
+import PeopleIcon from "@mui/icons-material/People";
+import EventNoteIcon from "@mui/icons-material/EventNote";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
+
 
 const Analysis = () => {
 
@@ -131,6 +137,8 @@ const Analysis = () => {
         <div className="summary-card"><p>Avg Time (min)</p><h3>30</h3></div>
         <div className="summary-card"><p>Total Income</p><h3>₹1550</h3></div>
       </div>
+
+      
 
       {/* MEDICINES */}
       <div className="analysis-card">
