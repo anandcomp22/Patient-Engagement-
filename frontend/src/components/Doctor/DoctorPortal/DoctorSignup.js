@@ -144,7 +144,7 @@ const handleLicenseUpload = (event) => {
     setVerificationStep(2);
     setTimeout(() => setUploadProgress(100), 1500); // simulate upload
     setTimeout(() => {
-      setVerificationStatus("verified"); // simulate success
+      setVerificationStatus("pending"); // simulate success
       setVerificationStep(3);
     }, 2500);
   }
@@ -244,6 +244,13 @@ const handleSubmit = async (e) => {
     return;
   }
 
+  if (!licenseFile) {
+    setSnackbarSeverity("error");
+    setSnackbarMessage("Please upload your medical license");
+    setSnackbarOpen(true);
+    return;
+  }
+
   if (!validate()) return;
 
   try {
@@ -267,6 +274,9 @@ const handleSubmit = async (e) => {
     if (licenseFile) {
       form.append("license", licenseFile); 
     }
+    form.append("verificationStatus", "pending");
+    form.append("isVerified", false);
+
 
     const response = await axios.post(
       "http://localhost:8000/doctor/signup",
@@ -1188,7 +1198,7 @@ const handleSubmit = async (e) => {
         <Button
           type="submit"
           fullWidth
-          disabled={verificationStatus !== "verified" || isSubmitting}
+          disabled={verificationStatus !== "pending" || isSubmitting}
           sx={{
             mt: 3,
             py: 1.5,

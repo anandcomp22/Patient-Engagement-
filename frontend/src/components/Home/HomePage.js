@@ -1,10 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { AppBar, Toolbar, Typography, Box, Button, Paper, Grid, Container,Breadcrumbs,Link,Chip,Avatar,Divider,
-   Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Checkbox, FormControlLabel,InputAdornment,IconButton, FormHelperText, CircularProgress,Snackbar,Alert} from '@mui/material';
-import { Favorite, ContactMail, HomeRounded, InfoRounded, Phone, NavigateNext, Visibility,
-  LocalHospital, Spa, Description, Vaccines, MonitorHeart, Psychology, MedicalInformation, Schedule, Videocam, SupportAgent,
-  Groups, FeaturedPlayListRounded, MailOutlineRounded, CheckCircle, SentimentSatisfiedAlt, EventAvailable,PersonSearch, AdminPanelSettingsLock, 
-  FlashOn, Lock, AdminPanelSettings, Email, VisibilityOff} from '@mui/icons-material';
+   Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Checkbox, FormControlLabel,InputAdornment,IconButton, CircularProgress,Snackbar,Alert} from '@mui/material';
+import { Favorite, ContactMail, Phone, NavigateNext, Visibility,
+  LocalHospital, Spa, Description, Vaccines, MonitorHeart, Psychology, MedicalInformation,  CheckCircle, SentimentSatisfiedAlt, EventAvailable,PersonSearch, AdminPanelSettingsLock, 
+  FlashOn, VisibilityOff} from '@mui/icons-material';
   import Close from "@mui/icons-material/Close";
 import VideocamIcon from '@mui/icons-material/Videocam';
 import PersonIcon from '@mui/icons-material/Person';
@@ -471,6 +470,7 @@ const HomePage = () => {
       if (loginType === "doctor") {
         localStorage.setItem("doctorName", `${data.doctor.firstName} ${data.doctor.lastName}`);
         localStorage.setItem("doctorEmail", data.doctor.email);
+        
       } else {
         localStorage.setItem("patientName", `${data.patient.firstName} ${data.patient.lastName}`);
         localStorage.setItem("patientEmail", data.patient.email);
@@ -485,7 +485,11 @@ const HomePage = () => {
       }, 1000);
 
       } catch (err) {
-        showSnackbar("Login failed: " + (err.response?.data?.message || err.message), "error");
+        if (err.response?.status === 403) {
+          showSnackbar(err.response.data.message, "error"); // Pending verification message
+        } else {
+          showSnackbar("Login failed: " + (err.response?.data?.message || err.message), "error");
+        }
       } finally {
         setIsSubmitting(false);
       }
@@ -748,9 +752,7 @@ const HomePage = () => {
                     disabled={isSubmitting}
                     sx={{ mt: 2, borderRadius: 2 }}
                   >
-                    {isSubmitting ? (
-                      <CircularProgress size={24} sx={{ color: 'inherit', mr: 2 }} /> 
-                      ) : null}
+                    {isSubmitting ? <CircularProgress size={24} sx={{ color: 'inherit', mr: 2 }} /> : null}
                     Sign In {loginType === "doctor" ? "Doctor" : "Patient"}
                   </Button>
 

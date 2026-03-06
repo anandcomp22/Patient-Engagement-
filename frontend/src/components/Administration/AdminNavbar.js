@@ -35,7 +35,7 @@ const AdminNavbar = ({ sidebarOpen }) => {
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminName");
     localStorage.removeItem("adminEmail");
-    navigate("/admin/login");
+    navigate("/");
   };
 
   return (
