@@ -1,0 +1,34 @@
+# ─── RAG Pipeline Backend Requirements ───────────────────────────────────────
+
+# Web Framework (rag_api.py)
+flask
+flask-cors
+
+# Environment variables
+python-dotenv
+
+# MongoDB driver (rag_service.py, transcription_server.py)
+pymongo
+
+# ChromaDB vector store (rag_service.py, medicines_loader.py)
+chromadb
+
+# Sentence embeddings for ChromaDB
+sentence-transformers
+
+# LLM integration via Ollama (rag_service.py)
+langchain-community
+langchain
+
+# Speech-to-text (transcription_server.py)
+whisperx
+
+# PyTorch — required by WhisperX (install separately for your CUDA version)
+# CPU-only:  pip install torch torchvision torchaudio
+# CUDA 11.8: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# CUDA 12.1: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+torch
+torchaudio
+
+# WebSocket server (transcription_server.py)
+websockets

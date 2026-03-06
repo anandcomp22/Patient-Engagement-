@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Avatar,
+  Alert
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import {
@@ -28,6 +29,7 @@ const Dashboard = ({ sidebarOpen }) => {
   const [medicalNews, setMedicalNews] = useState([]);
   const [showAllInsights, setShowAllInsights] = useState(false);
   const [showAllAppointments, setShowAllAppointments] = useState(false);
+  const [doctor, setDoctor] = useState(null);
   const [DoctorName, setDoctorName] = useState("");
   const [greeting, setGreeting] = useState("");
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
@@ -146,6 +148,26 @@ const Dashboard = ({ sidebarOpen }) => {
   }, []);
 
   useEffect(() => {
+    const fetchDoctorProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(`${API_BASE}/doctor/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setDoctor(res.data);
+      } catch (err) {
+        console.error("Failed to fetch doctor profile", err);
+      }
+    };
+
+    fetchDoctorProfile();
+  }, []);
+
+  useEffect(() => {
     const fetchNews = async () => {
       try {
         const res = await axios.get(
@@ -169,6 +191,16 @@ const Dashboard = ({ sidebarOpen }) => {
   const handleViewAll = () => {
   setShowAllAppointments(true);
 };
+
+  if (doctor && doctor.verificationStatus === "pending") {
+    return (
+      <Box sx={{ p: 3, mt: 3 }}>
+        <Alert severity="warning">
+          Your license is under verification by admin.
+        </Alert>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 3, mt: 3 }}>

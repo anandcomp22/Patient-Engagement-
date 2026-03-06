@@ -125,11 +125,16 @@ const doctorSchema = new mongoose.Schema({
     state: { type: String, required: true },
     district: { type: String, required: true },   
     profileImage: { type: String },
-    licenseDocument: { type: String }, 
+    licenseDocument: { type: String, default: null }, 
+    isVerified: {
+      type: Boolean,
+      default: false
+    },
+    verificationDate: {type: Date},
     verificationStatus: {
       type: String,
-      enum: ["pending", "verified", "rejected"],
-      default: "pending"
+      enum: ["not_uploaded", "pending", "verified", "rejected"],
+      default: "not_uploaded"
     },
       verifiedAt: Date,
   verifiedBy: {
