@@ -51,7 +51,7 @@ router.post(
         district,
         password: hashedPassword,
         image: req.files?.profileImage?.[0]?.filename,
-        licenseDocument: req.files?.license?.[0]?.filename,
+        licenseDocument: `license/${req.files?.license?.[0]?.filename}`,
         verificationStatus: "pending"
       });
 
@@ -72,6 +72,12 @@ router.post("/signin", async (req, res) => {
 
   const isMatch = await bcrypt.compare(password, doctor.password);
   if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+
+  if (doctor.verificationStatus !== "verified") {
+    return res.status(403).json({
+      message: "Your license is under verification. Please wait for admin approval."
+    });
+  }
 
   const token = generateToken(doctor, "doctor");
 

@@ -14,13 +14,12 @@ Features:
 import os
 import uuid
 import json
-import json
 from json.decoder import JSONDecodeError
 from datetime import datetime
 from typing import List, Dict, Any
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import torch
-from transformers import pipeline, AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException, BackgroundTasks
@@ -30,11 +29,7 @@ from pymongo import MongoClient
 
 import chromadb
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
-from transformers import AutoTokenizer, AutoModelForCausalLM
 import qwen_tokenizer
-
-
-from transformers import AutoTokenizer, pipeline
 
 load_dotenv()
 
@@ -42,8 +37,8 @@ load_dotenv()
 # CONFIG
 # -----------------------------
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-CHROMA_DIR = os.getenv("CHROMA_DB_DIR", "./chroma_db")
-COLLECTION_NAME = os.getenv("CHROMA_COLLECTION", "medicines")
+CHROMA_DIR = os.getenv("CHROMA_DB_DIR", r"C:\Users\morea\chroma_db")
+COLLECTION_NAME = os.getenv("CHROMA_COLLECTION", "medicines_main")
 PATIENT_COLLECTION = os.getenv("PATIENT_COLLECTION", "patient_summaries")
 
 # Embedding model (retrieval-optimized)
@@ -85,15 +80,10 @@ except Exception as e:
 # create or get collections
 def get_or_create_collection(name: str):
     """
-    Always attach the correct embedding function (SapBERT 768d).
-    If collection exists, delete and recreate with SapBERT.
+    Get an existing collection or create a new one with SapBERT 768d embedding.
+    Uses ChromaDB's native get_or_create to avoid InternalError on pre-existing collections.
     """
-    try:
-        chroma_client.delete_collection(name)
-    except:
-        pass
-
-    return chroma_client.create_collection(
+    return chroma_client.get_or_create_collection(
         name=name,
         embedding_function=embedding_fn,
         metadata={"hnsw:space": "cosine"}
@@ -111,34 +101,44 @@ LLM_MODEL = "Qwen/Qwen2.5-3B-Instruct"
 print("Loading tokenizer…")
 tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL, use_fast=True, trust_remote_code=True)
 
-print("Loading model with accelerate/device_map='auto'…")
+print("Loading model on CPU (no device_map to avoid meta-tensor error)…")
 model = AutoModelForCausalLM.from_pretrained(
     LLM_MODEL,
-    device_map="auto", 
-    trust_remote_code=True
+    dtype=torch.float32,
+    trust_remote_code=True,
+    low_cpu_mem_usage=True,
 )
+model.eval()
 
-print("Building llm_pipe (no device argument)…")
+print("Building llm_pipe…")
 
 # Qwen text-generation pipeline (instruction-following)
+# device=-1 forces CPU and skips the internal .to() call that breaks with meta tensors
+# Default generation kwargs — passed at call time to avoid deprecation warnings
+_LLM_KWARGS = dict(
+    max_new_tokens=256,
+    pad_token_id=tokenizer.eos_token_id,
+    do_sample=False,
+    repetition_penalty=1.1,
+)
+_EXTRACT_KWARGS = dict(
+    max_new_tokens=120,
+    pad_token_id=tokenizer.eos_token_id,
+)
+
 llm_pipe = pipeline(
     "text-generation",
     model=model,
     tokenizer=tokenizer,
-    max_new_tokens=256,
-    pad_token_id=tokenizer.eos_token_id,
-    temperature=0.2,
-    repetition_penalty=1.1,
-    do_sample=False,
+    device=-1,
 )
 
-# smaller extraction pipeline (can reuse llm_pipe if memory tight)
+# smaller extraction pipeline (reuses same model)
 extract_pipe = pipeline(
     "text-generation",
     model=model,
     tokenizer=tokenizer,
-    max_new_tokens=120,
-    pad_token_id=tokenizer.eos_token_id,
+    device=-1,
 )
 
 # -----------------------------
@@ -181,12 +181,12 @@ JSON format:
     """
 
     try:
-        raw = extract_pipe(prompt)[0]["generated_text"]
+        raw = extract_pipe(prompt, **_EXTRACT_KWARGS)[0]["generated_text"]
     except Exception:
         raw = "{}"
 
     # ---- Parse JSON safely ----
-    import json
+
     try:
         data = json.loads(raw)
     except:
@@ -351,7 +351,7 @@ def extract_structured_suggestions(context: str, summary: str):
     """
     
     try:
-        raw_output = llm_pipe(prompt, max_new_tokens=256)[0]["generated_text"].strip()
+        raw_output = llm_pipe(prompt, **_LLM_KWARGS)[0]["generated_text"].strip()
         
         # Attempt to extract JSON safely
         json_start = raw_output.find("{")
@@ -381,20 +381,15 @@ def extract_structured_suggestions(context: str, summary: str):
 # ----------------------------
 
 
-from transformers import GPT2TokenizerFast
-
-tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")  # lightweight tokenizer
-
 def chunk_text(text, max_tokens=500):
     """
-    Split text into chunks <= max_tokens using GPT2 tokenizer
+    Split text into chunks <= max_tokens using the Qwen tokenizer.
     """
     tokens = tokenizer.encode(text)
     chunks = []
     for i in range(0, len(tokens), max_tokens):
-        chunk_tokens = tokens[i:i+max_tokens]
-        chunk_text = tokenizer.decode(chunk_tokens)
-        chunks.append(chunk_text)
+        chunk_tokens = tokens[i:i + max_tokens]
+        chunks.append(tokenizer.decode(chunk_tokens))
     return chunks
 
 def summarize_transcript(raw_transcript):
@@ -404,7 +399,7 @@ def summarize_transcript(raw_transcript):
     for chunk in chunks:
         prompt = f"Give short clinical summary of the following:\n\n{chunk}\n\nSummary:"
         try:
-            out = llm_pipe(prompt, max_new_tokens=128)[0]["generated_text"].strip()
+            out = llm_pipe(prompt, max_new_tokens=128, pad_token_id=tokenizer.eos_token_id)[0]["generated_text"].strip()
             summaries.append(out)
         except Exception as e:
             print(f"[summarize_transcript error]: {e}")
@@ -451,7 +446,7 @@ def store_summary_and_run_rag(session_id: str, raw_transcript: str):
 
 
 def run_llm(prompt):
-    out = llm_pipe(prompt)
+    out = llm_pipe(prompt, **_LLM_KWARGS)
 
     # If out is tuple -> take first element
     if isinstance(out, tuple):
