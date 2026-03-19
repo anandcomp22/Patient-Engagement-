@@ -29,6 +29,47 @@ router.get("/doctors", async (req, res) => {
   res.json(doctors);
 });
 
+router.get("/available-slots", async (req, res) => {
+  try {
+    const { doctorId, date } = req.query;
+    if (!doctorId || !date) {
+      return res.status(400).json({ message: "doctorId and date are required" });
+    }
+
+    const ALL_SLOTS = [
+      "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", 
+      "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", 
+      "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", 
+      "04:00 PM", "04:30 PM", "05:00 PM"
+    ];
+
+    const dId = Number(doctorId);
+    const queryDate = new Date(date);
+    
+    // Check start and end of day locally
+    const startOfDay = new Date(queryDate.setHours(0,0,0,0));
+    const endOfDay = new Date(queryDate.setHours(23,59,59,999));
+
+    const bookedAppointments = await Appointment.find({
+      doctorId: dId,
+      appointmentDate: {
+        $gte: startOfDay,
+        $lte: endOfDay
+      },
+      appstatus: { $in: ["confirmed", "pending", "Appointment Done", "completed"] }
+    });
+
+    const bookedTimes = bookedAppointments.map(app => app.startTime);
+    const availableSlots = ALL_SLOTS.filter(slot => !bookedTimes.includes(slot));
+
+    return res.status(200).json({ availableSlots });
+
+  } catch (err) {
+    console.error("Error fetching available slots:", err);
+    return res.status(500).json({ message: "Failed to fetch slots", error: err.message });
+  }
+});
+
 router.post("/lock", async (req, res) => {
   const { slotId } = req.body;
 
