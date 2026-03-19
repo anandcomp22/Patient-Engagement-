@@ -470,10 +470,12 @@ const HomePage = () => {
       if (loginType === "doctor") {
         localStorage.setItem("doctorName", `${data.doctor.firstName} ${data.doctor.lastName}`);
         localStorage.setItem("doctorEmail", data.doctor.email);
+        localStorage.setItem("doctorId", data.doctor.doctorId);
         
       } else {
         localStorage.setItem("patientName", `${data.patient.firstName} ${data.patient.lastName}`);
         localStorage.setItem("patientEmail", data.patient.email);
+        localStorage.setItem("patientId", data.patient.patientId);
       }
 
       localStorage.setItem("token", data.token);
