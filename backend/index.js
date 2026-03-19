@@ -116,7 +116,7 @@ io.on("connection", (socket) => {
     io.emit("appointment-updated");
   });*/
 
-  const python = spawn("python", ["transcriber.py"]);
+  /*const python = spawn("python", ["transcriber.py"]);
 
   socket.on("audio-stream", (data) => {
     if (python.stdin.writable) {
@@ -138,11 +138,11 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     python.kill();
     console.log("User disconnected:", socket.id);
-  });
+  });*/
 });
 
 
-const PORT = process.env.PORT || 2000;
+const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
   console.log(`Server started at http://localhost:${PORT}`);
 });

@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 import subprocess
 import tempfile
 import torch
+import wave
 
 # -------------------------------------------------------
 # FIX: PyTorch 2.6+ changed torch.load default to
@@ -64,9 +65,10 @@ compute_type = "float16" if device == "cuda" else "int8"
 print(f"Loading WhisperX model on {device}...")
 
 model = whisperx.load_model(
-    "base",
+    "base.en",
     device=device,
-    compute_type=compute_type
+    compute_type="int8",
+    vad_model=None 
 )
 
 print("WhisperX loaded successfully!")
@@ -76,64 +78,49 @@ print("WhisperX loaded successfully!")
 # Browser sends one chunk every ~3s (timeslice=3000ms).
 # PARTIAL_EVERY=4 => ~12s between partial updates.
 # ---------------------------------------------------
-PARTIAL_EVERY = 4
+PARTIAL_EVERY = 1
 
-# ---------------------------------------------------
-# AUDIO CONVERSION  (bytes -> 16 kHz mono WAV bytes)
-# ---------------------------------------------------
-def convert_audio_bytes_to_wav_bytes(audio_bytes):
-    """Write to temp file so FFmpeg can seek the container headers."""
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".audio") as raw_tmp:
-        raw_tmp.write(audio_bytes)
-        raw_tmp_path = raw_tmp.name
+def decode_pcm_base64(base64_data):
+    """Decode a base64-encoded raw PCM chunk to bytes (no WAV header)."""
+    return base64.b64decode(base64_data)
 
-    out_wav_path = raw_tmp_path + ".wav"
 
-    ffmpeg_cmd = [
-        "ffmpeg", "-y",
-        "-i", raw_tmp_path,
-        "-ar", "16000",
-        "-ac", "1",
-        "-f", "wav",
-        out_wav_path
-    ]
-
-    try:
-        result = subprocess.run(
-            ffmpeg_cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-
-        if result.returncode != 0:
-            print("FFMPEG ERROR:", result.stderr.decode()[-300:])
-            return None
-
-        with open(out_wav_path, "rb") as f:
-            return f.read()
-
-    finally:
-        if os.path.exists(raw_tmp_path):
-            os.remove(raw_tmp_path)
-        if os.path.exists(out_wav_path):
-            os.remove(out_wav_path)
-
+def pcm_to_wav_file(pcm_bytes, sample_rate=16000):
+    """Write raw PCM bytes to a temporary WAV file and return its path."""
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+        with wave.open(tmp, "wb") as wf:
+            wf.setnchannels(1)
+            wf.setsampwidth(2)  # 16-bit
+            wf.setframerate(sample_rate)
+            wf.writeframes(pcm_bytes)
+        return tmp.name
 
 # ---------------------------------------------------
 # BLOCKING TRANSCRIPTION WORKER
 # Runs in thread pool so it never blocks the event loop.
+# Accepts raw PCM bytes (no WAV header) and builds a
+# proper WAV file once before passing to WhisperX.
 # ---------------------------------------------------
-def _transcribe_wav_bytes(wav_bytes, language="en"):
-    """Convert wav bytes -> WhisperX -> plain text.
-    Returns empty string if no speech detected (instead of crashing).
+def _transcribe_pcm_bytes(pcm_bytes, sample_rate=16000, language="en"):
+    """Convert raw PCM bytes -> WAV file -> WhisperX -> plain text.
+    Returns empty string if audio is too short or no speech detected.
     """
-    # Skip chunks too small to contain real speech (~2s minimum at 16kHz/16bit)
-    if len(wav_bytes) < 64_000:
+    # ~1.25 seconds of audio minimum (20 000 bytes / 2 bytes per sample / 16000 Hz)
+    if len(pcm_bytes) < 20_000:
         return ""
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
-        tmp.write(wav_bytes)
-        wav_path = tmp.name
+    # --- RMS energy gate ---
+    # WhisperX/Whisper hallucinates random phrases on silent audio.
+    # Compute the RMS of the raw PCM16 samples; skip if too quiet.
+    import struct
+    num_samples = len(pcm_bytes) // 2
+    samples = struct.unpack(f"<{num_samples}h", pcm_bytes[:num_samples * 2])
+    rms = (sum(s * s for s in samples) / num_samples) ** 0.5
+    if rms < 200:   # threshold on 0–32767 scale; raise if still hallucinating
+        print(f"[skip] Audio too quiet (RMS={rms:.1f}), skipping transcription.")
+        return ""
+
+    wav_path = pcm_to_wav_file(pcm_bytes, sample_rate)
 
     try:
         result = model.transcribe(wav_path, batch_size=8, language=language)
@@ -142,14 +129,15 @@ def _transcribe_wav_bytes(wav_bytes, language="en"):
             return ""
         return " ".join(seg["text"].strip() for seg in segments if seg.get("text"))
     except IndexError:
-        # pyannote VAD returns empty list when no active speech found — not a real error
+        # pyannote VAD returns empty list when no active speech — not a real error
         return ""
     except Exception as e:
-        print(f"[_transcribe_wav_bytes error] {e}")
+        print(f"[_transcribe_pcm_bytes error] {e}")
         return ""
     finally:
         if os.path.exists(wav_path):
             os.remove(wav_path)
+
 
 
 # ---------------------------------------------------
@@ -170,23 +158,14 @@ def _summarize_and_store(session_id, full_text):
 # ---------------------------------------------------
 # ASYNC HELPERS
 # ---------------------------------------------------
-async def transcribe_async(audio_bytes, language="en"):
-    """Non-blocking: convert audio + WhisperX transcribe."""
+async def transcribe_async(pcm_bytes, sample_rate=16000, language="en"):
     loop = asyncio.get_event_loop()
-
-    wav_bytes = await loop.run_in_executor(
-        executor,
-        convert_audio_bytes_to_wav_bytes,
-        audio_bytes
-    )
-
-    if not wav_bytes:
-        return ""
 
     text = await loop.run_in_executor(
         executor,
-        _transcribe_wav_bytes,
-        wav_bytes,
+        _transcribe_pcm_bytes,
+        pcm_bytes,
+        sample_rate,
         language
     )
 
@@ -257,17 +236,29 @@ async def handler(ws):
             # ------------------------------------------
             elif msg_type == "audio_chunk" and session_id:
 
-                chunk_bytes   = base64.b64decode(payload["data"])
-                audio_buffer += chunk_bytes
-                chunk_count  += 1
+                chunk_base64 = payload["data"]
+                sample_rate  = payload.get("sample_rate", 16000)
+
+                # FIX: accumulate RAW PCM bytes — NOT WAV bytes.
+                # Concatenating WAV blobs creates multiple headers that ffmpeg rejects.
+                pcm_bytes = decode_pcm_base64(chunk_base64)
+                audio_buffer += pcm_bytes
+
+                # Keep only the last 10 seconds of raw PCM to avoid runaway memory.
+                MAX_BUFFER = sample_rate * 10 * 2  # 10 sec × sample_rate × 2 bytes/sample
+                audio_buffer = audio_buffer[-MAX_BUFFER:]
+
+                chunk_count += 1
 
                 if chunk_count % PARTIAL_EVERY == 0:
-                    snapshot = audio_buffer
+                    # Take a snapshot of the last 5 seconds for partial transcription.
+                    snapshot     = audio_buffer[-sample_rate * 5 * 2:]
+                    snap_rate    = sample_rate
 
-                    async def emit_partial(snap=snapshot):
+                    async def emit_partial(snap=snapshot, rate=snap_rate):
                         nonlocal transcript
                         try:
-                            text = await transcribe_async(snap)
+                            text = await transcribe_async(snap, rate)
                             if text:
                                 transcript = text
                                 await ws.send(json.dumps({
@@ -296,8 +287,8 @@ async def handler(ws):
                 if partial_task and not partial_task.done():
                     partial_task.cancel()
 
-                # Full transcription
-                full_text = await transcribe_async(audio_buffer)
+                # FIX: pass raw PCM + sample_rate; WAV is built inside transcribe_async.
+                full_text = await transcribe_async(audio_buffer, sample_rate)
 
                 if not full_text:
                     await ws.send(json.dumps({"error": "Transcription returned empty"}))
