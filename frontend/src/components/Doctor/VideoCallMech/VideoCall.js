@@ -120,7 +120,7 @@ const VideoCall = () => {
   };
 
   // ── AI medicines callback ──────────────────────────────────
-  const handleAiMedicines = (meds) => {
+  const handleAiMedicines = useCallback((meds) => {
     const newMeds = meds
       .filter(m => m.metadata?.drug_name)
       .map(m => ({ name: m.metadata.drug_name, dosage: m.metadata.dosage || "", frequency: "", duration: "" }));
@@ -128,7 +128,7 @@ const VideoCall = () => {
       const existing = new Set(prev.map(p => p.name?.toLowerCase()));
       return [...prev, ...newMeds.filter(m => !existing.has(m.name.toLowerCase()))];
     });
-  };
+  }, []); // no deps — only uses setMedications (stable setter)
 
   // ── Join ───────────────────────────────────────────────────
   const joinRoom = async () => {
@@ -145,7 +145,16 @@ const VideoCall = () => {
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     });
 
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+    navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: {
+        echoCancellation: true,     // removes speaker echo from mic
+        noiseSuppression: false,    // disable to give Whisper raw, clear audio
+        autoGainControl: false,     // disable to prevent audio distortion
+        channelCount: 1,            // mono — WhisperX expects mono audio
+        sampleRate: 16000,          // hint browser to capture at 16kHz (WhisperX rate)
+      },
+    }).then((stream) => {
       setLocalStream(stream);
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
       stream.getTracks().forEach(t => peerConnection.current.addTrack(t, stream));

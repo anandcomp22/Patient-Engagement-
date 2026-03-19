@@ -51,6 +51,7 @@ const AiPanel = ({
     const wsRef = useRef(null);
     const recorderRef = useRef(null);
     const partialTaskRef = useRef(null);
+    const triggerRagRef = useRef(null); // will be assigned after triggerRag is defined
 
     const [status, setStatus] = useState("idle");
     const [liveText, setLiveText] = useState("");
@@ -107,6 +108,9 @@ const AiPanel = ({
         }
         setStatus("done");
     }, [onMedicinesFound]);
+
+    // Keep triggerRagRef in sync so the WebSocket closure always calls the latest version
+    useEffect(() => { triggerRagRef.current = triggerRag; }, [triggerRag]);
 
     // -----------------------------------------------------------------------
     // ON-DEMAND retrieval — doctor clicks the button mid-call
@@ -186,12 +190,8 @@ const AiPanel = ({
             try {
                 const data = JSON.parse(event.data);
 
-                if (data.status === "started") {
-                    // Begin recording NOW that the server acknowledged the session
-                    if (recorderRef.current?.state === "inactive") {
-                        recorderRef.current.start(3000); // send a chunk every 3 seconds
-                    }
-                }
+                // "started" ack — recorder already running, nothing extra needed
+                if (data.status === "started") { /* recording already started on ws.onopen */ }
 
                 if (data.type === "partial_transcript" && data.text) {
                     setLiveText(data.text);
@@ -205,8 +205,8 @@ const AiPanel = ({
                 }
 
                 if (data.type === "summary") {
-                    // Summary stored — now trigger the RAG answer
-                    triggerRag(data.session_id || sessionId);
+                    // Use ref so this closure never goes stale
+                    triggerRagRef.current(data.session_id || sessionId);
                 }
 
                 if (data.error) {
@@ -223,48 +223,111 @@ const AiPanel = ({
             setStatus("error");
         };
 
-        // --- MediaRecorder (audio-only from local stream) ---
-        const audioStream = new MediaStream(localStream.getAudioTracks());
-        let recorder;
-        try {
-            recorder = new MediaRecorder(audioStream, {
-                mimeType: "audio/webm;codecs=opus",
-            });
-        } catch (_) {
-            recorder = new MediaRecorder(audioStream); // fallback
-        }
-        recorderRef.current = recorder;
+        // ---------------------------------------------------------------
+        // AudioContext raw PCM16 capture — replaces MediaRecorder/WebM.
+        //
+        // WHY no MediaRecorder: WebM chunks after the first are missing the
+        //   EBML container header, so FFmpeg/Silero rejects them as invalid.
+        //   Raw PCM16 has no container — every slice is always valid audio.
+        //
+        // ECHO FIX: route mic → ScriptProcessor → silentGain(0) → destination.
+        //   DO NOT connect processor directly to destination (gain=1) — that
+        //   sends mic audio to speakers, creating a feedback loop that clips
+        //   peak to 32768 and destroys Silero VAD detection.
+        // ---------------------------------------------------------------
+        const audioStream  = new MediaStream(localStream.getAudioTracks());
+        const audioCtx     = new (window.AudioContext || window.webkitAudioContext)();
+        const source       = audioCtx.createMediaStreamSource(audioStream);
+        const processor    = audioCtx.createScriptProcessor(4096, 1, 1);
+        const silentGain   = audioCtx.createGain();
+        silentGain.gain.value = 0;   // mic audio is muted — no echo to speakers
 
-        recorder.ondataavailable = async (event) => {
-            if (event.data.size > 0 && ws.readyState === WebSocket.OPEN) {
-                const buf = await event.data.arrayBuffer();
-                const u8 = new Uint8Array(buf);
-                let binary = "";
-                for (let i = 0; i < u8.length; i++) binary += String.fromCharCode(u8[i]);
-                ws.send(
-                    JSON.stringify({ type: "audio_chunk", data: btoa(binary) })
-                );
+        source.connect(processor);
+        processor.connect(silentGain);
+        silentGain.connect(audioCtx.destination); // needed for onaudioprocess to fire
+
+        recorderRef.current = { audioCtx, source, processor, silentGain };
+
+        const TARGET_RATE = 16000;             // 48000 Hz typically
+        function downsampleBuffer(buffer, inputRate, outputRate) {
+            if (outputRate === inputRate) return buffer;
+            const ratio = inputRate / outputRate;
+            const newLength = Math.round(buffer.length / ratio);
+            const result = new Float32Array(newLength);
+
+            let offset = 0;
+            for (let i = 0; i < newLength; i++) {
+                result[i] = buffer[Math.floor(offset)];
+                offset += ratio;
             }
-            console.log(recorder)
+            return result;
+            }
+        const inputRate = audioCtx.sampleRate;
+
+        // Accumulate 3 s of 16 kHz PCM before sending one chunk.
+        // Tiny per-frame sends (~85 ms at 48 kHz) cause WhisperX VAD
+        // to warn "No active speech" on every chunk — 3 s gives it
+        // enough audio to reliably detect speech.
+        const SEND_EVERY_SAMPLES = TARGET_RATE * 6; // 96 000 samples
+        let pcmAccumulator = new Int16Array(0);
+
+        function flushAndSend() {
+            if (pcmAccumulator.length === 0) return;
+            const uint8 = new Uint8Array(pcmAccumulator.buffer);
+            let binary = "";
+            for (let i = 0; i < uint8.length; i++) {
+                binary += String.fromCharCode(uint8[i]);
+            }
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: "audio_chunk",
+                    data: btoa(binary),
+                    sample_rate: TARGET_RATE
+                }));
+            }
+            pcmAccumulator = new Int16Array(0);
+        }
+
+        processor.onaudioprocess = (e) => {
+            const input = e.inputBuffer.getChannelData(0);
+            const downsampled = downsampleBuffer(input, inputRate, TARGET_RATE);
+
+            const pcm16 = new Int16Array(downsampled.length);
+            for (let i = 0; i < downsampled.length; i++) {
+                pcm16[i] = Math.max(-1, Math.min(1, downsampled[i])) * 0x7fff;
+            }
+
+            // Append new samples to accumulator
+            const merged = new Int16Array(pcmAccumulator.length + pcm16.length);
+            merged.set(pcmAccumulator, 0);
+            merged.set(pcm16, pcmAccumulator.length);
+            pcmAccumulator = merged;
+
+            // Send when we have 3 seconds of audio
+            if (pcmAccumulator.length >= SEND_EVERY_SAMPLES) {
+                flushAndSend();
+            }
         };
 
-        // Cleanup when call ends (active becomes false)
+        // Cleanup when call ends / component unmounts
         return () => {
-            // stop recorder
-            if (recorderRef.current && recorderRef.current.state !== "inactive") {
-                recorderRef.current.stop();
+            // Flush any remaining buffered audio before sending "end"
+            flushAndSend();
+
+            if (recorderRef.current) {
+                try { recorderRef.current.processor.disconnect(); } catch (_) {}
+                try { recorderRef.current.source.disconnect(); } catch (_) {}
+                try { recorderRef.current.silentGain.disconnect(); } catch (_) {}
+                try { recorderRef.current.audioCtx.close(); } catch (_) {}
+                recorderRef.current = null;
             }
-            // tell transcription server to finalise & summarise
             if (ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: "end" }));
                 setStatus("transcribing");
             }
-            // close WS after a short delay to let "end" message arrive
-            setTimeout(() => {
-                ws.close();
-            }, 1000);
+            setTimeout(() => { ws.close(); }, 1000);
         };
-    }, [active, localStream, sessionId, patientId, doctorId, triggerRag]);
+    }, [active, localStream, sessionId, patientId, doctorId]); // triggerRag removed — accessed via ref
 
     // -----------------------------------------------------------------------
     // Render
