@@ -87,10 +87,28 @@ io.on("connection", (socket) => {
     console.log(`Event received: ${event}`, args);
   });
 
+  const readyPeers = {}; // { roomId: { doctor: socket.id, patient: socket.id } }
+
   socket.on("join-room", ({ roomId, role }) => {
     socket.join(roomId);
+  });
 
-    socket.to(roomId).emit("peer-joined", { role });
+  socket.on("media-ready", ({ roomId, role }) => {
+    console.log(`[Socket] media-ready received! Room: ${roomId}, Role: ${role}`);
+    socket.join(roomId);
+    if (!readyPeers[roomId]) readyPeers[roomId] = {};
+    readyPeers[roomId][role] = socket.id;
+
+    console.log(`[Socket] Broadcasting peer-ready(${role}) to others in room ${roomId}`);
+    // Tell everyone else in the room
+    socket.to(roomId).emit("peer-ready", { role });
+    
+    // Tell the new person about existing people
+    Object.keys(readyPeers[roomId]).forEach(existingRole => {
+      if (existingRole !== role) {
+        socket.emit("peer-ready", { role: existingRole });
+      }
+    });
   });
 
   socket.on("offer", ({ roomId, offer }) => {
@@ -110,6 +128,7 @@ io.on("connection", (socket) => {
   socket.on("end-call", ({ roomId }) => {
     socket.to(roomId).emit("end-call");
     socket.leave(roomId);
+    delete readyPeers[roomId];
   });
 
   /*socket.on("appointment-update", () => {
@@ -146,3 +165,5 @@ const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
   console.log(`Server started at http://localhost:${PORT}`);
 });
+
+/* appended to trigger nodemon */

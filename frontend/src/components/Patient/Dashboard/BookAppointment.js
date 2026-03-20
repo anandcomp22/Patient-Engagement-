@@ -8,11 +8,14 @@ const BookAppointment = () => {
   const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [specialties, setSpecialties] = useState([]);
   const [selectedSpecialty, setSelectedSpecialty] = useState("");
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [availableSlots, setAvailableSlots] = useState([]);
+  const [roomId, setRoomId] = useState("");
+  const [appointmentDateTime, setAppointmentDateTime] = useState("");
   
   const [loading, setLoading] = useState(true);
   const [slotsLoading, setSlotsLoading] = useState(false);
@@ -71,34 +74,43 @@ const BookAppointment = () => {
   }, [selectedDoctor, date]);
 
   const handleBooking = async () => {
-    if (selectedDoctor && date && time) {
-      try {
-        await axios.post(
-          "http://localhost:8000/appointment/book",
-          {
-            doctorId: Number(selectedDoctor.doctorId),
-            appointmentDate: date,
-            time,
-            patientId: Number(localStorage.getItem("patientId"))
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`
-            }
+  if (selectedDoctor && date && time) {
+    try {
+      const res = await axios.post(
+        "http://localhost:8000/appointment/book",
+        {
+          doctorId: Number(selectedDoctor.doctorId),
+          appointmentDate: date,
+          time,
+          patientId: Number(localStorage.getItem("patientId"))
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
           }
-        );
+        }
+      );
 
-        alert("Appointment booked successfully!");
-        localStorage.setItem("appointmentBooked", "true");
-        navigate("/patient/dashboard");
-      } catch (err) {
-        console.error("Booking Error:", err.response?.data || err.message);
-        alert(err.response?.data?.message || "Error booking appointment. Please try again.");
-      }
-    } else {
+      setRoomId(res.data.roomId);
+      setAppointmentDateTime(`${date}T${time}`);
+      setShowSuccessPopup(true);
+
+    } catch (err) {
+      alert(err.response?.data?.message || "Error booking appointment.");
+    }
+  } else {
       alert("Please fill all fields.");
     }
-  };
+};
+
+const isJoinAllowed = () => {
+  const now = new Date();
+  const appointmentTime = new Date(appointmentDateTime);
+
+  // allow join within ±10 minutes
+  const diff = Math.abs(now - appointmentTime) / (1000 * 60);
+  return diff <= 10;
+};
 
   return (
     <div className="appointment-container">
@@ -200,6 +212,66 @@ const BookAppointment = () => {
             Book Appointment
           </button>
         </div>
+
+        {showSuccessPopup && (
+          <div className="popup-overlay">
+            <div className="popup-card modern">
+
+              <div className="success-icon">✔</div>
+
+              <h2>Appointment Confirmed</h2>
+
+              <div className="appointment-details">
+                <p><strong>Doctor:</strong> Dr. {selectedDoctor.firstName} {selectedDoctor.lastName} </p>
+                <p><strong>Date:</strong> {date}</p>
+                <p><strong>Time:</strong> {time}</p>
+              </div>
+
+              <div className="video-section">
+                <p className="video-label">Video Consultation</p>
+
+                {/* Clickable Link */}
+                <a
+                  href={`/patient/video-call?roomId=${roomId}`}
+                  className={`video-link ${!isJoinAllowed() ? "disabled" : ""}`}
+                  onClick={(e) => {
+                    if (!isJoinAllowed()) e.preventDefault();
+                  }}
+                >
+                  {isJoinAllowed() ? "🔵 Join Consultation" : "⏳ Available at scheduled time"}
+                </a>
+
+                {/* Copy Link */}
+                <div className="copy-link">
+                  <input
+                    type="text"
+                    value={`${window.location.origin}/patient/video-call?roomId=${roomId}`}
+                    readOnly
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `${window.location.origin}/patient/video-call?roomId=${roomId}`
+                      );
+                      alert("Link copied!");
+                    }}
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+              <button
+                className="secondary-btn"
+                onClick={() => {
+                  setShowSuccessPopup(false);
+                  navigate("/patient/dashboard");
+                }}
+              >
+                Go to Dashboard
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
