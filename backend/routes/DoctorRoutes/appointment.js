@@ -187,31 +187,41 @@ router.put("/complete/:appointmentId", async (req, res) => {
   }
 });
 
-  router.post("/reschedule", async (req, res) => {
-    const { appointmentId, newSlotId } = req.body;
+  router.put("/reschedule", authMiddleware, async (req, res) => {
+    try {
+      const { appointmentId, newDate } = req.body;
+      const dateObj = new Date(newDate);
+      
+      const formattedTime = dateObj.toLocaleTimeString("en-US", { 
+        hour: "2-digit", minute: "2-digit", hour12: true 
+      });
 
-    const appointment = await Appointment.findById(appointmentId);
-    if (!appointment) return res.status(404).json({ message: "Not found" });
+      const updated = await Appointment.findOneAndUpdate(
+        { appointmentId: Number(appointmentId) },
+        { 
+          appointmentDate: dateObj,
+          startTime: formattedTime,
+          appstatus: "Rescheduled"
+        },
+        { new: true }
+      );
+      
+      if (!updated) {
+        // Fallback to _id just in case
+        const altUpdated = await Appointment.findByIdAndUpdate(
+          appointmentId,
+          { appointmentDate: dateObj, startTime: formattedTime, appstatus: "Rescheduled" },
+          { new: true }
+        );
+        if (!altUpdated) return res.status(404).json({ message: "Not found" });
+      }
 
-    await Slot.findByIdAndUpdate(appointment.slotId, {
-      status: "AVAILABLE"
-    });
-
-    const newSlot = await Slot.findOne({
-      _id: newSlotId,
-      status: "AVAILABLE"
-    });
-
-    if (!newSlot) return res.status(400).json({ message: "Slot busy" });
-
-    newSlot.status = "BOOKED";
-    await newSlot.save();
-
-    appointment.slotId = newSlotId;
-    appointment.status = "RESCHEDULED";
-    await appointment.save();
-
-    res.json({ message: "Rescheduled", appointment });
+      req.app.get("io").emit("appointment-updated");
+      res.json({ message: "Rescheduled", success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Error rescheduling" });
+    }
   });
   
 
