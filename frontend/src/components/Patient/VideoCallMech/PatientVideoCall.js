@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { Box, Typography, IconButton, TextField, Button, Paper, Fade, Tooltip } from "@mui/material";
+import { Box, Typography, IconButton, TextField, Button, Paper, Fade, Tooltip, Avatar } from "@mui/material";
 import { MicOff, Mic, Videocam, VideocamOff, CallEnd, Fullscreen, FullscreenExit, PersonOutline } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import io from "socket.io-client";
@@ -29,6 +29,7 @@ const PatientVideoCall = () => {
   const [roomId, setRoomId] = useState(initialRoomId);
   const [name, setName] = useState("");
   const [joined, setJoined] = useState(false);
+  const [doctorJoined, setDoctorJoined] = useState(false);
   const [localStream, setLocalStream] = useState(null);
   const [micOn, setMicOn] = useState(true);
   const [cameraOn, setCameraOn] = useState(true);
@@ -138,32 +139,47 @@ const PatientVideoCall = () => {
         if (e.candidate) socketRef.current.emit("ice-candidate", { roomId, candidate: e.candidate });
       };
 
+      let iceCandidateQueue = [];
+
       socketRef.current.on("offer", async ({ offer }) => {
         await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
         const ans = await peerConnection.current.createAnswer();
         await peerConnection.current.setLocalDescription(ans);
         socketRef.current.emit("answer", { roomId, answer: ans });
+
+        iceCandidateQueue.forEach(c => peerConnection.current.addIceCandidate(c).catch(console.error));
+        iceCandidateQueue = [];
       });
 
       socketRef.current.on("answer", async ({ answer }) => {
         await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
+
+        iceCandidateQueue.forEach(c => peerConnection.current.addIceCandidate(c).catch(console.error));
+        iceCandidateQueue = [];
       });
 
       socketRef.current.on("ice-candidate", ({ candidate }) => {
-        if (candidate) peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
+        if (!candidate) return;
+        const rtcCandidate = new RTCIceCandidate(candidate);
+        if (peerConnection.current.remoteDescription) {
+          peerConnection.current.addIceCandidate(rtcCandidate).catch(console.error);
+        } else {
+          iceCandidateQueue.push(rtcCandidate);
+        }
+      });
+
+      socketRef.current.on("peer-ready", ({ role }) => {
+        if (role === "doctor") setDoctorJoined(true);
       });
 
       socketRef.current.on("end-call", endCall);
 
-      // Patient sends offer first
-      peerConnection.current.createOffer().then(offer => {
-        peerConnection.current.setLocalDescription(offer);
-        socketRef.current.emit("offer", { roomId, offer });
-      });
+      // Signal that patient's media is fully initialized and ready to connect
+      socketRef.current.emit("media-ready", { roomId, role: "patient" });
     }).catch(err => console.error("Media access error:", err));
 
     return () => {
-      ["offer", "answer", "ice-candidate", "end-call"].forEach(e => socketRef.current.off(e));
+      ["offer", "answer", "ice-candidate", "peer-ready", "end-call"].forEach(e => socketRef.current.off(e));
       if (peerConnection.current) { peerConnection.current.close(); peerConnection.current = null; }
     };
   }, [joined]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -195,85 +211,129 @@ const PatientVideoCall = () => {
   // ── Pre-join screen ──────────────────────────────────────────
   if (!joined) {
     return (
-      <Box sx={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)",
-      }}>
-        <Paper elevation={0} sx={{
-          p: 5,
-          maxWidth: 420,
-          width: "100%",
-          mx: 2,
-          borderRadius: 4,
-          background: "rgba(255,255,255,0.05)",
-          backdropFilter: "blur(20px)",
-          border: "1px solid rgba(255,255,255,0.12)",
-          color: "#fff",
+      <Box sx={{ minHeight: "100vh", display: "flex" }}>
+        {/* Left Side: Info / Branding */}
+        <Box sx={{
+          flex: 1,
+          display: { xs: 'none', md: 'flex' },
+          flexDirection: 'column',
+          justifyContent: 'center',
+          p: { md: 6, lg: 10 },
+          background: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
-          {/* Logo / Title */}
-          <Box sx={{ textAlign: "center", mb: 4 }}>
-            <Box sx={{
-              width: 64, height: 64, borderRadius: "50%", mx: "auto", mb: 2,
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <Videocam sx={{ color: "#fff", fontSize: 30 }} />
-            </Box>
-            <Typography variant="h5" fontWeight={700} sx={{ color: "#fff" }}>
-              Join Consultation
-            </Typography>
-            <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.55)", mt: 0.5 }}>
-              Connect with your doctor securely
-            </Typography>
-          </Box>
-
-          <TextField
-            fullWidth
-            label="Your Name"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            sx={{ mb: 2.5, ...darkInputSx }}
-          />
-          <TextField
-            fullWidth
-            label="Room ID"
-            value={roomId}
-            onChange={e => setRoomId(e.target.value)}
-            sx={{ mb: 3.5, ...darkInputSx }}
-          />
-
-          <Button
-            fullWidth
-            variant="contained"
-            size="large"
-            onClick={joinRoom}
-            disabled={!roomId || !name}
-            sx={{
-              py: 1.6,
-              borderRadius: 3,
-              fontWeight: 700,
-              fontSize: "1rem",
-              background: "linear-gradient(90deg, #667eea, #764ba2)",
-              textTransform: "none",
-              boxShadow: "0 4px 24px rgba(102,126,234,0.45)",
-              "&:hover": { background: "linear-gradient(90deg, #5a6fd8, #6a4394)" },
-              "&:disabled": { opacity: 0.4 },
-            }}
-          >
-            Join Video Call
-          </Button>
-
-          <Typography variant="caption" sx={{
-            display: "block", textAlign: "center", mt: 2,
-            color: "rgba(255,255,255,0.35)"
-          }}>
-            🔒 End-to-end encrypted · HIPAA compliant
+          {/* Decorative circles */}
+          <Box sx={{ position: 'absolute', top: -100, right: -50, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', filter: 'blur(20px)' }} />
+          <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 250, height: 250, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', filter: 'blur(20px)' }} />
+          
+          <Typography variant="h3" sx={{ color: '#1E5DA9', fontWeight: 800, mb: 2, zIndex: 1 }}>
+            Your Virtual Care Room
           </Typography>
-        </Paper>
+          <Typography variant="h6" sx={{ color: '#555', mb: 6, zIndex: 1, maxWidth: 500, lineHeight: 1.6 }}>
+            Experience high-quality, secure consultations from the comfort of your home.
+          </Typography>
 
+          <Box sx={{ zIndex: 1, display: 'flex', flexDirection: 'column', gap: 3.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+              <Avatar sx={{ bgcolor: '#fff', color: '#1E5DA9', width: 40, height: 40, fontWeight: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>1</Avatar>
+              <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>Find a quiet, well-lit space</Typography>
+            </Box>
+             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+              <Avatar sx={{ bgcolor: '#fff', color: '#1E5DA9', width: 40, height: 40, fontWeight: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>2</Avatar>
+              <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>Check your internet connection</Typography>
+            </Box>
+             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+              <Avatar sx={{ bgcolor: '#fff', color: '#1E5DA9', width: 40, height: 40, fontWeight: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>3</Avatar>
+              <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>Test your microphone and camera</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+              <Avatar sx={{ bgcolor: '#fff', color: '#1E5DA9', width: 40, height: 40, fontWeight: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>4</Avatar>
+              <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>Keep any relevant medical records nearby</Typography>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Right Side: Join Form */}
+        <Box sx={{
+          width: { xs: '100%', md: '480px' },
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#fff',
+          position: 'relative',
+          zIndex: 2,
+          boxShadow: { md: '-20px 0 40px rgba(0,0,0,0.04)' }
+        }}>
+          <Paper elevation={0} sx={{
+            p: { xs: 4, md: 6 },
+            width: "100%",
+            mx: 2,
+            background: "transparent",
+            color: "#1E5DA9",
+          }}>
+            <Box sx={{ textAlign: "center", mb: 4 }}>
+              <Box sx={{
+                width: 64, height: 64, borderRadius: "50%", mx: "auto", mb: 2,
+                background: "linear-gradient(135deg, #62b8ffff 0%, #1E5DA9 100%)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: "0 8px 24px rgba(30,93,169,0.3)"
+              }}>
+                <Videocam sx={{ color: "#fff", fontSize: 30 }} />
+              </Box>
+              <Typography variant="h5" fontWeight={800} sx={{ color: "#1E5DA9" }}>
+                Join Consultation
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#777", mt: 1 }}>
+                Connect with your doctor securely
+              </Typography>
+            </Box>
+
+            <TextField
+              fullWidth
+              label="Your Name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              sx={{ mb: 2.5, ...lightInputSx }}
+            />
+            <TextField
+              fullWidth
+              label="Room ID"
+              value={roomId}
+              onChange={e => setRoomId(e.target.value)}
+              sx={{ mb: 4, ...lightInputSx }}
+            />
+
+            <Button
+              fullWidth
+              variant="contained"
+              size="large"
+              onClick={joinRoom}
+              disabled={!roomId || !name}
+              sx={{
+                py: 1.6,
+                borderRadius: 2,
+                fontWeight: 700,
+                fontSize: "1.05rem",
+                background: "linear-gradient(90deg, #62b8ffff, #1E5DA9)",
+                textTransform: "none",
+                boxShadow: "0 8px 24px rgba(30,93,169,0.3)",
+                "&:hover": { background: "linear-gradient(90deg, #1E5DA9, #0f3f7a)", transform: "translateY(-1px)", boxShadow: "0 12px 28px rgba(30,93,169,0.4)" },
+                transition: "all 0.2s ease-in-out",
+                "&:disabled": { opacity: 0.5, transform: "none", boxShadow: "none" },
+              }}
+            >
+              Enter Video Room
+            </Button>
+
+            <Typography variant="caption" sx={{
+              display: "block", textAlign: "center", mt: 4,
+              color: "#999", fontWeight: 500
+            }}>
+              🔒 End-to-end encrypted · HIPAA compliant
+            </Typography>
+          </Paper>
+        </Box>
         <style>{globalStyles}</style>
       </Box>
     );
@@ -292,7 +352,7 @@ const PatientVideoCall = () => {
           inset: 0,                        // top:0 right:0 bottom:0 left:0
           width: "100%",
           height: "100%", 
-          background: "#0a0a0f",
+          background: "#f8fafc",
           overflow: "hidden",
           cursor: controlsVisible ? "default" : "none",
           zIndex: 1300,
@@ -311,16 +371,18 @@ const PatientVideoCall = () => {
         />
 
         {/* ── No remote yet overlay ── */}
-        <Box sx={{
-          position: "absolute", inset: 0,
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          pointerEvents: "none",
-          opacity: 0.35,
-        }}>
-          <PersonOutline sx={{ fontSize: 80, color: "#fff" }} />
-          <Typography sx={{ color: "#fff", mt: 1 }}>Waiting for doctor…</Typography>
-        </Box>
+        {!doctorJoined && (
+          <Box sx={{
+            position: "absolute", inset: 0,
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            pointerEvents: "none",
+            opacity: 0.5,
+          }}>
+            <PersonOutline sx={{ fontSize: 80, color: "#1E5DA9" }} />
+            <Typography sx={{ color: "#333", mt: 1 }}>Waiting for doctor…</Typography>
+          </Box>
+        )}
 
         {/* ── Top bar ── */}
         <Fade in={controlsVisible}>
@@ -328,7 +390,7 @@ const PatientVideoCall = () => {
             position: "absolute", top: 0, left: 0, right: 0,
             px: 3, py: 2,
             display: "flex", alignItems: "center", justifyContent: "space-between",
-            background: "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)",
+            background: "linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, transparent 100%)",
           }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
               <Box sx={{
@@ -337,17 +399,18 @@ const PatientVideoCall = () => {
                 boxShadow: "0 0 8px #22c55e",
                 animation: "pulse-dot 2s ease-in-out infinite",
               }} />
-              <Typography sx={{ color: "#fff", fontWeight: 600, fontSize: "0.95rem" }}>
+              <Typography sx={{ color: "#1E5DA9", fontWeight: 600, fontSize: "0.95rem" }}>
                 Live Consultation
               </Typography>
             </Box>
             <Box sx={{
               px: 2, py: 0.5, borderRadius: 99,
-              background: "rgba(255,255,255,0.1)",
+              background: "rgba(255,255,255,0.9)",
               backdropFilter: "blur(8px)",
-              border: "1px solid rgba(255,255,255,0.15)",
+              border: "1px solid rgba(0,0,0,0.1)",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
             }}>
-              <Typography sx={{ color: "#fff", fontSize: "0.85rem", fontVariantNumeric: "tabular-nums" }}>
+              <Typography sx={{ color: "#333", fontSize: "0.85rem", fontVariantNumeric: "tabular-nums" }}>
                 ⏱ {formatDuration(callDuration)}
               </Typography>
             </Box>
@@ -359,12 +422,13 @@ const PatientVideoCall = () => {
           position: "absolute", bottom: 100, right: 16,
           borderRadius: "16px",
           overflow: "hidden",
-          border: "2px solid rgba(255,255,255,0.25)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+          border: "2px solid #1E5DA9",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
           width: { xs: 100, sm: 150 },
           height: { xs: 68, sm: 100 },
           transition: "all 0.3s ease",
           "&:hover": { transform: "scale(1.04)" },
+          background: "#fff",
         }}>
           <video
             ref={localVideoRef}
@@ -374,16 +438,17 @@ const PatientVideoCall = () => {
           {!cameraOn && (
             <Box sx={{
               position: "absolute", inset: 0,
-              bgcolor: "#1a1a2e",
+              bgcolor: "#f0f4f8",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <VideocamOff sx={{ color: "rgba(255,255,255,0.5)" }} />
+              <VideocamOff sx={{ color: "rgba(30,93,169,0.5)" }} />
             </Box>
           )}
           <Typography sx={{
             position: "absolute", bottom: 4, left: 0, right: 0,
-            textAlign: "center", color: "#fff", fontSize: "0.65rem",
-            textShadow: "0 1px 4px #000"
+            textAlign: "center", color: "#1E5DA9", fontSize: "0.65rem",
+            fontWeight: "bold",
+            textShadow: "0 1px 2px rgba(255,255,255,0.8)"
           }}>
             You
           </Typography>
@@ -397,16 +462,16 @@ const PatientVideoCall = () => {
             display: "flex", alignItems: "center", gap: 1.5,
             px: 3, py: 1.5,
             borderRadius: "100px",
-            background: "rgba(15,15,30,0.75)",
+            background: "rgba(255,255,255,0.9)",
             backdropFilter: "blur(16px)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+            border: "1px solid rgba(0,0,0,0.1)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
           }}>
             <Tooltip title={micOn ? "Mute mic" : "Unmute mic"} placement="top">
               <IconButton onClick={toggleMic} sx={{
-                color: "#fff", width: 52, height: 52,
-                background: micOn ? "rgba(255,255,255,0.1)" : "rgba(239,68,68,0.7)",
-                "&:hover": { background: micOn ? "rgba(255,255,255,0.2)" : "rgba(239,68,68,0.9)" },
+                color: micOn ? "#1E5DA9" : "#fff", width: 52, height: 52,
+                background: micOn ? "rgba(30,93,169,0.1)" : "rgba(239,68,68,0.9)",
+                "&:hover": { background: micOn ? "rgba(30,93,169,0.2)" : "rgba(239,68,68,1)" },
                 transition: "all 0.2s",
               }}>
                 {micOn ? <Mic /> : <MicOff />}
@@ -415,9 +480,9 @@ const PatientVideoCall = () => {
 
             <Tooltip title={cameraOn ? "Turn off camera" : "Turn on camera"} placement="top">
               <IconButton onClick={toggleCamera} sx={{
-                color: "#fff", width: 52, height: 52,
-                background: cameraOn ? "rgba(255,255,255,0.1)" : "rgba(239,68,68,0.7)",
-                "&:hover": { background: cameraOn ? "rgba(255,255,255,0.2)" : "rgba(239,68,68,0.9)" },
+                color: cameraOn ? "#1E5DA9" : "#fff", width: 52, height: 52,
+                background: cameraOn ? "rgba(30,93,169,0.1)" : "rgba(239,68,68,0.9)",
+                "&:hover": { background: cameraOn ? "rgba(30,93,169,0.2)" : "rgba(239,68,68,1)" },
                 transition: "all 0.2s",
               }}>
                 {cameraOn ? <Videocam /> : <VideocamOff />}
@@ -425,13 +490,13 @@ const PatientVideoCall = () => {
             </Tooltip>
 
             {/* Divider */}
-            <Box sx={{ width: 1, height: 36, bgcolor: "rgba(255,255,255,0.15)", mx: 0.5 }} />
+            <Box sx={{ width: 1, height: 36, bgcolor: "rgba(0,0,0,0.1)", mx: 0.5 }} />
 
             <Tooltip title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} placement="top">
               <IconButton onClick={toggleFullscreen} sx={{
-                color: "#fff", width: 52, height: 52,
-                background: "rgba(255,255,255,0.1)",
-                "&:hover": { background: "rgba(255,255,255,0.2)" },
+                color: "#1E5DA9", width: 52, height: 52,
+                background: "rgba(30,93,169,0.1)",
+                "&:hover": { background: "rgba(30,93,169,0.2)" },
                 transition: "all 0.2s",
               }}>
                 {isFullscreen ? <FullscreenExit /> : <Fullscreen />}
@@ -439,7 +504,7 @@ const PatientVideoCall = () => {
             </Tooltip>
 
             {/* Divider */}
-            <Box sx={{ width: 1, height: 36, bgcolor: "rgba(255,255,255,0.15)", mx: 0.5 }} />
+            <Box sx={{ width: 1, height: 36, bgcolor: "rgba(0,0,0,0.1)", mx: 0.5 }} />
 
             <Tooltip title="End call" placement="top">
               <IconButton onClick={endCall} sx={{
@@ -464,18 +529,18 @@ const PatientVideoCall = () => {
   );
 };
 
-// ── Shared dark input styling ─────────────────────────────────
-const darkInputSx = {
+// ── Shared light input styling ─────────────────────────────────
+const lightInputSx = {
   "& .MuiOutlinedInput-root": {
-    color: "#fff",
+    color: "#333",
     borderRadius: 2,
-    background: "rgba(255,255,255,0.06)",
-    "& fieldset": { borderColor: "rgba(255,255,255,0.2)" },
-    "&:hover fieldset": { borderColor: "rgba(255,255,255,0.4)" },
-    "&.Mui-focused fieldset": { borderColor: "#667eea" },
+    background: "rgba(255,255,255,0.6)",
+    "& fieldset": { borderColor: "rgba(0,0,0,0.15)" },
+    "&:hover fieldset": { borderColor: "rgba(0,0,0,0.3)" },
+    "&.Mui-focused fieldset": { borderColor: "#1E5DA9" },
   },
-  "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.55)" },
-  "& .MuiInputLabel-root.Mui-focused": { color: "#667eea" },
+  "& .MuiInputLabel-root": { color: "#666" },
+  "& .MuiInputLabel-root.Mui-focused": { color: "#1E5DA9" },
 };
 
 // ── Global keyframes ──────────────────────────────────────────
