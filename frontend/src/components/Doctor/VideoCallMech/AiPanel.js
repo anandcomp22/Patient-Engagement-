@@ -41,6 +41,7 @@ const STATUS_LABELS = {
 
 const AiPanel = ({
     localStream,
+    remoteStream,
     active,
     sessionId,
     patientId = "patient_101",
@@ -162,8 +163,13 @@ const AiPanel = ({
     // Start: open WS + MediaRecorder when call becomes active
     // -----------------------------------------------------------------------
     useEffect(() => {
-        if (!active || !localStream || !sessionId) return;
+        console.log(`[AiPanel Debug] Effect triggered! active=${active}, localStream=${!!localStream}, sessionId=${sessionId}`);
+        if (!active || !localStream || !sessionId) {
+            console.log(`[AiPanel Debug] Returning early!`);
+            return;
+        }
 
+        console.log(`[AiPanel Debug] Advancing to recording mode!`);
         // Reset state for a new call
         setLiveText("");
         setFinalTranscript("");
@@ -328,6 +334,33 @@ const AiPanel = ({
             setTimeout(() => { ws.close(); }, 1000);
         };
     }, [active, localStream, sessionId, patientId, doctorId]); // triggerRag removed — accessed via ref
+
+    // -----------------------------------------------------------------------
+    // On-Demand Mixing: Dynamically pipe remote Patient audio into the transcript
+    // -----------------------------------------------------------------------
+    useEffect(() => {
+        if (!active || !remoteStream || !recorderRef.current) return;
+        
+        console.log("[AiPanel] Remote peer connected! Integrating patient audio track.");
+        let remoteSource = null;
+        try {
+            const audioCtx = recorderRef.current.audioCtx;
+            if (remoteStream.getAudioTracks().length > 0) {
+                const remoteAudioStream = new MediaStream(remoteStream.getAudioTracks());
+                remoteSource = audioCtx.createMediaStreamSource(remoteAudioStream);
+                // Connect patient audio straight into the shared script processor
+                remoteSource.connect(recorderRef.current.processor);
+            }
+        } catch (err) {
+            console.error("[AiPanel] Failed to mix remote audio into transcript:", err);
+        }
+
+        return () => {
+            if (remoteSource) {
+                try { remoteSource.disconnect(); } catch (e) {}
+            }
+        };
+    }, [active, remoteStream]);
 
     // -----------------------------------------------------------------------
     // Render
