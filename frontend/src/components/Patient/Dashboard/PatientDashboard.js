@@ -12,6 +12,7 @@ import {
   Badge,
   CircularProgress,
   Box as MuiBox,
+  Container,
 } from '@mui/material';
 import {
   CalendarToday,
@@ -167,7 +168,7 @@ export default function PatientDashboard() {
   const [loading, setLoading] = useState(true);
 
   const profileInitials = 'SP';
-  const patientId = 123;
+  const patientId = localStorage.getItem("patientId") || 123;
 
   useEffect(() => {
     const name = localStorage.getItem("patientName");
@@ -191,14 +192,22 @@ export default function PatientDashboard() {
     axios
       .get(`http://localhost:8000/patient/appointments/${patientId}`)
       .then((res) => {
-        setAppointments(res.data);
+        const now = new Date();
+        // Filter out past appointments to properly show upcoming count
+        const upcoming = res.data.filter(appt => {
+            const apptDate = new Date(appt.appointmentDate || appt.date);
+            // Consider the appointment upcoming if its date is today or later
+            apptDate.setHours(23, 59, 59, 999);
+            return apptDate >= now;
+        });
+        setAppointments(upcoming);
         setLoading(false);
       })
       .catch((err) => {
         console.error(err);
         setLoading(false);
       });
-  }, []);
+  }, [patientId]);
 
   const nextAppointment = appointments.length > 0 ? appointments[0] : null;
 
@@ -219,7 +228,7 @@ export default function PatientDashboard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay }}
       whileHover={{ scale: 1.03 }}
-      style={{ borderRadius: '8px' }}
+      style={{ borderRadius: '8px', height: '100%' }}
     >
       {children}
     </motion.div>
@@ -235,7 +244,7 @@ export default function PatientDashboard() {
   };
 
   return (
-    <Box sx={{ p: 3, mt: 3 }}>
+    <Container maxWidth="lg" sx={{ p: { xs: 2, md: 3 }, mt: 3, mb: 4 }}>
       {confetti && <Confetti width={width} height={height} />}
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
@@ -261,10 +270,12 @@ export default function PatientDashboard() {
                 backgroundColor: insightColors[0],
                 borderRadius: "16px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                display: 'flex',
+                flexDirection: 'column'
               }}
             >
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: 2, '&:last-child': { pb: 2 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <CalendarToday sx={{ color: '#1E5DA9', mr: 2 }} />
                   <Typography variant="h6">Upcoming Appointments</Typography>
                 </Box>
@@ -277,32 +288,59 @@ export default function PatientDashboard() {
                 )}
 
                 {nextAppointment && (
-                  <Box sx={{ mt: 2 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                      Next: {new Date(nextAppointment.date).toLocaleDateString()}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'gray' }}>
-                      Doctor: {nextAppointment.doctor}
-                    </Typography>
+                  <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                          Next: {new Date(nextAppointment.appointmentDate || nextAppointment.date).toLocaleDateString()}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'gray' }}>
+                          Doctor: {nextAppointment.doctorName || nextAppointment.doctor}
+                        </Typography>
+                      </Box>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        sx={{ color: '#008cffff', borderColor: '#008cffff', textTransform: 'none' }}
+                        onClick={() => navigate(`/patient/video-call?roomId=${nextAppointment.roomId || ''}`)}
+                      >
+                        Join Call
+                      </Button>
+                    </Box>
                     <Typography variant="body2" sx={{ mt: 1, color: 'green' }}>
-                      Your appointment is in {formatDistanceToNowStrict(new Date(nextAppointment.date), { addSuffix: true })}
+                      Your appointment is in {(() => {
+                        try {
+                           // Attempt to parse date properly to avoid formatDistance errors
+                           let dateStr = nextAppointment.appointmentDate || nextAppointment.date;
+                           let parsedDate = new Date(dateStr);
+                           
+                           // Try merging the time if available
+                           if (nextAppointment.startTime || nextAppointment.time) {
+                             const timeStr = nextAppointment.startTime || nextAppointment.time;
+                             const dateOnlyStr = parsedDate.toISOString().split('T')[0];
+                             const [timePart, modifier] = timeStr.trim().split(" ");
+                             let [hours, minutes] = timePart.split(":");
+                             if (hours === '12') hours = '00';
+                             if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
+                             parsedDate = new Date(`${dateOnlyStr}T${hours}:${minutes}:00`);
+                           }
+                           return formatDistanceToNowStrict(parsedDate, { addSuffix: true });
+                        } catch(e) { 
+                           return 'upcoming'; 
+                        }
+                      })()}
                     </Typography>
-                    <Button
-                      variant="outlined"
-                      sx={{ mt: 1, color: '#008cffff', borderColor: '#008cffff' }}
-                      onClick={() => navigate('/patient/video-call')}
-                    >
-                      Join Video Call
-                    </Button>
                   </Box>
                 )}
-                <Button
-                  variant="contained"
-                  sx={{ bgcolor: '#62b8ffff', mt: 2, '&:hover': { bgcolor: '#62b8ffff' }, borderRadius: '20px', px: 3 }}
-                  onClick={() => navigate('/patient/appointments')}
-                >
-                  View All
-                </Button>
+                <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-start' }}>
+                  <Button
+                    variant="contained"
+                    sx={{ bgcolor: '#62b8ffff', mt: 1.5, '&:hover': { bgcolor: '#62b8ffff' }, borderRadius: '20px', px: 3 }}
+                    onClick={() => navigate('/patient/appointments')}
+                  >
+                    View All
+                  </Button>
+                </Box>
               </CardContent>
             </Card>
           </AnimatedCard>
@@ -316,21 +354,28 @@ export default function PatientDashboard() {
                 backgroundColor: insightColors[1],
                 borderRadius: "16px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                display: 'flex',
+                flexDirection: 'column'
               }}
             >
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: 2, '&:last-child': { pb: 2 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <AddCircleOutline sx={{ color: '#1E5DA9', mr: 2 }} />
                   <Typography variant="h6">Book Appointment</Typography>
                 </Box>
-                <Typography variant="body1">Schedule a new consultation</Typography>
-                <Button
-                  variant="contained"
-                  sx={{ bgcolor: '#62b8ffff', mt: 2, '&:hover': { bgcolor: '#62b8ffff' }, borderRadius: '20px', px: 3 }}
-                  onClick={() => navigate('/patient/book')}
-                >
-                  Book Now
-                </Button>
+                <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>Schedule a new consultation</Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
+                  Browse our network of top specialists, access real-time calendar availability, and lock in your appointment instantly without the wait. Enjoy a seamless booking experience built around your convenience.
+                </Typography>
+                <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-start' }}>
+                  <Button
+                    variant="contained"
+                    sx={{ bgcolor: '#62b8ffff', mt: 1.5, '&:hover': { bgcolor: '#62b8ffff' }, borderRadius: '20px', px: 3 }}
+                    onClick={() => navigate('/patient/book')}
+                  >
+                    Book Now
+                  </Button>
+                </Box>
               </CardContent>
             </Card>
           </AnimatedCard>
@@ -344,21 +389,28 @@ export default function PatientDashboard() {
                 backgroundColor: insightColors[2],
                 borderRadius: "16px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                display: 'flex',
+                flexDirection: 'column'
               }}
             >
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: 2, '&:last-child': { pb: 2 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <VideoCall sx={{ color: '#1E5DA9', mr: 2 }} />
                   <Typography variant="h6">Video Consultation</Typography>
                 </Box>
-                <Typography variant="body1">Connect with your doctor online</Typography>
-                <Button
-                  variant="contained"
-                  sx={{ bgcolor: '#62b8ffff', mt: 2, '&:hover': { bgcolor: '#62b8ffff' }, borderRadius: '20px', px: 3 }}
-                  onClick={() => navigate('/patient/video-call')}
-                >
-                  Join Now
-                </Button>
+                <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>Connect with your doctor online</Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
+                  Experience secure, high-quality virtual appointments from the comfort of your home. Get immediate medical advice, follow-ups, and prescriptions without having to step outside.
+                </Typography>
+                <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-start' }}>
+                  <Button
+                    variant="contained"
+                    sx={{ bgcolor: '#62b8ffff', mt: 1.5, '&:hover': { bgcolor: '#62b8ffff' }, borderRadius: '20px', px: 3 }}
+                    onClick={() => navigate('/patient/video-call')}
+                  >
+                    Join Now
+                  </Button>
+                </Box>
               </CardContent>
             </Card>
           </AnimatedCard>
@@ -434,6 +486,6 @@ export default function PatientDashboard() {
             </Card>
           </AnimatedCard>
         </Grid>
-    </Box>
+    </Container>
   );
 }
