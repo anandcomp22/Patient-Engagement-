@@ -86,7 +86,7 @@ const EmergencyMap = () => {
   }, [radius]);
 
   const handleTypeToggle = (type) => {
-    setActiveTypes(prev => 
+    setActiveTypes(prev =>
       prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
     );
   };
@@ -115,15 +115,15 @@ const EmergencyMap = () => {
       }
 
       const data = await response.json();
-      
+
       const parsedFacilities = data.elements
         .filter(el => el.tags && el.tags.amenity)
         .map(el => {
-           // For nodes, lat/lon are on the element itself; for ways/relations, they are in 'center'
-           const fLat = el.lat || (el.center && el.center.lat);
-           const fLng = el.lon || (el.center && el.center.lon);
-           
-           return {
+          // For nodes, lat/lon are on the element itself; for ways/relations, they are in 'center'
+          const fLat = el.lat || (el.center && el.center.lat);
+          const fLng = el.lon || (el.center && el.center.lon);
+
+          return {
             id: el.id,
             lat: fLat,
             lng: fLng,
@@ -166,43 +166,43 @@ const EmergencyMap = () => {
 
   return (
     <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
-      
+
       {/* Filters Toolbar */}
       <Card sx={{ borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
         <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 }, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { xs: 'flex-start', md: 'center' }, justifyContent: 'space-between', gap: 2 }}>
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <FilterList sx={{ color: '#64748b' }} />
             <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#334155' }}>Filters</Typography>
           </Box>
 
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-            <Chip 
-              label="Hospitals" 
-              icon={<LocalHospital fontSize="small" />} 
-              color={activeTypes.includes('hospital') ? "error" : "default"} 
+            <Chip
+              label="Hospitals"
+              icon={<LocalHospital fontSize="small" />}
+              color={activeTypes.includes('hospital') ? "error" : "default"}
               variant={activeTypes.includes('hospital') ? "filled" : "outlined"}
               onClick={() => handleTypeToggle('hospital')}
               sx={{ fontWeight: 'bold' }}
             />
-            <Chip 
-              label="Clinics" 
-              icon={<MedicalServices fontSize="small" />} 
-              color={activeTypes.includes('clinic') ? "primary" : "default"} 
+            <Chip
+              label="Clinics"
+              icon={<MedicalServices fontSize="small" />}
+              color={activeTypes.includes('clinic') ? "primary" : "default"}
               variant={activeTypes.includes('clinic') ? "filled" : "outlined"}
               onClick={() => handleTypeToggle('clinic')}
               sx={{ fontWeight: 'bold' }}
             />
-            <Chip 
-              label="Pharmacies" 
-              icon={<LocalPharmacy fontSize="small" />} 
-              color={activeTypes.includes('pharmacy') ? "success" : "default"} 
+            <Chip
+              label="Pharmacies"
+              icon={<LocalPharmacy fontSize="small" />}
+              color={activeTypes.includes('pharmacy') ? "success" : "default"}
               variant={activeTypes.includes('pharmacy') ? "filled" : "outlined"}
               onClick={() => handleTypeToggle('pharmacy')}
               sx={{ fontWeight: 'bold' }}
             />
           </Box>
-          
+
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, minWidth: 180 }}>
             <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 'bold', pl: 0.5 }}>Search Radius</Typography>
             <Select
@@ -224,7 +224,7 @@ const EmergencyMap = () => {
 
       {/* Main Map & List Layout */}
       <Box sx={{ width: '100%', height: { xs: 'auto', md: '500px' }, display: 'flex', flexDirection: { xs: 'column-reverse', md: 'row' }, borderRadius: '16px', overflow: 'hidden', border: '1px solid #e0e0e0', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-        
+
         {/* Contact List Sidebar */}
         <Box sx={{ width: { xs: '100%', md: '35%' }, height: { xs: '350px', md: '100%' }, backgroundColor: '#f8fafc', borderRight: { md: '1px solid #e0e0e0' }, borderTop: { xs: '1px solid #e0e0e0', md: 'none' }, overflowY: 'auto' }}>
           <Box sx={{ p: 2, position: 'sticky', top: 0, backgroundColor: '#f8fafc', zIndex: 10, borderBottom: '1px solid #e0e0e0' }}>
@@ -232,7 +232,7 @@ const EmergencyMap = () => {
               Nearby Results ({filteredFacilities.length})
             </Typography>
           </Box>
-          
+
           {filteredFacilities.length === 0 && (
             <Box sx={{ p: 3, textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">No facilities matched your filters.</Typography>
@@ -240,112 +240,112 @@ const EmergencyMap = () => {
           )}
 
           {filteredFacilities.map(facility => {
-          const statusConfig = getIconStatus(facility.type);
-          const isSelected = selectedFacility?.id === facility.id;
+            const statusConfig = getIconStatus(facility.type);
+            const isSelected = selectedFacility?.id === facility.id;
 
-          return (
-            <Card 
-              key={facility.id} 
-              elevation={0}
-              sx={{ 
-                m: 1, 
-                mb: 1.5, 
-                border: isSelected ? `2px solid #1E5DA9` : '1px solid #e2e8f0', 
-                borderRadius: '12px',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }
-              }}
-              onClick={() => setSelectedFacility(facility)}
-            >
-              <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#0f172a', pr: 1, lineHeight: 1.3 }}>
-                    {facility.name}
-                  </Typography>
-                  <Chip size="small" icon={statusConfig.icon} label={statusConfig.label} color={statusConfig.color} variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
-                </Box>
-                
-                {facility.address && (
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', mt: 1, color: '#64748b' }}>
-                    <LocationOn sx={{ fontSize: 16, mr: 0.5, mt: 0.2 }} />
-                    <Typography variant="caption">{facility.address}</Typography>
+            return (
+              <Card
+                key={facility.id}
+                elevation={0}
+                sx={{
+                  m: 1,
+                  mb: 1.5,
+                  border: isSelected ? `2px solid #1E5DA9` : '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }
+                }}
+                onClick={() => setSelectedFacility(facility)}
+              >
+                <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#0f172a', pr: 1, lineHeight: 1.3 }}>
+                      {facility.name}
+                    </Typography>
+                    <Chip size="small" icon={statusConfig.icon} label={statusConfig.label} color={statusConfig.color} variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
                   </Box>
-                )}
 
-                {/* Brief Contact Info */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5, pt: 1.5, borderTop: '1px dashed #e2e8f0' }}>
-                  {facility.phone ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Phone sx={{ fontSize: 16, mr: 0.5, color: '#16a34a' }} />
-                      <Typography variant="caption" sx={{ fontWeight: 'bold', color: '#16a34a' }}>{facility.phone}</Typography>
+                  {facility.address && (
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', mt: 1, color: '#64748b' }}>
+                      <LocationOn sx={{ fontSize: 16, mr: 0.5, mt: 0.2 }} />
+                      <Typography variant="caption">{facility.address}</Typography>
                     </Box>
-                  ) : (
-                    <Typography variant="caption" sx={{ color: '#94a3b8', fontStyle: 'italic' }}>No phone available</Typography>
                   )}
-                  
-                  {facility.phone && (
-                   <div onClick={(e) => e.stopPropagation()}>
-                    <a href={`tel:${facility.phone}`} style={{ textDecoration: 'none' }}>
-                      <Box sx={{ 
-                        backgroundColor: '#fee2e2', 
-                        color: '#dc2626', 
-                        px: 1.5, 
-                        py: 0.5, 
-                        borderRadius: '20px', 
-                        fontSize: '0.75rem', 
-                        fontWeight: 'bold',
-                        display: 'flex',
-                        alignItems: 'center'
-                      }}>
-                        Call
-                      </Box>
-                    </a>
-                   </div>
-                  )}
-                </Box>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </Box>
 
-      {/* Map Section */}
-      <Box sx={{ width: { xs: '100%', md: '65%' }, height: { xs: '350px', md: '100%' }, position: 'relative' }}>
-        {errorMsg && (
-          <Alert severity="warning" sx={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', zIndex: 1000, width: '90%' }}>
-            {errorMsg}
-          </Alert>
-        )}
-        
-        {position && (
-          <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%', zIndex: 1 }}>
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            
-            {selectedFacility && <MapRecenter center={[selectedFacility.lat, selectedFacility.lng]} />}
-            
-            {/* User Marker */}
-            <Marker 
-              position={position} 
-              icon={L.divIcon({
-                className: 'user-location-icon',
-                html: `<div style="background-color: #2563eb; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3), 0 2px 5px rgba(0,0,0,0.4);"></div>`,
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
-              })}
-            >
-              <Popup>You are here</Popup>
-            </Marker>
+                  {/* Brief Contact Info */}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5, pt: 1.5, borderTop: '1px dashed #e2e8f0' }}>
+                    {facility.phone ? (
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Phone sx={{ fontSize: 16, mr: 0.5, color: '#16a34a' }} />
+                        <Typography variant="caption" sx={{ fontWeight: 'bold', color: '#16a34a' }}>{facility.phone}</Typography>
+                      </Box>
+                    ) : (
+                      <Typography variant="caption" sx={{ color: '#94a3b8', fontStyle: 'italic' }}>No phone available</Typography>
+                    )}
+
+                    {facility.phone && (
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <a href={`tel:${facility.phone}`} style={{ textDecoration: 'none' }}>
+                          <Box sx={{
+                            backgroundColor: '#fee2e2',
+                            color: '#dc2626',
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: '20px',
+                            fontSize: '0.75rem',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}>
+                            Call
+                          </Box>
+                        </a>
+                      </div>
+                    )}
+                  </Box>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </Box>
+
+        {/* Map Section */}
+        <Box sx={{ width: { xs: '100%', md: '65%' }, height: { xs: '350px', md: '100%' }, position: 'relative' }}>
+          {errorMsg && (
+            <Alert severity="warning" sx={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', zIndex: 1000, width: '90%' }}>
+              {errorMsg}
+            </Alert>
+          )}
+
+          {position && (
+            <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%', zIndex: 1 }}>
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+
+              {selectedFacility && <MapRecenter center={[selectedFacility.lat, selectedFacility.lng]} />}
+
+              {/* User Marker */}
+              <Marker
+                position={position}
+                icon={L.divIcon({
+                  className: 'user-location-icon',
+                  html: `<div style="background-color: #2563eb; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3), 0 2px 5px rgba(0,0,0,0.4);"></div>`,
+                  iconSize: [20, 20],
+                  iconAnchor: [10, 10]
+                })}
+              >
+                <Popup>You are here</Popup>
+              </Marker>
 
               {/* Facility Markers */}
               {filteredFacilities.map(facility => (
-                <Marker 
-                  key={facility.id} 
+                <Marker
+                  key={facility.id}
                   position={[facility.lat, facility.lng]}
-                  icon={selectedFacility?.id === facility.id 
+                  icon={selectedFacility?.id === facility.id
                     ? createIcon(getIconStatus(facility.type).color === 'error' ? '#b91c1c' : '#0369a1', '★')
                     : icons[facility.type] || icons.hospital}
                   eventHandlers={{
