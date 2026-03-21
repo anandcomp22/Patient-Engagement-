@@ -1,54 +1,43 @@
-// HealthConnect.js
-// A compact "connect device" button + status badge shown in health widget headers
-
 import React, { useState } from 'react';
-import {
-  Box, Button, Typography, Tooltip, Menu, MenuItem,
-  ListItemIcon, ListItemText, Chip, CircularProgress
-} from '@mui/material';
-import {
-  Bluetooth, WatchOutlined, PlayCircleOutline,
-  CheckCircle, ErrorOutline, LinkOff
-} from '@mui/icons-material';
+import { Box, Button, Typography, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText, Chip, CircularProgress } from '@mui/material';
+import { Bluetooth, WatchOutlined, PlayCircleOutline, CheckCircle, ErrorOutline, LinkOff } from '@mui/icons-material';
 
 const statusConfig = {
   disconnected: { label: 'Not Connected', color: '#64748b', bg: '#f1f5f9' },
   connecting:   { label: 'Connecting...', color: '#d97706', bg: '#fef3c7' },
-  ble:          { label: 'Bluetooth', color: '#0369a1', bg: '#e0f2fe' },
-  gfit:         { label: 'Google Fit', color: '#15803d', bg: '#dcfce7' },
-  demo:         { label: 'Demo Mode', color: '#7c3aed', bg: '#ede9fe' },
+  ble:          { label: 'Bluetooth',     color: '#0369a1', bg: '#e0f2fe' },
+  gfit:         { label: 'Google Fit',    color: '#15803d', bg: '#dcfce7' },
+  demo:         { label: 'Demo Mode',     color: '#7c3aed', bg: '#ede9fe' },
 };
 
 export default function HealthConnect({ connectionStatus, deviceName, error, connectBluetooth, connectGoogleFit, startDemo, disconnect }) {
   const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
   const cfg = statusConfig[connectionStatus] || statusConfig.disconnected;
   const isConnected = ['ble', 'gfit', 'demo'].includes(connectionStatus);
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      {/* Status chip */}
       <Tooltip title={deviceName || cfg.label} arrow>
         <Chip
           size="small"
-          icon={connectionStatus === 'connecting'
-            ? <CircularProgress size={12} sx={{ color: cfg.color }} />
-            : isConnected ? <CheckCircle sx={{ fontSize: 14, color: cfg.color }} />
-            : <WatchOutlined sx={{ fontSize: 14 }} />
+          icon={
+            connectionStatus === 'connecting'
+              ? <CircularProgress size={12} sx={{ color: cfg.color }} />
+              : isConnected
+              ? <CheckCircle sx={{ fontSize: 14, color: cfg.color }} />
+              : <WatchOutlined sx={{ fontSize: 14 }} />
           }
           label={cfg.label}
           sx={{ backgroundColor: cfg.bg, color: cfg.color, fontWeight: 'bold', fontSize: '0.7rem' }}
         />
       </Tooltip>
 
-      {/* Error indicator */}
       {error && (
         <Tooltip title={error} arrow>
           <ErrorOutline sx={{ color: '#dc2626', fontSize: 18 }} />
         </Tooltip>
       )}
 
-      {/* Connect / Disconnect button */}
       {isConnected ? (
         <Tooltip title="Disconnect device" arrow>
           <Button
@@ -71,7 +60,12 @@ export default function HealthConnect({ connectionStatus, deviceName, error, con
           >
             Connect
           </Button>
-          <Menu anchorEl={anchorEl} open={open} onClose={() => setAnchorEl(null)} PaperProps={{ sx: { borderRadius: '12px', minWidth: 230, boxShadow: '0 4px 20px rgba(0,0,0,0.12)' } }}>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={() => setAnchorEl(null)}
+            PaperProps={{ sx: { borderRadius: '12px', minWidth: 230, boxShadow: '0 4px 20px rgba(0,0,0,0.12)' } }}
+          >
             <MenuItem onClick={() => { connectBluetooth(); setAnchorEl(null); }} sx={{ py: 1.5 }}>
               <ListItemIcon><Bluetooth sx={{ color: '#0369a1' }} /></ListItemIcon>
               <ListItemText
