@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 const GOOGLE_FIT_CLIENT_ID = process.env.REACT_APP_GOOGLE_FIT_CLIENT_ID || '';
 const GOOGLE_FIT_SCOPES = [
-  'https://www.googleapis.com/auth/fitness.activity.read',
+  'https://www.googleapis.com/auth/fitness.activity.read', 
   'https://www.googleapis.com/auth/fitness.heart_rate.read',
   'https://www.googleapis.com/auth/fitness.body.read',
 ].join(' ');
