@@ -37,6 +37,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import EmergencyMap from './EmergencyMap';
 import useHealthData from './useHealthData';
 import HealthConnect from './HealthConnect';
+import MedicalChatBot from './MedicalChatBot';
 
 
 
@@ -255,7 +256,8 @@ export default function PatientDashboard() {
   }, []);
 
   return (
-    <Container maxWidth="lg" sx={{ p: { xs: 2, md: 3 }, mt: 3, mb: 4 }}>
+    <>
+      <Container maxWidth="lg" sx={{ p: { xs: 2, md: 3 }, mt: 3, mb: 4 }}>
       {confetti && <Confetti width={width} height={height} />}
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
@@ -497,5 +499,9 @@ export default function PatientDashboard() {
         </AnimatedCard>
       </Grid>
     </Container>
+
+    {/* Floating Medical Chatbot — fixed overlay, visible on all scroll positions */}
+    <MedicalChatBot />
+  </>
   );
 }

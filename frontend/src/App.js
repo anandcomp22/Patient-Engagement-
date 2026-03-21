@@ -20,7 +20,7 @@ import PatientSidebar from './components/Patient/Dashboard/PatientSidebar';
 import PatientNavbar from './components/Patient/Dashboard/PatientNavbar';
 import PatientVideoCall from './components/Patient/VideoCallMech/PatientVideoCall';
 import PayPalPaymentPage from './PaymentGateway/PayPalButton';
-import Chatbot from './components/Patient/ChatBot/Chatbot'; 
+
 import AnalysisPage from './components/Doctor/Dashboard/Analysis';
 import DoctorSettings from './components/Doctor/DoctorSetting/DoctorSettings';
 import UploadReport from './components/Patient/Dashboard/UploadedReport';
@@ -92,7 +92,7 @@ function App() {
                       <Route path="upload-report" element={<UploadReport />} />
                     </Routes>
 
-                    <Chatbot />
+
                   </Box>
                 </Box>
               </Box>
