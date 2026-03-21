@@ -6,13 +6,14 @@ import {
   Card,
   CardContent,
   Button,
-  Avatar,
   IconButton,
   Popover,
   Badge,
   CircularProgress,
   Box as MuiBox,
   Container,
+  Chip,
+  Divider,
 } from '@mui/material';
 import {
   CalendarToday,
@@ -21,6 +22,9 @@ import {
   NotificationsActive,
   Insights,
   FitnessCenter,
+  Favorite,
+  LocalFireDepartment,
+  DirectionsWalk,
 } from '@mui/icons-material';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import { useNavigate } from 'react-router-dom';
@@ -30,13 +34,11 @@ import axios from 'axios';
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import EmergencyMap from './EmergencyMap';
+import useHealthData from './useHealthData';
+import HealthConnect from './HealthConnect';
 
-const healthProgressData = [
-  { date: '2025-01-01', steps: 3000 },
-  { date: '2025-01-02', steps: 4000 },
-  { date: '2025-01-03', steps: 3500 },
-  { date: '2025-01-04', steps: 5000 },
-];
+
 
 const cardColors = {
   appointments: "linear-gradient(135deg, #008CFF 0%, #00E5FF 100%)",
@@ -96,23 +98,27 @@ const NotificationPanel = ({ notifications }) => {
   );
 };
 
-const ProgressChart = () => (
+const ProgressChart = ({ data }) => (
   <ResponsiveContainer width="100%" height={200}>
-    <LineChart data={healthProgressData}>
+    <LineChart data={data}>
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="date" />
-      <YAxis />
+      <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+      <YAxis tick={{ fontSize: 11 }} />
       <Tooltip />
       <Legend />
-      <Line type="monotone" dataKey="steps" stroke="#008cffff" />
+      <Line type="monotone" dataKey="steps" stroke="#008cff" name="Steps" dot={false} strokeWidth={2} />
+      <Line type="monotone" dataKey="heartRate" stroke="#ef4444" name="Heart Rate (bpm)" dot={false} strokeWidth={2} />
+      <Line type="monotone" dataKey="calories" stroke="#f97316" name="Calories" dot={false} strokeWidth={2} />
     </LineChart>
   </ResponsiveContainer>
 );
 
-const EnhancedGoalTracker = ({ goal, currentValue }) => {
-  const progress = Math.min((currentValue / goal) * 100, 100);
+const EnhancedGoalTracker = ({ goal, currentValue, heartRate, calories, connected }) => {
+  const safeValue = currentValue || 0;
+  const progress = Math.min((safeValue / goal) * 100, 100);
   const getMessage = () => {
-    if (progress >= 100) return "Great job! You've met your goal!";
+    if (!connected) return 'Connect a device to track live steps';
+    if (progress >= 100) return "Great job! You've met your goal! 🎉";
     if (progress >= 75) return "Almost there! Keep going 💪";
     if (progress >= 50) return "You're halfway done!";
     return "Let's get started!";
@@ -126,42 +132,68 @@ const EnhancedGoalTracker = ({ goal, currentValue }) => {
           value={progress}
           size={120}
           thickness={5}
-          sx={{ color: '#008cffff' }}s
+          sx={{ color: '#008cff' }}
         />
-        <MuiBox
-          sx={{
-            top: 0,
-            left: 0,
-            bottom: 0,
-            right: 0,
-            position: 'absolute',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
-          }}
-        >
-          <FitnessCenterIcon sx={{ color: '#008cffff', mb: 1 }} />
-          <Typography variant="h6">{`${Math.round(progress)}%`}</Typography>
+        <MuiBox sx={{ top:0, left:0, bottom:0, right:0, position:'absolute', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column' }}>
+          <FitnessCenterIcon sx={{ color: '#008cff', mb: 0.5 }} />
+          <Typography variant="h6" fontWeight="bold">{`${Math.round(progress)}%`}</Typography>
         </MuiBox>
       </MuiBox>
-      <Typography variant="body2" sx={{ mt: 2 }}>
-        {currentValue} / {goal} steps
+
+      <Typography variant="body2" sx={{ mt: 1.5, fontWeight: 'bold' }}>
+        {safeValue.toLocaleString()} / {goal.toLocaleString()} steps
       </Typography>
-      <Typography variant="caption" sx={{ color: 'gray' }}>
-        {getMessage()}
-      </Typography>
+      <Typography variant="caption" sx={{ color: 'gray' }}>{getMessage()}</Typography>
+
+      {/* Live metric chips */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 2, flexWrap: 'wrap' }}>
+        <Chip
+          size="small"
+          icon={<Favorite sx={{ fontSize: 14, color: '#ef4444' }} />}
+          label={heartRate ? `${heartRate} bpm` : '-- bpm'}
+          sx={{ backgroundColor: '#fef2f2', color: '#dc2626', fontWeight: 'bold', fontSize: '0.7rem' }}
+        />
+        <Chip
+          size="small"
+          icon={<LocalFireDepartment sx={{ fontSize: 14, color: '#f97316' }} />}
+          label={calories ? `${calories} kcal` : '-- kcal'}
+          sx={{ backgroundColor: '#fff7ed', color: '#c2410c', fontWeight: 'bold', fontSize: '0.7rem' }}
+        />
+        <Chip
+          size="small"
+          icon={<DirectionsWalk sx={{ fontSize: 14, color: '#0369a1' }} />}
+          label={safeValue ? `${safeValue.toLocaleString()} steps` : '-- steps'}
+          sx={{ backgroundColor: '#e0f2fe', color: '#0369a1', fontWeight: 'bold', fontSize: '0.7rem' }}
+        />
+      </Box>
     </Box>
   );
 };
 
-
+// ─── AnimatedCard must be outside PatientDashboard to prevent ───────────────
+// React from treating it as a new component type on every render,
+// which would cause all children to unmount/remount each render cycle.
+const AnimatedCard = ({ children, delay = 0.1 }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6, delay }}
+    whileHover={{ scale: 1.03 }}
+    style={{ borderRadius: '8px', height: '100%' }}
+  >
+    {children}
+  </motion.div>
+);
 
 export default function PatientDashboard() {
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [confetti, setConfetti] = useState(false);
   const { width, height } = useWindowSize();
+
+  // ── Health device data ─────────────────────────────────────────────
+  const health = useHealthData();
+  const isHealthConnected = ['ble', 'gfit', 'demo'].includes(health.connectionStatus);
   const [notifications] = useState(['New appointment scheduled', 'Medication reminder']);
   const [patientName, setPatientName] = useState("");
   const [greeting, setGreeting] = useState("");
@@ -221,27 +253,6 @@ export default function PatientDashboard() {
       }, 4000);
     }
   }, []);
-
-  const AnimatedCard = ({ children, delay = 0.1 }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay }}
-      whileHover={{ scale: 1.03 }}
-      style={{ borderRadius: '8px', height: '100%' }}
-    >
-      {children}
-    </motion.div>
-  );
-
-  const cardStyles = {
-    height: '100%',
-    borderLeft: `6px solid transparent`,
-    backgroundImage: cardColors.appointments,
-    color: "white",
-    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-    borderRadius: '16px'
-  };
 
   return (
     <Container maxWidth="lg" sx={{ p: { xs: 2, md: 3 }, mt: 3, mb: 4 }}>
@@ -419,73 +430,72 @@ export default function PatientDashboard() {
         {/* Health Progress */}
         <Grid item xs={12} md={6}>
           <AnimatedCard delay={0.4}>
-            <Card sx={{
-                height: "100%",
-                backgroundColor: insightColors[3],
-                borderRadius: "16px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-              }}
-            >
+            <Card sx={{ height: '100%', backgroundColor: insightColors[3], borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Insights sx={{ color: "#1E5DA9", mr: 2 }} />
-                  <Typography variant="h6">Health Progress</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Insights sx={{ color: '#1E5DA9', mr: 1 }} />
+                    <Typography variant="h6">Health Progress</Typography>
+                  </Box>
+                  <HealthConnect {...health} />
                 </Box>
-                <ProgressChart />
+                {!isHealthConnected && (
+                  <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mb: 1 }}>
+                    Showing demo data — connect a device for live readings
+                  </Typography>
+                )}
+                <ProgressChart data={health.history} />
               </CardContent>
             </Card>
           </AnimatedCard>
         </Grid>
 
-        {/* Enhanced Goal Tracker */}
+        {/* Exercise Goal */}
         <Grid item xs={12} md={6}>
           <AnimatedCard delay={0.5}>
-            <Card sx={{
-                height: "100%",
-                backgroundColor: insightColors[4],
-                borderRadius: "16px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-              }}
-            >
+            <Card sx={{ height: '100%', backgroundColor: insightColors[4], borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <FitnessCenter sx={{ color: "#1E5DA9", mr: 2 }} />
-                  <Typography variant="h6" sx={{ mb: 2 }}>Exercise Goal</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <FitnessCenter sx={{ color: '#1E5DA9', mr: 1 }} />
+                    <Typography variant="h6">Exercise Goal</Typography>
+                  </Box>
+                  <HealthConnect {...health} />
                 </Box>
-                <EnhancedGoalTracker goal={10000} currentValue={4500} />
+                <EnhancedGoalTracker
+                  goal={10000}
+                  currentValue={health.steps}
+                  heartRate={health.heartRate}
+                  calories={health.calories}
+                  connected={isHealthConnected}
+                />
               </CardContent>
             </Card>
           </AnimatedCard>
         </Grid>
       </Grid>
 
-      {/* Emergency Button */}
-      <Grid item xs={12} md={4} width={800} sx={{ mt: 4 }}>
-          <AnimatedCard delay={0.2}>
-            <Card sx={{
-                height: "100%",
-                backgroundColor: insightColors[5],
-                borderRadius: "16px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-              }}
-            >
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <VideoCall sx={{ color: '#1E5DA9', mr: 2 }} />
-                  <Typography variant="h6">Emergency Call</Typography>
-                </Box>
-                <Typography variant="body1">In case of emergency</Typography>
-                <Button
-                  variant="contained"
-                  sx={{ bgcolor: 'darkred', mt: 2, '&:hover': { bgcolor: 'darkred' }, borderRadius: '20px', px: 3 }}
-                  onClick={() => navigate('/patient/emergency')}
-                >
-                  Call Now
-                </Button>
-              </CardContent>
-            </Card>
-          </AnimatedCard>
-        </Grid>
+      {/* Emergency Map */}
+      <Grid item xs={12} sx={{ mt: 2 }}>
+        <AnimatedCard delay={0.6}>
+          <Card sx={{
+              backgroundColor: "#fff",
+              borderRadius: "16px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            }}
+          >
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" sx={{ color: '#1E5DA9', fontWeight: 'bold' }}>Local Emergency Services</Typography>
+              </Box>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+                Showing nearby hospitals, clinics, and pharmacies based on your location.
+              </Typography>
+              <EmergencyMap />
+            </CardContent>
+          </Card>
+        </AnimatedCard>
+      </Grid>
     </Container>
   );
 }
