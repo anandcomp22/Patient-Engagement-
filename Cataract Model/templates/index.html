@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Cataract Screening System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Cataract Screening System</h1>
+            <p>High-Accuracy Deep Learning (VGG-16)</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <h2>Upload Retinal/Eye Scan</h2>
+                <form action="/predict" method="POST" enctype="multipart/form-data">
+                    <input type="file" name="file" accept="image/*" required>
+                    <button type="submit" class="btn-submit">Analyze Scan</button>
+                </form>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-error">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            {% if result %}
+            <div class="result-section">
+                <h2>Diagnostic Results</h2>
+                <div class="image-preview">
+                    <img src="{{ image_path }}" alt="Uploaded Scan">
+                </div>
+                <div class="result-badge {% if 'Cataract' in result %}badge-danger{% else %}badge-success{% endif %}">
+                    {{ result }}
+                </div>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</body>
+</html>
