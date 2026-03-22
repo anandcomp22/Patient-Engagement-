@@ -18,7 +18,6 @@ A machine learning-powered web application for detecting cataracts in eye images
 ├── predict.py            # Prediction utility functions
 ├── download_dataset.py   # Dataset download script (Kaggle)
 ├── requirements.txt      # Python dependencies
-├── cataract_vgg16_model.h5  # Pre-trained model weights
 ├── static/
 │   ├── styles.css        # CSS styling
 │   └── uploads/          # Uploaded image storage
