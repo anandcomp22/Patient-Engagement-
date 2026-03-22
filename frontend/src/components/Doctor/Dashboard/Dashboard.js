@@ -6,6 +6,10 @@ import {
   Box,
   Button,
   Avatar,
+  Alert,
+  Chip,
+  Tooltip,
+  IconButton
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import {
@@ -14,6 +18,8 @@ import {
   Description,
   Warning,
   AccessTime,
+  MailOutline,
+  Videocam
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -28,6 +34,7 @@ const Dashboard = ({ sidebarOpen }) => {
   const [medicalNews, setMedicalNews] = useState([]);
   const [showAllInsights, setShowAllInsights] = useState(false);
   const [showAllAppointments, setShowAllAppointments] = useState(false);
+  const [doctor, setDoctor] = useState(null);
   const [DoctorName, setDoctorName] = useState("");
   const [greeting, setGreeting] = useState("");
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
@@ -72,7 +79,7 @@ const Dashboard = ({ sidebarOpen }) => {
       try {
         const token = localStorage.getItem("token");
         const res = await axios.get(
-          `${API_BASE}/doctor/app`,
+          `${API_BASE}/appointment/app`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -146,6 +153,26 @@ const Dashboard = ({ sidebarOpen }) => {
   }, []);
 
   useEffect(() => {
+    const fetchDoctorProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(`${API_BASE}/doctor/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setDoctor(res.data);
+      } catch (err) {
+        console.error("Failed to fetch doctor profile", err);
+      }
+    };
+
+    fetchDoctorProfile();
+  }, []);
+
+  useEffect(() => {
     const fetchNews = async () => {
       try {
         const res = await axios.get(
@@ -169,6 +196,16 @@ const Dashboard = ({ sidebarOpen }) => {
   const handleViewAll = () => {
   setShowAllAppointments(true);
 };
+
+  if (doctor && doctor.verificationStatus === "pending") {
+    return (
+      <Box sx={{ p: 3, mt: 3 }}>
+        <Alert severity="warning">
+          Your license is under verification by admin.
+        </Alert>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 3, mt: 3 }}>
@@ -356,81 +393,96 @@ const Dashboard = ({ sidebarOpen }) => {
       {/* Upcoming Appointments & AI Prescription Insights */}
       <Grid container spacing={3} className="section-container">
         {/* Upcoming Appointments */}
-        <Grid item xs={12} md={6}>
-          <Paper className="section-box">
-            <Typography variant="h6" className="section-title">
-              Upcoming Appointments
-            </Typography>
+        <Grid item xs={12} md={6} mt={6}>
+          <Paper sx={{
+            p: { xs: 2.5, md: 3 }, borderRadius: "16px", background: "#fff",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.03)", height: "100%",
+            display: "flex", flexDirection: "column"
+          }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: "#1E5DA9" }}>
+                Upcoming Appointments
+              </Typography>
+              <Chip label={upcomingAppointments.length} size="small" sx={{ background: "#E3F2FD", color: "#1E5DA9", fontWeight: 700 }} />
+            </Box>
+
             {upcomingAppointments.length === 0 ? (
-              <Typography>No upcoming appointments.</Typography>
+              <Box sx={{ p: 4, textAlign: "center", background: "#f8fafc", borderRadius: 3 }}>
+                <Typography sx={{ color: "#777" }}>No upcoming appointments today.</Typography>
+              </Box>
             ) : (
-              (showAllAppointments
-                ? upcomingAppointments
-                : upcomingAppointments.slice(0, 3)
-              ).map((appointment, index) => (
-                <Box key={index} className="appointment-card">
-                  <Avatar
-                    sx={{
-                      bgcolor: "#f0f2f5",
-                      color: "#555",
-                      width: 40,
-                      height: 40,
-                    }}
-                  >
-                    {appointment.patientName?.toString().charAt(0) || "P"}
-                  </Avatar>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flex: 1 }}>
+                {(showAllAppointments
+                  ? upcomingAppointments
+                  : upcomingAppointments.slice(0, 3)
+                ).map((appointment, index) => (
+                  <Box key={index} sx={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    p: 2, borderRadius: 3, background: "#f8fafc",
+                    border: "1px solid rgba(0,0,0,0.05)",
+                    transition: "all 0.2s ease",
+                    "&:hover": { background: "#fff", boxShadow: "0 4px 12px rgba(30,93,169,0.08)", borderColor: "rgba(30,93,169,0.2)" }
+                  }}>
+                    {/* Patient Info */}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Avatar sx={{ background: "linear-gradient(135deg, #62b8ffff, #1E5DA9)", color: "#fff", width: 44, height: 44, fontWeight: 700 }}>
+                        {appointment.patientName?.toString().charAt(0) || "P"}
+                      </Avatar>
+                      <Box>
+                        <Typography sx={{ fontWeight: 700, color: "#333", fontSize: "0.95rem" }}>
+                          {appointment.patientName}
+                        </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
+                          <Chip size="small" sx={{ height: 20, fontSize: "0.7rem", fontWeight: 600, background: "#E8F5E9", color: "#2e7d32" }} 
+                                label={appointment.appstatus || "Scheduled"} />
+                          <Typography sx={{ fontSize: "0.75rem", color: "#777" }}>
+                            ID: {appointment.patientId?.toString().slice(-6) || "N/A"}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
 
-                  <Box className="appointment-details">
-                    <Typography className="appointment-name">
-                      <strong>Patient: {appointment.patientName} - {(appointment.patientId)}</strong>
-                    </Typography>
-                    <Typography className="appointment-info">
-                      Status: {appointment.appstatus}
-                    </Typography>
-                  </Box>
-
-                  <Box className="appointment-meta">
-                    <Typography className="appointment-time">
-                      <AccessTime sx={{ fontSize: 16, marginRight: "5px" }} />
-                      {new Date(appointment.appointmentDate).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </Typography>
-                  </Box>
-
-                  <Button
-                    size="small"
-                    variant="contained"
-                    sx={{ mt: 1 }}
-                    onClick={async () => {
-                      await fetch(`${API_BASE}/email/send-video-link`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          email: appointment.patientEmail,
-                          link: `${window.location.origin}/video-call/${appointment._id}`,
-                          doctorName: DoctorName,
-                        }),
-                      });
-                      alert("Email sent to patient");
-                    }}
-                  >
-                    Send via Email
-                  </Button>
-                </Box>                
-              ))
+                    {/* Actions & Time */}
+                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1.5 }}>
+                      <Typography sx={{ fontSize: "0.8rem", fontWeight: 600, color: "#1E5DA9", display: "flex", alignItems: "center", gap: 0.5 }}>
+                        <AccessTime sx={{ fontSize: 16 }} />
+                        {new Date(appointment.appointmentDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </Typography>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Tooltip title="Email Join Link to Patient">
+                          <IconButton size="small"
+                            sx={{ color: "#60a5fa", background: "rgba(96,165,250,0.1)", "&:hover": { background: "rgba(96,165,250,0.2)" } }}
+                            onClick={async () => {
+                              try {
+                                const payload = { email: appointment.patientEmail, link: `${window.location.origin}/patient/video-call?roomId=${appointment._id}`, doctorName: DoctorName };
+                                await axios.post(`${API_BASE}/email/send-video-link`, payload);
+                                alert("Video link sent to patient's email!");
+                              } catch(e) { console.error("Could not send email", e); }
+                            }}
+                          >
+                            <MailOutline fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Button variant="contained" size="small" startIcon={<Videocam/>}
+                          sx={{ background: "#1E5DA9", color: "#fff", textTransform: "none", borderRadius: 2, px: 2, boxShadow: "none", "&:hover": { background: "#0f3f7a", boxShadow: "0 4px 10px rgba(30,93,169,0.2)" } }}
+                          onClick={() => navigate(`/doctor/video-call?roomId=${appointment._id}&patientEmail=${appointment.patientEmail}`)}
+                        >
+                          Join
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Box>                
+                ))}
+              </Box>
             )}
 
-            {/* Toggle View All / View Less */}
+            {/* Toggle View All */}
             {upcomingAppointments.length > 3 && (
-              <Typography
-                className="view-all"
-                onClick={() => setShowAllAppointments(!showAllAppointments)}
-                sx={{ cursor: "pointer", color: "#1976d2", mt: 1 }}
+              <Button fullWidth variant="text" onClick={() => setShowAllAppointments(p => !p)}
+                sx={{ mt: 2, color: "#1E5DA9", textTransform: "none", fontWeight: 600 }}
               >
-                {showAllAppointments ? "View less" : "View all appointments"}
-              </Typography>
+                {showAllAppointments ? "View Less" : `View All (${upcomingAppointments.length})`}
+              </Button>
             )}
           </Paper>
         </Grid>

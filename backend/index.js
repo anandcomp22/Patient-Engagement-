@@ -25,12 +25,11 @@ const aiprescript = require("./routes/ChatBotRoutes/ai.js");
 const RAGRoutes = require("./routes/RAGRoutes/RAGRoutes.js");
 const adminDashboard = require("./routes/AdminRoutes/dashboard");
 const adminDoctors = require("./routes/AdminRoutes/adminDoctors");
-const adminRoutes = require("./routes/AdminRoutes/admin");
 const adminAppointments = require("./routes/AdminRoutes/appointments");
 const adminPayments = require("./routes/AdminRoutes/payments");
 const adminAnalytics = require("./routes/AdminRoutes/analytics");
 const adminLogs = require("./routes/AdminRoutes/logs");
-const adminVerifyRoutes = require("./routes/AdminRoutes/admin.js");
+const adminVerifyRoutes = require("./routes/AdminRoutes/admin");
 const adminAuthRoutes = require("./routes/AdminRoutes/auth");
 
 const app = express();
@@ -65,11 +64,9 @@ app.use('/api/videocall', summary);
 app.use('/api/analytics', analysis);
 app.use('/api/ai',aiprescript)
 app.use("/rag", RAGRoutes);
-app.use("/uploads", express.static("uploads"));
 app.use("/admin/dashboard", adminDashboard);
 app.use("/admin/doctors", adminDoctors);
 app.use("/admin/appointments", adminAppointments);
-app.use("/admin", adminRoutes);
 app.use("/admin/payments", adminPayments);
 app.use("/admin/analytics", adminAnalytics);
 app.use("/slot", patientRouter);
@@ -79,6 +76,10 @@ app.use("/admin/logs", adminLogs);
 app.use("/admin/verify", adminVerifyRoutes);
 app.use("/admin/auth", adminAuthRoutes);
 
+
+app.use("/uploads", express.static("uploads"));
+
+
 io.on("connection", (socket) => {
   console.log("🔌 Client connected:", socket.id);
 
@@ -86,10 +87,28 @@ io.on("connection", (socket) => {
     console.log(`Event received: ${event}`, args);
   });
 
+  const readyPeers = {}; // { roomId: { doctor: socket.id, patient: socket.id } }
+
   socket.on("join-room", ({ roomId, role }) => {
     socket.join(roomId);
+  });
 
-    socket.to(roomId).emit("peer-joined", { role });
+  socket.on("media-ready", ({ roomId, role }) => {
+    console.log(`[Socket] media-ready received! Room: ${roomId}, Role: ${role}`);
+    socket.join(roomId);
+    if (!readyPeers[roomId]) readyPeers[roomId] = {};
+    readyPeers[roomId][role] = socket.id;
+
+    console.log(`[Socket] Broadcasting peer-ready(${role}) to others in room ${roomId}`);
+    // Tell everyone else in the room
+    socket.to(roomId).emit("peer-ready", { role });
+    
+    // Tell the new person about existing people
+    Object.keys(readyPeers[roomId]).forEach(existingRole => {
+      if (existingRole !== role) {
+        socket.emit("peer-ready", { role: existingRole });
+      }
+    });
   });
 
   socket.on("offer", ({ roomId, offer }) => {
@@ -109,13 +128,14 @@ io.on("connection", (socket) => {
   socket.on("end-call", ({ roomId }) => {
     socket.to(roomId).emit("end-call");
     socket.leave(roomId);
+    delete readyPeers[roomId];
   });
 
   /*socket.on("appointment-update", () => {
     io.emit("appointment-updated");
   });*/
 
-  const python = spawn("python", ["transcriber.py"]);
+  /*const python = spawn("python", ["transcriber.py"]);
 
   socket.on("audio-stream", (data) => {
     if (python.stdin.writable) {
@@ -137,11 +157,13 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     python.kill();
     console.log("User disconnected:", socket.id);
-  });
+  });*/
 });
 
 
-const PORT = process.env.PORT || 2000;
+const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
   console.log(`Server started at http://localhost:${PORT}`);
 });
+
+/* appended to trigger nodemon */

@@ -1,185 +1,178 @@
-import React, { useState, useEffect} from "react";
-import {
-  BarChart, Bar, LineChart, Line, AreaChart, Area,
-  CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend
-} from "recharts";
-import { motion } from "framer-motion";
-import { MenuItem, Select, FormControl, InputLabel, Box } from "@mui/material";
+import React, { useEffect, useRef } from "react";
 import "./Analysis.css";
+import Chart from "chart.js/auto";
+import AnalyticsStatCard from "./AnalysisStatCard";
+import PeopleIcon from "@mui/icons-material/People";
+import EventNoteIcon from "@mui/icons-material/EventNote";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 
-const patientData = [
-    { date: "2025-04-01", count: 10 },
-    { date: "2025-04-02", count: 15 },
-    { date: "2025-04-03", count: 8 },
-  ];
-  const avgTimeData = [
-    { date: "2025-04-01", time: 30 },
-    { date: "2025-04-02", time: 25 },
-    { date: "2025-04-03", time: 35 },
-  ];
-  
-  const incomeData = [
-    { date: "2025-04-01", income: 500 },
-    { date: "2025-04-02", income: 650 },
-    { date: "2025-04-03", income: 400 },
-  ];
-  
 
-export default function DoctorIncomeAnalysis() {
-  const [dateRange, setDateRange] = useState("Last 6 Months");
-  const [appointmentTrend, setAppointmentTrend] = useState([]);
-  const [topMedicines, setTopMedicines] = useState([]);
+const Analysis = () => {
+
+  const appointmentsRef = useRef(null);
+  const patientsRef = useRef(null);
+  const avgTimeRef = useRef(null);
+  const incomeRef = useRef(null);
+
+  const chartInstances = useRef([]);
+
+  const dates = ["01-04-2025", "02-04-2025", "03-04-2025"];
+  const appointments = [12, 18, 9];
+  const patients = [10, 15, 8];
+  const avgTime = [30, 25, 36];
+  const income = [500, 650, 400];
+
+  const medicines = [
+    "Paracetamol",
+    "Azithromycin",
+    "Amoxicillin",
+    "Ibuprofen",
+    "Cetirizine"
+  ];
 
   useEffect(() => {
-    const fetchTrends = async () => {
-      const daily = await fetch("http://localhost:8000/api/analytics/appointments/daily").then(res => res.json());
-      const meds = await fetch("http://localhost:8000/api/analytics/medicines/top").then(res => res.json());
-  
-      setAppointmentTrend(daily.map(d => ({ date: d._id, count: d.count })));
-      setTopMedicines(meds);
+    renderCharts();
+
+    return () => {
+      chartInstances.current.forEach(chart => chart.destroy());
+      chartInstances.current = [];
     };
-    fetchTrends();
   }, []);
-  
+
+  const renderCharts = () => {
+
+    chartInstances.current.push(
+      new Chart(appointmentsRef.current, {
+        type: "bar",
+        data: {
+          labels: dates,
+          datasets: [{
+            data: appointments,
+            backgroundColor: "#5aa9ff",
+            borderRadius: 10
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+      })
+    );
+
+    chartInstances.current.push(
+      new Chart(patientsRef.current, {
+        type: "bar",
+        data: {
+          labels: dates,
+          datasets: [{
+            data: patients,
+            backgroundColor: "#3b82f6",
+            borderRadius: 10
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+      })
+    );
+
+    chartInstances.current.push(
+      new Chart(avgTimeRef.current, {
+        type: "line",
+        data: {
+          labels: dates,
+          datasets: [{
+            data: avgTime,
+            borderColor: "#2563eb",
+            tension: 0.4,
+            pointRadius: 5
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+      })
+    );
+
+    chartInstances.current.push(
+      new Chart(incomeRef.current, {
+        type: "line",
+        data: {
+          labels: dates,
+          datasets: [{
+            data: income,
+            fill: true,
+            backgroundColor: "rgba(59,130,246,0.3)",
+            borderColor: "#3b82f6",
+            tension: 0.4,
+            pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => `₹${ctx.raw}`
+              }
+            }
+          }
+        }
+      })
+    );
+  };
 
   return (
-    <motion.div
-      className="analysis-bg" 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-      style={{
-        paddingTop: "64px",
-        paddingLeft: "24px",
-        paddingRight: "24px",
-        minHeight: "100vh",
-        backgroundSize: "cover",
-        backgroundAttachment: "fixed",
-      }}
-    >
-      <h1 className="text-xl font-bold mb-10 text-center text-blue-700">
-        Doctor Income Dashboard
-      </h1>
+    <div className="analysis-container">
 
-      {/* Filters */}
-      <Box display="flex" gap={4} justifyContent="right" mb={6}>
-        <FormControl variant="outlined" size="median">
-          <InputLabel>Date Range</InputLabel>
-          <Select value={dateRange} onChange={(e) => setDateRange(e.target.value)} label="Date Range">
-            <MenuItem value="Last 6 Months">Last 6 Months</MenuItem>
-            <MenuItem value="Last Year">Last Year</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
-
-      {/* Daily Appointments Trend */}
-      <motion.div className="card-style">
-        <h2 className="chart-title">📅 Daily Appointments</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={appointmentTrend}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Line type="monotone" dataKey="count" stroke="#16a34a" strokeWidth={2} />
-          </LineChart>
-        </ResponsiveContainer>
-      </motion.div>
-
-      {/* Top Medicines */}
-      <motion.div className="card-style">
-        <h2 className="chart-title">💊 Top Prescribed Medicines</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={topMedicines}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#f97316" />
-          </BarChart>
-        </ResponsiveContainer>
-      </motion.div>
-
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 gap-y-10 mb-10">
-        {/* Patient Count */}
-        <motion.div
-            className="card-style"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-        >
-            <h2 className="chart-title ">👥 Patient Count (Monthly)</h2>
-            <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={patientData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#3b82f6" radius={[6, 6, 0, 0]} />
-            </BarChart>
-            </ResponsiveContainer>
-        </motion.div>
-
-        {/* Avg Time */}
-        <motion.div
-            className="card-style"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9 }}
-        >
-            <h2 className="chart-title">⏱️ Avg. Patient Time (Minutes)</h2>
-            <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={avgTimeData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line
-                type="monotone"
-                dataKey="time"
-                stroke="#2563eb"
-                strokeWidth={3}
-                dot={{ r: 5 }}
-                activeDot={{ r: 8 }}
-                />
-            </LineChart>
-            </ResponsiveContainer>
-        </motion.div>
+      {/* HEADER */}
+      <div className="analysis-header">
+        <h2>📊 Analytics Overview</h2>
+        <div className="date-filter">
+          <input type="date" />
+          <input type="date" />
+          <button>🔄 Refresh</button>
         </div>
+      </div>
 
-        {/* Income Card Below Grid */}
-        <motion.div
-        className="card-style mt-10"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.1 }}
-        >
-        <h2 className="chart-title">💰 Monthly Income Overview</h2>
-        <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={incomeData}>
-            <defs>
-                <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Area
-                type="monotone"
-                dataKey="income"
-                stroke="#3b82f6"
-                fillOpacity={1}
-                fill="url(#colorIncome)"
-            />
-            </AreaChart>
-        </ResponsiveContainer>
-        </motion.div>
-    </motion.div>
+      {/* SUMMARY */}
+      <div className="summary-grid">
+        <div className="summary-card"><p>Total Patients</p><h3>33</h3></div>
+        <div className="summary-card"><p>Total Appointments</p><h3>39</h3></div>
+        <div className="summary-card"><p>Avg Time (min)</p><h3>30</h3></div>
+        <div className="summary-card"><p>Total Income</p><h3>₹1550</h3></div>
+      </div>
+
+      
+
+      {/* MEDICINES */}
+      <div className="analysis-card">
+        <h3>💊 Top Medicines Prescribed</h3>
+        <ul className="medicine-list">
+          {medicines.map((m, i) => (
+            <li key={i}>{m} <span>#{i + 1}</span></li>
+          ))}
+        </ul>
+      </div>
+
+      {/* CHARTS */}
+      <div className="analysis-card">
+        <h3>📅 Daily Appointments</h3>
+        <canvas ref={appointmentsRef}></canvas>
+      </div>
+
+      <div className="analysis-card">
+        <h3>👥 Patient Count</h3>
+        <canvas ref={patientsRef}></canvas>
+      </div>
+
+      <div className="analysis-card">
+        <h3>⏱ Avg Patient Time</h3>
+        <canvas ref={avgTimeRef}></canvas>
+      </div>
+
+      <div className="analysis-card">
+        <h3>💰 Monthly Income</h3>
+        <canvas ref={incomeRef}></canvas>
+      </div>
+
+    </div>
   );
-}
+};
+
+export default Analysis;

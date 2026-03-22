@@ -29,22 +29,57 @@ router.get('/app', authMiddleware, async (req, res) => {
   }
 });
 
-/*router.get("/join/:appointmentId", async (req, res) => {
-  const appt = await Appointment.findById(req.params.appointmentId);
+router.get('/available-slots', authMiddleware, async (req, res) => {
+  try {
+    const { doctorId, date } = req.query;
+    if (!doctorId || !date) {
+      return res.status(400).json({ message: "doctorId and date are required" });
+    }
 
-  if (!appt || appt.callStatus !== "ACTIVE") {
-    return res.status(403).json({ message: "Call not active yet" });
+    // Standard available slots in a day (could be customized per doctor later)
+    const ALL_SLOTS = [
+      "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", 
+      "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", 
+      "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", 
+      "04:00 PM", "04:30 PM", "05:00 PM"
+    ];
+
+    // Find booked appointments for this doctor on the selected date
+    const dId = Number(doctorId);
+    const queryDate = new Date(date);
+    
+    // We only filter by starting date; time is handled separately
+    const startOfDay = new Date(queryDate.setHours(0,0,0,0));
+    const endOfDay = new Date(queryDate.setHours(23,59,59,999));
+
+    const bookedAppointments = await Appointment.find({
+      doctorId: dId,
+      appointmentDate: {
+        $gte: startOfDay,
+        $lte: endOfDay
+      },
+      // Optionally ignore cancelled / dropped appointments
+      appstatus: { $in: ["confirmed", "pending", "Appointment Done", "completed"] }
+    });
+
+    const bookedTimes = bookedAppointments.map(app => app.startTime);
+    const availableSlots = ALL_SLOTS.filter(slot => !bookedTimes.includes(slot));
+
+    return res.status(200).json({ availableSlots });
+
+  } catch (err) {
+    console.error("Error fetching available slots:", err);
+    return res.status(500).json({ message: "Failed to fetch slots" });
   }
-
-  res.json({ roomId: appt.roomId });
-});*/
+});
 
 router.post('/book', authMiddleware, async (req, res) => {
   try {
-    const { appointmentDate, patientId, time, reason } = req.body;
+    const { appointmentDate, patientId, time, reason, doctorId } = req.body;
 
-    const dId = Number(req.user.doctorId);
-    const pId = Number(patientId);
+    // Use securely verified patientId from the token if available, otherwise fallback to frontend's provided ID
+    const dId = Number(doctorId) || Number(req.user.doctorId);
+    const pId = req.user.patientId ? Number(req.user.patientId) : Number(patientId);
 
     if (!dId || isNaN(dId)) {
       return res.status(400).json({ message: "Invalid doctorId" });
@@ -152,31 +187,41 @@ router.put("/complete/:appointmentId", async (req, res) => {
   }
 });
 
-  router.post("/reschedule", async (req, res) => {
-    const { appointmentId, newSlotId } = req.body;
+  router.put("/reschedule", authMiddleware, async (req, res) => {
+    try {
+      const { appointmentId, newDate } = req.body;
+      const dateObj = new Date(newDate);
+      
+      const formattedTime = dateObj.toLocaleTimeString("en-US", { 
+        hour: "2-digit", minute: "2-digit", hour12: true 
+      });
 
-    const appointment = await Appointment.findById(appointmentId);
-    if (!appointment) return res.status(404).json({ message: "Not found" });
+      const updated = await Appointment.findOneAndUpdate(
+        { appointmentId: Number(appointmentId) },
+        { 
+          appointmentDate: dateObj,
+          startTime: formattedTime,
+          appstatus: "Rescheduled"
+        },
+        { new: true }
+      );
+      
+      if (!updated) {
+        // Fallback to _id just in case
+        const altUpdated = await Appointment.findByIdAndUpdate(
+          appointmentId,
+          { appointmentDate: dateObj, startTime: formattedTime, appstatus: "Rescheduled" },
+          { new: true }
+        );
+        if (!altUpdated) return res.status(404).json({ message: "Not found" });
+      }
 
-    await Slot.findByIdAndUpdate(appointment.slotId, {
-      status: "AVAILABLE"
-    });
-
-    const newSlot = await Slot.findOne({
-      _id: newSlotId,
-      status: "AVAILABLE"
-    });
-
-    if (!newSlot) return res.status(400).json({ message: "Slot busy" });
-
-    newSlot.status = "BOOKED";
-    await newSlot.save();
-
-    appointment.slotId = newSlotId;
-    appointment.status = "RESCHEDULED";
-    await appointment.save();
-
-    res.json({ message: "Rescheduled", appointment });
+      req.app.get("io").emit("appointment-updated");
+      res.json({ message: "Rescheduled", success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Error rescheduling" });
+    }
   });
   
 

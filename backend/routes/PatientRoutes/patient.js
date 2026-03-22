@@ -29,6 +29,100 @@ router.get("/doctors", async (req, res) => {
   res.json(doctors);
 });
 
+router.get("/appointments/:patientId", async (req, res) => {
+  try {
+    const patientId = Number(req.params.patientId);
+    const appointments = await Appointment.find({ patientId }).sort({ appointmentDate: 1 });
+    
+    // Also fetch associated video call room if needed
+    const { videocall } = require("../../db/models"); // To get roomId
+    
+    // Convert to plain objects
+    const appointmentsWithRooms = await Promise.all(appointments.map(async (appt) => {
+      const room = await videocall.findOne({ appointmentId: appt._id });
+      return {
+        ...appt.toObject(),
+        roomId: room ? room.roomId : null
+      };
+    }));
+
+    res.json(appointmentsWithRooms);
+  } catch (err) {
+    console.error("Error fetching patient appointments:", err);
+    res.status(500).json({ message: "Failed to fetch appointments" });
+  }
+});
+
+router.get("/available-slots", async (req, res) => {
+  try {
+    const { doctorId, date } = req.query;
+    if (!doctorId || !date) {
+      return res.status(400).json({ message: "doctorId and date are required" });
+    }
+
+    const ALL_SLOTS = [
+      "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", 
+      "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", 
+      "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", 
+      "04:00 PM", "04:30 PM", "05:00 PM"
+    ];
+
+    const dId = Number(doctorId);
+    const queryDate = new Date(date);
+    
+    // Check start and end of day locally
+    const startOfDay = new Date(queryDate.setHours(0,0,0,0));
+    const endOfDay = new Date(queryDate.setHours(23,59,59,999));
+
+    const bookedAppointments = await Appointment.find({
+      doctorId: dId,
+      appointmentDate: {
+        $gte: startOfDay,
+        $lte: endOfDay
+      },
+      appstatus: { $in: ["confirmed", "pending", "Appointment Done", "completed"] }
+    });
+
+    const bookedTimes = bookedAppointments.map(app => app.startTime);
+    let availableSlots = ALL_SLOTS.filter(slot => !bookedTimes.includes(slot));
+
+    // Time-based filtering: If queryDate is today, filter out past times
+    const now = new Date();
+    const queryDateString = new Date(date).toISOString().split('T')[0];
+    const todayString = now.toISOString().split('T')[0];
+
+    // Alternatively, converting to local time strings
+    const localNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    const localTodayString = localNow.toISOString().split('T')[0];
+
+    if (queryDateString === localTodayString || queryDateString === todayString) {
+      const currentHours = now.getHours();
+      const currentMinutes = now.getMinutes();
+      
+      availableSlots = availableSlots.filter(slot => {
+        // Parse "10:00 AM" or "02:30 PM"
+        const [timePart, modifier] = slot.split(" ");
+        let [hours, minutes] = timePart.split(":");
+        hours = parseInt(hours, 10);
+        minutes = parseInt(minutes, 10);
+        
+        if (modifier === "PM" && hours !== 12) hours += 12;
+        if (modifier === "AM" && hours === 12) hours = 0;
+
+        if (hours > currentHours) return true;
+        if (hours === currentHours && minutes > currentMinutes) return true;
+        return false;
+      });
+    }
+
+    return res.status(200).json({ availableSlots });
+
+  } catch (err) {
+    console.error("Error fetching available slots:", err);
+    return res.status(500).json({ message: "Failed to fetch slots", error: err.message });
+  }
+});
+
 router.post("/lock", async (req, res) => {
   const { slotId } = req.body;
 
