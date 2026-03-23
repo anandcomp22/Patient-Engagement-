@@ -8,7 +8,8 @@ import {
   Help,
   Menu as MenuIcon,
   LoginOutlined,
-  ChevronLeft as ChevronLeftIcon
+  ChevronLeft as ChevronLeftIcon,
+  Science
 } from '@mui/icons-material';
 import DescriptionIcon from "@mui/icons-material/Description";
 import Aidme from "../../Doctor/Dashboard/icons/logo.png";
@@ -21,6 +22,7 @@ const PatientSidebar = ({ open, onToggle }) => {
       { text: "Appointments", icon: <CalendarMonth />, to: "/patient/appointments" },
       { text: "Video Call Room", icon: <VideoCall />, to: "/patient/video-call" },
       { text: "Upload Report", icon: <DescriptionIcon />, to: "/patient/upload-report" },
+      { text: "ML Models", icon: <Science />, to: "/patient/ml-models" },
     ];
 
     const footerItems = [

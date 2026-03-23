@@ -24,6 +24,7 @@ import Chatbot from './components/Patient/ChatBot/Chatbot';
 import AnalysisPage from './components/Doctor/Dashboard/Analysis';
 import DoctorSettings from './components/Doctor/DoctorSetting/DoctorSettings';
 import UploadReport from './components/Patient/Dashboard/UploadedReport';
+import MLModels from './components/Patient/Dashboard/MLModels';
 import AdminSidebar from "../src/components/Administration/AdminSidebar";
 import AdminNavbar from "../src/components/Administration/AdminNavbar";
 import AdminDashboard from "../src/components/Administration/AdminDashboard";
@@ -90,6 +91,7 @@ function App() {
                       <Route path="book" element={<BookAppointment />} />
                       <Route path="video-call" element={<PatientVideoCall />} />
                       <Route path="upload-report" element={<UploadReport />} />
+                      <Route path="ml-models" element={<MLModels />} />
                     </Routes>
 
                     <Chatbot />

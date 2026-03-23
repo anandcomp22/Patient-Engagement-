@@ -23,6 +23,7 @@ const auth = require("./middleware/authMiddleware");
 const analysis = require('./routes/DoctorRoutes/analytics.js');
 const aiprescript = require("./routes/ChatBotRoutes/ai.js");
 const RAGRoutes = require("./routes/RAGRoutes/RAGRoutes.js");
+const mlRoutes = require("./routes/PatientRoutes/mlRoutes.js");
 const adminDashboard = require("./routes/AdminRoutes/dashboard");
 const adminDoctors = require("./routes/AdminRoutes/adminDoctors");
 const adminAppointments = require("./routes/AdminRoutes/appointments");
@@ -64,6 +65,7 @@ app.use('/api/videocall', summary);
 app.use('/api/analytics', analysis);
 app.use('/api/ai',aiprescript)
 app.use("/rag", RAGRoutes);
+app.use("/api/ml", mlRoutes);
 app.use("/admin/dashboard", adminDashboard);
 app.use("/admin/doctors", adminDoctors);
 app.use("/admin/appointments", adminAppointments);
