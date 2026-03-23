@@ -84,14 +84,15 @@ The trained cataract detection model is hosted on Hugging Face:
 
 Download the model and place it inside: models/cataract_vgg16_model.h5
 
-#The model can also be download using the download_model.py file provided in the files.
-this model should be normally loaded into program using:
-
+The model can also be download using the download_model.py file provided in the files.
+This model should be normally loaded into program using:
+```python
 from tensorflow.keras.models import load_model
 
 model = load_model(model_path)
+```
 
---
+---
 
 ## Training the Model
 
