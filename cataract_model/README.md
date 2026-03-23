@@ -86,7 +86,7 @@ Download the model and place it inside:
 
 models/cataract_vgg16_model.h5
 
-### Training the Model
+## Training the Model
 
 To train the model on a custom dataset:
 
