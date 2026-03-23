@@ -1,8 +1,0 @@
-tensorflow
-keras
-flask
-werkzeug
-pillow
-numpy
-opencv-python
-kaggle
