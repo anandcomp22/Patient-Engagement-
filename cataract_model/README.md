@@ -40,6 +40,7 @@ A machine learning-powered web application for detecting cataracts in eye images
 - OpenCV
 - Pillow
 - NumPy
+- huggingface_hub
 
 ## Installation
 
@@ -74,6 +75,16 @@ A machine learning-powered web application for detecting cataracts in eye images
    - Open your web browser and go to `http://127.0.0.1:5000`
    - Upload an eye image (JPG/PNG format)
    - View the prediction results
+
+## Trained Model
+
+The trained cataract detection model is hosted on Hugging Face:
+
+👉 https://huggingface.co/Sayyoni/cataract_vgg16_model
+
+Download the model and place it inside:
+
+models/cataract_vgg16_model.h5
 
 ### Training the Model
 
