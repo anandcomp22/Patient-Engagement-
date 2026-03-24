@@ -31,6 +31,7 @@ const adminAnalytics = require("./routes/AdminRoutes/analytics");
 const adminLogs = require("./routes/AdminRoutes/logs");
 const adminVerifyRoutes = require("./routes/AdminRoutes/admin");
 const adminAuthRoutes = require("./routes/AdminRoutes/auth");
+const adminPatients = require("./routes/AdminRoutes/adminPatients");
 
 const app = express();
 app.use(cors());
@@ -75,6 +76,7 @@ app.use("/payment", patientRouter);
 app.use("/admin/logs", adminLogs);
 app.use("/admin/verify", adminVerifyRoutes);
 app.use("/admin/auth", adminAuthRoutes);
+app.use("/admin/patients", adminPatients);
 
 
 app.use("/uploads", express.static("uploads"));

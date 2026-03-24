@@ -1,117 +1,237 @@
 import React, { useEffect, useState } from "react";
 import {
-   Grid, Paper, Box, Typography, Table, TableBody, TableCell,
-  TableHead, TableRow, Chip, Button
+  Box, Grid, Paper, Typography, Avatar, Chip, Button,
+  Table, TableBody, TableCell, TableHead, TableRow,
+  CircularProgress, Skeleton
 } from "@mui/material";
 import {
-  People,
-  LocalHospital,
-  EventAvailable,
-  CurrencyRupee,
-  Warning,
-  Videocam
+  People, LocalHospital, EventAvailable, CurrencyRupee,
+  Warning, Videocam, TrendingUp, CheckCircle
 } from "@mui/icons-material";
+import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+const GRADIENT_CARDS = [
+  { key: "doctors",       label: "Total Doctors",    icon: LocalHospital,    grad: "linear-gradient(135deg,#667eea,#764ba2)", link: "/admin/doctors" },
+  { key: "patients",      label: "Total Patients",   icon: People,           grad: "linear-gradient(135deg,#f093fb,#f5576c)", link: "/admin/patients" },
+  { key: "appointments",  label: "Appointments",     icon: EventAvailable,   grad: "linear-gradient(135deg,#4facfe,#00f2fe)", link: null },
+  { key: "revenue",       label: "Revenue (₹)",      icon: CurrencyRupee,    grad: "linear-gradient(135deg,#43e97b,#38f9d7)", link: null },
+  { key: "pendingDoctors",label: "Pending Verify",   icon: Warning,          grad: "linear-gradient(135deg,#fa709a,#fee140)", link: "/admin/verify" },
+  { key: "activeCalls",   label: "Active Calls",     icon: Videocam,         grad: "linear-gradient(135deg,#a18cd1,#fbc2eb)", link: null },
+];
+
+const STATUS_COLOR = { confirmed:"#4facfe", pending:"#fa709a", cancelled:"#f5576c", completed:"#43e97b" };
 
 const AdminDashboard = () => {
-  const [metrics, setMetrics] = useState({});
-  const [appointments, setAppointments] = useState([]);
-  
-  const ADMIN_TOKEN = localStorage.getItem("adminToken");
+  const [metrics, setMetrics]         = useState({});
+  const [recentApp, setRecentApp]     = useState([]);
+  const [monthly, setMonthly]         = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const navigate = useNavigate();
 
-  const fetchAppointments = async () => {
-  const res = await axios.get(
-    "http://localhost:8000/admin/appointments",
-    {
-      headers: {
-        Authorization: `Bearer ${ADMIN_TOKEN}`
-      }
-    }
-  );
-  setAppointments(res.data);
-};
-
-  const updateStatus = async (id, status) => {
-    await axios.patch(
-      `http://localhost:8000/admin/appointments/${id}/status`,
-      { status },
-      {
-        headers: {
-          Authorization: `Bearer ${ADMIN_TOKEN}`
-        }
-      }
-    );
-    fetchAppointments();
-  };
-
-  const fetchMetrics = async () => {
-    const res = await axios.get(
-      "http://localhost:8000/admin/dashboard/metrics",
-      {
-        headers: {
-          Authorization: `Bearer ${ADMIN_TOKEN}`
-        }
-      }
-    );
-    setMetrics(res.data);
-  };
+  const auth = { headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` } };
 
   useEffect(() => {
-    const loadData = async () => {
+    const load = async () => {
       try {
-        await fetchAppointments();
-        await fetchMetrics();
-      } catch (err) {
-        console.error("ADMIN DASHBOARD ERROR:", err);
-      }
+        const [m, r, rev] = await Promise.all([
+          axios.get(`${API}/admin/dashboard/metrics`, auth),
+          axios.get(`${API}/admin/dashboard/recent-appointments`, auth),
+          axios.get(`${API}/admin/analytics/monthly-revenue`, auth),
+        ]);
+        setMetrics(m.data);
+        setRecentApp(r.data || []);
+        setMonthly(rev.data || []);
+      } catch (e) { console.error(e); }
+      finally   { setLoading(false); }
     };
-    loadData();
-  }, []);
-
-
-  const cards = [
-    { title: "Total Doctors", value: metrics.doctors, icon: <LocalHospital />, color: "#E3F2FD" },
-    { title: "Total Patients", value: metrics.patients, icon: <People />, color: "#E8F5E9" },
-    { title: "Appointments", value: metrics.appointments, icon: <EventAvailable />, color: "#FFF3E0" },
-    { title: "Revenue", value: `₹${metrics.revenue}`, icon: <CurrencyRupee />, color: "#F3E5F5" },
-    { title: "Pending Doctors", value: metrics.pendingDoctors, icon: <Warning />, color: "#FCE4EC" },
-    { title: "Active Calls", value: metrics.activeCalls, icon: <Videocam />, color: "#E1F5FE" }
-  ];
+    load();
+  }, []); // eslint-disable-line
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" sx={{ mb: 3, color: "#1E5DA9" }}>
-        Admin Dashboard
-      </Typography>
+    <Box sx={{ minHeight:"100vh", bgcolor:"#f0f4f8", p:3 }}>
 
-      <Grid container spacing={3}>
-        {cards.map((card, i) => (
-          <Grid item xs={12} sm={6} md={4} key={i}>
-            <Paper sx={{
-              backgroundColor: card.color,
-              p: 2,
-              borderRadius: "16px",
-              textAlign: "center",
-              transition: "0.3s",
-              "&:hover": { transform: "translateY(-4px)" }
-            }}>
-              <Box sx={{
-                width: 50, height: 50, bgcolor: "#fff",
-                borderRadius: "50%", mx: "auto",
-                display: "flex", alignItems: "center", justifyContent: "center"
-              }}>
-                {card.icon}
+      {/* Header */}
+      <Box sx={{ mb:4 }}>
+        <Typography variant="h4" fontWeight={800} sx={{ color:"#1a1a2e", letterSpacing:-0.5 }}>
+          Admin Dashboard
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Welcome back! Here's what's happening today.
+        </Typography>
+      </Box>
+
+      {/* Metric Cards */}
+      <Grid container spacing={2} mb={4} alignItems="stretch">
+        {GRADIENT_CARDS.map(({ key, label, icon: Icon, grad, link }) => (
+          <Grid item xs={6} sm={4} md={2} key={key} sx={{ display:"flex" }}>
+            <Paper
+              onClick={() => link && navigate(link)}
+              sx={{
+                background: grad,
+                borderRadius:"20px",
+                p:2.5,
+                color:"#fff",
+                cursor: link ? "pointer" : "default",
+                transition:"all 0.3s",
+                boxShadow:"0 8px 32px rgba(0,0,0,0.12)",
+                width:"100%",
+                display:"flex",
+                flexDirection:"column",
+                justifyContent:"space-between",
+                minHeight:130,
+                "&:hover": link ? { transform:"translateY(-6px)", boxShadow:"0 16px 40px rgba(0,0,0,0.18)" } : {}
+              }}
+            >
+              {/* Top row: label + icon */}
+              <Box sx={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+                <Typography
+                  variant="body2"
+                  sx={{ opacity:0.9, fontWeight:600, lineHeight:1.3, maxWidth:"calc(100% - 56px)" }}
+                >
+                  {label}
+                </Typography>
+                <Avatar sx={{ bgcolor:"rgba(255,255,255,0.25)", width:40, height:40, flexShrink:0 }}>
+                  <Icon sx={{ color:"#fff", fontSize:20 }} />
+                </Avatar>
               </Box>
-              <Typography sx={{ mt: 1, fontWeight: 600 }}>
-                {card.title}
-              </Typography>
-              <Typography variant="h5" fontWeight="bold">
-                {card.value || 0}
-              </Typography>
+
+              {/* Value */}
+              <Box>
+                {loading
+                  ? <Skeleton variant="text" width={60} height={44} sx={{ bgcolor:"rgba(255,255,255,0.3)" }} />
+                  : <Typography variant="h4" fontWeight={800} sx={{ lineHeight:1.1, my:0.5 }}>
+                      {key==="revenue" ? `₹${(metrics[key]||0).toLocaleString()}` : (metrics[key]||0)}
+                    </Typography>
+                }
+
+                {/* Live data badge */}
+                {!loading && (
+                  <Box sx={{ opacity:0.8, display:"flex", alignItems:"center", gap:0.5, mt:0.5 }}>
+                    <TrendingUp sx={{ fontSize:14 }} />
+                    <Typography variant="caption" sx={{ fontSize:"0.68rem" }}>Live data</Typography>
+                  </Box>
+                )}
+              </Box>
             </Paper>
           </Grid>
         ))}
       </Grid>
+
+
+      {/* Revenue chart + Quick actions */}
+      <Grid container spacing={3} mb={4}>
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ borderRadius:"20px", p:3, boxShadow:"0 4px 20px rgba(0,0,0,0.06)" }}>
+            <Typography fontWeight={700} mb={2} sx={{ color:"#1a1a2e" }}>Monthly Revenue Trend</Typography>
+            {loading ? <Skeleton variant="rectangular" height={200} sx={{ borderRadius:2 }} /> : (
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={monthly}>
+                  <XAxis dataKey="month" tick={{ fontSize:12 }} axisLine={false} tickLine={false} />
+                  <Tooltip formatter={v => [`₹${v}`, "Revenue"]} />
+                  <Line
+                    type="monotone" dataKey="revenue" strokeWidth={3}
+                    stroke="url(#revGrad)" dot={{ r:5, fill:"#667eea" }}
+                  />
+                  <defs>
+                    <linearGradient id="revGrad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#667eea" />
+                      <stop offset="100%" stopColor="#764ba2" />
+                    </linearGradient>
+                  </defs>
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ borderRadius:"20px", p:3, boxShadow:"0 4px 20px rgba(0,0,0,0.06)", height:"100%" }}>
+            <Typography fontWeight={700} mb={2} sx={{ color:"#1a1a2e" }}>Quick Actions</Typography>
+            {[
+              { label:"Verify Doctors",   color:"#667eea", path:"/admin/verify"    },
+              { label:"View Doctors",     color:"#f093fb", path:"/admin/doctors"   },
+              { label:"Manage Patients",  color:"#4facfe", path:"/admin/patients"  },
+              { label:"View Analytics",   color:"#43e97b", path:"/admin/analytics" },
+              { label:"Activity Logs",    color:"#fa709a", path:"/admin/logs"      },
+              { label:"Payments",         color:"#a18cd1", path:"/admin/payments"  },
+            ].map(btn => (
+              <Button
+                key={btn.label} fullWidth variant="outlined"
+                onClick={() => navigate(btn.path)}
+                sx={{
+                  mb:1, borderRadius:"12px", borderColor:btn.color, color:btn.color,
+                  fontWeight:600, textTransform:"none",
+                  "&:hover": { bgcolor:btn.color, color:"#fff", borderColor:btn.color }
+                }}
+              >{btn.label}</Button>
+            ))}
+          </Paper>
+        </Grid>
+      </Grid>
+
+      {/* Recent Appointments */}
+      <Paper sx={{ borderRadius:"20px", p:3, boxShadow:"0 4px 20px rgba(0,0,0,0.06)" }}>
+        <Typography fontWeight={700} mb={2} sx={{ color:"#1a1a2e" }}>Recent Appointments</Typography>
+        {loading ? <CircularProgress /> : (
+          <Box sx={{ overflowX:"auto" }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ "& th": { fontWeight:700, color:"#64748b", border:"none", pb:1 } }}>
+                  <TableCell>Patient</TableCell>
+                  <TableCell>Doctor</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Payment</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {recentApp.length === 0 && (
+                  <TableRow><TableCell colSpan={6} align="center" sx={{ color:"#94a3b8", py:4 }}>No appointments yet</TableCell></TableRow>
+                )}
+                {recentApp.map(a => (
+                  <TableRow key={a._id} sx={{ "&:hover":{ bgcolor:"#f8fafc" }, "& td":{ border:"none", py:1.5 } }}>
+                    <TableCell sx={{ fontWeight:600 }}>{a.patientName}</TableCell>
+                    <TableCell>{a.doctorName}</TableCell>
+                    <TableCell>{a.appointmentDate ? new Date(a.appointmentDate).toLocaleDateString() : "-"}</TableCell>
+                    <TableCell>
+                      <Chip label={a.type||"N/A"} size="small"
+                        sx={{ bgcolor:"#f1f5f9", color:"#475569", fontSize:"0.7rem", height:22, fontWeight:600, textTransform:"capitalize" }} />
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={a.appstatus}
+                        size="small"
+                        icon={a.appstatus==="completed" ? <CheckCircle sx={{ fontSize:"14px!important" }} /> : undefined}
+                        sx={{
+                          bgcolor:`${STATUS_COLOR[a.appstatus]||"#94a3b8"}22`,
+                          color: STATUS_COLOR[a.appstatus]||"#94a3b8",
+                          fontWeight:700, fontSize:"0.7rem", height:22, textTransform:"capitalize"
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={a.paymentstatus}
+                        size="small"
+                        sx={{
+                          bgcolor: a.paymentstatus==="paid" ? "#43e97b22" : "#fa709a22",
+                          color: a.paymentstatus==="paid" ? "#22c55e" : "#f5576c",
+                          fontWeight:700, fontSize:"0.7rem", height:22, textTransform:"capitalize"
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Box>
+        )}
+      </Paper>
     </Box>
   );
 };
