@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import {
-  CircularProgress ,Grid, Paper, Typography, Box, Button, Chip, Tabs, Tab, Stack, Divider
+  Box, Grid, Paper, Typography, Button, Chip, Tabs, Tab, Stack,
+  Divider, CircularProgress, TextField, Dialog, DialogTitle,
+  DialogContent, DialogActions, Avatar
 } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
 import VerifiedIcon from "@mui/icons-material/Verified";
@@ -9,284 +11,148 @@ import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import EmailIcon from "@mui/icons-material/Email";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import BadgeIcon from "@mui/icons-material/Badge";
-
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import WorkIcon from "@mui/icons-material/Work";
 import axios from "axios";
 
-const API_BASE = process.env.REACT_APP_API_URL;
-
-const DUMMY_DOCTORS = [
-  {
-    _id: "1",
-    firstName: "Amit",
-    lastName: "Sharma",
-    email: "amit.sharma@hospital.com",
-    specialty: "Cardiologist",
-    licenseNumber: "MH-CARD-1023",
-    verificationStatus: "pending",
-  },
-  {
-    _id: "2",
-    firstName: "Neha",
-    lastName: "Verma",
-    email: "neha.verma@clinic.com",
-    specialty: "Dermatologist",
-    licenseNumber: "MH-DERM-2211",
-    verificationStatus: "verified",
-  },
-  {
-    _id: "3",
-    firstName: "Rahul",
-    lastName: "Patil",
-    email: "rahul.patil@healthcare.com",
-    specialty: "Orthopedic",
-    licenseNumber: "MH-ORTH-7788",
-    verificationStatus: "rejected",
-  },
-  {
-    _id: "4",
-    firstName: "Sneha",
-    lastName: "Kulkarni",
-    email: "sneha.k@medicenter.com",
-    specialty: "Pediatrician",
-    licenseNumber: "MH-PED-3344",
-    verificationStatus: "pending",
-  },
-];
-
+const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const AdminDoctorVerification = () => {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState(0);
+  const [rejectDialog, setRejectDialog] = useState(null); // { id }
+  const [rejectReason, setRejectReason] = useState("");
   const theme = useTheme();
 
-  const authHeader = {
-    headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` }
-  };
+  const authHeader = { headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` } };
 
   const fetchDoctors = async () => {
+    setLoading(true);
     try {
-      setLoading(true);  // start loading
-      const res = await axios.get(`${API_BASE}/admin/verify`, authHeader);
-      setDoctors(res.data || []);
-    } catch (error) {
-      console.error("Failed to fetch doctors:", error);
+      const res = await axios.get(`${API}/admin/verify`, authHeader);
+      setDoctors(Array.isArray(res.data) ? res.data : []);
+    } catch (e) {
+      console.error("Failed to fetch doctors:", e);
       setDoctors([]);
     } finally {
-      setLoading(false); // stop loading
+      setLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchDoctors();
-    const interval = setInterval(fetchDoctors, 100000);
+    const interval = setInterval(fetchDoctors, 120000);
     return () => clearInterval(interval);
-  }, []);
-
+  }, []); // eslint-disable-line
 
   const handleVerify = async (doctorId) => {
     try {
-      await axios.patch(
-      `${API_BASE}/admin/verify/${doctorId}/verify`,
-      { status: "verified" },
-      authHeader
-    );
-      alert("Doctor verified successfully");
+      await axios.patch(`${API}/admin/verify/${doctorId}/verify`, { status: "verified" }, authHeader);
       fetchDoctors();
-    } catch (err) {
-      console.error(err);
-      alert("Verification failed");
-    }
+    } catch (err) { console.error(err); }
   };
 
-  const handleReject = async (doctorId) => {
+  const handleReject = async () => {
+    if (!rejectDialog) return;
     try {
-      await axios.patch(
-      `${API_BASE}/admin/verify/${doctorId}/verify`,
-      { status: "rejected" },
-      authHeader
-    );
-      alert("Doctor rejected");
+      await axios.patch(`${API}/admin/verify/${rejectDialog}/verify`, { status: "rejected", reason: rejectReason }, authHeader);
+      setRejectDialog(null);
+      setRejectReason("");
       fetchDoctors();
-    } catch (err) {
-      console.error(err);
-      alert("Rejection failed");
-    }
+    } catch (err) { console.error(err); }
   };
 
-    const renderEmptyMessage = (status) => {
-    const messages = {
-      pending: "No pending verification requests at the moment. All doctors are up to date.",
-      verified: "No verified doctors yet.",
-      rejected: "No doctors have been rejected.",
-    };
+  const filtered = (status) => doctors.filter(d => d.verificationStatus === status);
 
-    const icons = {
-      pending: <HourglassTopIcon sx={{ fontSize: 50, color: "warning.main" }} />,
-      verified: <VerifiedIcon sx={{ fontSize: 50, color: "success.main" }} />,
-      rejected: <CancelIcon sx={{ fontSize: 50, color: "error.main" }} />,
-    };
+  const statusConfig = {
+    pending:  { color:"#f59e0b", bg:"#fef3c7", icon: <HourglassTopIcon sx={{ fontSize:14 }} /> },
+    verified: { color:"#22c55e", bg:"#dcfce7", icon: <VerifiedIcon    sx={{ fontSize:14 }} /> },
+    rejected: { color:"#ef4444", bg:"#fee2e2", icon: <CancelIcon       sx={{ fontSize:14 }} /> },
+  };
 
-    const colors = {
-      pending: "warning.main",
-      verified: "success.main",
-      rejected: "error.main",
+  const renderEmpty = (status) => {
+    const msgs = {
+      pending:  { text:"No pending verifications. All doctors are reviewed." , icon:<HourglassTopIcon sx={{ fontSize:52, color:"#f59e0b" }} /> },
+      verified: { text:"No verified doctors yet.",                            icon:<VerifiedIcon    sx={{ fontSize:52, color:"#22c55e" }} /> },
+      rejected: { text:"No doctors have been rejected.",                      icon:<CancelIcon       sx={{ fontSize:52, color:"#ef4444" }} /> },
     };
-
     return (
       <Grid item xs={12}>
-        <Paper
-          sx={{
-            p: 5,
-            textAlign: "center",
-            borderRadius: 3,
-            bgcolor: alpha(theme.palette[colors[status].split(".")[0]].main, 0.1),
-          }}
-        >
-          {icons[status]}
-          <Typography variant="h6" fontWeight={600} mt={2}>
-            {messages[status]}
-          </Typography>
+        <Paper sx={{ p:5, textAlign:"center", borderRadius:"20px", bgcolor:"#f8fafc" }}>
+          {msgs[status].icon}
+          <Typography variant="h6" fontWeight={600} mt={2} color="text.secondary">{msgs[status].text}</Typography>
         </Paper>
       </Grid>
     );
   };
 
-  const filteredDoctors = (status) =>
-    doctors.filter((d) => d.verificationStatus === status);
-
-
-    const statusConfig = {
-  pending: {
-    color: theme.palette.warning.main,
-    icon: <HourglassTopIcon fontSize="small" />,
-  },
-  verified: {
-    color: theme.palette.success.main,
-    icon: <VerifiedIcon fontSize="small" />,
-  },
-  rejected: {
-    color: theme.palette.error.main,
-    icon: <CancelIcon fontSize="small" />,
-  },
-};
-
-  const renderDoctorCard = (doc, showActions = false) => {
-    const status = statusConfig[doc.verificationStatus];
-
+  const renderCard = (doc, showActions = false) => {
+    const sc = statusConfig[doc.verificationStatus] || statusConfig.pending;
     return (
       <Grid item xs={12} md={6} lg={4} key={doc._id}>
-        <Paper
-          sx={{
-            p: 2.5,
-            borderRadius: 4,
-            backdropFilter: "blur(10px)",
-            background:
-              theme.palette.mode === "dark"
-                ? alpha(theme.palette.background.paper, 0.7)
-                : alpha("#ffffff", 0.9),
-            border: `1px solid ${alpha(status.color, 0.4)}`,
-            transition: "all 0.3s ease",
-            "&:hover": {
-              transform: "translateY(-6px)",
-              boxShadow: `0 12px 30px ${alpha(status.color, 0.25)}`,
-            },
-          }}
-        >
-          <Stack spacing={1.2}>
-            <Stack direction="row" justifyContent="space-between">
-              
-
-              <Chip
-                icon={status.icon}
-                label={doc.verificationStatus.toUpperCase()}
-                sx={{
-                  bgcolor: alpha(status.color, 0.15),
-                  color: status.color,
-                  fontWeight: 600,
-                }}
-              />
+        <Paper sx={{
+          p:2.5, borderRadius:"20px",
+          border:`1.5px solid ${alpha(sc.color, 0.3)}`,
+          boxShadow:`0 4px 20px ${alpha(sc.color, 0.08)}`,
+          transition:"all 0.3s ease",
+          "&:hover": { transform:"translateY(-6px)", boxShadow:`0 12px 32px ${alpha(sc.color, 0.18)}` }
+        }}>
+          <Stack spacing={1.5}>
+            {/* Avatar + Name */}
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <Avatar sx={{ width:48, height:48, bgcolor:alpha(sc.color, 0.15), color:sc.color, fontWeight:800, fontSize:18 }}>
+                {doc.firstName?.[0]}{doc.lastName?.[0]}
+              </Avatar>
+              <Box>
+                <Typography fontWeight={800} fontSize={15}>Dr. {doc.firstName} {doc.lastName}</Typography>
+                <Chip icon={sc.icon} label={doc.verificationStatus?.toUpperCase()}
+                  size="small" sx={{ bgcolor:sc.bg, color:sc.color, fontWeight:700, fontSize:"0.68rem",
+                    "& .MuiChip-icon":{ color:sc.color } }} />
+              </Box>
             </Stack>
 
-            <Stack spacing={0.8}>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <EmailIcon fontSize="small" color="action" />
-                <Typography variant="body2">{doc.email}</Typography>
+            <Divider />
+
+            {/* Info rows */}
+            {[
+              { icon:<EmailIcon fontSize="small" />,          text:doc.email },
+              { icon:<BadgeIcon fontSize="small" />,          text:doc.licenseNumber },
+              { icon:<LocalHospitalIcon fontSize="small" />,  text:doc.hospital },
+              { icon:<WorkIcon fontSize="small" />,           text:`${doc.experience || "?"} years exp.` },
+            ].map(({ icon, text }, i) => text && (
+              <Stack key={i} direction="row" spacing={1} alignItems="center">
+                <Box sx={{ color:"#94a3b8" }}>{icon}</Box>
+                <Typography variant="body2" color="text.secondary">{text}</Typography>
               </Stack>
+            ))}
 
-              <Stack direction="row" spacing={1} alignItems="center">
-                <BadgeIcon fontSize="small" color="action" />
-                <Typography variant="body2">{doc.licenseNumber}</Typography>
-              </Stack>
-              
+            <Chip icon={<MedicalServicesIcon />} label={doc.specialty||"—"} size="small" variant="outlined"
+              sx={{ width:"fit-content", borderColor:alpha(theme.palette.primary.main, 0.4),
+                color:theme.palette.primary.main, fontWeight:600 }} />
 
-            </Stack>
-            <Stack direction="row" justifyContent="space-between">
-              <Typography fontWeight={700}>
-                Dr. {doc.firstName} {doc.lastName}
-              </Typography>
-
-              <Chip
-                icon={status.icon}
-                label={doc.verificationStatus.toUpperCase()}
-                sx={{
-                  bgcolor: alpha(status.color, 0.15),
-                  color: status.color,
-                  fontWeight: 600,
-                }}
-              />
-            </Stack>
-
-            <Chip
-              icon={<MedicalServicesIcon />}
-              label={doc.specialty}
-              size="small"
-              variant="outlined"
-              sx={{
-                width: "fit-content",
-                borderColor: alpha(theme.palette.primary.main, 0.4),
-                color: theme.palette.primary.main,
-                fontWeight: 500,
-              }}
-            />
             {doc.licenseDocument && (
-              <Button
-                size="small"
-                variant="outlined"
-                component="a"
-                href={`http://localhost:8000/uploads/${doc.licenseDocument}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{ borderRadius: 2 }}
-              >
-                View License
+              <Button size="small" variant="outlined" component="a"
+                href={`${API}/uploads/${doc.licenseDocument}`}
+                target="_blank" rel="noopener noreferrer"
+                sx={{ borderRadius:"10px", textTransform:"none", fontWeight:600 }}>
+                View License Document
               </Button>
             )}
 
-
             {showActions && doc.verificationStatus === "pending" && (
               <>
-                <Divider sx={{ my: 1 }} />
+                <Divider />
                 <Stack direction="row" spacing={1}>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    color="success"
-                    sx={{ borderRadius: 3 }}
-                    onClick={() => handleVerify(doc._id)}
-                  >
-                    Verify
+                  <Button fullWidth variant="contained" onClick={() => handleVerify(doc._id)}
+                    sx={{ borderRadius:"12px", textTransform:"none", fontWeight:700,
+                      background:"linear-gradient(135deg,#43e97b,#38f9d7)", boxShadow:"none",
+                      "&:hover":{ opacity:0.9 } }}>
+                    ✓ Verify
                   </Button>
-
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    color="error"
-                    sx={{ borderRadius: 3 }}
-                    onClick={() => handleReject(doc._id)}
-                  >
-                    Reject
+                  <Button fullWidth variant="outlined" color="error" onClick={() => setRejectDialog(doc._id)}
+                    sx={{ borderRadius:"12px", textTransform:"none", fontWeight:700 }}>
+                    ✗ Reject
                   </Button>
                 </Stack>
               </>
@@ -297,94 +163,85 @@ const AdminDoctorVerification = () => {
     );
   };
 
+  const tabDocs = [filtered("pending"), filtered("verified"), filtered("rejected")];
+  const tabConfigs = [
+    { label:"Pending",  showActions:true  },
+    { label:"Verified", showActions:false },
+    { label:"Rejected", showActions:false },
+  ];
+
   return (
-    <Box sx={{ p: 3 }}>
-      <Box
-        sx={{
-          mb: 3,
-          p: 3,
-          borderRadius: 4,
-          background: `linear-gradient(135deg,
-            ${alpha(theme.palette.primary.main, 0.85)},
-            ${alpha(theme.palette.secondary.main, 0.85)})`,
-          color: "#fff",
-        }}
-      >
-        <Typography variant="h5" fontWeight={800}>
-          Doctor Verification Panel
+    <Box sx={{ bgcolor:"#f0f4f8", minHeight:"100vh", p:3 }}>
+      {/* Header Banner */}
+      <Box sx={{
+        mb:3, p:3, borderRadius:"20px",
+        background:"linear-gradient(135deg,#667eea,#764ba2)",
+        color:"#fff", boxShadow:"0 8px 32px rgba(102,126,234,0.3)"
+      }}>
+        <Typography variant="h4" fontWeight={900}>Doctor Verification Panel</Typography>
+        <Typography variant="body2" sx={{ opacity:0.85, mt:0.5 }}>
+          Review credentials, verify licenses, and manage doctor approvals
         </Typography>
-        <Typography variant="body2" sx={{ opacity: 0.9 }}>
-          Review and approve doctor credentials
-        </Typography>
+        <Stack direction="row" spacing={2} mt={2}>
+          {["pending","verified","rejected"].map(s => (
+            <Chip key={s}
+              label={`${s.charAt(0).toUpperCase()+s.slice(1)}: ${filtered(s).length}`}
+              sx={{ bgcolor:"rgba(255,255,255,0.2)", color:"#fff", fontWeight:700 }}
+            />
+          ))}
+        </Stack>
       </Box>
 
+      {/* Tabs */}
+      <Paper sx={{ borderRadius:"16px", mb:3, boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
+        <Tabs value={tab} onChange={(_, v) => setTab(v)}
+          sx={{
+            "& .MuiTab-root": { textTransform:"none", fontWeight:600, fontSize:15 },
+            "& .Mui-selected": { color:"#667eea" },
+            "& .MuiTabs-indicator": { background:"linear-gradient(135deg,#667eea,#764ba2)", height:3, borderRadius:2 }
+          }}>
+          {tabConfigs.map((t,i) => (
+            <Tab key={i} label={`${t.label} (${tabDocs[i].length})`} />
+          ))}
+        </Tabs>
+      </Paper>
 
-      <Tabs
-        value={tab}
-        onChange={(e, v) => setTab(v)}
-        sx={{ mb: 3 }}
-      >
-        <Tab label={`Pending (${filteredDoctors("pending").length})`} />
-        <Tab label={`Verified (${filteredDoctors("verified").length})`} />
-        <Tab label={`Rejected (${filteredDoctors("rejected").length})`} />
-      </Tabs>
+      {/* Cards */}
+      <Grid container spacing={3}>
+        {loading ? (
+          <Grid item xs={12} sx={{ display:"flex", justifyContent:"center", py:6 }}>
+            <CircularProgress />
+          </Grid>
+        ) : tabDocs[tab].length === 0
+          ? renderEmpty(["pending","verified","rejected"][tab])
+          : tabDocs[tab].map(doc => renderCard(doc, tabConfigs[tab].showActions))
+        }
+      </Grid>
 
-      {/* PENDING */}
-      {tab === 0 && (
-        <Grid container spacing={3}>
-          {loading ? (
-            <Grid item xs={12}>
-              <Paper sx={{ p: 5, textAlign: "center", borderRadius: 3 }}>
-                <CircularProgress />
-                <Typography mt={2}>Loading doctors...</Typography>
-              </Paper>
-            </Grid>
-          ) : filteredDoctors("pending").length === 0 ? (
-            renderEmptyMessage("pending")
-          ) : (
-            filteredDoctors("pending").map((doc) => renderDoctorCard(doc, true))
-          )}
-        </Grid>
-      )}
-
-
-      {/* VERIFIED */}
-      {tab === 1 && (
-        <Grid container spacing={3}>
-          {loading ? (
-            <Grid item xs={12}>
-              <Paper sx={{ p: 5, textAlign: "center", borderRadius: 3 }}>
-                <CircularProgress />
-                <Typography mt={2}>Loading doctors...</Typography>
-              </Paper>
-            </Grid>
-          ) : filteredDoctors("verified").length === 0 ? (
-            renderEmptyMessage("verified")
-          ) : (
-            filteredDoctors("verified").map((doc) => renderDoctorCard(doc, false))
-          )}
-
-        </Grid>
-      )}
-
-      {/* REJECTED */}
-      {tab === 2 && (
-        <Grid container spacing={3}>
-          {loading ? (
-            <Grid item xs={12}>
-              <Paper sx={{ p: 5, textAlign: "center", borderRadius: 3 }}>
-                <CircularProgress />
-                <Typography mt={2}>Loading doctors...</Typography>
-              </Paper>
-            </Grid>
-          ) : filteredDoctors("rejected").length === 0 ? (
-            renderEmptyMessage("rejected")
-          ) : (
-            filteredDoctors("rejected").map((doc) => renderDoctorCard(doc, false))
-          )}
-
-        </Grid>
-      )}
+      {/* Reject Reason Dialog */}
+      <Dialog open={!!rejectDialog} onClose={() => { setRejectDialog(null); setRejectReason(""); }}
+        maxWidth="sm" fullWidth PaperProps={{ sx:{ borderRadius:"20px" } }}>
+        <DialogTitle sx={{ fontWeight:700 }}>Reject Doctor</DialogTitle>
+        <DialogContent>
+          <Typography color="text.secondary" mb={2}>
+            Please provide a reason for rejection (optional but recommended):
+          </Typography>
+          <TextField
+            fullWidth multiline rows={3}
+            placeholder="e.g. License document unclear, specialty mismatch…"
+            value={rejectReason} onChange={e => setRejectReason(e.target.value)}
+            sx={{ "& .MuiOutlinedInput-root":{ borderRadius:"12px" } }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px:3, pb:2 }}>
+          <Button onClick={() => { setRejectDialog(null); setRejectReason(""); }}
+            sx={{ textTransform:"none", fontWeight:600 }}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleReject}
+            sx={{ textTransform:"none", fontWeight:700, borderRadius:"10px" }}>
+            Confirm Rejection
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

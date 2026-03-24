@@ -34,7 +34,8 @@ import AdminRoleManagement from "../src/components/Administration/AdminRoleManag
 import AdminLogin from "../src/components/Administration/AdminLogin";
 import AdminRegister from "../src/components/Administration/AdminRegister";
 import AdminVerification from '../src/components/Administration/AdminDoctorVerification';
-import AdminLayout from "../src/components/Administration/layouts/AdminLayout"
+import AdminDoctorsPage from "../src/components/Administration/AdminDoctors";
+import AdminPatientsPage from "../src/components/Administration/AdminPatients";
 
 
 import './App.css';
@@ -157,11 +158,13 @@ function App() {
                     {/* ✅ ADMIN ROUTES */}
                     <Routes>
                       <Route path="dashboard" element={<AdminDashboard />} />
-                      <Route path="verify" element={<AdminVerification />} />
-                      <Route path="payments" element={<AdminPayments />} />
+                      <Route path="verify"    element={<AdminVerification />} />
+                      <Route path="doctors"   element={<AdminDoctorsPage />} />
+                      <Route path="patients"  element={<AdminPatientsPage />} />
+                      <Route path="payments"  element={<AdminPayments />} />
                       <Route path="analytics" element={<AdminAnalytics />} />
-                      <Route path="logs" element={<AdminActivityLogs />} />
-                      <Route path="roles" element={<AdminRoleManagement />} />
+                      <Route path="logs"      element={<AdminActivityLogs />} />
+                      <Route path="roles"     element={<AdminRoleManagement />} />
                     </Routes>
                   </Box>
                 </Box>
