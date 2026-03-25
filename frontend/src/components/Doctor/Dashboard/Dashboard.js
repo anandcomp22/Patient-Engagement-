@@ -203,6 +203,16 @@ const Dashboard = ({ sidebarOpen }) => {
     );
   }
 
+  if (doctor && doctor.verificationStatus === "pending") {
+    return (
+      <Box sx={{ p: 3, mt: 3 }}>
+        <Alert severity="warning">
+          Your license is under verification by admin.
+        </Alert>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ p: 3, mt: 3 }}>
 

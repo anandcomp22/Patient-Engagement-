@@ -13,6 +13,10 @@ import {
   Box as MuiBox,
   Container,
   Chip,
+<<<<<<< HEAD
+=======
+  Divider,
+>>>>>>> 5956147b83365fbb8ac5f951f43dcba403f1b76d
 } from '@mui/material';
 import {
   CalendarToday,
@@ -30,7 +34,10 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { formatDistanceToNowStrict } from 'date-fns';
 import axios from 'axios';
+<<<<<<< HEAD
 import { API_BASE } from "../../../apiConfig";
+=======
+>>>>>>> 5956147b83365fbb8ac5f951f43dcba403f1b76d
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -40,6 +47,17 @@ import HealthConnect from './HealthConnect';
 
 
 
+<<<<<<< HEAD
+=======
+const cardColors = {
+  appointments: "linear-gradient(135deg, #008CFF 0%, #00E5FF 100%)",
+  book: "linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)",
+  video: "linear-gradient(135deg, #4CAF50 0%, #81C784 100%)",
+  health: "linear-gradient(135deg, #FFD93D 0%, #FFB347 100%)",
+  goal: "linear-gradient(135deg, #9C27B0 0%, #E040FB 100%)",
+  emergency: "linear-gradient(135deg, #B71C1C 0%, #F44336 100%)"
+};
+>>>>>>> 5956147b83365fbb8ac5f951f43dcba403f1b76d
 
 const insightColors = [
   "#E3F2FD", 
@@ -191,6 +209,10 @@ export default function PatientDashboard() {
   const [greeting, setGreeting] = useState("");
   const [loading, setLoading] = useState(true);
 
+<<<<<<< HEAD
+=======
+  const profileInitials = 'SP';
+>>>>>>> 5956147b83365fbb8ac5f951f43dcba403f1b76d
   const patientId = localStorage.getItem("patientId") || 123;
 
   useEffect(() => {
@@ -213,7 +235,11 @@ export default function PatientDashboard() {
 
   useEffect(() => {
     axios
+<<<<<<< HEAD
       .get(`${API_BASE}/patient/appointments/${patientId}`)
+=======
+      .get(`http://localhost:8000/patient/appointments/${patientId}`)
+>>>>>>> 5956147b83365fbb8ac5f951f43dcba403f1b76d
       .then((res) => {
         const now = new Date();
         // Filter out past appointments to properly show upcoming count
