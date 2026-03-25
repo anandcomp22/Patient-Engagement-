@@ -104,23 +104,45 @@ router.get("/patients", authMiddleware, async (req, res) => {
   try {
     const doctorId = req.user.doctorId;
 
-    const appointments = await Appointment.find({ doctorId })
-    .populate("patient", "gender firstName lastName email phone dob");
+    const appointments = await Appointment.find({ doctorId }).sort({ appointmentDate: -1 });
 
-    const patients = appointments.map(a => ({
-      patientId: a.patientId,
-      firstName: a.patient.firstName,
-      lastName: a.patient.lastName,
-      email: a.patient.email,
-      phone: a.patient.phone,
-      patientAge: a.patientAge,
-      gender: a.patient.gender || "N/A",
-      lastVisit: a.updatedAt,
-      nextAppointment: a.appointmentDate,
-      conditions: a.conditions ||[]
-    }));
+    // Extract unique patient IDs
+    const patientIds = [...new Set(appointments.map(a => a.patientId))];
+    
+    // Fetch all related patient full profiles
+    const { Patient } = require("../../db/models");
+    const fullPatientProfiles = await Patient.find({ patientId: { $in: patientIds } });
+    const profileMap = new Map(fullPatientProfiles.map(p => [p.patientId, p]));
 
-    res.json(patients);
+    const calculateAge = (dob) => {
+      if (!dob) return null;
+      const birthDate = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+      return age;
+    };
+
+    // Build the list using full profiles as source of truth
+    const patientsList = appointments.map(a => {
+      const profile = profileMap.get(a.patientId);
+      
+      return {
+        patientId: a.patientId,
+        firstName: profile?.firstName || a.patientName?.split(' ')[0] || "Patient",
+        lastName: profile?.lastName || a.patientName?.split(' ').slice(1).join(' ') || "",
+        email: profile?.email || a.patientEmail || "N/A",
+        phone: profile?.phone || a.patientPhone || "N/A",
+        patientAge: profile ? calculateAge(profile.dob) : a.patientAge,
+        gender: profile?.gender || "N/A",
+        lastVisit: a.updatedAt,
+        nextAppointment: a.appointmentDate,
+        conditions: a.conditions || []
+      };
+    });
+
+    res.json(patientsList);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch patients" });
   }

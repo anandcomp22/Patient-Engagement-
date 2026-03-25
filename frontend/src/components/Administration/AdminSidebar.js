@@ -121,11 +121,11 @@ const AdminSidebar = ({ open, onToggle }) => {
       {/* Logo */}
       <Box sx={{ display:"flex", flexDirection:"column", alignItems:"center", mb:2, px:1 }}>
         <img src={Aidme} alt="AidME" style={{ maxWidth: open ? 110 : 36, transition:"max-width 0.3s ease", borderRadius:8 }} />
-        {open && (
+        {/*{open && (
           <Typography variant="caption" sx={{ color:"rgba(255,255,255,0.5)", mt:0.5, fontSize:10, letterSpacing:1.5 }}>
             ADMIN PORTAL
           </Typography>
-        )}
+        )}*/}
       </Box>
 
       {/* Main Menu */}

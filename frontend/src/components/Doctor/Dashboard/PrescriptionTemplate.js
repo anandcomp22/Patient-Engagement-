@@ -32,18 +32,62 @@ const PrescriptionTemplate = ({ prescription }) => {
 
         {/* Doctor & Patient */}
         <Grid container spacing={3}>
-          <Grid item xs={6}>
-            <Typography variant="h6" color={colors.primary}>Doctor</Typography>
-            <Typography>Dr. {prescription.doctor || "Unknown"}</Typography>
-            <Typography variant="body2">{prescription.specialization || "General Physician"}</Typography>
-            <Typography variant="body2">License: {prescription.license || "MD-100293"}</Typography>
+          {/* Patient Section */}
+          <Grid item xs={8}>
+            <Typography variant="h6" sx={{ color: colors.primary, fontWeight: 800, borderBottom: `2px solid ${colors.background}`, pb: 0.5, mb: 2, display: 'inline-block', fontSize: '1.15rem' }}>
+              Patient Particulars
+            </Typography>
+            
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: "#777", minWidth: 60 }}>Name:</Typography>
+                <Typography variant="h5" fontWeight="800" sx={{ color: "#222", textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  {prescription.patient && prescription.patient !== "N/A" ? prescription.patient : "[DATA NOT PROVIDED]"}
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: 'flex', gap: 4, mt: 1 }}>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: "#777" }}>Patient ID:</Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 800, color: colors.primary }}>#{prescription.patientId || "N/A"}</Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: "#777" }}>Age:</Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 800, color: "#333" }}>{prescription.age || "N/A"}</Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: "#777" }}>Gender:</Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 800, color: "#333", textTransform: 'capitalize' }}>{prescription.gender || "N/A"}</Typography>
+                </Box>
+              </Box>
+            </Box>
           </Grid>
 
-          <Grid item xs={6}>
-            <Typography variant="h6" color={colors.primary}>Patient</Typography>
-            <Typography>{prescription.patient || "Unknown"}</Typography>
-            <Typography variant="body2">Age: {prescription.age || "N/A"}</Typography>
-            <Typography variant="body2">Gender: {prescription.gender || "N/A"}</Typography>
+          {/* Verification Section */}
+          <Grid item xs={4} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 1.5, background: "#f9f9f9", borderRadius: 2, border: "1px solid #eee" }}>
+              <Box 
+                sx={{ 
+                  width: 50, 
+                  height: 50, 
+                  border: "1px dashed #ccc", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  background: "#fff",
+                  borderRadius: 1
+                }}
+              >
+                <Typography variant="caption" align="center" sx={{ fontSize: '0.5rem', color: '#999', fontWeight: 'bold' }}>
+                  SECURE<br/>QR
+                </Typography>
+              </Box>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'bold', lineHeight: 1.1 }}>
+                Scan to verify<br/>authenticity
+              </Typography>
+            </Box>
           </Grid>
         </Grid>
 
@@ -53,7 +97,7 @@ const PrescriptionTemplate = ({ prescription }) => {
         <Typography variant="h6" color={colors.secondary}>
           Diagnosis
         </Typography>
-        <Typography>{prescription.diagnosis || "General Checkup"}</Typography>
+        <Typography sx={{ mb: 1.5 }}>{prescription.diagnosis || "General Consultation"}</Typography>
 
         <Divider sx={{ my: 1.5 }} />
 
@@ -62,7 +106,7 @@ const PrescriptionTemplate = ({ prescription }) => {
           Prescription Medicines
         </Typography>
 
-        <TableContainer component={Box} sx={{ overflowX: "auto", mt: 1, mb: 1 }}>
+        <TableContainer component={Box} sx={{ mt: 1, mb: 1 }}>
           <Table size="small" sx={{ minWidth: 500 }}>
             <TableHead sx={{ background: "#e3f2fd" }}>
               <TableRow>
@@ -102,7 +146,7 @@ const PrescriptionTemplate = ({ prescription }) => {
           Guidelines
         </Typography>
 
-        <ul style={{ paddingLeft: "20px", marginTop: "8px" }}>
+        <ul style={{ paddingLeft: "20px", marginTop: "8px", marginBottom: "8px" }}>
           {(prescription.guidelines || []).map((g, i) => (
             <li key={i}>{g}</li>
           ))}
@@ -118,11 +162,14 @@ const PrescriptionTemplate = ({ prescription }) => {
             Next Appointment: <Typography component="span" color="primary">{prescription.nextVisit || "Not Scheduled"}</Typography>
           </Typography>
 
-          <Box sx={{ textAlign: "right", borderTop: "1px dashed #ccc", pt: 1, minWidth: 150 }}>
-            <Typography fontWeight="bold" color={colors.primary} sx={{ fontSize: "1.1rem" }}>
-              Dr. {prescription.doctor}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">Digital Signature</Typography>
+          <Box sx={{ textAlign: "right", pt: 1, minWidth: 150 }}>
+            <Box sx={{ borderBottom: "1px solid #333", display: 'inline-block', minWidth: 120, mb: 0.5 }}>
+              <Typography sx={{ fontFamily: '"Brush Script MT", cursive', fontSize: '1.4rem', color: '#1a237e' }}>
+                Dr. {prescription.doctor}
+              </Typography>
+            </Box>
+            <Typography variant="caption" display="block" color="text.secondary" fontWeight="bold">Digital Signature</Typography>
+            <Typography variant="caption" display="block" color="text.secondary" sx={{ fontSize: '0.6rem' }}>Electronically Verified</Typography>
           </Box>
         </Box>
 

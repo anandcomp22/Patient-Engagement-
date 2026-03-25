@@ -16,6 +16,7 @@ sentence-transformers>=3.0.1
 # Ollama LLM integration (replaces local HuggingFace models)
 langchain-community>=0.0.20
 langchain>=0.1.0
+langchain-ollama
 
 # Transcription
 whisperx

@@ -79,9 +79,17 @@ const PatientsDetail = () => {
   const handleAddPatient = async () => {
     try {
       const token = localStorage.getItem("token");
+      
+      // Calculate a rough DOB from age if dob is not explicitly provided
+      const currentYear = new Date().getFullYear();
+      const birthYear = currentYear - parseInt(addForm.age || 0);
+      const dob = new Date(birthYear, 0, 1); // Default to Jan 1st of that year
+
       await axios.post(`${API_BASE}/patient`, {
         ...addForm,
-        password: "Generated123!", // Dummy password for doctor-added patients to bypass schema requirement securely
+        dob: dob.toISOString(), // Send dob as required by schema
+        gender: addForm.gender.toLowerCase(), // Send lowercase to match enum ['male', 'female', 'other']
+        password: "Generated123!", 
         patientId: Math.floor(Math.random() * 90000) + 10000
       }, { headers: { Authorization: `Bearer ${token}` } });
       

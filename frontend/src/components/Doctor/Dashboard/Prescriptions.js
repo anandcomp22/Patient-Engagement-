@@ -51,7 +51,13 @@ const Prescriptions = () => {
           axios.get(`${API_BASE}/appointment/app`, { headers: { Authorization: `Bearer ${token}` } })
         ]);
 
-        const uniquePatients = Array.from(new Map(resPatients.data.map(p => [p.patientId, p])).values());
+        const patientsMap = new Map();
+        resPatients.data.forEach(p => {
+          if (!patientsMap.has(p.patientId)) {
+            patientsMap.set(p.patientId, p);
+          }
+        });
+        const uniquePatients = Array.from(patientsMap.values());
         setPatients(uniquePatients);
         setAllAppointments(resApps.data);
       } catch (err) {
@@ -162,29 +168,32 @@ const Prescriptions = () => {
   };
 
   // Build the live preview data objects
+  // Build the live preview data objects
   const doctorName = localStorage.getItem("doctorName") || "Doctor";
   
   // Decide whether to show Live Form Data OR Selected Historical Data
   const prescriptionPreviewData = selectedPatient 
     ? (selectedPastRx ? {
         doctor: doctorName,
-        specialization: "General Medicine",
-        license: "MED-CLINIC-X",
-        patient: `${selectedPatient.firstName} ${selectedPatient.lastName}`,
-        age: selectedPatient.patientAge,
-        gender: selectedPatient.gender,
+        specialization: "", 
+        license: "",
+        patient: `${selectedPatient.firstName} ${selectedPatient.lastName || ""}`.trim(),
+        patientId: selectedPatient.patientId,
+        age: selectedPatient.patientAge || selectedPatient.age || "N/A",
+        gender: selectedPatient.gender || "N/A",
         diagnosis: "Historical Record",
         medicines: [{ name: selectedPastRx.medicine, dosage: selectedPastRx.dosage || "", frequency: "", duration: "", note: "" }],
         guidelines: [selectedPastRx.notes],
         nextVisit: new Date(selectedPastRx.date).toLocaleDateString()
       } : {
         doctor: doctorName,
-        specialization: "General Medicine",
-        license: "MED-CLINIC-X",
-        patient: `${selectedPatient.firstName} ${selectedPatient.lastName}`,
-        age: selectedPatient.patientAge,
-        gender: selectedPatient.gender,
-        diagnosis: diagnosis,
+        specialization: "", 
+        license: "",        
+        patient: `${selectedPatient.firstName} ${selectedPatient.lastName || ""}`.trim(),
+        patientId: selectedPatient.patientId,
+        age: selectedPatient.patientAge || selectedPatient.age || "N/A",
+        gender: selectedPatient.gender || "N/A",
+        diagnosis: diagnosis || "General Consultation",
         medicines: dynamicMedicines.filter(m => m.name.trim() !== ""),
         guidelines: guidelines.split("\n").filter(g => g.trim() !== ""),
         nextVisit: selectedPatient.nextAppointment ? new Date(selectedPatient.nextAppointment).toLocaleDateString() : "TBD"
