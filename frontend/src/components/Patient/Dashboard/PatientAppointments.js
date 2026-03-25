@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, CircularProgress } from '@mui/material';
-import { Add, VideoCall, ArrowForwardIos } from '@mui/icons-material';
+import { Add, VideoCall } from '@mui/icons-material';
 import axios from 'axios';
+import { API_BASE } from "../../../apiConfig";
 
 export default function PatientAppointments() {
   const [appointments, setAppointments] = useState([]);
@@ -12,7 +13,7 @@ export default function PatientAppointments() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8000/patient/appointments/${patientId}`)
+      .get(`${API_BASE}/patient/appointments/${patientId}`)
       .then((res) => {
         setAppointments(res.data);
         setLoading(false);

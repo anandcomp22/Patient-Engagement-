@@ -25,7 +25,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import io from "socket.io-client";
 import "./Dashboard.css";
-const API_BASE = process.env.REACT_APP_API_URL;
+import { API_BASE } from "../../../apiConfig";
 
 const socket = io(API_BASE);
 
@@ -38,7 +38,6 @@ const Dashboard = ({ sidebarOpen }) => {
   const [DoctorName, setDoctorName] = useState("");
   const [greeting, setGreeting] = useState("");
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
-  const [appointments, setAppointments] = useState([]);
   const insightColors = [
     "#E3EAFD",
     "#E8F5E9",
@@ -193,9 +192,6 @@ const Dashboard = ({ sidebarOpen }) => {
     setShowAllInsights(!showAllInsights);
   };
 
-  const handleViewAll = () => {
-  setShowAllAppointments(true);
-};
 
   if (doctor && doctor.verificationStatus === "pending") {
     return (

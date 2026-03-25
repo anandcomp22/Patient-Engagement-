@@ -14,6 +14,7 @@ import SmartToyIcon from "@mui/icons-material/SmartToy";
 import MedicationIcon from "@mui/icons-material/Medication";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import SearchIcon from "@mui/icons-material/Search";
+import { API_BASE } from "../../../apiConfig";
 
 // ---------------------------------------------------------------------------
 // AiPanel
@@ -27,7 +28,7 @@ import SearchIcon from "@mui/icons-material/Search";
 //   onMedicinesFound — callback(medicines[]) so parent can populate prescription
 // ---------------------------------------------------------------------------
 const AI_WS_URL = "ws://localhost:8765";          // WhisperX WebSocket transcription server
-const RAG_API_URL = "http://localhost:8000/rag/answer"; // Node.js (port 8000) proxies to Python Flask (port 5000)
+const RAG_API_URL = `${API_BASE}/rag/answer`; // Node.js (port 8000) proxies to Python Flask (port 5000)
 
 const STATUS_LABELS = {
     idle: { label: "Waiting for call…", color: "default" },
@@ -51,7 +52,6 @@ const AiPanel = ({
 }) => {
     const wsRef = useRef(null);
     const recorderRef = useRef(null);
-    const partialTaskRef = useRef(null);
     const triggerRagRef = useRef(null); // will be assigned after triggerRag is defined
 
     const [status, setStatus] = useState("idle");
@@ -127,7 +127,7 @@ const AiPanel = ({
         setRetrieveMsg("");
         setOnDemandMeds([]);
         try {
-            const res = await fetch("http://localhost:8000/rag/session/retrieve-meds-now", {
+            const res = await fetch(`${API_BASE}/rag/session/retrieve-meds-now`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

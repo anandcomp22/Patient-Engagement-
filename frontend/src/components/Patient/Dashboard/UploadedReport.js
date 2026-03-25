@@ -3,6 +3,7 @@ import { Typography, Button, TextField, Paper } from "@mui/material"
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import dayjs from "dayjs";
 import axios from "axios";
+import { API_BASE } from "../../../apiConfig";
 
 export default function UploadReport() {
   const [uploadDate, setUploadDate] = useState(dayjs().format("YYYY-MM-DD"));
@@ -22,7 +23,7 @@ export default function UploadReport() {
     formData.append("report", file);
 
     try {
-      await axios.post("http://localhost:8000/patient/upload-report", formData, {
+      await axios.post(`${API_BASE}/patient/upload-report`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       alert("Report uploaded successfully");

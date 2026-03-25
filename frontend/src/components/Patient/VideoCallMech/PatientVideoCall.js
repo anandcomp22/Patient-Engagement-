@@ -3,6 +3,7 @@ import { Box, Typography, IconButton, TextField, Button, Paper, Fade, Tooltip, A
 import { MicOff, Mic, Videocam, VideocamOff, CallEnd, Fullscreen, FullscreenExit, PersonOutline } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import io from "socket.io-client";
+import { API_BASE } from "../../../apiConfig";
 
 /*
   PatientVideoCall — Premium dark video call room
@@ -41,7 +42,7 @@ const PatientVideoCall = () => {
 
   // ── Socket ──────────────────────────────────────────────────
   useEffect(() => {
-    socketRef.current = io("http://localhost:8000", { transports: ["websocket"] });
+    socketRef.current = io(API_BASE, { transports: ["websocket"] });
     return () => socketRef.current.disconnect();
   }, []);
 

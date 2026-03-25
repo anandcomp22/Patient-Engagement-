@@ -21,7 +21,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 //import backgroundImage from "../assets/admin-bg.jpg";
 
-const API = process.env.REACT_APP_API_URL;
+import { API_BASE } from "../../apiConfig";
+
+const API = API_BASE;
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -73,8 +75,8 @@ const AdminLogin = () => {
       const res = await axios.post(
         `${API}/admin/auth/login`,
         {
-          email: formData.email,
-          password: formData.password,
+          email: formData.email.trim(),
+          password: formData.password.trim(),
         }
       );
 

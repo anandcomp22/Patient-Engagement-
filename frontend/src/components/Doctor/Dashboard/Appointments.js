@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box, Typography, Button, Card, Avatar, Chip, IconButton,
+  Box, Typography, Button, Avatar, Chip, IconButton,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  InputAdornment, Divider, Grid, Paper, Tooltip
+  InputAdornment, Grid, Paper, Tooltip
 } from "@mui/material";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
 import AddIcon from "@mui/icons-material/Add";
@@ -11,14 +11,14 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import SearchIcon from "@mui/icons-material/Search";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import VideocamIcon from "@mui/icons-material/Videocam";
-import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import PersonIcon from "@mui/icons-material/Person";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import axios from "axios";
 
-const API_BASE = process.env.REACT_APP_API_URL;
+import { API_BASE } from "../../../apiConfig";
+
 const socket = io(API_BASE);
 
 const Appointments = () => {
@@ -47,7 +47,6 @@ const Appointments = () => {
   const [error, setError] = useState("");
   const [patientsList, setPatientsList] = useState([]); // List of patients for the dropdown
 
-  const DoctorName = localStorage.getItem("doctorName") || "";
 
   const fetchAppointments = async () => {
     setLoading(true);

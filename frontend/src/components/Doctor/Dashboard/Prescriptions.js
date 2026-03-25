@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Box, Typography, Button, Paper, Grid, List, ListItem, ListItemText, 
-  ListItemAvatar, Avatar, TextField, Tabs, Tab, IconButton, Divider, Chip
+  ListItemAvatar, Avatar, TextField, Tabs, Tab, IconButton, Chip
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -19,7 +19,7 @@ import PrescriptionTemplate from "./PrescriptionTemplate";
 import MedicalReportTemplate from "./MedicalReportTemplate";
 import html2pdf from "html2pdf.js";
 
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
+import { API_BASE } from "../../../apiConfig";
 
 const Prescriptions = () => {
   const [patients, setPatients] = useState([]);

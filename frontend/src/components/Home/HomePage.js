@@ -1,10 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { AppBar, Toolbar, Typography, Box, Button, Paper, Grid, Container,Breadcrumbs,Link,Chip,Avatar,Divider,
-   Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Checkbox, FormControlLabel,InputAdornment,IconButton, CircularProgress,Snackbar,Alert} from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, Button, Paper, Grid, Container, Breadcrumbs, Link, Chip, Avatar, Divider,
+   Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Checkbox, FormControlLabel, InputAdornment, IconButton, CircularProgress, Snackbar, Alert} from '@mui/material';
 import { Favorite, ContactMail, Phone, NavigateNext, Visibility,
-  LocalHospital, Spa, Description, Vaccines, MonitorHeart, Psychology, MedicalInformation,  CheckCircle, SentimentSatisfiedAlt, EventAvailable,PersonSearch, AdminPanelSettingsLock, 
+  LocalHospital, Spa, Description, Vaccines, MonitorHeart, Psychology, MedicalInformation, CheckCircle, SentimentSatisfiedAlt, EventAvailable, PersonSearch, AdminPanelSettings as AdminPanelSettingsIcon, 
   FlashOn, VisibilityOff} from '@mui/icons-material';
-  import Close from "@mui/icons-material/Close";
+import Close from "@mui/icons-material/Close";
 import VideocamIcon from '@mui/icons-material/Videocam';
 import PersonIcon from '@mui/icons-material/Person';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -13,6 +13,7 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import BoltIcon from '@mui/icons-material/Bolt';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE } from "../../apiConfig";
 
 const specialties = ["General Physician","Dermatology","Obstetrics & Gynaecology","Orthopaedics","ENT","Neurology","Cardiology","Urology","Gastroenterology/GI",
   "Psychiatry","Paediatrics","Pulmonology/Respiratory","Endocrinology","Nephrology","Neurosurgery","Rheumatology","Ophthalmology","Surgical Gastroenterology",
@@ -221,31 +222,6 @@ const benefits = [
 const Navbar = () => {
   const navigate = useNavigate();
 
-  const navButtonStyle = {
-    position: "relative",
-    color: "#1c2b4a",
-    fontWeight: 500,
-    textTransform: "none",
-    backgroundColor: "transparent",
-    fontSize: "0.95rem",
-    "&::after": {
-      content: '""',
-      position: "absolute",
-      left: 0,
-      bottom: -6,
-      width: "0%",
-      height: "2px",
-      backgroundColor: "#0d6efd",
-      transition: "width 0.3s ease",
-    },
-    "&:hover": {
-      backgroundColor: "transparent",
-    },
-    "&:hover::after": {
-      width: "100%",
-    },
-  };
-
   return (
     <AppBar
       position="sticky"
@@ -387,7 +363,7 @@ const HomePage = () => {
       password: ''
     });
     const [errors, setErrors] = useState({});
-    const [verificationStatus, setVerificationStatus] = useState(() => {
+    const [verificationStatus] = useState(() => {
       const savedStatus = localStorage.getItem('doctorVerificationStatus');
       return savedStatus ? JSON.parse(savedStatus) : null;
     });
@@ -461,8 +437,8 @@ const HomePage = () => {
 
     try {
       const endpoint = loginType === "doctor" 
-        ? "http://localhost:8000/doctor/signin" 
-        : "http://localhost:8000/patient/signin";
+        ? `${API_BASE}/doctor/signin` 
+        : `${API_BASE}/patient/signin`;
 
       const res = await axios.post(endpoint, formData);
       const data = res.data;

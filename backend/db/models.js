@@ -19,7 +19,8 @@ const AdminSchema = new mongoose.Schema({
     type: String,
     required: true, 
     unique: true,
-    lowercase: true
+    lowercase: true,
+    trim: true
   },
 
   phone: {
@@ -79,6 +80,7 @@ AdminSchema.pre("save", async function (next) {
 
 /* Compare password */
 AdminSchema.methods.comparePassword = function (password) {
+  console.log("Comparing password for admin:", this.email);
   return bcrypt.compare(password, this.password);
 };
 

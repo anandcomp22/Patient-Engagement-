@@ -15,7 +15,7 @@ const AnalysisStatCard = ({
   return (
     <Grid container spacing={2} sx={{ mb: 4 }}>
   <Grid item xs={12} sm={6} md={3}>
-    <summary-card
+    <SummaryCard
       title="Total Patients"
       value="33"
       icon={<PeopleIcon />}
@@ -23,7 +23,7 @@ const AnalysisStatCard = ({
   </Grid>
 
   <Grid item xs={12} sm={6} md={3}>
-    <summary-card
+    <SummaryCard
       title="Total Appointments"
       value="39"
       icon={<EventNoteIcon />}
@@ -31,7 +31,7 @@ const AnalysisStatCard = ({
   </Grid>
 
   <Grid item xs={12} sm={6} md={3}>
-    <summary-card
+    <SummaryCard
       title="Avg Time (min)"
       value="30"
       icon={<AccessTimeIcon />}
@@ -39,7 +39,7 @@ const AnalysisStatCard = ({
   </Grid>
 
   <Grid item xs={12} sm={6} md={3}>
-    <summary-card
+    <SummaryCard
       title="Total Income"
       value="₹1550"
       icon={<CurrencyRupeeIcon />}

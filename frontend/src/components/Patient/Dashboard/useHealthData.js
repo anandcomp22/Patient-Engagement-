@@ -144,42 +144,6 @@ export default function useHealthData() {
     setDeviceName('');
   }, []);
 
-  // ── GOOGLE FIT ────────────────────────────────────────────────────────────────
-  const connectGoogleFit = useCallback(() => {
-    setError('');
-    if (!GOOGLE_FIT_CLIENT_ID || GOOGLE_FIT_CLIENT_ID === 'YOUR_GOOGLE_FIT_CLIENT_ID_HERE') {
-      setError('Google Fit Client ID not set. Add REACT_APP_GOOGLE_FIT_CLIENT_ID to your .env file.');
-      return;
-    }
-
-    const redirectUri = window.location.origin;
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_FIT_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=${encodeURIComponent(GOOGLE_FIT_SCOPES)}`;
-
-    const popup = window.open(authUrl, 'googleFitAuth', 'width=500,height=600');
-
-    const listener = async (event) => {
-      if (event.origin !== window.location.origin) return;
-      const { access_token } = event.data || {};
-      if (!access_token) return;
-      window.removeEventListener('message', listener);
-      popup?.close();
-
-      setConnectionStatus('connecting');
-      setDeviceName('Google Fit');
-
-      try {
-        await fetchGoogleFitData(access_token);
-        setConnectionStatus('gfit');
-        // Refresh every 5 minutes
-        setInterval(() => fetchGoogleFitData(access_token), 5 * 60 * 1000);
-      } catch (e) {
-        setError('Failed to fetch data from Google Fit.');
-        setConnectionStatus('disconnected');
-      }
-    };
-    window.addEventListener('message', listener);
-  }, []);
-
   const fetchGoogleFitData = useCallback(async (token) => {
     const now = Date.now();
     const startOfDay = new Date();
@@ -226,6 +190,42 @@ export default function useHealthData() {
       setCalories(latest.calories);
     }
   }, []);
+
+  // ── GOOGLE FIT ────────────────────────────────────────────────────────────────
+  const connectGoogleFit = useCallback(() => {
+    setError('');
+    if (!GOOGLE_FIT_CLIENT_ID || GOOGLE_FIT_CLIENT_ID === 'YOUR_GOOGLE_FIT_CLIENT_ID_HERE') {
+      setError('Google Fit Client ID not set. Add REACT_APP_GOOGLE_FIT_CLIENT_ID to your .env file.');
+      return;
+    }
+
+    const redirectUri = window.location.origin;
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_FIT_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=${encodeURIComponent(GOOGLE_FIT_SCOPES)}`;
+
+    const popup = window.open(authUrl, 'googleFitAuth', 'width=500,height=600');
+
+    const listener = async (event) => {
+      if (event.origin !== window.location.origin) return;
+      const { access_token } = event.data || {};
+      if (!access_token) return;
+      window.removeEventListener('message', listener);
+      popup?.close();
+
+      setConnectionStatus('connecting');
+      setDeviceName('Google Fit');
+
+      try {
+        await fetchGoogleFitData(access_token);
+        setConnectionStatus('gfit');
+        // Refresh every 5 minutes
+        setInterval(() => fetchGoogleFitData(access_token), 5 * 60 * 1000);
+      } catch (e) {
+        setError('Failed to fetch data from Google Fit.');
+        setConnectionStatus('disconnected');
+      }
+    };
+    window.addEventListener('message', listener);
+  }, [fetchGoogleFitData]);
 
   // ── DISCONNECT ALL ────────────────────────────────────────────────────────────
   const disconnect = useCallback(() => {

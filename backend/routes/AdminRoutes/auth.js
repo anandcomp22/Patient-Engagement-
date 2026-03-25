@@ -10,12 +10,21 @@ const JWT_SECRET_ADMIN = "adminsecretjwtkey456";
 // Admin Login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
+  const trimmedEmail = email?.trim().toLowerCase();
 
-  const admin = await Admin.findOne({ email });
-  if (!admin) return res.status(404).json({ message: "Admin not found" });
+  console.log("Admin login attempt:", trimmedEmail);
+
+  const admin = await Admin.findOne({ email: trimmedEmail });
+  if (!admin) {
+    console.log("Admin not found:", trimmedEmail);
+    return res.status(404).json({ message: "Admin not found" });
+  }
 
   const isMatch = await admin.comparePassword(password);
-  if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+  if (!isMatch) {
+    console.log("Invalid credentials for admin:", trimmedEmail);
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
 
   const token = jwt.sign({ adminId: admin._id, role: admin.role }, JWT_SECRET_ADMIN, { expiresIn: "7d" });
 
@@ -34,8 +43,9 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
   try {
     const { firstName, lastName, dob, phone, email, password, role } = req.body;
+    const trimmedEmail = email?.trim().toLowerCase();
 
-    const exists = await Admin.findOne({ email });
+    const exists = await Admin.findOne({ email: trimmedEmail });
     if (exists) {
       return res.status(400).json({ message: "Admin already exists" });
     }
@@ -44,17 +54,18 @@ router.post("/register", async (req, res) => {
     const createdBy = adminCount === 0 ? null : req.admin?.adminId;
 
     const newAdmin = new Admin({
-      firstName,
-      lastName,
+      firstName: firstName?.trim(),
+      lastName: lastName?.trim(),
       dob,
-      phone,
-      email,
+      phone: phone?.trim(),
+      email: trimmedEmail,
       password,
       role: adminCount === 0 ? "superadmin" : "admin",
       createdBy
     });
 
     await newAdmin.save();
+    console.log("Admin registered successfully:", trimmedEmail);
 
     res.status(201).json({
       message: "Admin registered successfully",

@@ -12,7 +12,7 @@ import BadgeIcon from "@mui/icons-material/Badge";
 
 import axios from "axios";
 
-const API_BASE = process.env.REACT_APP_API_URL;
+import { API_BASE } from "../../apiConfig";
 
 const DUMMY_DOCTORS = [
   {
@@ -255,7 +255,7 @@ const AdminDoctorVerification = () => {
                 size="small"
                 variant="outlined"
                 component="a"
-                href={`http://localhost:8000/uploads/${doc.licenseDocument}`}
+                href={`${API_BASE}/uploads/${doc.licenseDocument}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 sx={{ borderRadius: 2 }}

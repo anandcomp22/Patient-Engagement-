@@ -30,10 +30,13 @@ import {
   Security
 } from "@mui/icons-material";
 
+import { API_BASE } from "../../apiConfig";
+
+const API = API_BASE;
+
 const AdminSignUp = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [RegisterType, setRegisterType] = useState("admin");
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -89,14 +92,14 @@ const AdminSignUp = () => {
     setIsSubmitting(true);
 
     try {
-      await axios.post("http://localhost:8000/admin/auth/register", {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
+      await axios.post(`${API}/admin/auth/register`, {
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim(),
         dob: formData.dob,
-        password: formData.password,
-        role: formData.role || "admin"
+        password: formData.password.trim(),
+        role: formData.role.toLowerCase() || "admin"
       });
 
       setSnackbarSeverity("success");
@@ -223,7 +226,7 @@ const AdminSignUp = () => {
           <form onSubmit={handleSubmit}>
             <Box sx={{ display: "flex", mb: 4, gap: 2, justifyContent: 'space-between', alignItems: 'center', px: 8}}>
               <Button
-              variant={RegisterType === "admin" ? "contained" : "contained"}
+              variant="contained"
               fullWidth
               sx={{
                 borderRadius: 2,
@@ -297,8 +300,8 @@ const AdminSignUp = () => {
                 onChange={handleChange}
                 label="Role"
               >
-                <MenuItem value="Admin">Admin</MenuItem>
-                <MenuItem value="Super Admin">Super Admin</MenuItem>
+                <MenuItem value="admin">Admin</MenuItem>
+                <MenuItem value="superadmin">Super Admin</MenuItem>
               </Select>
             </FormControl>
           </Grid>

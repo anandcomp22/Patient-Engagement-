@@ -5,7 +5,9 @@ import {
   TableCell, TableBody
 } from "@mui/material";
 
-const API = process.env.REACT_APP_API_URL;
+import { API_BASE } from "../../apiConfig";
+
+const API = API_BASE;
 
 const AdminActivityLogs = () => {
   const [logs, setLogs] = useState([]);

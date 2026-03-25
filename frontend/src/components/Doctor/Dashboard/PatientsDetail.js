@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { 
-  Box, Grid, Typography, Card, CardContent, Avatar, TextField, 
+  Box, Grid, Typography, Avatar, TextField, 
   Button, Chip, Divider, Paper, InputAdornment, Dialog, DialogTitle,
   DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel,
   List, ListItem, ListItemText, ListItemIcon
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import AddIcon from "@mui/icons-material/Add";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
@@ -16,7 +14,8 @@ import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import axios from "axios";
 import io from "socket.io-client";
 
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
+import { API_BASE } from "../../../apiConfig";
+
 const socket = io(API_BASE);
 
 const PatientsDetail = () => {

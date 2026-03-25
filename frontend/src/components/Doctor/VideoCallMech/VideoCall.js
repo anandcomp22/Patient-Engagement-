@@ -11,6 +11,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
+import { API_BASE } from "../../../apiConfig";
 import AiPanel from "./AiPanel";
 import PrescriptionTemplate from "../Dashboard/PrescriptionTemplate";
 import html2pdf from "html2pdf.js";
@@ -59,7 +60,6 @@ const VideoCall = () => {
   const durationTimer = useRef(null);
 
   const doctorId = localStorage.getItem("doctorId") || "doctor_unknown";
-  const API_BASE = "http://localhost:8000";
 
   // ── Helpers ────────────────────────────────────────────────
   const formatDuration = (s) => {
@@ -164,9 +164,9 @@ const VideoCall = () => {
 
   // ── Socket init ────────────────────────────────────────────
   useEffect(() => {
-    socketRef.current = io("http://localhost:8000", { transports: ["websocket"] });
+    socketRef.current = io(API_BASE, { transports: ["websocket"] });
     return () => socketRef.current.disconnect();
-  }, []);
+  }, [API_BASE]);
 
   // ── Name from storage ──────────────────────────────────────
   useEffect(() => {

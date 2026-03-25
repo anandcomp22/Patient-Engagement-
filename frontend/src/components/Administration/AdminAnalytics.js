@@ -8,7 +8,9 @@ import {
   LineChart, Line
 } from "recharts";
 
-const API = process.env.REACT_APP_API_URL;
+import { API_BASE } from "../../apiConfig";
+
+const API = API_BASE;
 
 const AdminAnalytics = () => {
   const [monthly, setMonthly] = useState([]);

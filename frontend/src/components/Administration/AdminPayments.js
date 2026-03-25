@@ -5,7 +5,9 @@ import {
   Table, TableHead, TableRow, TableCell, TableBody, Chip
 } from "@mui/material";
 
-const API = process.env.REACT_APP_API_URL;
+import { API_BASE } from "../../apiConfig";
+
+const API = API_BASE;
 
 const AdminPayments = () => {
   const [payments, setPayments] = useState([]);

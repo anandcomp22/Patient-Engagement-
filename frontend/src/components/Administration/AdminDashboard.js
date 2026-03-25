@@ -12,6 +12,7 @@ import {
   Videocam
 } from "@mui/icons-material";
 import axios from "axios";
+import { API_BASE } from "../../apiConfig";
 
 const AdminDashboard = () => {
   const [metrics, setMetrics] = useState({});
@@ -21,7 +22,7 @@ const AdminDashboard = () => {
 
   const fetchAppointments = async () => {
   const res = await axios.get(
-    "http://localhost:8000/admin/appointments",
+    `${API_BASE}/admin/appointments`,
     {
       headers: {
         Authorization: `Bearer ${ADMIN_TOKEN}`
@@ -33,7 +34,7 @@ const AdminDashboard = () => {
 
   const updateStatus = async (id, status) => {
     await axios.patch(
-      `http://localhost:8000/admin/appointments/${id}/status`,
+      `${API_BASE}/admin/appointments/${id}/status`,
       { status },
       {
         headers: {
@@ -46,7 +47,7 @@ const AdminDashboard = () => {
 
   const fetchMetrics = async () => {
     const res = await axios.get(
-      "http://localhost:8000/admin/dashboard/metrics",
+      `${API_BASE}/admin/dashboard/metrics`,
       {
         headers: {
           Authorization: `Bearer ${ADMIN_TOKEN}`

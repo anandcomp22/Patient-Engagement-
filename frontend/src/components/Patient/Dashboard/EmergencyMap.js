@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { Box, Typography, CircularProgress, Alert, Card, CardContent, Chip, FormControl, InputLabel, Select, MenuItem, FormGroup, FormControlLabel, Checkbox } from '@mui/material';
+import { Box, Typography, CircularProgress, Alert, Card, CardContent, Chip, Select, MenuItem } from '@mui/material';
 import { Phone, LocationOn, LocalHospital, LocalPharmacy, MedicalServices, FilterList } from '@mui/icons-material';
 
 const createIcon = (color, IconComp) => {
@@ -74,7 +74,7 @@ const EmergencyMap = () => {
       },
       { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
     );
-  }, []); // Only run on mount to get location
+  }, [radius]); // Only run on mount to get location
 
   // Refetch when radius changes, if position is already known
   useEffect(() => {

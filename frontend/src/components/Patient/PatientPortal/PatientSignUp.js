@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE } from "../../../apiConfig";
 import { 
   Box,
   Typography,
@@ -36,7 +37,6 @@ const districtsByState = {
 const PatientSignUp = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [RegisterType, setRegisterType] = useState("patient");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -193,7 +193,7 @@ const PatientSignUp = () => {
     if (validate()) {
       try {
         setIsSubmitting(true);
-        const res = await axios.post("http://localhost:8000/patient/signup", {
+        const res = await axios.post(`${API_BASE}/patient/signup`, {
           ...formData,
           emergencycontact: {
             ename: formData.emergencyName,

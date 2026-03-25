@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import axios from "axios";
+import { API_BASE } from "../../../apiConfig";
 import { Box, Typography, TextField, Button, Grid, IconButton,
   FormControl, OutlinedInput, InputAdornment, MenuItem, Select,
   Card, CardContent, Chip, Avatar, Dialog, DialogTitle, DialogContent,
@@ -50,7 +51,6 @@ const [verificationStatus, setVerificationStatus] = useState('');
 const [licenseFile, setLicenseFile] = useState(null);
 const [uploadProgress, setUploadProgress] = useState(0);
 const fileInputRef = useRef(null);
-const [RegisterType, setRegisterType] = useState("doctor");
 const [showPassword, setShowPassword] = useState(false);
 const [profileImage, setProfileImage] = useState(null);
 const [imagePreview, setImagePreview] = useState(null);
@@ -279,7 +279,7 @@ const handleSubmit = async (e) => {
 
 
     const response = await axios.post(
-      "http://localhost:8000/doctor/signup",
+      `${API_BASE}/doctor/signup`,
       form,
       { headers: { "Content-Type": "multipart/form-data" } }
     );
