@@ -381,7 +381,11 @@ export default function UploadReport() {
                               <Grid item>
                                 <Box sx={{ display: "flex", gap: 1 }}>
                                   <Tooltip title="View Report">
-                                    <IconButton size="small" sx={{ color: "#3b82f6", bgcolor: "#eff6ff" }}>
+                                    <IconButton 
+                                      size="small" 
+                                      sx={{ color: "#3b82f6", bgcolor: "#eff6ff" }}
+                                      onClick={() => window.open(`${API}/${report.filePath.replace(/\\/g, '/')}`, '_blank')}
+                                    >
                                       <ViewIcon sx={{ fontSize: 20 }} />
                                     </IconButton>
                                   </Tooltip>
