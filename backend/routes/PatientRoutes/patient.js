@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
-const { Patient } = require("../../db/models");
+const { Patient, MedicalReport } = require("../../db/models");
 const { generateToken } = require("../../utils/auth");
 const authMiddleware = require("../../middleware/authMiddleware");
 const { Appointment } = require("../../db/models");
@@ -16,12 +16,41 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-router.post("/upload-report", upload.single("report"), (req, res) => {
-  const { uploadDate, generationPlace } = req.body;
-  console.log("Upload Date:", uploadDate);
-  console.log("Place:", generationPlace);
-  console.log("File:", req.file);
-  res.json({ message: "Report uploaded successfully" });
+router.post("/upload-report", upload.single("report"), async (req, res) => {
+  try {
+    const { uploadDate, generationPlace, patientId, reportType, description, reportName } = req.body;
+    
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const newReport = new MedicalReport({
+      patientId: Number(patientId),
+      reportName: reportName || req.file.originalname,
+      reportType,
+      uploadDate: uploadDate || new Date(),
+      generationPlace,
+      filePath: req.file.path,
+      description
+    });
+
+    await newReport.save();
+    res.json({ message: "Report uploaded and saved successfully", report: newReport });
+  } catch (err) {
+    console.error("Error uploading report:", err);
+    res.status(500).json({ message: "Failed to upload report", error: err.message });
+  }
+});
+
+router.get("/reports/:patientId", async (req, res) => {
+  try {
+    const patientId = Number(req.params.patientId);
+    const reports = await MedicalReport.find({ patientId }).sort({ uploadDate: -1 });
+    res.json(reports);
+  } catch (err) {
+    console.error("Error fetching reports:", err);
+    res.status(500).json({ message: "Failed to fetch reports" });
+  }
 });
 
 router.get("/doctors", async (req, res) => {

@@ -244,6 +244,17 @@ const patientSchema = new mongoose.Schema({
       relation: { type: String }
     },
   });
+  
+  
+  const medicalReportSchema = new mongoose.Schema({
+    patientId: { type: Number, required: true },
+    reportName: { type: String, required: true },
+    reportType: { type: String },
+    uploadDate: { type: Date, default: Date.now },
+    generationPlace: { type: String },
+    filePath: { type: String, required: true },
+    description: { type: String },
+  }, { timestamps: true });
 
 
   const userSchema = new mongoose.Schema({
@@ -332,5 +343,6 @@ const videocallSchem = mongoose.model("VideoCallSummary", VideoCallSummarySchema
 const Slot = mongoose.model('Slot', slotSchema);
 const AdminLog = mongoose.model('AdminLog', AdminLogSchema);
 const Admin = mongoose.model('Admin', AdminSchema);
+const MedicalReport = mongoose.model('MedicalReport', medicalReportSchema);
 
-module.exports = { Prescription, Doctor, FeePay, Appointment, Patient, videocall, User, videocallSchem, Slot, AdminLog, Admin,connectToDatabase };
+module.exports = { Prescription, Doctor, FeePay, Appointment, Patient, videocall, User, videocallSchem, Slot, AdminLog, Admin, MedicalReport, connectToDatabase };

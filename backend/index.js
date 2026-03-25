@@ -44,6 +44,11 @@ if (!fs.existsSync(prescriptionsDir)) {
   fs.mkdirSync(prescriptionsDir);
 }
 
+const reportsDir = path.join(__dirname, "uploads", "reports");
+if (!fs.existsSync(reportsDir)) {
+  fs.mkdirSync(reportsDir, { recursive: true });
+}
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
