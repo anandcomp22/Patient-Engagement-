@@ -4,6 +4,8 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import dayjs from "dayjs";
 import axios from "axios";
 
+const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
 export default function UploadReport() {
   const [uploadDate, setUploadDate] = useState(dayjs().format("YYYY-MM-DD"));
   const [generationPlace, setGenerationPlace] = useState("");
@@ -22,7 +24,7 @@ export default function UploadReport() {
     formData.append("report", file);
 
     try {
-      await axios.post("http://localhost:8000/patient/upload-report", formData, {
+      await axios.post(`${API}/patient/upload-report`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       alert("Report uploaded successfully");

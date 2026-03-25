@@ -21,7 +21,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 //import backgroundImage from "../assets/admin-bg.jpg";
 
-const API = process.env.REACT_APP_API_URL;
+const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const AdminLogin = () => {
   const navigate = useNavigate();

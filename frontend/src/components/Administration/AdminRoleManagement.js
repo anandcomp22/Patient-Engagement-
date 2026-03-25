@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const API = process.env.REACT_APP_API_URL;
+const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const AdminRoleManagement = () => {
   const [admins, setAdmins] = useState([]);

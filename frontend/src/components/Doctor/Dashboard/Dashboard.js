@@ -25,7 +25,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import io from "socket.io-client";
 import "./Dashboard.css";
-const API_BASE = process.env.REACT_APP_API_URL;
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const socket = io(API_BASE);
 

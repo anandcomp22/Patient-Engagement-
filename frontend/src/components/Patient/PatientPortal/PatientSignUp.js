@@ -33,6 +33,8 @@ const districtsByState = {
   'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik'],
 };
 
+const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
 const PatientSignUp = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -193,7 +195,7 @@ const PatientSignUp = () => {
     if (validate()) {
       try {
         setIsSubmitting(true);
-        const res = await axios.post("http://localhost:8000/patient/signup", {
+        const res = await axios.post(`${API}/patient/signup`, {
           ...formData,
           emergencycontact: {
             ename: formData.emergencyName,

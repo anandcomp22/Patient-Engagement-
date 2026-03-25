@@ -3,6 +3,8 @@ import { Box, Typography, Button, Paper, Table, TableBody, TableCell, TableConta
 import { Add, VideoCall, ArrowForwardIos } from '@mui/icons-material';
 import axios from 'axios';
 
+const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
 export default function PatientAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +14,7 @@ export default function PatientAppointments() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8000/patient/appointments/${patientId}`)
+      .get(`${API}/patient/appointments/${patientId}`)
       .then((res) => {
         setAppointments(res.data);
         setLoading(false);

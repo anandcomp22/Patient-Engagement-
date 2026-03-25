@@ -39,6 +39,8 @@ import useHealthData from './useHealthData';
 import HealthConnect from './HealthConnect';
 import MedicalChatBot from './MedicalChatBot';
 
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
 
 
 const cardColors = {
@@ -223,7 +225,7 @@ export default function PatientDashboard() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8000/patient/appointments/${patientId}`)
+      .get(`${API_BASE}/patient/appointments/${patientId}`)
       .then((res) => {
         const now = new Date();
         // Filter out past appointments to properly show upcoming count

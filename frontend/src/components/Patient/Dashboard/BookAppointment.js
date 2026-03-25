@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./BookAppointment.css";
 
+const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
 const BookAppointment = () => {
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
@@ -24,7 +26,7 @@ const BookAppointment = () => {
   // 1. Fetch all doctors on mount
   useEffect(() => {
     axios
-      .get("http://localhost:8000/patient/doctors")
+      .get(`${API}/patient/doctors`)
       .then((res) => {
         setDoctors(res.data);
         setFilteredDoctors(res.data);
@@ -57,7 +59,7 @@ const BookAppointment = () => {
       setSlotsLoading(true);
       setTime(""); // Reset selected time when date/doctor changes
       axios
-        .get(`http://localhost:8000/patient/available-slots?doctorId=${selectedDoctor.doctorId}&date=${date}`)
+        .get(`${API}/patient/available-slots?doctorId=${selectedDoctor.doctorId}&date=${date}`)
         .then(res => {
           setAvailableSlots(res.data.availableSlots || []);
           setSlotsLoading(false);
@@ -77,7 +79,7 @@ const BookAppointment = () => {
   if (selectedDoctor && date && time) {
     try {
       const res = await axios.post(
-        "http://localhost:8000/appointment/book",
+        `${API}/appointment/book`,
         {
           doctorId: Number(selectedDoctor.doctorId),
           appointmentDate: date,
