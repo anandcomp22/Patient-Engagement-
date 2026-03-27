@@ -28,12 +28,10 @@ const VideoCall = () => {
   const location = useLocation();
   const socketRef = useRef(null);
   const queryParams = new URLSearchParams(location.search);
-  const initialRoomId = queryParams.get("roomId") || "";
-  const patientEmail = queryParams.get("patientEmail");
-  const patientName = queryParams.get("patientName") || "Patient";
-  const patientId = queryParams.get("patientId") || "202";
-
-  const [roomId, setRoomId] = useState(initialRoomId);
+  const [roomId, setRoomId] = useState(queryParams.get("roomId") || "");
+  const [patientEmail, setPatientEmail] = useState(queryParams.get("patientEmail") || "");
+  const [patientName, setPatientName] = useState(queryParams.get("patientName") || "Patient");
+  const [patientId, setPatientId] = useState(queryParams.get("patientId") || "202");
   const [name, setName] = useState("");
   const [joined, setJoined] = useState(false);
   const [patientJoined, setPatientJoined] = useState(false);
@@ -62,6 +60,7 @@ const VideoCall = () => {
   const [connectedPatientId, setConnectedPatientId] = useState(patientId);
   const [leftMessage, setLeftMessage] = useState("");
   const [patientDetails, setPatientDetails] = useState({ age: "", gender: "", phone: "", address: "" });
+  const [prescriptionGuidelines, setPrescriptionGuidelines] = useState([]);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -89,20 +88,35 @@ const VideoCall = () => {
 
   // ── Fetch patient profile from backend ──────────────────────
   const fetchPatientProfile = async (pid) => {
+    if (!pid) return;
     try {
       const res = await fetch(`${API_BASE}/patient/profile/${pid}`);
       if (res.ok) {
         const data = await res.json();
-        setPatientDetails({ age: data.age || "", gender: data.gender || "", phone: data.phone || "", address: data.address || "" });
-        if (data.name) setConnectedPatientName(data.name);
-        if (data.email) { /* could set patientEmail here if needed */ }
+        setPatientDetails({ 
+          age: data.age || "", 
+          gender: data.gender || "", 
+          phone: data.phone || "", 
+          address: data.address || "" 
+        });
+        if (data.name) setPatientName(data.name);
+        if (data.email) setPatientEmail(data.email);
+        if (data.patientId) setPatientId(data.patientId.toString());
       }
-    } catch (e) { console.error("Failed to fetch patient profile:", e); }
+    } catch (e) { 
+      console.error("Failed to fetch patient profile:", e); 
+    }
   };
 
+  useEffect(() => {
+    if (patientId) {
+      fetchPatientProfile(patientId);
+    }
+  }, []);
+
   // ── Manual E-Prescription Actions ────────────────────────────
-  const activePatientName = connectedPatientName || patientName;
-  const activePatientId = connectedPatientId || patientId;
+  const activePatientName = patientName;
+  const activePatientId = patientId;
 
   const prescriptionPreviewData = {
     doctor: name,
@@ -114,7 +128,7 @@ const VideoCall = () => {
     gender: patientDetails.gender || "",
     diagnosis: detectedCondition || (notes ? notes.split('.')[0] : "Consultation in progress"),
     medicines: medications.filter(m => m.name.trim() !== ""),
-    guidelines: notes ? notes.split("\n").filter(g => g.trim() !== "") : [],
+    guidelines: prescriptionGuidelines.length > 0 ? prescriptionGuidelines : (notes ? notes.split("\n").filter(g => g.trim() !== "") : []),
     nextVisit: "TBD"
   };
 
@@ -174,22 +188,67 @@ const VideoCall = () => {
     } catch (e) { alert("Error downloading directly from UI"); }
   };
 
+  const [sendingEmail, setSendingEmail] = useState(false);
+
+  const handleSendToPatient = async () => {
+    let targetEmail = patientEmail;
+    
+    // If no email from query params, prompt the user
+    if (!targetEmail || targetEmail === "null" || targetEmail === "undefined") {
+        const manualEmail = prompt("Patient email is missing. Please enter the recipient's email address:", "");
+        if (!manualEmail) {
+            alert("Email is required to send the prescription.");
+            return;
+        }
+        targetEmail = manualEmail;
+    }
+
+    setSendingEmail(true);
+    const filename = `prescription_${activePatientName.replace(/\s+/g, "_")}.pdf`;
+    
+    // First save the PDF to server if not already done
+    await handleSavePrescription();
+
+    const deliveryData = {
+        email: targetEmail,
+        patient: activePatientName,
+        patientId: activePatientId,
+        diagnosis: prescriptionPreviewData.diagnosis,
+        medicines: prescriptionPreviewData.medicines,
+        guidelines: prescriptionPreviewData.guidelines,
+        nextVisit: prescriptionPreviewData.nextVisit,
+        doctorId: localStorage.getItem("doctorId"),
+        appointmentId: roomId, 
+        file: filename
+    };
+
+    try {
+        const res = await fetch(`${API_BASE}/prescriptions/save-and-send`, {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify(deliveryData)
+        });
+
+        if (res.ok) {
+            alert(`Prescription successfully saved to records and sent to ${deliveryData.email}!`);
+            setPreviewOpen(false);
+        } else {
+            throw new Error("Delivery failed");
+        }
+    } catch (err) {
+        alert("Error sending prescription. Please try again.");
+        console.error(err);
+    } finally {
+        setSendingEmail(false);
+    }
+  };
+
   const handleSendEmail = () => {
-    const filename = `prescription_${patientName.replace(/\s+/g, "_")}.pdf`;
-    fetch(`${API_BASE}/prescriptions/send`, {
-      method: "POST", 
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("token")}`
-      },
-      body: JSON.stringify({ email: patientEmail, file: filename }),
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("Unauthorized");
-        return res.json();
-      })
-      .then(() => alert(`Email securely sent to ${patientEmail}!`))
-      .catch(() => alert("Error sending email. Save it first!"));
+    // Legacy support or fallback
+    handleSendToPatient();
   };
 
   // ── Socket init ────────────────────────────────────────────
@@ -260,6 +319,26 @@ const VideoCall = () => {
       return [...prev, ...newMeds.filter(m => !existing.has(m.name.toLowerCase()))];
     });
   }, []); // no deps — only uses setSuggestedMeds (stable setter)
+
+  // ── Auto-generate guidelines when medications change ──────
+  useEffect(() => {
+    if (medications.length > 0) {
+      // Use the RAG API base (port 5000 via proxy 8000 might be needed, but RAG API runs on 5000 directly)
+      // Actually, VideoCall.js uses API_BASE = "http://localhost:8000" which proxies /rag/* to 5000.
+      fetch(`${API_BASE}/rag/prescription-guidelines`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ medications })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.guidelines) setPrescriptionGuidelines(data.guidelines);
+      })
+      .catch(err => console.error("Failed to fetch guidelines:", err));
+    } else {
+      setPrescriptionGuidelines([]);
+    }
+  }, [medications, API_BASE]);
 
   const handleSelectSuggestion = (med) => {
     setMedName(med.name);
@@ -964,12 +1043,20 @@ const VideoCall = () => {
                 sx={{ flexGrow: 1, textTransform: "none", borderColor: "rgba(30,93,169,0.3)" }}>
                 Download
               </Button>
-              {patientEmail && (
-                <Button size="small" variant="contained" color="secondary" startIcon={<Email fontSize="small" />} onClick={handleSendEmail}
-                  sx={{ width: "100%", textTransform: "none", background: "linear-gradient(135deg, #10b981, #059669)", boxShadow: "none" }}>
-                  Email to Patient
-                </Button>
-              )}
+              <Button size="small" variant="contained" startIcon={<Email fontSize="small" />} 
+                onClick={handleSendToPatient} 
+                disabled={sendingEmail}
+                sx={{ 
+                  width: "100%", 
+                  textTransform: "none", 
+                  background: "linear-gradient(135deg, #FF6F00, #E65100)", 
+                  boxShadow: "0 4px 12px rgba(230,81,0,0.2)", 
+                  fontWeight: 700,
+                  '&:hover': { background: "linear-gradient(135deg, #E65100, #BF360C)" }
+                }}
+              >
+                {sendingEmail ? "Sending..." : "Send to Patient"}
+              </Button>
             </Box>
           </Box>
 
@@ -1009,10 +1096,12 @@ const VideoCall = () => {
         <DialogContent dividers sx={{ p: 0 }}>
           <PrescriptionTemplate prescription={prescriptionPreviewData} />
         </DialogContent>
-        <DialogActions sx={{ p: 2, background: "#fff" }}>
-          <Button variant="contained" onClick={handleSavePrescription} startIcon={<Save />} sx={{ textTransform: "none", background: "#1E5DA9" }}>Generate Securely</Button>
-          <Button variant="outlined" onClick={handleDownload} startIcon={<Download />} sx={{ textTransform: "none" }}>Download PDF</Button>
-          {patientEmail && <Button variant="contained" color="secondary" onClick={handleSendEmail} startIcon={<Email />} sx={{ textTransform: "none", background: "linear-gradient(135deg, #10b981, #059669)" }}>Email to Patient</Button>}
+        <DialogActions sx={{ p: 2, background: "#fff", gap: 1 }}>
+          <Button variant="contained" onClick={handleSavePrescription} startIcon={<Save />} sx={{ textTransform: "none", background: "#1E5DA9", fontWeight: 600 }}>Save Locally</Button>
+          <Button variant="outlined" onClick={handleDownload} startIcon={<Download />} sx={{ textTransform: "none", color: "#1E5DA9", borderColor: "#1E5DA9" }}>Download PDF</Button>
+          <Button variant="contained" onClick={handleSendToPatient} disabled={sendingEmail} startIcon={<Email />} sx={{ textTransform: "none", background: "linear-gradient(135deg, #FF6F00, #E65100)", fontWeight: 700 }}>
+            {sendingEmail ? "Sending..." : "Send to Patient"}
+          </Button>
         </DialogActions>
       </Dialog>
 

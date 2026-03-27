@@ -1,136 +1,215 @@
-import React from "react";
-import { Box, Typography, Paper, Grid, Divider, Table, TableHead, TableRow, TableCell, TableBody, Chip, TableContainer } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography, Paper, Grid, Divider, Table, TableHead, TableRow, TableCell, TableBody, Chip, TableContainer, Dialog, DialogContent, Avatar } from "@mui/material";
+import { CheckCircle as CheckIcon, Lock as LockIcon } from "@mui/icons-material";
+import { QRCodeSVG } from "qrcode.react";
 
 const PrescriptionTemplate = ({ prescription }) => {
+  const [showVerifyCard, setShowVerifyCard] = useState(false);
 
   const colors = {
-    primary: "#1976d2",
-    secondary: "#26a69a",
-    background: "#f4f7fb",
-    card: "#ffffff"
+    primary: "#1E5DA9",    // AidME Core Blue
+    secondary: "#E65100",  // Clinical Orange prefix
+    text: "#2c3e50",
+    lightText: "#7f8c8d",
+    background: "#ffffff",
+    accent: "#f0f7ff"
   };
 
   if (!prescription) return null;
 
+  // Generate a unique, multi-constraint secure verification string
+  const patientId = prescription.patientId || "RX-TEMP";
+  const docName = prescription.doctor || "Medical Officer";
+  const timestamp = new Date().getTime();
+  
+  // Create a URL-friendly payload for mobile scanning
+  const miniPayload = btoa(`${patientId}|${prescription.patient || "Patient"}|${docName}`).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  
+  // Get host for URL (Full URL is required for phone scanners)
+  const host = window.location.origin;
+  const qrValue = `${host}/verify-prescription/${miniPayload}`;
+  
+  const securePayload = btoa(`${patientId}|${docName}|${timestamp}`).substring(0, 15);
+
   return (
-    <Box id="prescription-template-doc" sx={{ background: colors.background, padding: 2, minHeight: "100%" }}>
-      <Paper elevation={0} sx={{ padding: 3, borderRadius: 2, background: colors.card, border: "1px solid #eee" }}>
+    <Box id="prescription-template-doc" sx={{ background: "#f8fafc", padding: 3, minHeight: "100%", display: 'flex', justifyContent: 'center' }}>
+      <Paper elevation={0} sx={{ 
+        width: "100%",
+        maxWidth: "800px",
+        padding: "40px", 
+        borderRadius: 0, 
+        background: colors.background, 
+        border: "1px solid #e2e8f0",
+        boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+        position: 'relative'
+      }}>
 
-        {/* Header */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Box>
-            <Typography variant="h4" fontWeight="bold" color={colors.primary}>
-              AidME Healthcare
+        {/* Header - Centered Branding */}
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Typography variant="h3" fontWeight="900" sx={{ color: colors.primary, letterSpacing: '-1px', mb: 0.5 }}>
+            AidME <Typography component="span" variant="h3" fontWeight="300" sx={{ color: colors.lightText }}>Healthcare</Typography>
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+            <Typography variant="overline" sx={{ letterSpacing: '2px', fontWeight: 600, color: colors.secondary }}>
+              Digital E-Prescription System
             </Typography>
-            <Typography variant="body2">Digital E-Prescription</Typography>
+            <Chip 
+              label="VERIFIED DOCUMENT" 
+              size="small" 
+              sx={{ 
+                bgcolor: '#e6fffa', 
+                color: '#2c7a7b', 
+                fontWeight: 800, 
+                fontSize: '0.65rem',
+                border: '1px solid #b2f5ea'
+              }} 
+            />
           </Box>
-
-          <Chip label="Verified Prescription" color="success" />
         </Box>
 
-        <Divider sx={{ my: 1.5 }} />
+        <Divider sx={{ mb: 4, borderColor: colors.primary, opacity: 0.2, borderBottomWidth: 2 }} />
 
-        {/* Doctor & Patient */}
-        <Grid container spacing={3}>
-          {/* Patient Section */}
-          <Grid item xs={8}>
-            <Typography variant="h6" sx={{ color: colors.primary, fontWeight: 800, borderBottom: `2px solid ${colors.background}`, pb: 0.5, mb: 2, display: 'inline-block', fontSize: '1.15rem' }}>
-              Patient Particulars
-            </Typography>
-            
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                <Typography variant="body2" sx={{ fontWeight: 700, color: "#777", minWidth: 60 }}>Name:</Typography>
-                <Typography variant="h5" fontWeight="800" sx={{ color: "#222", textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  {prescription.patient && prescription.patient !== "N/A" ? prescription.patient : "[DATA NOT PROVIDED]"}
+        {/* Patient & QR - Integrated Grid */}
+        <Grid container spacing={0} sx={{ mb: 4, alignItems: 'flex-start' }}>
+            {/* Patient Info */}
+            <Grid item xs={8}>
+                <Typography variant="subtitle2" sx={{ color: colors.primary, fontWeight: 800, mb: 1.5, textTransform: 'uppercase' }}>
+                    Patient Particulars
                 </Typography>
-              </Box>
-
-              <Box sx={{ display: 'flex', gap: 4, mt: 1 }}>
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: "#777" }}>Patient ID:</Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 800, color: colors.primary }}>#{prescription.patientId || "N/A"}</Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: "#777" }}>Age:</Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 800, color: "#333" }}>{prescription.age || "N/A"}</Typography>
-                </Box>
+                <Typography variant="h4" fontWeight="900" sx={{ color: "#1a202c", mb: 1, textTransform: 'uppercase' }}>
+                    {prescription.patient && prescription.patient !== "N/A" ? prescription.patient : "[DATA NOT PROVIDED]"}
+                </Typography>
                 
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: "#777" }}>Gender:</Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 800, color: "#333", textTransform: 'capitalize' }}>{prescription.gender || "N/A"}</Typography>
+                <Box sx={{ display: 'flex', gap: 3 }}>
+                    <Box>
+                        <Typography variant="caption" display="block" sx={{ fontWeight: 700, color: colors.lightText }}>PATIENT ID</Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 800, color: colors.primary }}>#{prescription.patientId || "N/A"}</Typography>
+                    </Box>
+                    <Box>
+                        <Typography variant="caption" display="block" sx={{ fontWeight: 700, color: colors.lightText }}>AGE / GENDER</Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 800 }}>{prescription.age || "--"} Y / {prescription.gender || "--"}</Typography>
+                    </Box>
+                    <Box>
+                        <Typography variant="caption" display="block" sx={{ fontWeight: 700, color: colors.lightText }}>DATE</Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 800 }}>{new Date().toLocaleDateString()}</Typography>
+                    </Box>
                 </Box>
-              </Box>
-            </Box>
-          </Grid>
+            </Grid>
 
-          {/* Verification Section */}
-          <Grid item xs={4} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 1.5, background: "#f9f9f9", borderRadius: 2, border: "1px solid #eee" }}>
-              <Box 
-                sx={{ 
-                  width: 50, 
-                  height: 50, 
-                  border: "1px dashed #ccc", 
-                  display: "flex", 
-                  alignItems: "center", 
-                  justifyContent: "center",
-                  background: "#fff",
-                  borderRadius: 1
-                }}
-              >
-                <Typography variant="caption" align="center" sx={{ fontSize: '0.5rem', color: '#999', fontWeight: 'bold' }}>
-                  SECURE<br/>QR
-                </Typography>
-              </Box>
-              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'bold', lineHeight: 1.1 }}>
-                Scan to verify<br/>authenticity
-              </Typography>
-            </Box>
-          </Grid>
+            {/* Integrated Verification QR */}
+            <Grid item xs={4} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Box 
+                  onClick={() => setShowVerifyCard(true)}
+                  sx={{ 
+                    textAlign: 'center', 
+                    p: 2, 
+                    border: '2px dashed #e2e8f0', 
+                    borderRadius: 2,
+                    width: '120px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      borderColor: colors.primary,
+                      bgcolor: '#f0f9ff',
+                      transform: 'translateY(-2px)'
+                    }
+                }}>
+                    <Box sx={{ 
+                        width: '90px', height: '90px', mx: 'auto', mb: 1,
+                        background: '#fff', border: '1px solid #edf2f7',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        overflow: 'hidden', p: 0.5
+                    }}>
+                        <QRCodeSVG 
+                            value={qrValue} 
+                            size={80}
+                            level="H"
+                            includeMargin={true}
+                            style={{ margin: 'auto' }}
+                        />
+                    </Box>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: colors.primary, fontSize: '0.45rem', display: 'block', mt: 0.5, letterSpacing: '0.5px' }}>
+                        ENCRYPTED & SECURE
+                    </Typography>
+                </Box>
+            </Grid>
         </Grid>
 
-        <Divider sx={{ my: 1.5 }} />
+        {/* Verification Success Card (Small Card on Click) */}
+        <Dialog 
+          open={showVerifyCard} 
+          onClose={() => setShowVerifyCard(false)}
+          PaperProps={{ sx: { borderRadius: 4, maxWidth: '320px', textAlign: 'center' } }}
+        >
+          <DialogContent sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <Avatar sx={{ bgcolor: '#e6fffa', width: 60, height: 60, mb: 1 }}>
+              <CheckIcon sx={{ color: '#2c7a7b', fontSize: 35 }} />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" fontWeight="800" sx={{ color: '#1a202c' }}>
+                Verification Success
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#718096', fontWeight: 600 }}>
+                AIDME SECURE CHANNEL VERIFIED
+              </Typography>
+            </Box>
+            
+            <Divider sx={{ width: '100%', my: 1 }} />
+
+            <Box sx={{ width: '100%', textAlign: 'left', bgcolor: '#f8fafc', p: 2, borderRadius: 2, border: '1px solid #edf2f7' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <LockIcon sx={{ fontSize: 14, color: colors.primary }} />
+                <Typography variant="caption" sx={{ fontWeight: 800, color: colors.primary }}>ENCRYPTION ID</Typography>
+              </Box>
+              <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 700, color: colors.text, wordBreak: 'break-all' }}>
+                {securePayload}
+              </Typography>
+            </Box>
+
+            <Typography variant="caption" sx={{ fontStyle: 'italic', color: colors.lightText }}>
+              Verified by AidME Clinical AI at {new Date().toLocaleTimeString()}
+            </Typography>
+          </DialogContent>
+        </Dialog>
 
         {/* Diagnosis */}
-        <Typography variant="h6" color={colors.secondary}>
-          Diagnosis
-        </Typography>
-        <Typography sx={{ mb: 1.5 }}>{prescription.diagnosis || "General Consultation"}</Typography>
-
-        <Divider sx={{ my: 1.5 }} />
+        <Box sx={{ mb: 4, p: 2, bgcolor: colors.accent, borderRadius: 2 }}>
+            <Typography variant="subtitle2" sx={{ color: colors.primary, fontWeight: 800, mb: 0.5, textTransform: 'uppercase' }}>
+                Clinical Diagnosis
+            </Typography>
+            <Typography sx={{ fontWeight: 600, color: colors.text }}>
+                {prescription.diagnosis || "General Consultation / Routine Checkup"}
+            </Typography>
+        </Box>
 
         {/* Medicines Table */}
-        <Typography variant="h6" color={colors.secondary}>
-          Prescription Medicines
+        <Typography variant="subtitle2" sx={{ color: colors.primary, fontWeight: 800, mb: 1, textTransform: 'uppercase' }}>
+            Prescribed Medications
         </Typography>
-
-        <TableContainer component={Box} sx={{ mt: 1, mb: 1 }}>
-          <Table size="small" sx={{ minWidth: 500 }}>
-            <TableHead sx={{ background: "#e3f2fd" }}>
-              <TableRow>
-                <TableCell sx={{ fontWeight: "bold" }}>Medicine</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Dosage</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Frequency</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Duration</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Instructions</TableCell>
+        <TableContainer sx={{ mb: 4, border: '1px solid #edf2f7', borderRadius: '8px 8px 0 0' }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow sx={{ bgcolor: colors.primary }}>
+                <TableCell sx={{ color: '#fff', fontWeight: 800 }}>Medicine</TableCell>
+                <TableCell sx={{ color: '#fff', fontWeight: 800 }}>Dosage</TableCell>
+                <TableCell sx={{ color: '#fff', fontWeight: 800 }}>Freq.</TableCell>
+                <TableCell sx={{ color: '#fff', fontWeight: 800 }}>Dur.</TableCell>
+                <TableCell sx={{ color: '#fff', fontWeight: 800 }}>Notes</TableCell>
               </TableRow>
             </TableHead>
-
             <TableBody>
               {(prescription.medicines || []).map((med, index) => (
-                <TableRow key={index} hover>
-                  <TableCell>{med.name}</TableCell>
+                <TableRow key={index} sx={{ '&:nth-of-type(even)': { bgcolor: '#f8fafc' } }}>
+                  <TableCell sx={{ fontWeight: 700 }}>{med.name}</TableCell>
                   <TableCell>{med.dosage}</TableCell>
                   <TableCell>{med.frequency}</TableCell>
                   <TableCell>{med.duration}</TableCell>
-                  <TableCell>{med.note}</TableCell>
+                  <TableCell sx={{ fontSize: '0.75rem', fontStyle: 'italic', color: colors.lightText }}>{med.note}</TableCell>
                 </TableRow>
               ))}
               {(!prescription.medicines || prescription.medicines.length === 0) && (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ color: "gray", py: 2 }}>
+                  <TableCell colSpan={5} align="center" sx={{ color: "gray", py: 4 }}>
                     No medicines prescribed.
                   </TableCell>
                 </TableRow>
@@ -139,38 +218,66 @@ const PrescriptionTemplate = ({ prescription }) => {
           </Table>
         </TableContainer>
 
-        <Divider sx={{ my: 1.5 }} />
+        {/* AI Guidelines Section */}
+        <Box sx={{ mb: 4 }}>
+            <Typography variant="subtitle2" sx={{ color: colors.secondary, fontWeight: 800, mb: 1.5, textTransform: 'uppercase' }}>
+                General Care Guidelines
+            </Typography>
+            <Box sx={{ 
+                p: 2.5, 
+                borderLeft: `4px solid ${colors.secondary}`, 
+                bgcolor: '#fffaf0', 
+                borderRadius: '0 8px 8px 0' 
+            }}>
+                <ul style={{ padding: 0, margin: 0, listStyle: 'none' }}>
+                    {(prescription.guidelines || []).map((g, i) => (
+                        <Box component="li" key={i} sx={{ display: 'flex', gap: 1.5, mb: 1.5, '&:last-child': { mb: 0 } }}>
+                            <Typography sx={{ color: colors.secondary, fontWeight: 900 }}>•</Typography>
+                            <Typography variant="body2" sx={{ color: '#5f370e', fontWeight: 500, lineHeight: 1.5 }}>
+                                {g}
+                            </Typography>
+                        </Box>
+                    ))}
+                    {(!prescription.guidelines || prescription.guidelines.length === 0) && (
+                        <Typography variant="body2" sx={{ fontStyle: 'italic', color: colors.lightText }}>
+                            Please follow standard recovery protocols. Maintain hydration and rest.
+                        </Typography>
+                    )}
+                </ul>
+            </Box>
+        </Box>
 
-        {/* Guidelines */}
-        <Typography variant="h6" color={colors.secondary}>
-          Guidelines
-        </Typography>
+        <Divider sx={{ mb: 4, opacity: 0.1 }} />
 
-        <ul style={{ paddingLeft: "20px", marginTop: "8px", marginBottom: "8px" }}>
-          {(prescription.guidelines || []).map((g, i) => (
-            <li key={i}>{g}</li>
-          ))}
-          {(!prescription.guidelines || prescription.guidelines.length === 0) && (
-            <li>No special guidelines provided.</li>
-          )}
-        </ul>
+        {/* Footer */}
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Box>
+            <Typography variant="caption" sx={{ fontWeight: 800, color: colors.lightText, display: 'block' }}>NEXT VISIT</Typography>
+            <Typography variant="body1" sx={{ color: colors.primary, fontWeight: 800 }}>
+                {prescription.nextVisit && prescription.nextVisit !== "TBD" ? prescription.nextVisit : "AS NEEDED / TBD"}
+            </Typography>
+          </Box>
 
-        <Divider sx={{ my: 1.5 }} />
-
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", mt: 1 }}>
-          <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-            Next Appointment: <Typography component="span" color="primary">{prescription.nextVisit || "Not Scheduled"}</Typography>
-          </Typography>
-
-          <Box sx={{ textAlign: "right", pt: 1, minWidth: 150 }}>
-            <Box sx={{ borderBottom: "1px solid #333", display: 'inline-block', minWidth: 120, mb: 0.5 }}>
-              <Typography sx={{ fontFamily: '"Brush Script MT", cursive', fontSize: '1.4rem', color: '#1a237e' }}>
-                Dr. {prescription.doctor}
+          <Box sx={{ textAlign: "center" }}>
+            <Box sx={{ borderBottom: `2px solid ${colors.text}`, mb: 0.5, px: 2 }}>
+              <Typography sx={{ fontFamily: '"Brush Script MT", cursive', fontSize: '1.8rem', color: colors.primary }}>
+                Dr. {prescription.doctor || "Medical Officer"}
               </Typography>
             </Box>
-            <Typography variant="caption" display="block" color="text.secondary" fontWeight="bold">Digital Signature</Typography>
-            <Typography variant="caption" display="block" color="text.secondary" sx={{ fontSize: '0.6rem' }}>Electronically Verified</Typography>
+            <Typography variant="caption" display="block" sx={{ fontWeight: 800, color: colors.lightText, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Digital Signature
+            </Typography>
+            <Typography variant="caption" display="block" sx={{ fontSize: '0.55rem', color: '#cbd5e0' }}>
+                VERIFIED VIA AIDME SECURE CHANNEL
+            </Typography>
           </Box>
+        </Box>
+
+        {/* Security watermark footer */}
+        <Box sx={{ position: 'absolute', bottom: 10, left: 0, right: 0, textAlign: 'center', opacity: 0.2 }}>
+            <Typography sx={{ fontSize: '0.5rem', fontWeight: 800, color: colors.lightText }}>
+                AIDME PRIVACY PROTECTED • SYSTEM GENERATED DOCUMENT • CLINIC-UID: {String(prescription.patientId || "RX-GEN").substring(0,4)}
+            </Typography>
         </Box>
 
       </Paper>

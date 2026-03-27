@@ -19,6 +19,7 @@ import DoctorSignUp from './components/Doctor/DoctorPortal/DoctorSignup';
 import PatientSidebar from './components/Patient/Dashboard/PatientSidebar';
 import PatientNavbar from './components/Patient/Dashboard/PatientNavbar';
 import PatientVideoCall from './components/Patient/VideoCallMech/PatientVideoCall';
+import PatientPrescriptions from './components/Patient/Dashboard/PatientPrescriptions';
 import PayPalPaymentPage from './PaymentGateway/PayPalButton';
 
 import AnalysisPage from './components/Doctor/Dashboard/Analysis';
@@ -36,6 +37,7 @@ import AdminRegister from "../src/components/Administration/AdminRegister";
 import AdminVerification from '../src/components/Administration/AdminDoctorVerification';
 import AdminDoctorsPage from "../src/components/Administration/AdminDoctors";
 import AdminPatientsPage from "../src/components/Administration/AdminPatients";
+import VerifyPrescription from './components/Common/VerifyPrescription';
 
 
 import './App.css';
@@ -69,6 +71,7 @@ function App() {
           <Route path="/admin/auth/register" element={<AdminRegister />} />
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/paypal" element={<PayPalPaymentPage />} />
+          <Route path="/verify-prescription/:payload" element={<VerifyPrescription />} />
 
           {/* Patient portal */}
           <Route
@@ -91,6 +94,7 @@ function App() {
                       <Route path="book" element={<BookAppointment />} />
                       <Route path="video-call" element={<PatientVideoCall />} />
                       <Route path="upload-report" element={<UploadReport />} />
+                      <Route path="prescriptions" element={<PatientPrescriptions />} />
                     </Routes>
 
 

@@ -99,12 +99,22 @@ const prescriptionSchema = new mongoose.Schema({
   },
   doctorId: { type: Number, required: true },
   patientId: { type: Number, required: true },
-  medicine: { type: String, required: true },
-  dob: { type: Date, required: true },
-  dosage: { type: String, required: true },
-  date: { type: Date, required: true },
-  notes: { type: String, default: "No additional notes" }
-});
+  medicines: [
+    {
+      name: String,
+      dosage: String,
+      frequency: String,
+      duration: String,
+      note: String
+    }
+  ],
+  guidelines: [String],
+  diagnosis: { type: String, default: "General Consultation" },
+  date: { type: Date, default: Date.now },
+  nextVisit: { type: String, default: "TBD" },
+  notes: { type: String, default: "No additional notes" },
+  secureId: { type: String } // For verification mapping
+}, { timestamps: true });
 
 
 const doctorSchema = new mongoose.Schema({

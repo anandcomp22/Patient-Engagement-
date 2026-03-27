@@ -9,6 +9,9 @@ import subprocess
 import tempfile
 import torch
 import wave
+import numpy as np
+import struct
+import traceback
 
 # -------------------------------------------------------
 # FIX: PyTorch 2.6+ changed torch.load default to
@@ -41,6 +44,7 @@ except Exception:
 
 import whisperx
 import websockets
+import sherpa_onnx
 from dotenv import load_dotenv
 
 # Use the Ollama-based rag_service (fast, local LLM)
@@ -65,11 +69,32 @@ compute_type = "float16" if device == "cuda" else "int8"
 print(f"Loading WhisperX model on {device}...")
 
 model = whisperx.load_model(
-    "base.en", # Switched from 'small' to 'base.en' for faster real-time performance
+    "base.en", 
     device=device,
-    compute_type=compute_type, # properly use the variable correctly rather than hardcoding int8
+    compute_type=compute_type,
     vad_model=None 
 )
+
+# ---------------------------------------------------
+# LOAD SHERPA-ONNX (True Streaming)
+# ---------------------------------------------------
+print("Loading Sherpa-ONNX Zipformer model...")
+MODEL_DIR = "models/sherpa-onnx-streaming-zipformer-en-2023-06-26"
+recognizer = sherpa_onnx.OnlineRecognizer.from_transducer(
+    tokens=f"{MODEL_DIR}/tokens.txt",
+    encoder=f"{MODEL_DIR}/encoder-epoch-99-avg-1-chunk-16-left-128.onnx", # High precision (262MB)
+    decoder=f"{MODEL_DIR}/decoder-epoch-99-avg-1-chunk-16-left-128.onnx",
+    joiner=f"{MODEL_DIR}/joiner-epoch-99-avg-1-chunk-16-left-128.onnx",
+    num_threads=4,
+    sample_rate=16000,
+    feature_dim=80,
+    decoding_method="modified_beam_search",
+    max_active_paths=20, # Significantly improve recognition quality
+)
+print("Sherpa-ONNX loaded successfully!")
+
+# Active streaming states
+sherpa_streams = {}
 
 print("WhisperX loaded successfully!")
 
@@ -110,13 +135,11 @@ def _transcribe_pcm_bytes(pcm_bytes, sample_rate=16000, language="en"):
         return ""
 
     # --- RMS energy gate ---
-    # WhisperX/Whisper hallucinates random phrases on silent audio.
-    # Compute the RMS of the raw PCM16 samples; skip if too quiet.
-    import struct
-    num_samples = len(pcm_bytes) // 2
-    samples = struct.unpack(f"<{num_samples}h", pcm_bytes[:num_samples * 2])
-    rms = (sum(s * s for s in samples) / num_samples) ** 0.5
-    if rms < 200:   # threshold on 0–32767 scale; raise if still hallucinating
+    # Optimized using numpy
+    samples = np.frombuffer(pcm_bytes, dtype=np.int16).astype(np.float32)
+    rms = np.sqrt(np.mean(np.square(samples)))
+
+    if rms < 200:   # threshold on 0–32767 scale
         print(f"[skip] Audio too quiet (RMS={rms:.1f}), skipping transcription.")
         return ""
 
@@ -131,8 +154,9 @@ def _transcribe_pcm_bytes(pcm_bytes, sample_rate=16000, language="en"):
     except IndexError:
         # pyannote VAD returns empty list when no active speech — not a real error
         return ""
-    except Exception as e:
-        print(f"[_transcribe_pcm_bytes error] {e}")
+    except Exception:
+        print(f"[_transcribe_pcm_bytes error]")
+        traceback.print_exc()
         return ""
     finally:
         if os.path.exists(wav_path):
@@ -209,6 +233,9 @@ async def handler(ws):
                 audio_buffer = b""
                 transcript   = ""
                 chunk_count  = 0
+                
+                # Create a new sherpa streaming state
+                sherpa_streams[session_id] = recognizer.create_stream()
 
                 # Upsert session in MongoDB
                 sessions.update_one(
@@ -243,35 +270,48 @@ async def handler(ws):
                 # Concatenating WAV blobs creates multiple headers that ffmpeg rejects.
                 pcm_bytes = decode_pcm_base64(chunk_base64)
                 audio_buffer += pcm_bytes
-
-                # Keep only the last 10 seconds of raw PCM to avoid runaway memory.
-                MAX_BUFFER = sample_rate * 10 * 2  # 10 sec × sample_rate × 2 bytes/sample
-                audio_buffer = audio_buffer[-MAX_BUFFER:]
-
                 chunk_count += 1
 
-                if chunk_count % PARTIAL_EVERY == 0:
-                    # Take a snapshot of the last 5 seconds for partial transcription.
-                    snapshot     = audio_buffer[-sample_rate * 5 * 2:]
-                    snap_rate    = sample_rate
+                # ── TRUE STREAMING: Sherpa-ONNX ──
+                if session_id in sherpa_streams:
+                    stream = sherpa_streams[session_id]
+                    # Convert bytes to float32 normalized samples (-1.0 to 1.0)
+                    samples = np.frombuffer(pcm_bytes, dtype=np.int16).astype(np.float32) / 32768.0
+                    stream.accept_waveform(sample_rate, samples)
+                    
+                    while recognizer.is_ready(stream):
+                        recognizer.decode_stream(stream)
+                    
+                    result = recognizer.get_result(stream)
+                    # Handle both object (with .text) and raw string results
+                    text = result.text if hasattr(result, "text") else str(result)
+                    text = text.strip()
+                    
+                    if text:
+                        await ws.send(json.dumps({
+                            "type": "partial_transcript",
+                            "text": text
+                        }))
 
-                    async def emit_partial(snap=snapshot, rate=snap_rate):
-                        nonlocal transcript
-                        try:
-                            text = await transcribe_async(snap, rate)
-                            if text:
-                                transcript = text
-                                await ws.send(json.dumps({
-                                    "type": "partial_transcript",
-                                    "text": text
-                                }))
-                        except Exception as e:
-                            print("Partial transcription error:", e)
+                # Removed redundant periodic partial task (Sherpa handles it frame-by-frame)
+                # audio_buffer = audio_buffer[-MAX_BUFFER:]
 
-                    if partial_task and not partial_task.done():
-                        partial_task.cancel()
-
-                    partial_task = asyncio.ensure_future(emit_partial())
+            # ------------------------------------------
+            # ON-DEMAND FULL TRANSCRIPTION
+            # ------------------------------------------
+            elif msg_type == "transcribe_full" and session_id:
+                if not audio_buffer:
+                    await ws.send(json.dumps({"type": "error", "message": "No audio buffered"}))
+                    continue
+                
+                print(f"[{session_id}] On-demand full transcription requested...")
+                # Transcribe the ENTIRE buffer
+                full_text = await transcribe_async(audio_buffer, sample_rate)
+                
+                await ws.send(json.dumps({
+                    "type": "full_transcript_result",
+                    "text": full_text
+                }))
 
             # ------------------------------------------
             # END SESSION -> Final transcript + summary
@@ -284,11 +324,12 @@ async def handler(ws):
 
                 print(f"[{session_id}] Processing full audio…")
 
-                if partial_task and not partial_task.done():
-                    partial_task.cancel()
-
-                # FIX: pass raw PCM + sample_rate; WAV is built inside transcribe_async.
+                # Transcribe the ENTIRE buffer for the final high-accuracy report
                 full_text = await transcribe_async(audio_buffer, sample_rate)
+                
+                # Cleanup sherpa stream
+                if session_id in sherpa_streams:
+                    del sherpa_streams[session_id]
 
                 if not full_text:
                     await ws.send(json.dumps({"error": "Transcription returned empty"}))
@@ -336,9 +377,13 @@ async def handler(ws):
 
     except websockets.ConnectionClosed:
         print(f"[WS] Connection closed for session: {session_id}")
+        if session_id in sherpa_streams:
+            del sherpa_streams[session_id]
 
     except Exception as e:
         print("Server Error:", str(e))
+        if session_id in sherpa_streams:
+            del sherpa_streams[session_id]
         try:
             await ws.send(json.dumps({"error": str(e)}))
         except Exception:

@@ -223,18 +223,33 @@ export default function PatientDashboard() {
   }, []);
 
 
+  const convertTo24Hour = (timeStr) => {
+    if (!timeStr) return "00:00:00";
+    const [timePart, modifier] = timeStr.trim().split(" ");
+    let [hours, minutes] = timePart.split(":");
+    if (hours === '12' && modifier === 'AM') hours = '00';
+    else if (modifier === 'PM' && hours !== '12') hours = parseInt(hours, 10) + 12;
+    return `${hours.toString().padStart(2, '0')}:${minutes}:00`;
+  };
+
+  const getFullDateTime = (date, time) => {
+    const dateOnly = new Date(date).toISOString().split('T')[0];
+    return new Date(`${dateOnly}T${convertTo24Hour(time)}`);
+  };
+
   useEffect(() => {
     axios
       .get(`${API_BASE}/patient/appointments/${patientId}`)
       .then((res) => {
         const now = new Date();
-        // Filter out past appointments to properly show upcoming count
+        // Categorize using the same logic as PatientAppointments.js
         const upcoming = res.data.filter(appt => {
-            const apptDate = new Date(appt.appointmentDate || appt.date);
-            // Consider the appointment upcoming if its date is today or later
-            apptDate.setHours(23, 59, 59, 999);
-            return apptDate >= now;
-        });
+            const apptDate = getFullDateTime(appt.appointmentDate || appt.date, appt.startTime || appt.time);
+            const isDone = (appt.appstatus || appt.status || "").toLowerCase().includes("done") || 
+                           (appt.appstatus || appt.status || "").toLowerCase() === "completed";
+            return !isDone && apptDate >= now;
+        }).sort((a,b) => getFullDateTime(a.appointmentDate, a.startTime) - getFullDateTime(b.appointmentDate, b.startTime));
+        
         setAppointments(upcoming);
         setLoading(false);
       })
@@ -295,7 +310,7 @@ export default function PatientDashboard() {
                   <Typography variant="h6">Upcoming Appointments</Typography>
                 </Box>
                 {loading ? (
-                  <CircularProgress />
+                  <CircularProgress size={20} />
                 ) : (
                   <Typography variant="body1">
                     You have {appointments.length} {appointments.length === 1 ? 'appointment' : 'appointments'}
@@ -316,29 +331,17 @@ export default function PatientDashboard() {
                       <Button
                         variant="outlined"
                         size="small"
-                        sx={{ color: '#008cffff', borderColor: '#008cffff', textTransform: 'none' }}
+                        sx={{ color: '#008cffff', borderColor: '#008cffff', textTransform: 'none', borderRadius: 2 }}
                         onClick={() => navigate(`/patient/video-call?roomId=${nextAppointment.roomId || ''}`)}
+                        disabled={Math.abs(new Date() - getFullDateTime(nextAppointment.appointmentDate, nextAppointment.startTime)) / (1000 * 60) > 30}
                       >
                         Join Call
                       </Button>
                     </Box>
-                    <Typography variant="body2" sx={{ mt: 1, color: 'green' }}>
-                      Your appointment is in {(() => {
+                    <Typography variant="body2" sx={{ mt: 1, color: 'green', fontWeight: 700 }}>
+                      Your appointment is {(() => {
                         try {
-                           // Attempt to parse date properly to avoid formatDistance errors
-                           let dateStr = nextAppointment.appointmentDate || nextAppointment.date;
-                           let parsedDate = new Date(dateStr);
-                           
-                           // Try merging the time if available
-                           if (nextAppointment.startTime || nextAppointment.time) {
-                             const timeStr = nextAppointment.startTime || nextAppointment.time;
-                             const dateOnlyStr = parsedDate.toISOString().split('T')[0];
-                             const [timePart, modifier] = timeStr.trim().split(" ");
-                             let [hours, minutes] = timePart.split(":");
-                             if (hours === '12') hours = '00';
-                             if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
-                             parsedDate = new Date(`${dateOnlyStr}T${hours}:${minutes}:00`);
-                           }
+                           const parsedDate = getFullDateTime(nextAppointment.appointmentDate, nextAppointment.startTime);
                            return formatDistanceToNowStrict(parsedDate, { addSuffix: true });
                         } catch(e) { 
                            return 'upcoming'; 

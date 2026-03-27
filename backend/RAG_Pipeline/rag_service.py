@@ -212,6 +212,82 @@ def retrieve_medicine_docs(keywords: list, top_k: int = 5):
     return out_docs, out_metas
 
 
+def generate_prescription_guidelines(medications: list) -> list:
+    """
+    Use Ollama to generate 3-4 professional clinical guidelines for a prescription.
+    medications: list of dicts with {name, dosage, frequency, duration}
+    """
+    if not medications:
+        return ["Follow general medical advice.", "Stay hydrated.", "Contact your doctor if symptoms worsen."]
+
+    med_list_str = "\n".join([f"- {m.get('name')} ({m.get('dosage')}, {m.get('frequency')})" for m in medications])
+
+    prompt = f"""You are a clinical pharmacist. Generate 3-4 professional, concise general guidelines for a patient taking the following medications.
+Focus on safety, lifestyle advice (e.g. hydration), and when to seek help.
+
+Medications:
+{med_list_str}
+
+Output as a simple bulleted list (no header, no markdown bolding, max 15 words per point)."""
+
+    try:
+        output = llm.invoke(prompt)
+        # Parse bullets
+        lines = [line.strip().lstrip("-*• ").strip() for line in output.split("\n") if line.strip()]
+        return lines[:4] if lines else ["Follow prescribed dosage strictly."]
+    except Exception as e:
+        print(f"[generate_prescription_guidelines] Ollama error: {e}")
+        return ["Follow prescribed dosage strictly.", "Stay hydrated.", "Consult doctor if allergic reaction occurs."]
+
+
+def generate_medicine_comments(med_metas: list, context_text: str) -> list:
+    """
+    Use Ollama to generate a 1-sentence clinical comment for each medicine.
+    Returns a list of strings, same length as med_metas.
+    """
+    if not med_metas or not context_text:
+        return ["No comment available."] * len(med_metas)
+
+    drug_names = [m.get("drug_name", "Unknown Medicine") for m in med_metas]
+    
+    prompt = f"""You are a clinical pharmacist. For each medicine in the list below, write EXACTLY ONE concise sentence (max 15 words) explaining why it is suitable for the patient's symptoms.
+
+Patient Context:
+{_truncate(context_text, 150)}
+
+Medicines:
+{", ".join(drug_names)}
+
+Output format:
+1. [medicine name]: [comment]
+2. [medicine name]: [comment]
+..."""
+
+    try:
+        output = llm.invoke(prompt)
+    except Exception as e:
+        print(f"[generate_medicine_comments] Ollama error: {e}")
+        return ["Suitable for reported symptoms."] * len(med_metas)
+
+    # Simple parsing: extract text after the colon
+    comments = []
+    lines = [line.strip() for line in output.split("\n") if ":" in line]
+    
+    for i, name in enumerate(drug_names):
+        found = False
+        for line in lines:
+            if name.lower() in line.lower():
+                parts = line.split(":", 1)
+                if len(parts) > 1:
+                    comments.append(parts[1].strip())
+                    found = True
+                    break
+        if not found:
+            comments.append(f"Standard treatment for indicated symptoms.")
+
+    return comments
+
+
 # ──────────────────────────────────────────────────────────────
 # 7. Patient History Retrieval  (ChromaDB)
 # ──────────────────────────────────────────────────────────────
