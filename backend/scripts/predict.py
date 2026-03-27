@@ -39,13 +39,31 @@ def run_inference(image_path, model_type):
     """
     Load .pth model corresponding to model_type and run inference
     """
-    # Map model types to expected file paths
-    model_paths = {
-        'cataract': os.path.join(os.path.dirname(__file__), '..', 'models', r"C:\Users\HP\Desktop\add_models\Catarct_model\cataract_densenet169.pth"),
-        'pneumonia': os.path.join(os.path.dirname(__file__), '..', 'models', r"C:\Users\HP\Desktop\add_models\Pneumonia\pneumonia_densenet169.pth")
-    }
-    
-    model_path = model_paths.get(model_type)
+    # Download models from HuggingFace Hub
+    try:
+        from huggingface_hub import hf_hub_download
+        
+        hf_repos = {
+            'cataract': {
+                'repo_id': 'YOUR_USERNAME/YOUR_CATARACT_REPO', 
+                'filename': 'cataract_densenet169.pth'
+            },
+            'pneumonia': {
+                'repo_id': 'YOUR_USERNAME/YOUR_PNEUMONIA_REPO', 
+                'filename': 'pneumonia_densenet169.pth'
+            }
+        }
+        
+        repo_info = hf_repos.get(model_type)
+        # downloading/caching the model
+        model_path = hf_hub_download(repo_id=repo_info['repo_id'], filename=repo_info['filename'])
+        
+    except ImportError:
+        print("Warning: 'huggingface_hub' is not installed. Please run `pip install huggingface_hub`", file=sys.stderr)
+        model_path = "fallback_path_trigger"
+    except Exception as e:
+        print(f"Warning: Failed to download model from HuggingFace: {e}", file=sys.stderr)
+        model_path = "fallback_path_trigger"
     
     # -------------------------------------------------------------
     # FALLBACK/TEST LOGIC (If PyTorch or .pth model is missing)
