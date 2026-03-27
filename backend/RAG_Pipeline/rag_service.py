@@ -113,16 +113,17 @@ def extract_keywords(text: str) -> list:
     Extract medical symptom/disease keywords from text using Ollama.
     Returns a deduplicated list of ≤10 lowercase keyword strings.
     """
-    if not text or not text.strip():
+    if not text or len(text.strip().split()) < 3:
         return []
 
-    prompt = f"""Extract disease and symptom keywords.
+    prompt = f"""Extract ONLY the disease and symptom keywords that are EXPLICITLY MENTIONED in the text below. Do NOT add related symptoms or diseases that are not present in the text.
 
 Rules:
 - comma separated only
 - lowercase only
 - max 10 keywords
 - no sentences, no explanations
+- ONLY use words found in the text
 
 Text:
 {_truncate(text, 300)}
@@ -136,13 +137,20 @@ Output:"""
         return []
 
     output = output.lower()
+    
+    # Filter out common LLM refusals/conversational filler
+    if "no text" in output or "cannot" in output or "provide the text" in output or "i am sorry" in output:
+        return []
+
     output = re.sub(r"[^a-z, ]", "", output)
 
-    keywords = list(dict.fromkeys(
-        k.strip()
-        for k in output.split(",")
-        if len(k.strip()) > 2
-    ))
+    keywords = []
+    for k in output.split(","):
+        k = k.strip()
+        # Ensure it is an actual keyword (not a whole sentence, max 4 words, < 40 chars)
+        if 2 < len(k) < 40 and len(k.split()) <= 4:
+            if k not in keywords:
+                keywords.append(k)
 
     print("KEYWORDS:", keywords[:10])
     return keywords[:10]

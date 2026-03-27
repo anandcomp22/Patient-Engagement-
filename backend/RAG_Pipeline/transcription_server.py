@@ -65,9 +65,9 @@ compute_type = "float16" if device == "cuda" else "int8"
 print(f"Loading WhisperX model on {device}...")
 
 model = whisperx.load_model(
-    "small",
+    "base.en", # Switched from 'small' to 'base.en' for faster real-time performance
     device=device,
-    compute_type="int8",
+    compute_type=compute_type, # properly use the variable correctly rather than hardcoding int8
     vad_model=None 
 )
 

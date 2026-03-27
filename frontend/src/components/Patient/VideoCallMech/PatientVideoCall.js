@@ -108,6 +108,8 @@ const PatientVideoCall = () => {
     setJoined(true);
   };
 
+  const patientId = localStorage.getItem("patientId") || "patient_unknown";
+
   // ── WebRTC ──────────────────────────────────────────────────
   useEffect(() => {
     if (!joined) return;
@@ -172,14 +174,16 @@ const PatientVideoCall = () => {
         if (role === "doctor") setDoctorJoined(true);
       });
 
-      socketRef.current.on("end-call", endCall);
+      socketRef.current.on("user-left", ({ role }) => {
+        if (role === "doctor") setDoctorJoined(false);
+      });
 
       // Signal that patient's media is fully initialized and ready to connect
-      socketRef.current.emit("media-ready", { roomId, role: "patient" });
+      socketRef.current.emit("media-ready", { roomId, role: "patient", userName: name, patientId });
     }).catch(err => console.error("Media access error:", err));
 
     return () => {
-      ["offer", "answer", "ice-candidate", "peer-ready", "end-call"].forEach(e => socketRef.current.off(e));
+      ["offer", "answer", "ice-candidate", "peer-ready", "user-left"].forEach(e => socketRef.current.off(e));
       if (peerConnection.current) { peerConnection.current.close(); peerConnection.current = null; }
     };
   }, [joined]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -192,7 +196,7 @@ const PatientVideoCall = () => {
     if (localVideoRef.current) localVideoRef.current.srcObject = null;
     if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
     if (peerConnection.current) { peerConnection.current.close(); peerConnection.current = null; }
-    socketRef.current.emit("end-call", { roomId });
+    socketRef.current.emit("user-left", { roomId, role: "patient", userName: name });
     if (document.fullscreenElement) document.exitFullscreen().catch(() => { });
     clearInterval(durationTimer.current);
     navigate("/patient/appointments");

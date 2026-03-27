@@ -262,4 +262,27 @@ router.post("/signin", async (req, res) => {
   res.status(200).json({ message: "Login successful", token, patient: user });
 });
 
+// ── Fetch patient profile by patientId (used by doctor during video call) ──
+router.get("/profile/:patientId", async (req, res) => {
+  try {
+    const pid = Number(req.params.patientId);
+    const patient = await Patient.findOne({ patientId: pid }).select("firstName lastName email phone age dob gender patientId district state country");
+    if (!patient) return res.status(404).json({ message: "Patient not found" });
+
+    const age = patient.age || (patient.dob ? (new Date().getFullYear() - new Date(patient.dob).getFullYear()) : "N/A");
+    res.json({
+      patientId: patient.patientId,
+      name: `${patient.firstName} ${patient.lastName}`,
+      email: patient.email,
+      phone: patient.phone || "N/A",
+      age,
+      gender: patient.gender || "N/A",
+      address: [patient.district, patient.state, patient.country].filter(Boolean).join(", ") || "N/A"
+    });
+  } catch (err) {
+    console.error("Error fetching patient profile:", err);
+    res.status(500).json({ message: "Failed to fetch patient profile" });
+  }
+});
+
 module.exports = router;

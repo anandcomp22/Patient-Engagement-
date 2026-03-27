@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
   Box, Typography, Paper, IconButton, Button, TextField,
   Divider, Tooltip, Fade, Chip, Avatar, Collapse,
-  Dialog, DialogTitle, DialogContent, DialogActions,
+  Dialog, DialogTitle, DialogContent, DialogActions, Autocomplete
 } from "@mui/material";
 import {
   MicOff, Mic, Videocam, VideocamOff, CallEnd,
@@ -14,6 +14,14 @@ import { io } from "socket.io-client";
 import AiPanel from "./AiPanel";
 import PrescriptionTemplate from "../Dashboard/PrescriptionTemplate";
 import html2pdf from "html2pdf.js";
+
+const COMMON_MEDICINES = [
+  "Paracetamol (500mg)", "Ibuprofen (400mg)", "Amoxicillin (500mg)", "Azithromycin (500mg)", "Ciprofloxacin (500mg)",
+  "Metformin (500mg)", "Atorvastatin (10mg)", "Amlodipine (5mg)", "Omeprazole (20mg)", "Pantoprazole (40mg)",
+  "Cetirizine (10mg)", "Loratadine (10mg)", "Montelukast (10mg)", "Salbutamol Inhaler", "Aspirin (75mg)",
+  "Clopidogrel (75mg)", "Losartan (50mg)", "Telmisartan (40mg)", "Levothyroxine (50mcg)", "Vitamin D3 (60K IU)",
+  "Vitamin C (500mg)", "Zinc (50mg)", "B-Complex", "Iron Supplement", "Calcium (500mg)"
+];
 
 const VideoCall = () => {
   const navigate = useNavigate();
@@ -39,6 +47,7 @@ const VideoCall = () => {
 
   // Prescription state
   const [medications, setMedications] = useState([]);
+  const [suggestedMeds, setSuggestedMeds] = useState([]);
   const [medName, setMedName] = useState("");
   const [dosage, setDosage] = useState("");
   const [frequency, setFrequency] = useState("");
@@ -49,6 +58,10 @@ const VideoCall = () => {
   const [callStartTime, setCallStartTime] = useState(null);
   const [copied, setCopied] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [connectedPatientName, setConnectedPatientName] = useState("");
+  const [connectedPatientId, setConnectedPatientId] = useState(patientId);
+  const [leftMessage, setLeftMessage] = useState("");
+  const [patientDetails, setPatientDetails] = useState({ age: "", gender: "", phone: "", address: "" });
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -74,14 +87,31 @@ const VideoCall = () => {
     controlsTimer.current = setTimeout(() => setControlsVisible(false), 4000);
   }, []);
 
+  // ── Fetch patient profile from backend ──────────────────────
+  const fetchPatientProfile = async (pid) => {
+    try {
+      const res = await fetch(`${API_BASE}/patient/profile/${pid}`);
+      if (res.ok) {
+        const data = await res.json();
+        setPatientDetails({ age: data.age || "", gender: data.gender || "", phone: data.phone || "", address: data.address || "" });
+        if (data.name) setConnectedPatientName(data.name);
+        if (data.email) { /* could set patientEmail here if needed */ }
+      }
+    } catch (e) { console.error("Failed to fetch patient profile:", e); }
+  };
+
   // ── Manual E-Prescription Actions ────────────────────────────
+  const activePatientName = connectedPatientName || patientName;
+  const activePatientId = connectedPatientId || patientId;
+
   const prescriptionPreviewData = {
     doctor: name,
     specialization: "General Medicine",
     license: "MED-CLINIC-X",
-    patient: patientName,
-    age: "",
-    gender: "",
+    patient: activePatientName,
+    patientId: activePatientId,
+    age: patientDetails.age || "",
+    gender: patientDetails.gender || "",
     diagnosis: detectedCondition || (notes ? notes.split('.')[0] : "Consultation in progress"),
     medicines: medications.filter(m => m.name.trim() !== ""),
     guidelines: notes ? notes.split("\n").filter(g => g.trim() !== "") : [],
@@ -89,9 +119,9 @@ const VideoCall = () => {
   };
 
   const handleSavePrescription = async () => {
-    const filename = `prescription_${patientName.replace(/\s+/g, "_")}.pdf`;
+    const filename = `prescription_${activePatientName.replace(/\s+/g, "_")}.pdf`;
     const pData = {
-      patientId, patient: patientName, age: "N/A", address: "Teleconsultation", contact: "N/A",
+      patientId: activePatientId, patient: activePatientName, age: "N/A", address: "Teleconsultation", contact: "N/A",
       prescriptionNo: `RX-${Date.now()}`, date: new Date().toLocaleDateString(),
       email: patientEmail || "patient@clinic.com", medicines: medications.length > 0 ? medications : [{ name: "General Advice", dosage: "-", frequency: "-", duration: "-" }], notes: notes || "No additional notes",
     };
@@ -219,12 +249,26 @@ const VideoCall = () => {
   const handleAiMedicines = useCallback((meds) => {
     const newMeds = meds
       .filter(m => m.metadata?.drug_name)
-      .map(m => ({ name: m.metadata.drug_name, dosage: m.metadata.dosage || "", frequency: "", duration: "" }));
-    setMedications(prev => {
+      .map(m => ({ 
+        name: m.metadata.drug_name, 
+        dosage: m.metadata.dosage || "Standard Dose", 
+        frequency: m.metadata.frequency || "2x daily (After meals)", 
+        duration: m.metadata.duration || "5 Days" 
+      }));
+    setSuggestedMeds(prev => {
       const existing = new Set(prev.map(p => p.name?.toLowerCase()));
       return [...prev, ...newMeds.filter(m => !existing.has(m.name.toLowerCase()))];
     });
-  }, []); // no deps — only uses setMedications (stable setter)
+  }, []); // no deps — only uses setSuggestedMeds (stable setter)
+
+  const handleSelectSuggestion = (med) => {
+    setMedName(med.name);
+    setDosage(med.dosage || "");
+    setFrequency(med.frequency || "");
+    setDuration(med.duration || "");
+    setShowMedForm(true);
+    setSuggestedMeds(prev => prev.filter(m => m.name !== med.name));
+  };
 
   // ── Join ───────────────────────────────────────────────────
   const joinRoom = async () => {
@@ -237,72 +281,114 @@ const VideoCall = () => {
   // ── WebRTC ─────────────────────────────────────────────────
   useEffect(() => {
     if (!joined) return;
-    peerConnection.current = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-    });
+
+    let iceCandidateQueue = [];
+    let localMediaStream = null;
+
+    // Helper: build a fresh RTCPeerConnection and wire it up
+    const buildPC = (stream) => {
+      // Tear down old connection if it exists
+      if (peerConnection.current) {
+        peerConnection.current.ontrack = null;
+        peerConnection.current.onicecandidate = null;
+        try { peerConnection.current.close(); } catch (_) {}
+      }
+
+      const pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      });
+
+      stream.getTracks().forEach(t => pc.addTrack(t, stream));
+
+      pc.ontrack = (e) => {
+        setRemoteStream(e.streams[0]);
+        if (remoteVideoRef.current) remoteVideoRef.current.srcObject = e.streams[0];
+      };
+      pc.onicecandidate = (e) => {
+        if (e.candidate) socketRef.current.emit("ice-candidate", { roomId, candidate: e.candidate });
+      };
+
+      peerConnection.current = pc;
+      iceCandidateQueue = [];
+      return pc;
+    };
 
     navigator.mediaDevices.getUserMedia({
       video: true,
       audio: {
-        echoCancellation: true,     // removes speaker echo from mic
-        noiseSuppression: false,    // disable to give Whisper raw, clear audio
-        autoGainControl: false,     // disable to prevent audio distortion
-        channelCount: 1,            // mono — WhisperX expects mono audio
-        sampleRate: 16000,          // hint browser to capture at 16kHz (WhisperX rate)
+        echoCancellation: true,
+        noiseSuppression: false,
+        autoGainControl: false,
+        channelCount: 1,
+        sampleRate: 16000,
       },
     }).then((stream) => {
+      localMediaStream = stream;
       setLocalStream(stream);
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-      stream.getTracks().forEach(t => peerConnection.current.addTrack(t, stream));
 
-      peerConnection.current.ontrack = (e) => {
-        setRemoteStream(e.streams[0]);
-        if (remoteVideoRef.current) remoteVideoRef.current.srcObject = e.streams[0];
-      };
-      peerConnection.current.onicecandidate = (e) => {
-        if (e.candidate) socketRef.current.emit("ice-candidate", { roomId, candidate: e.candidate });
-      };
-
-      let iceCandidateQueue = [];
+      // Build the initial peer connection
+      buildPC(stream);
 
       socketRef.current.on("offer", async ({ offer }) => {
+        if (!peerConnection.current || peerConnection.current.signalingState === "closed") buildPC(localMediaStream);
         await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
         const ans = await peerConnection.current.createAnswer();
         await peerConnection.current.setLocalDescription(ans);
         socketRef.current.emit("answer", { roomId, answer: ans });
 
-        // Flush buffered candidates
         iceCandidateQueue.forEach(c => peerConnection.current.addIceCandidate(c).catch(console.error));
         iceCandidateQueue = [];
       });
       socketRef.current.on("answer", async ({ answer }) => {
-        await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
-
-        // Flush buffered candidates
-        iceCandidateQueue.forEach(c => peerConnection.current.addIceCandidate(c).catch(console.error));
-        iceCandidateQueue = [];
+        if (peerConnection.current && peerConnection.current.signalingState === "have-local-offer") {
+          await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
+          iceCandidateQueue.forEach(c => peerConnection.current.addIceCandidate(c).catch(console.error));
+          iceCandidateQueue = [];
+        }
       });
       socketRef.current.on("ice-candidate", ({ candidate }) => {
         if (!candidate) return;
         const rtcCandidate = new RTCIceCandidate(candidate);
-        if (peerConnection.current.remoteDescription) {
+        if (peerConnection.current && peerConnection.current.remoteDescription) {
           peerConnection.current.addIceCandidate(rtcCandidate).catch(console.error);
         } else {
           iceCandidateQueue.push(rtcCandidate);
         }
       });
-      socketRef.current.on("peer-ready", async ({ role }) => {
+      socketRef.current.on("peer-ready", async ({ role, userName, patientId: pid }) => {
         if (role === "patient") {
           setPatientJoined(true);
-          const offer = await peerConnection.current.createOffer();
-          await peerConnection.current.setLocalDescription(offer);
+          setConnectedPatientName(userName || "Patient");
+          setConnectedPatientId(pid || patientId);
+          setLeftMessage("");
+          setMedications([]);
+          setSuggestedMeds([]);
+          setNotes("");
+          setDetectedCondition("");
+          setPatientDetails({ age: "", gender: "", phone: "", address: "" });
+
+          // Fetch full patient profile from backend
+          if (pid) fetchPatientProfile(pid);
+
+          // Rebuild a fresh peer connection for this new patient
+          const pc = buildPC(localMediaStream);
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
           socketRef.current.emit("offer", { roomId, offer });
         }
       });
-      socketRef.current.on("end-call", () => { if (!callEndedRef.current) endCall(); });
+      socketRef.current.on("user-left", ({ role, userName }) => { 
+        if (role === "patient") {
+          setPatientJoined(false);
+          setLeftMessage(`${userName || "Patient"} has left the call`);
+          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+          setRemoteStream(null);
+        }
+      });
 
       // Signal that doctor's media is fully initialized and ready to connect
-      socketRef.current.emit("media-ready", { roomId, role: "doctor" });
+      socketRef.current.emit("media-ready", { roomId, role: "doctor", userName: name });
     }).catch(err => console.error("Media access error:", err));
 
     // Transcript from socket
@@ -313,7 +399,7 @@ const VideoCall = () => {
     socketRef.current.on("transcript", handleTranscript);
 
     return () => {
-      ["offer", "answer", "ice-candidate", "peer-ready", "end-call", "transcript"].forEach(e => socketRef.current.off(e));
+      ["offer", "answer", "ice-candidate", "peer-ready", "user-left", "transcript"].forEach(e => socketRef.current.off(e));
       peerConnection.current?.close();
       peerConnection.current = null;
     };
@@ -329,7 +415,7 @@ const VideoCall = () => {
     peerConnection.current?.getSenders().forEach(s => peerConnection.current.removeTrack(s));
     peerConnection.current?.close();
     peerConnection.current = null;
-    socketRef.current.emit("end-call", { roomId });
+    socketRef.current.emit("user-left", { roomId, role: "doctor", userName: name });
     if (document.fullscreenElement) document.exitFullscreen().catch(() => { });
     clearInterval(durationTimer.current);
 
@@ -566,16 +652,35 @@ const VideoCall = () => {
         <video ref={remoteVideoRef} autoPlay playsInline
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
 
-        {/* Waiting overlay */}
+        {/* Waiting / Status overlay */}
         {!patientJoined && (
           <Box sx={{
             position: "absolute", inset: 0,
             display: "flex", flexDirection: "column",
             alignItems: "center", justifyContent: "center",
-            pointerEvents: "none", opacity: 0.5,
+            pointerEvents: "none",
           }}>
-            <PersonOutline sx={{ fontSize: 80, color: "#1E5DA9" }} />
-            <Typography sx={{ color: "#333", mt: 1 }}>Waiting for patient to join…</Typography>
+            <PersonOutline sx={{ fontSize: 80, color: "#1E5DA9", opacity: 0.4 }} />
+            {leftMessage ? (
+              <>
+                <Typography sx={{ color: "#E65100", mt: 1, fontWeight: 600, fontSize: "1rem" }}>{leftMessage}</Typography>
+                <Typography sx={{ color: "#888", mt: 0.5, fontSize: "0.85rem" }}>Waiting for next patient to join…</Typography>
+              </>
+            ) : (
+              <Typography sx={{ color: "#333", mt: 1, opacity: 0.5 }}>No one joined yet — share the Room ID</Typography>
+            )}
+          </Box>
+        )}
+        {patientJoined && connectedPatientName && (
+          <Box sx={{
+            position: "absolute", top: 56, left: 16,
+            px: 2, py: 0.5, borderRadius: 99,
+            background: "rgba(255,255,255,0.85)", backdropFilter: "blur(8px)",
+            border: "1px solid rgba(34,197,94,0.3)",
+          }}>
+            <Typography sx={{ color: "#16a34a", fontSize: "0.8rem", fontWeight: 600 }}>
+              🟢 {connectedPatientName} connected
+            </Typography>
           </Box>
         )}
 
@@ -714,6 +819,46 @@ const VideoCall = () => {
         {/* Scrollable content */}
         <Box sx={{ flex: 1, overflowY: "auto", px: 2.5, py: 2, "&::-webkit-scrollbar": { width: 4 }, "&::-webkit-scrollbar-thumb": { background: "rgba(0,0,0,0.15)", borderRadius: 4 } }}>
 
+          {/* AI Suggestions list */}
+          {suggestedMeds.length > 0 && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="caption" sx={{ color: "#1E5DA9", fontWeight: 'bold', textTransform: "uppercase", letterSpacing: 1, fontSize: "0.7rem", opacity: 0.8 }}>
+                ✨ AI Suggested Medicines ({suggestedMeds.length})
+              </Typography>
+              {suggestedMeds.map((med, i) => (
+                <Box key={i} sx={{
+                  mt: 1, p: 1.5, borderRadius: 2,
+                  background: "#f8fbff",
+                  border: "1px dashed rgba(30,93,169,0.4)",
+                  display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1.5,
+                  transition: "all 0.2s",
+                  "&:hover": { background: "#f0f7ff", borderColor: "rgba(30,93,169,0.6)" }
+                }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
+                    <Avatar sx={{ width: 32, height: 32, fontSize: "0.75rem", bgcolor: "rgba(30,93,169,0.1)", color: "#1E5DA9", flexShrink: 0 }}>
+                      {med.name?.[0]?.toUpperCase()}
+                    </Avatar>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography sx={{ color: "#1E5DA9", fontWeight: 600, fontSize: "0.85rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {med.name}
+                      </Typography>
+                      {med.dosage && (
+                        <Typography sx={{ color: "#666", fontSize: "0.72rem" }}>
+                          {med.dosage}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                  <Button size="small" variant="contained"
+                    onClick={() => handleSelectSuggestion(med)}
+                    sx={{ minWidth: 0, textTransform: "none", background: "linear-gradient(90deg, #62b8ffff, #1E5DA9)", color: "#fff", "&:hover": { background: "linear-gradient(90deg, #1E5DA9, #0f3f7a)" }, px: 1.5, py: 0.5, borderRadius: 1.5 }}>
+                    + Add
+                  </Button>
+                </Box>
+              ))}
+            </Box>
+          )}
+
           {/* Medications list */}
           {medications.length > 0 && (
             <Box sx={{ mb: 2 }}>
@@ -762,8 +907,18 @@ const VideoCall = () => {
 
           <Collapse in={showMedForm}>
             <Box sx={{ mb: 2, display: "flex", flexDirection: "column", gap: 1.5 }}>
+              <Autocomplete
+                freeSolo
+                options={COMMON_MEDICINES}
+                inputValue={medName}
+                onInputChange={(event, newInputValue) => {
+                  setMedName(newInputValue || "");
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Medicine Name" size="small" sx={lightInputSx} />
+                )}
+              />
               {[
-                { label: "Medicine Name", value: medName, set: setMedName },
                 { label: "Dosage (e.g. 500mg)", value: dosage, set: setDosage },
                 { label: "Frequency (e.g. 3x daily)", value: frequency, set: setFrequency },
                 { label: "Duration (e.g. 7 days)", value: duration, set: setDuration },
