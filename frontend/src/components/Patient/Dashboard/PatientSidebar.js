@@ -11,6 +11,7 @@ import {
   ChevronLeft as ChevronLeftIcon
 } from '@mui/icons-material';
 import DescriptionIcon from "@mui/icons-material/Description";
+import RxIcon from "@mui/icons-material/Description"; // Alias for readability
 import Aidme from "../../Doctor/Dashboard/icons/logo.png";
 
 const PatientSidebar = ({ open, onToggle }) => {
@@ -19,6 +20,7 @@ const PatientSidebar = ({ open, onToggle }) => {
   const menuItems = [
       { text: "Dashboard", icon: <Dashboard />, to: "/patient/dashboard" },
       { text: "Appointments", icon: <CalendarMonth />, to: "/patient/appointments" },
+      { text: "My Prescriptions", icon: <RxIcon />, to: "/patient/prescriptions" },
       { text: "Video Call Room", icon: <VideoCall />, to: "/patient/video-call" },
       { text: "Upload Report", icon: <DescriptionIcon />, to: "/patient/upload-report" },
     ];

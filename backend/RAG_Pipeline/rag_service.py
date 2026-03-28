@@ -113,16 +113,17 @@ def extract_keywords(text: str) -> list:
     Extract medical symptom/disease keywords from text using Ollama.
     Returns a deduplicated list of ≤10 lowercase keyword strings.
     """
-    if not text or not text.strip():
+    if not text or len(text.strip().split()) < 3:
         return []
 
-    prompt = f"""Extract disease and symptom keywords.
+    prompt = f"""Extract ONLY the disease and symptom keywords that are EXPLICITLY MENTIONED in the text below. Do NOT add related symptoms or diseases that are not present in the text.
 
 Rules:
 - comma separated only
 - lowercase only
 - max 10 keywords
 - no sentences, no explanations
+- ONLY use words found in the text
 
 Text:
 {_truncate(text, 300)}
@@ -136,13 +137,20 @@ Output:"""
         return []
 
     output = output.lower()
+    
+    # Filter out common LLM refusals/conversational filler
+    if "no text" in output or "cannot" in output or "provide the text" in output or "i am sorry" in output:
+        return []
+
     output = re.sub(r"[^a-z, ]", "", output)
 
-    keywords = list(dict.fromkeys(
-        k.strip()
-        for k in output.split(",")
-        if len(k.strip()) > 2
-    ))
+    keywords = []
+    for k in output.split(","):
+        k = k.strip()
+        # Ensure it is an actual keyword (not a whole sentence, max 4 words, < 40 chars)
+        if 2 < len(k) < 40 and len(k.split()) <= 4:
+            if k not in keywords:
+                keywords.append(k)
 
     print("KEYWORDS:", keywords[:10])
     return keywords[:10]
@@ -202,6 +210,82 @@ def retrieve_medicine_docs(keywords: list, top_k: int = 5):
 
     print("MEDICINES FOUND:", [m.get("drug_name") for m in out_metas])
     return out_docs, out_metas
+
+
+def generate_prescription_guidelines(medications: list) -> list:
+    """
+    Use Ollama to generate 3-4 professional clinical guidelines for a prescription.
+    medications: list of dicts with {name, dosage, frequency, duration}
+    """
+    if not medications:
+        return ["Follow general medical advice.", "Stay hydrated.", "Contact your doctor if symptoms worsen."]
+
+    med_list_str = "\n".join([f"- {m.get('name')} ({m.get('dosage')}, {m.get('frequency')})" for m in medications])
+
+    prompt = f"""You are a clinical pharmacist. Generate 3-4 professional, concise general guidelines for a patient taking the following medications.
+Focus on safety, lifestyle advice (e.g. hydration), and when to seek help.
+
+Medications:
+{med_list_str}
+
+Output as a simple bulleted list (no header, no markdown bolding, max 15 words per point)."""
+
+    try:
+        output = llm.invoke(prompt)
+        # Parse bullets
+        lines = [line.strip().lstrip("-*• ").strip() for line in output.split("\n") if line.strip()]
+        return lines[:4] if lines else ["Follow prescribed dosage strictly."]
+    except Exception as e:
+        print(f"[generate_prescription_guidelines] Ollama error: {e}")
+        return ["Follow prescribed dosage strictly.", "Stay hydrated.", "Consult doctor if allergic reaction occurs."]
+
+
+def generate_medicine_comments(med_metas: list, context_text: str) -> list:
+    """
+    Use Ollama to generate a 1-sentence clinical comment for each medicine.
+    Returns a list of strings, same length as med_metas.
+    """
+    if not med_metas or not context_text:
+        return ["No comment available."] * len(med_metas)
+
+    drug_names = [m.get("drug_name", "Unknown Medicine") for m in med_metas]
+    
+    prompt = f"""You are a clinical pharmacist. For each medicine in the list below, write EXACTLY ONE concise sentence (max 15 words) explaining why it is suitable for the patient's symptoms.
+
+Patient Context:
+{_truncate(context_text, 150)}
+
+Medicines:
+{", ".join(drug_names)}
+
+Output format:
+1. [medicine name]: [comment]
+2. [medicine name]: [comment]
+..."""
+
+    try:
+        output = llm.invoke(prompt)
+    except Exception as e:
+        print(f"[generate_medicine_comments] Ollama error: {e}")
+        return ["Suitable for reported symptoms."] * len(med_metas)
+
+    # Simple parsing: extract text after the colon
+    comments = []
+    lines = [line.strip() for line in output.split("\n") if ":" in line]
+    
+    for i, name in enumerate(drug_names):
+        found = False
+        for line in lines:
+            if name.lower() in line.lower():
+                parts = line.split(":", 1)
+                if len(parts) > 1:
+                    comments.append(parts[1].strip())
+                    found = True
+                    break
+        if not found:
+            comments.append(f"Standard treatment for indicated symptoms.")
+
+    return comments
 
 
 # ──────────────────────────────────────────────────────────────

@@ -23,6 +23,7 @@
     "lucide-react": "^0.483.0",
     "motion": "^12.6.5",
     "nodemailer": "^6.10.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^19.0.0",

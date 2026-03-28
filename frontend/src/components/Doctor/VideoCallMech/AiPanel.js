@@ -8,6 +8,7 @@ import {
     CircularProgress,
     Collapse,
     Button,
+    Tooltip,
 } from "@mui/material";
 import MicIcon from "@mui/icons-material/Mic";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
@@ -64,6 +65,7 @@ const AiPanel = ({
     const [retrieving, setRetrieving] = useState(false);
     const [onDemandMeds, setOnDemandMeds] = useState([]);
     const [retrieveMsg, setRetrieveMsg] = useState("");
+    const [isFullTranscribing, setIsFullTranscribing] = useState(false);
 
     const liveBoxRef = useRef(null);
 
@@ -118,46 +120,22 @@ const AiPanel = ({
     // Fast path: keyword extract → ChromaDB (no LLM, no summarization)
     // -----------------------------------------------------------------------
     const handleRetrieveNow = useCallback(async () => {
-        const transcript = liveTranscript || liveText || finalTranscript;
-        if (!transcript.trim()) {
-            setRetrieveMsg("⚠️ No transcript captured yet — keep talking!");
+        if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+            setRetrieveMsg("⚠️ Transcription server not connected.");
             return;
         }
+
         setRetrieving(true);
-        setRetrieveMsg("");
+        setIsFullTranscribing(true);
+        setRetrieveMsg("🔄 Requesting full high-accuracy transcription...");
         setOnDemandMeds([]);
-        try {
-            const res = await fetch("http://localhost:8000/rag/session/retrieve-meds-now", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    session_id: sessionId,
-                    raw_transcript: transcript,
-                }),
-            });
-            const data = await res.json();
-            if (data.ok) {
-                if (!data.documents || data.documents.length === 0) {
-                    setRetrieveMsg(data.message || "No medicines found for current context.");
-                } else {
-                    const meds = data.documents.map((doc, i) => ({
-                        docText: doc,
-                        metadata: (data.metadata || [])[i] || {},
-                    }));
-                    setOnDemandMeds(meds);
-                    setRetrieveMsg(`✅ Found ${meds.length} medicine(s) — keywords: ${(data.keywords || []).slice(0, 4).join(", ")}`);
-                    if (onMedicinesFound) onMedicinesFound(meds);
-                }
-            } else {
-                setRetrieveMsg("⚠️ Error: " + (data.error || "RAG API error"));
-            }
-        } catch (err) {
-            console.error("[AiPanel] retrieve-meds-now error:", err);
-            setRetrieveMsg("⚠️ Network error — is the Python RAG server running on port 5000?");
-        } finally {
-            setRetrieving(false);
-        }
-    }, [liveTranscript, liveText, finalTranscript, sessionId, onMedicinesFound]);
+
+        // Send request to server to transcribe the ENTIRE accumulated buffer
+        wsRef.current.send(JSON.stringify({ 
+            type: "transcribe_full",
+            session_id: sessionId 
+        }));
+    }, [sessionId]);
 
     // -----------------------------------------------------------------------
     // Start: open WS + MediaRecorder when call becomes active
@@ -208,6 +186,46 @@ const AiPanel = ({
                     setFinalTranscript(data.text);
                     setLiveText(data.text);
                     setStatus("transcribing");
+                }
+
+                if (data.type === "full_transcript_result" && data.text) {
+                    console.log("[AiPanel] Received full high-accuracy transcript.");
+                    setFinalTranscript(data.text);
+                    setLiveText(data.text);
+                    setIsFullTranscribing(false);
+                    setRetrieveMsg("✅ Transcription complete. Analyzing for medicines...");
+
+                    // Now trigger the actual medicine retrieval with this fresh text
+                    const fetchMeds = async () => {
+                        try {
+                            const res = await fetch("http://localhost:8000/rag/session/retrieve-meds-now", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    session_id: sessionId,
+                                    raw_transcript: data.text,
+                                }),
+                            });
+                            const ragData = await res.json();
+                            if (ragData.ok) {
+                                const meds = (ragData.documents || []).map((doc, i) => ({
+                                    docText: doc,
+                                    metadata: (ragData.metadata || [])[i] || {},
+                                }));
+                                setOnDemandMeds(meds);
+                                setRetrieveMsg(`✅ Found ${meds.length} medicine(s) based on full conversation.`);
+                                if (onMedicinesFound) onMedicinesFound(meds);
+                            } else {
+                                setRetrieveMsg("⚠️ Medicine search failed: " + (ragData.error || "Unknown error"));
+                            }
+                        } catch (e) {
+                            console.error("RAG retrieval failed:", e);
+                            setRetrieveMsg("⚠️ Network error during medicine search.");
+                        } finally {
+                            setRetrieving(false);
+                        }
+                    };
+                    fetchMeds();
                 }
 
                 if (data.type === "summary") {
@@ -429,7 +447,7 @@ const AiPanel = ({
                                 },
                             }}
                         >
-                            {retrieving ? "Searching medicines…" : "🔍 Retrieve Medicines Now"}
+                            {retrieving ? (isFullTranscribing ? "Transcribing full audio..." : "Searching medicines…") : "🔍 Retrieve Medicines Now"}
                         </Button>
                         {retrieveMsg && (
                             <Typography
@@ -456,35 +474,52 @@ const AiPanel = ({
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75, maxHeight: 200, overflowY: "auto" }}>
                             {onDemandMeds.map((med, i) => (
-                                <Paper
-                                    key={i}
-                                    variant="outlined"
-                                    sx={{
-                                        p: 1,
-                                        bgcolor: "#f3e5f5",
-                                        borderRadius: 1,
-                                        borderColor: "secondary.light",
-                                    }}
+                                <Tooltip 
+                                    key={i} 
+                                    title={
+                                        <Box sx={{ p: 0.5 }}>
+                                            <Typography variant="caption" sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                                                Clinical Tip (AI):
+                                            </Typography>
+                                            <Typography variant="caption" sx={{ display: 'block', fontStyle: 'italic' }}>
+                                                {med.metadata?.comment || med.metadata?.indications || "Suitable for reported symptoms."}
+                                            </Typography>
+                                        </Box>
+                                    }
+                                    arrow
+                                    placement="left"
                                 >
-                                    <Typography
-                                        variant="body2"
-                                        fontWeight="bold"
-                                        color="secondary.dark"
-                                        sx={{ fontSize: "0.8rem", mb: 0.25 }}
+                                    <Paper
+                                        variant="outlined"
+                                        sx={{
+                                            p: 1,
+                                            bgcolor: "#f3e5f5",
+                                            borderRadius: 1,
+                                            borderColor: "secondary.light",
+                                            cursor: "help",
+                                            transition: "all 0.2s",
+                                            "&:hover": {
+                                                bgcolor: "#ede7f6",
+                                                borderColor: "secondary.main",
+                                                boxShadow: 1
+                                            }
+                                        }}
                                     >
-                                        💊 {med.metadata?.drug_name || `Medicine ${i + 1}`}
-                                    </Typography>
-                                    {med.metadata?.indications && (
-                                        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                                            <b>Use:</b> {String(med.metadata.indications).slice(0, 100)}…
+                                        <Typography
+                                            variant="body2"
+                                            fontWeight="bold"
+                                            color="secondary.dark"
+                                            sx={{ fontSize: "0.8rem", mb: 0.25 }}
+                                        >
+                                            💊 {med.metadata?.drug_name || `Medicine ${i + 1}`}
                                         </Typography>
-                                    )}
-                                    {med.metadata?.dosage && (
-                                        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                                            <b>Dosage:</b> {med.metadata.dosage}
-                                        </Typography>
-                                    )}
-                                </Paper>
+                                        {med.metadata?.indications && (
+                                            <Typography variant="caption" color="text.secondary" sx={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                                <b>Use:</b> {med.metadata.indications}
+                                            </Typography>
+                                        )}
+                                    </Paper>
+                                </Tooltip>
                             ))}
                         </Box>
                     </Box>
@@ -620,35 +655,52 @@ const AiPanel = ({
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75, maxHeight: 220, overflowY: "auto" }}>
                             {medicines.map((med, i) => (
-                                <Paper
-                                    key={i}
-                                    variant="outlined"
-                                    sx={{
-                                        p: 1,
-                                        bgcolor: "#fffef0",
-                                        borderRadius: 1,
-                                        borderColor: "warning.light",
-                                    }}
+                                <Tooltip 
+                                    key={i} 
+                                    title={
+                                        <Box sx={{ p: 0.5 }}>
+                                            <Typography variant="caption" sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                                                Clinical Tip (AI):
+                                            </Typography>
+                                            <Typography variant="caption" sx={{ display: 'block', fontStyle: 'italic' }}>
+                                                {med.metadata?.comment || med.metadata?.indications || "Suitable for reported symptoms."}
+                                            </Typography>
+                                        </Box>
+                                    }
+                                    arrow
+                                    placement="left"
                                 >
-                                    <Typography
-                                        variant="body2"
-                                        fontWeight="bold"
-                                        color="warning.dark"
-                                        sx={{ fontSize: "0.8rem", mb: 0.25 }}
+                                    <Paper
+                                        variant="outlined"
+                                        sx={{
+                                            p: 1,
+                                            bgcolor: "#fffef0",
+                                            borderRadius: 1,
+                                            borderColor: "warning.light",
+                                            cursor: "help",
+                                            transition: "all 0.2s",
+                                            "&:hover": {
+                                                bgcolor: "#fffde7",
+                                                borderColor: "warning.main",
+                                                boxShadow: 1
+                                            }
+                                        }}
                                     >
-                                        💊 {med.metadata?.drug_name || `Medicine ${i + 1}`}
-                                    </Typography>
-                                    {med.metadata?.indications && (
-                                        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                                            <b>Use:</b> {String(med.metadata.indications).slice(0, 100)}…
+                                        <Typography
+                                            variant="body2"
+                                            fontWeight="bold"
+                                            color="warning.dark"
+                                            sx={{ fontSize: "0.8rem", mb: 0.25 }}
+                                        >
+                                            💊 {med.metadata?.drug_name || `Medicine ${i + 1}`}
                                         </Typography>
-                                    )}
-                                    {med.metadata?.dosage && (
-                                        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                                            <b>Dosage:</b> {med.metadata.dosage}
-                                        </Typography>
-                                    )}
-                                </Paper>
+                                        {med.metadata?.indications && (
+                                            <Typography variant="caption" color="text.secondary" sx={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                                <b>Use:</b> {med.metadata.indications}
+                                            </Typography>
+                                        )}
+                                    </Paper>
+                                </Tooltip>
                             ))}
                         </Box>
                     </Box>

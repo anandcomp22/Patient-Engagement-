@@ -17,6 +17,8 @@ from rag_service import (
     extract_keywords,
     sessions,
     retrieve_medicine_docs,
+    generate_medicine_comments,
+    generate_prescription_guidelines,
 )
 
 app = Flask(__name__)
@@ -135,6 +137,12 @@ def rag_answer_videocall():
 
     try:
         answer, keywords, med_docs, med_metas = final_answer(session_id, question)
+        
+        # Enrich metadata with LLM comments
+        comments = generate_medicine_comments(med_metas, question)
+        for i, meta in enumerate(med_metas):
+            meta["comment"] = comments[i] if i < len(comments) else ""
+
         return jsonify({
             "ok":            True,
             "answer":        answer,
@@ -179,6 +187,11 @@ def retrieve_meds_now():
             })
 
         med_docs, med_metas = retrieve_medicine_docs(keywords, top_k=5)
+
+        # Enrich metadata with LLM comments based on transcript
+        comments = generate_medicine_comments(med_metas, raw_transcript)
+        for i, meta in enumerate(med_metas):
+            meta["comment"] = comments[i] if i < len(comments) else ""
 
         return jsonify({
             "ok":       True,
@@ -227,6 +240,27 @@ def test_meds():
         return jsonify({"error": "keywords list required"}), 400
     docs, meta = retrieve_medicine_docs(keywords)
     return jsonify({"ok": True, "docs": docs, "meta": meta})
+
+
+# ─────────────────────────────────────────────
+# 8. GENERATE PRESCRIPTION GUIDELINES
+# ─────────────────────────────────────────────
+@app.post("/rag/prescription-guidelines")
+def get_prescription_guidelines():
+    data = request.json or {}
+    medications = data.get("medications", [])
+    
+    if not medications:
+        return jsonify({"guidelines": []})
+
+    try:
+        guidelines = generate_prescription_guidelines(medications)
+        return jsonify({
+            "ok": True,
+            "guidelines": guidelines
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # ─────────────────────────────────────────────

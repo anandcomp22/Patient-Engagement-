@@ -94,26 +94,26 @@ io.on("connection", (socket) => {
     console.log(`Event received: ${event}`, args);
   });
 
-  const readyPeers = {}; // { roomId: { doctor: socket.id, patient: socket.id } }
+  const readyPeers = {}; // { roomId: { doctor: {...}, patient: {...} } }
 
-  socket.on("join-room", ({ roomId, role }) => {
+  socket.on("join-room", ({ roomId }) => {
     socket.join(roomId);
   });
 
-  socket.on("media-ready", ({ roomId, role }) => {
-    console.log(`[Socket] media-ready received! Room: ${roomId}, Role: ${role}`);
+  socket.on("media-ready", ({ roomId, role, userName, patientId }) => {
+    console.log(`[Socket] media-ready received! Room: ${roomId}, Role: ${role}, Name: ${userName || "?"}, PatientId: ${patientId || "N/A"}`);
     socket.join(roomId);
     if (!readyPeers[roomId]) readyPeers[roomId] = {};
-    readyPeers[roomId][role] = socket.id;
+    readyPeers[roomId][role] = { socketId: socket.id, userName: userName || "Unknown", patientId: patientId || "" };
 
-    console.log(`[Socket] Broadcasting peer-ready(${role}) to others in room ${roomId}`);
-    // Tell everyone else in the room
-    socket.to(roomId).emit("peer-ready", { role });
+    // Tell everyone else in the room (with participant info)
+    socket.to(roomId).emit("peer-ready", { role, userName: userName || "Unknown", patientId: patientId || "" });
     
     // Tell the new person about existing people
     Object.keys(readyPeers[roomId]).forEach(existingRole => {
       if (existingRole !== role) {
-        socket.emit("peer-ready", { role: existingRole });
+        const info = readyPeers[roomId][existingRole];
+        socket.emit("peer-ready", { role: existingRole, userName: info.userName, patientId: info.patientId });
       }
     });
   });
@@ -130,12 +130,15 @@ io.on("connection", (socket) => {
     socket.to(roomId).emit("ice-candidate", { candidate });
   });
 
-
-
-  socket.on("end-call", ({ roomId }) => {
-    socket.to(roomId).emit("end-call");
+  socket.on("user-left", ({ roomId, role, userName }) => {
+    socket.to(roomId).emit("user-left", { role, userName: userName || "Someone" });
     socket.leave(roomId);
-    delete readyPeers[roomId];
+    if (readyPeers[roomId]) {
+      delete readyPeers[roomId][role];
+      if (Object.keys(readyPeers[roomId]).length === 0) {
+        delete readyPeers[roomId];
+      }
+    }
   });
 
   /*socket.on("appointment-update", () => {
