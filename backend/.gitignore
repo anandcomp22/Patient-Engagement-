@@ -5,3 +5,6 @@ backend/results
 backend/RAG_Pipeline/chroma_db
 project_env/
 uploads
+
+data
+gpu_env
