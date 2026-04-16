@@ -1,13 +1,13 @@
 from ultralytics import YOLO
 
 def train():
-    model = YOLO("yolov8s.pt")
+    model = YOLO("yolov8s-cls.pt")
 
     model.train(
-        data="./data/data.yaml",
+        data="./data",
         epochs=10,
-        imgsz=640,
-        name="aidme_model",
+        imgsz=224,
+        name="pneumonia_model",
         device=0,
         workers=8
     )
