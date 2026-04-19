@@ -1,0 +1,13 @@
+names:
+- Cataract
+- Normal
+nc: 2
+roboflow:
+  license: CC BY 4.0
+  project: kataract-object-detection
+  url: https://universe.roboflow.com/newworkspace-t5oqu/kataract-object-detection/dataset/3
+  version: 3
+  workspace: newworkspace-t5oqu
+test: ../test/images
+train: ../train/images
+val: ../valid/images
