@@ -5,8 +5,8 @@
   
   .main-content {
     flex-grow: 1;
-    margin-left: 250px;
     padding: 20px;
+    transition: margin-left 0.3s ease-in-out;
   }
   
   html, body, #root {
@@ -14,4 +14,18 @@
     overflow-x: hidden;
   }
 
-  
+  /* ── Tablet ─────────────────────────────────────────── */
+  @media (max-width: 899px) {
+    .main-content {
+      margin-left: 0 !important;
+      padding: 16px;
+    }
+  }
+
+  /* ── Mobile ─────────────────────────────────────────── */
+  @media (max-width: 599px) {
+    .main-content {
+      margin-left: 0 !important;
+      padding: 8px;
+    }
+  }

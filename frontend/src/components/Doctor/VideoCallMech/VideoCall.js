@@ -31,7 +31,7 @@ const VideoCall = () => {
   const [roomId, setRoomId] = useState(queryParams.get("roomId") || "");
   const [patientEmail, setPatientEmail] = useState(queryParams.get("patientEmail") || "");
   const [patientName, setPatientName] = useState(queryParams.get("patientName") || "Patient");
-  const [patientId, setPatientId] = useState(queryParams.get("patientId") || "202");
+  const [patientId, setPatientId] = useState(queryParams.get("patientId") || "");
   const [name, setName] = useState("");
   const [joined, setJoined] = useState(false);
   const [patientJoined, setPatientJoined] = useState(false);

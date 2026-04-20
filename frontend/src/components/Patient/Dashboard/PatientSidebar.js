@@ -14,7 +14,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import RxIcon from "@mui/icons-material/Description"; // Alias for readability
 import Aidme from "../../Doctor/Dashboard/icons/logo.png";
 
-const PatientSidebar = ({ open, onToggle }) => {
+const PatientSidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
   const { pathname } = useLocation();
 
   const menuItems = [
@@ -30,39 +30,23 @@ const PatientSidebar = ({ open, onToggle }) => {
         { text: "Logout", icon: <LoginOutlined />, to: "/" },
       ];
 
-  return (
-    <Drawer
-          variant="permanent"
-          className="sidebar"
-          open={open}
-          PaperProps={{
-            sx: {
-              width: open ? 240 : 62,
-              transition: "width 0.3s ease-in-out",
-              bgcolor: "primary.light",
-              backgroundImage: open
-                ? "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)"
-                : "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)",
-              color: "white",
-              boxShadow: 3,
-              overflowX: "hidden",
-              borderTopRightRadius: 30,
-              borderBottomRightRadius: 30,
-            },
-          }}
-        >
+  const handleNavClick = () => {
+    if (isMobile && onMobileClose) onMobileClose();
+  };
 
-        {/* Toggle Button */}
-          <Box
-            sx={{
-            height: 64,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: open ? "flex-end" : "center",
-            px: 1,
-          }}
-        >
-      <IconButton
+  const drawerContent = (
+    <>
+      {/* Toggle Button */}
+      <Box
+        sx={{
+          height: 64,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: open ? "flex-end" : "center",
+          px: 1,
+        }}
+      >
+        <IconButton
           onClick={onToggle}
           sx={{
             bgcolor: "white",
@@ -104,6 +88,7 @@ const PatientSidebar = ({ open, onToggle }) => {
               button
               component={Link}
               to={item.to}
+              onClick={handleNavClick}
               sx={{
                 mb: 1,
                 px: open ? 2 : 1,
@@ -148,6 +133,7 @@ const PatientSidebar = ({ open, onToggle }) => {
               button
               component={Link}
               to={item.to}
+              onClick={handleNavClick}
               sx={{
                 mb: 1,
                 px: open ? 2 : 1,
@@ -177,6 +163,31 @@ const PatientSidebar = ({ open, onToggle }) => {
           </Tooltip>
         ))}
       </List>
+    </>
+  );
+
+  return (
+    <Drawer
+      variant={isMobile ? "temporary" : "permanent"}
+      open={isMobile ? open : true}
+      onClose={onToggle}
+      ModalProps={{ keepMounted: true }}
+      className="sidebar"
+      PaperProps={{
+        sx: {
+          width: isMobile ? 260 : (open ? 240 : 62),
+          transition: "width 0.3s ease-in-out",
+          bgcolor: "primary.light",
+          backgroundImage: "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)",
+          color: "white",
+          boxShadow: 3,
+          overflowX: "hidden",
+          borderTopRightRadius: 30,
+          borderBottomRightRadius: 30,
+        },
+      }}
+    >
+      {drawerContent}
     </Drawer>
   );
 };

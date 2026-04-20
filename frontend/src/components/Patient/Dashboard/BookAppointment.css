@@ -22,7 +22,8 @@
   padding: 30px;
   border-radius: 15px;
   text-align: center;
-  width: 300px;
+  width: 90vw;
+  max-width: 300px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   animation: popIn 0.3s ease-in-out;
 }
@@ -50,7 +51,8 @@
   background: linear-gradient(135deg, #ffffff 0%, #fefeff 100%);
   padding: 40px;
   border-radius: 20px;
-  width: 380px;
+  width: 90vw;
+  max-width: 380px;
   text-align: center;
   box-shadow: 0 24px 48px rgba(0,0,0,0.15);
   border: 1px solid rgba(0,0,0,0.05);
@@ -184,6 +186,7 @@
   background: transparent;
   color: #475569;
   outline: none;
+  min-width: 0;
 }
 
 .copy-link button {
@@ -195,6 +198,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s;
+  white-space: nowrap;
 }
 
 .copy-link button:hover {
@@ -291,4 +295,85 @@
   .book-btn:hover {
     background-color: #1e40af;
   }
-  
+
+  /* ── Tablet ─────────────────────────────────────────── */
+  @media (max-width: 899px) {
+    .appointment-container {
+      padding: 20px;
+    }
+
+    .appointment-grid {
+      gap: 20px;
+    }
+
+    .doctor-list,
+    .appointment-form {
+      min-width: 100%;
+    }
+
+    .appointment-title {
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
+    .popup-card.modern {
+      padding: 24px;
+    }
+  }
+
+  /* ── Mobile ─────────────────────────────────────────── */
+  @media (max-width: 599px) {
+    .appointment-container {
+      padding: 12px;
+    }
+
+    .appointment-grid {
+      gap: 16px;
+      flex-direction: column;
+    }
+
+    .doctor-list,
+    .appointment-form {
+      min-width: 100%;
+    }
+
+    .appointment-title {
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    .doctor-card {
+      padding: 12px;
+    }
+
+    .doctor-image {
+      width: 48px;
+      height: 48px;
+      margin-right: 12px;
+    }
+
+    .doctor-name {
+      font-size: 14px;
+    }
+
+    .doctor-specialty {
+      font-size: 12px;
+    }
+
+    .input-field {
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .popup-card.modern {
+      padding: 20px;
+      width: 92vw;
+    }
+
+    .success-icon {
+      width: 56px;
+      height: 56px;
+      line-height: 56px;
+      font-size: 28px;
+    }
+  }
