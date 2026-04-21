@@ -171,9 +171,19 @@ io.on("connection", (socket) => {
 });
 
 
-const PORT = process.env.PORT || 8000;
-server.listen(PORT, () => {
-  console.log(`Server started at http://localhost:${PORT}`);
-});
+const startServer = async () => {
+    try {
+        await connectToDatabase();
+        const PORT = process.env.PORT || 8000;
+        server.listen(PORT, "0.0.0.0", () => {
+            console.log(`Server started on port ${PORT}`);
+        });
+    } catch (err) {
+        console.error("Failed to start server:", err);
+        process.exit(1);
+    }
+};
+
+startServer();
 
 /* appended to trigger nodemon */
