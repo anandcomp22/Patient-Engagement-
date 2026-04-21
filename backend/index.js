@@ -34,13 +34,14 @@ const adminAuthRoutes = require("./routes/AdminRoutes/auth");
 const adminPatients = require("./routes/AdminRoutes/adminPatients");
 
 const app = express();
-const allowedOrigins = [
-  "https://patient-engagement-xsrt-h9qnk6uzm-anand-mores-projects.vercel.app",
-  "http://localhost:3000"
-];
-
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    if (!origin || origin.endsWith(".vercel.app") || origin.includes("localhost")) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
@@ -64,7 +65,13 @@ if (!fs.existsSync(reportsDir)) {
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin || origin.endsWith(".vercel.app") || origin.includes("localhost")) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST"],
   },
