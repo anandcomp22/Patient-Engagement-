@@ -34,7 +34,15 @@ const adminAuthRoutes = require("./routes/AdminRoutes/auth");
 const adminPatients = require("./routes/AdminRoutes/adminPatients");
 
 const app = express();
-app.use(cors());
+const allowedOrigins = [
+  "https://patient-engagement-xsrt-h9qnk6uzm-anand-mores-projects.vercel.app",
+  "http://localhost:3000"
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -56,7 +64,7 @@ if (!fs.existsSync(reportsDir)) {
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin:'*',
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST"],
   },
