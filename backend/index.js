@@ -37,6 +37,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("AidMe Backend is running successfully!");
+});
+
 connectToDatabase();
 
 const prescriptionsDir = path.join(__dirname, "prescriptions");
