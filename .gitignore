@@ -11,4 +11,5 @@ node_modules/
 *.zip
 *.tar*
 .env
+!frontend/.env
 project_env
