@@ -49,6 +49,9 @@ const AiPanel = ({
     doctorId = "",
     liveTranscript = "",
     onMedicinesFound,
+    onTranscriptUpdate,
+    onSelectMedicine,
+    onAiSummary,
 }) => {
     const wsRef = useRef(null);
     const recorderRef = useRef(null);
@@ -142,8 +145,14 @@ const AiPanel = ({
     // -----------------------------------------------------------------------
     useEffect(() => {
         console.log(`[AiPanel Debug] Effect triggered! active=${active}, localStream=${!!localStream}, sessionId=${sessionId}`);
-        if (!active || !localStream || !sessionId) {
-            console.log(`[AiPanel Debug] Returning early!`);
+        if (!localStream || !sessionId) {
+            console.log(`[AiPanel Debug] Returning early! (localStream or sessionId missing)`);
+            return;
+        }
+
+        // We want to start transcribing as soon as we have a local stream and are "active" (joined)
+        if (!active) {
+            console.log(`[AiPanel Debug] Not active yet.`);
             return;
         }
 
@@ -180,12 +189,14 @@ const AiPanel = ({
                 if (data.type === "partial_transcript" && data.text) {
                     setLiveText(data.text);
                     setStatus("partial");
+                    if (onTranscriptUpdate) onTranscriptUpdate(data.text, false);
                 }
 
                 if (data.type === "final_transcript" && data.text) {
                     setFinalTranscript(data.text);
                     setLiveText(data.text);
                     setStatus("transcribing");
+                    if (onTranscriptUpdate) onTranscriptUpdate(data.text, true);
                 }
 
                 if (data.type === "full_transcript_result" && data.text) {
@@ -215,8 +226,14 @@ const AiPanel = ({
                                 setOnDemandMeds(meds);
                                 setRetrieveMsg(`✅ Found ${meds.length} medicine(s) based on full conversation.`);
                                 if (onMedicinesFound) onMedicinesFound(meds);
+                                if (onAiSummary && (ragData.suggested_diagnosis || ragData.suggested_notes)) {
+                                    onAiSummary({ 
+                                        diagnosis: ragData.suggested_diagnosis, 
+                                        notes: ragData.suggested_notes 
+                                    });
+                                }
                             } else {
-                                setRetrieveMsg("⚠️ Medicine search failed: " + (ragData.error || "Unknown error"));
+                                setRetrieveMsg("⚠️ Medicine search failed: " + (ragData.error || "Unknown error") + " (" + (ragData.details || "No details") + ")");
                             }
                         } catch (e) {
                             console.error("RAG retrieval failed:", e);
@@ -288,11 +305,8 @@ const AiPanel = ({
             }
         const inputRate = audioCtx.sampleRate;
 
-        // Accumulate 3 s of 16 kHz PCM before sending one chunk.
-        // Tiny per-frame sends (~85 ms at 48 kHz) cause WhisperX VAD
-        // to warn "No active speech" on every chunk — 3 s gives it
-        // enough audio to reliably detect speech.
-        const SEND_EVERY_SAMPLES = TARGET_RATE * 6; // 96 000 samples
+        // Send more frequently for better real-time feel (every 1.5 seconds)
+        const SEND_EVERY_SAMPLES = TARGET_RATE * 1.5; // 24,000 samples at 16kHz
         let pcmAccumulator = new Int16Array(0);
 
         function flushAndSend() {
@@ -501,9 +515,11 @@ const AiPanel = ({
                                             "&:hover": {
                                                 bgcolor: "#ede7f6",
                                                 borderColor: "secondary.main",
-                                                boxShadow: 1
+                                                boxShadow: 2,
+                                                transform: "translateY(-1px)"
                                             }
                                         }}
+                                        onClick={() => onSelectMedicine && onSelectMedicine(med)}
                                     >
                                         <Typography
                                             variant="body2"
@@ -682,9 +698,11 @@ const AiPanel = ({
                                             "&:hover": {
                                                 bgcolor: "#fffde7",
                                                 borderColor: "warning.main",
-                                                boxShadow: 1
+                                                boxShadow: 2,
+                                                transform: "translateY(-1px)"
                                             }
                                         }}
+                                        onClick={() => onSelectMedicine && onSelectMedicine(med)}
                                     >
                                         <Typography
                                             variant="body2"

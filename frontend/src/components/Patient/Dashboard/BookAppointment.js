@@ -18,6 +18,7 @@ const BookAppointment = () => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [roomId, setRoomId] = useState("");
   const [appointmentDateTime, setAppointmentDateTime] = useState("");
+  const [reason, setReason] = useState("");
   
   const [loading, setLoading] = useState(true);
   const [slotsLoading, setSlotsLoading] = useState(false);
@@ -84,7 +85,8 @@ const BookAppointment = () => {
           doctorId: Number(selectedDoctor.doctorId),
           appointmentDate: date,
           time,
-          patientId: Number(localStorage.getItem("patientId"))
+          patientId: Number(localStorage.getItem("patientId")),
+          reason: reason || "General Checkup"
         },
         {
           headers: {
@@ -173,6 +175,16 @@ const isJoinAllowed = () => {
           ) : (
             <p style={{ color: '#888', marginBottom: '1rem' }}>Please select a doctor first.</p>
           )}
+
+          <label>Reason for Visit</label>
+          <textarea
+            className="input-field"
+            placeholder="Describe your symptoms or reason for visit (e.g. Fever, Routine Checkup)"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            style={{ minHeight: '80px', paddingTop: '10px', resize: 'vertical' }}
+            disabled={!selectedDoctor}
+          />
 
           <label>Select Date</label>
           <input

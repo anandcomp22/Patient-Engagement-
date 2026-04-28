@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { 
-  Box, Typography, Button, Paper, Grid, List, ListItem, ListItemText, 
+import {
+  Box, Typography, Button, Paper, Grid, List, ListItem, ListItemText,
   ListItemAvatar, Avatar, TextField, Tabs, Tab, IconButton, Divider, Chip
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -71,8 +71,7 @@ const Prescriptions = () => {
     if (selectedPatient) {
       const fetchHistory = async () => {
         try {
-          const fullName = `${selectedPatient.firstName} ${selectedPatient.lastName}`;
-          const res = await axios.get(`${API_BASE}/prescriptions/patient/${encodeURIComponent(fullName)}`);
+          const res = await axios.get(`${API_BASE}/prescriptions/patient/${selectedPatient.patientId}`);
           setPastPrescriptions(res.data || []);
         } catch (err) {
           console.error("Failed to load historical prescriptions", err);
@@ -153,9 +152,9 @@ const Prescriptions = () => {
     }
     const name = `${selectedPatient.firstName} ${selectedPatient.lastName}`;
     const filename = `prescription_${name.replace(/\s+/g, "_")}.pdf`;
-    
-    axios.post(`${API_BASE}/prescriptions/send`, { 
-      email: selectedPatient.email, file: filename 
+
+    axios.post(`${API_BASE}/prescriptions/send`, {
+      email: selectedPatient.email, file: filename
     }, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     })
@@ -170,34 +169,34 @@ const Prescriptions = () => {
   // Build the live preview data objects
   // Build the live preview data objects
   const doctorName = localStorage.getItem("doctorName") || "Doctor";
-  
+
   // Decide whether to show Live Form Data OR Selected Historical Data
-  const prescriptionPreviewData = selectedPatient 
+  const prescriptionPreviewData = selectedPatient
     ? (selectedPastRx ? {
-        doctor: doctorName,
-        specialization: "", 
-        license: "",
-        patient: `${selectedPatient.firstName} ${selectedPatient.lastName || ""}`.trim(),
-        patientId: selectedPatient.patientId,
-        age: selectedPatient.patientAge || selectedPatient.age || "N/A",
-        gender: selectedPatient.gender || "N/A",
-        diagnosis: "Historical Record",
-        medicines: [{ name: selectedPastRx.medicine, dosage: selectedPastRx.dosage || "", frequency: "", duration: "", note: "" }],
-        guidelines: [selectedPastRx.notes],
-        nextVisit: new Date(selectedPastRx.date).toLocaleDateString()
-      } : {
-        doctor: doctorName,
-        specialization: "", 
-        license: "",        
-        patient: `${selectedPatient.firstName} ${selectedPatient.lastName || ""}`.trim(),
-        patientId: selectedPatient.patientId,
-        age: selectedPatient.patientAge || selectedPatient.age || "N/A",
-        gender: selectedPatient.gender || "N/A",
-        diagnosis: diagnosis || "General Consultation",
-        medicines: dynamicMedicines.filter(m => m.name.trim() !== ""),
-        guidelines: guidelines.split("\n").filter(g => g.trim() !== ""),
-        nextVisit: selectedPatient.nextAppointment ? new Date(selectedPatient.nextAppointment).toLocaleDateString() : "TBD"
-      })
+      doctor: doctorName,
+      specialization: "",
+      license: "",
+      patient: `${selectedPatient.firstName} ${selectedPatient.lastName || ""}`.trim(),
+      patientId: selectedPatient.patientId,
+      age: selectedPatient.patientAge || selectedPatient.age || "N/A",
+      gender: selectedPatient.gender || "N/A",
+      diagnosis: "Historical Record",
+      medicines: [{ name: selectedPastRx.medicine, dosage: selectedPastRx.dosage || "", frequency: "", duration: "", note: "" }],
+      guidelines: [selectedPastRx.notes],
+      nextVisit: new Date(selectedPastRx.date).toLocaleDateString()
+    } : {
+      doctor: doctorName,
+      specialization: "",
+      license: "",
+      patient: `${selectedPatient.firstName} ${selectedPatient.lastName || ""}`.trim(),
+      patientId: selectedPatient.patientId,
+      age: selectedPatient.patientAge || selectedPatient.age || "N/A",
+      gender: selectedPatient.gender || "N/A",
+      diagnosis: diagnosis || "General Consultation",
+      medicines: dynamicMedicines.filter(m => m.name.trim() !== ""),
+      guidelines: guidelines.split("\n").filter(g => g.trim() !== ""),
+      nextVisit: selectedPatient.nextAppointment ? new Date(selectedPatient.nextAppointment).toLocaleDateString() : "TBD"
+    })
     : null;
 
   const patientAppointments = selectedPatient
@@ -220,7 +219,7 @@ const Prescriptions = () => {
     remarks: `Patient has ${patientAppointments.length} recorded visits in the timeline. Maintenance and regular checks requested.`
   } : null;
 
-  const filteredPatients = patients.filter(p => 
+  const filteredPatients = patients.filter(p =>
     `${p.firstName} ${p.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -231,7 +230,7 @@ const Prescriptions = () => {
       </Typography>
 
       <Grid container spacing={3} sx={{ flexGrow: 1, overflow: "hidden" }}>
-        
+
         {/* Left Sidebar: Patients List */}
         <Grid item xs={3} sx={{ height: "100%", display: "flex", flexDirection: "column", "@media print": { display: "none" } }}>
           <Paper sx={{ p: 2, flexGrow: 1, display: "flex", flexDirection: "column", borderRadius: 4, overflow: "hidden", border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
@@ -243,11 +242,11 @@ const Prescriptions = () => {
             />
             <List sx={{ overflowY: "auto", flexGrow: 1 }}>
               {filteredPatients.map(p => (
-                <ListItem 
-                  button key={p.patientId} 
+                <ListItem
+                  button key={p.patientId}
                   onClick={() => setSelectedPatient(p)}
-                  sx={{ 
-                    borderRadius: 2, mb: 1, 
+                  sx={{
+                    borderRadius: 2, mb: 1,
                     background: selectedPatient?.patientId === p.patientId ? "#E3F2FD" : "transparent",
                     border: selectedPatient?.patientId === p.patientId ? "1px solid #1E5DA9" : "1px solid transparent"
                   }}
@@ -290,11 +289,11 @@ const Prescriptions = () => {
 
               {/* Dynamic Content Space */}
               <Box sx={{ flexGrow: 1, display: "flex", overflow: "hidden" }} ref={printRef}>
-                
+
                 {/* E-PRESCRIPTION VIEW */}
                 {activeTab === 0 && (
                   <Grid container sx={{ width: "100%", height: "100%" }}>
-                    
+
                     {/* Input Form Column (Conditionally Rendered/Shrunk) */}
                     {isFormOpen && (
                       <Grid item xs={5} sx={{ p: 3, borderRight: "1px solid #eee", overflowY: "auto", background: "#fff", "@media print": { display: "none" }, transition: "all 0.3s ease" }}>
@@ -302,47 +301,47 @@ const Prescriptions = () => {
                           <Typography variant="subtitle1" fontWeight="800" color="#1E5DA9">Rx Builder</Typography>
                           <Box>
                             <Chip label={`Selected: ${selectedPatient.firstName}`} size="small" sx={{ fontWeight: 600, mr: 1 }} />
-                            <IconButton size="small" onClick={() => setIsFormOpen(false)} title="Shrink Form"><CloseFullscreenIcon fontSize="small" sx={{ color: "#888" }}/></IconButton>
+                            <IconButton size="small" onClick={() => setIsFormOpen(false)} title="Shrink Form"><CloseFullscreenIcon fontSize="small" sx={{ color: "#888" }} /></IconButton>
                           </Box>
                         </Box>
-                      
-                      <TextField fullWidth size="small" label="Primary Diagnosis" sx={{ mb: 3 }} value={diagnosis} onChange={e => setDiagnosis(e.target.value)} />
-                      
-                      <Typography variant="caption" fontWeight="bold" color="#888" sx={{ mb: 1, display: "block" }}>MEDICATIONS</Typography>
-                      {dynamicMedicines.map((med, i) => (
-                        <Box key={i} sx={{ border: "1px solid #e0e0e0", p: 1.5, borderRadius: 2, mb: 1.5, background: "#fafafa", position: "relative" }}>
-                          <Grid container spacing={1}>
-                            <Grid item xs={12}><TextField fullWidth size="small" placeholder="Medicine Name (e.g. Amoxicillin)" value={med.name} onChange={e => handleMedicineChange(i, "name", e.target.value)} /></Grid>
-                            <Grid item xs={6}><TextField fullWidth size="small" placeholder="Dosage (500mg)" value={med.dosage} onChange={e => handleMedicineChange(i, "dosage", e.target.value)} /></Grid>
-                            <Grid item xs={6}><TextField fullWidth size="small" placeholder="Freq (1-0-1)" value={med.frequency} onChange={e => handleMedicineChange(i, "frequency", e.target.value)} /></Grid>
-                            <Grid item xs={6}><TextField fullWidth size="small" placeholder="Duration (5 days)" value={med.duration} onChange={e => handleMedicineChange(i, "duration", e.target.value)} /></Grid>
-                            <Grid item xs={6}><TextField fullWidth size="small" placeholder="Notes (After food)" value={med.note} onChange={e => handleMedicineChange(i, "note", e.target.value)} /></Grid>
-                          </Grid>
-                          {dynamicMedicines.length > 1 && (
-                            <IconButton size="small" sx={{ position: "absolute", top: -10, right: -10, background: "#fff", border: "1px solid #ccc", boxShadow: 1 }} color="error" onClick={() => handleRemoveMedicine(i)}>
-                              <RemoveCircleOutlineIcon fontSize="small" />
-                            </IconButton>
-                          )}
+
+                        <TextField fullWidth size="small" label="Primary Diagnosis" sx={{ mb: 3 }} value={diagnosis} onChange={e => setDiagnosis(e.target.value)} />
+
+                        <Typography variant="caption" fontWeight="bold" color="#888" sx={{ mb: 1, display: "block" }}>MEDICATIONS</Typography>
+                        {dynamicMedicines.map((med, i) => (
+                          <Box key={i} sx={{ border: "1px solid #e0e0e0", p: 1.5, borderRadius: 2, mb: 1.5, background: "#fafafa", position: "relative" }}>
+                            <Grid container spacing={1}>
+                              <Grid item xs={12}><TextField fullWidth size="small" placeholder="Medicine Name (e.g. Amoxicillin)" value={med.name} onChange={e => handleMedicineChange(i, "name", e.target.value)} /></Grid>
+                              <Grid item xs={6}><TextField fullWidth size="small" placeholder="Dosage (500mg)" value={med.dosage} onChange={e => handleMedicineChange(i, "dosage", e.target.value)} /></Grid>
+                              <Grid item xs={6}><TextField fullWidth size="small" placeholder="Freq (1-0-1)" value={med.frequency} onChange={e => handleMedicineChange(i, "frequency", e.target.value)} /></Grid>
+                              <Grid item xs={6}><TextField fullWidth size="small" placeholder="Duration (5 days)" value={med.duration} onChange={e => handleMedicineChange(i, "duration", e.target.value)} /></Grid>
+                              <Grid item xs={6}><TextField fullWidth size="small" placeholder="Notes (After food)" value={med.note} onChange={e => handleMedicineChange(i, "note", e.target.value)} /></Grid>
+                            </Grid>
+                            {dynamicMedicines.length > 1 && (
+                              <IconButton size="small" sx={{ position: "absolute", top: -10, right: -10, background: "#fff", border: "1px solid #ccc", boxShadow: 1 }} color="error" onClick={() => handleRemoveMedicine(i)}>
+                                <RemoveCircleOutlineIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                          </Box>
+                        ))}
+                        <Button startIcon={<AddCircleOutlineIcon />} onClick={handleAddMedicine} size="small" sx={{ mb: 2, textTransform: "none", fontWeight: 600 }}>Add Another Medicine</Button>
+
+                        <TextField fullWidth multiline rows={2} size="small" label="Guidelines & Advice (Line breaks allowed)" sx={{ mb: 3 }} value={guidelines} onChange={e => setGuidelines(e.target.value)} />
+
+                        <Box sx={{ display: "flex", gap: 1, mt: 2, flexWrap: "wrap" }}>
+                          <Button variant="contained" color="primary" startIcon={<SaveIcon />} onClick={handleSavePrescription} sx={{ flexGrow: 1, fontWeight: 600, textTransform: "none", boxShadow: "none" }}>Save Rx</Button>
+                          <Button variant="outlined" color="primary" startIcon={<DownloadIcon />} onClick={handleDownload} sx={{ flexGrow: 1, fontWeight: 600, textTransform: "none" }}>Download</Button>
+                          <Button variant="contained" color="secondary" startIcon={<EmailIcon />} onClick={handleSendEmail} sx={{ width: "100%", fontWeight: 600, textTransform: "none", background: "linear-gradient(135deg, #10b981, #059669)", boxShadow: "none" }}>Email to Patient</Button>
+                          <Button fullWidth variant="outlined" startIcon={<PrintIcon />} onClick={handlePrint} sx={{ fontWeight: 600, textTransform: "none", color: "#555", borderColor: "#ccc" }}>Print</Button>
                         </Box>
-                      ))}
-                      <Button startIcon={<AddCircleOutlineIcon />} onClick={handleAddMedicine} size="small" sx={{ mb: 3, textTransform: "none", fontWeight: 600 }}>Add Another Medicine</Button>
-
-                      <TextField fullWidth multiline rows={3} size="small" label="Guidelines & Advice (Line breaks allowed)" sx={{ mb: 3 }} value={guidelines} onChange={e => setGuidelines(e.target.value)} />
-
-                      <Box sx={{ display: "flex", gap: 1, mt: 2, flexWrap: "wrap" }}>
-                        <Button variant="contained" color="primary" startIcon={<SaveIcon />} onClick={handleSavePrescription} sx={{ flexGrow: 1, fontWeight: 600, textTransform: "none", boxShadow: "none" }}>Save Rx</Button>
-                        <Button variant="outlined" color="primary" startIcon={<DownloadIcon />} onClick={handleDownload} sx={{ flexGrow: 1, fontWeight: 600, textTransform: "none" }}>Download</Button>
-                        <Button variant="contained" color="secondary" startIcon={<EmailIcon />} onClick={handleSendEmail} sx={{ width: "100%", fontWeight: 600, textTransform: "none", background: "linear-gradient(135deg, #10b981, #059669)", boxShadow: "none" }}>Email to Patient</Button>
-                        <Button fullWidth variant="outlined" startIcon={<PrintIcon />} onClick={handlePrint} sx={{ fontWeight: 600, textTransform: "none", color: "#555", borderColor: "#ccc" }}>Print</Button>
-                      </Box>
-                    </Grid>
+                      </Grid>
                     )}
 
                     {/* Live Preview Column */}
                     <Grid item xs={isFormOpen ? 7 : 12} sx={{ height: "100%", overflowY: "auto", position: "relative", transition: "all 0.3s ease", background: "#f4f7fb" }}>
                       {!isFormOpen && (
                         <Box sx={{ position: "absolute", top: 16, left: 16, zIndex: 10, "@media print": { display: "none" } }}>
-                          <Button variant="contained" size="small" onClick={() => setIsFormOpen(true)} startIcon={<OpenInFullIcon/>} sx={{ textTransform: "none", fontWeight: 600, background: "#1E5DA9", boxShadow: "0 4px 12px rgba(30,93,169,0.3)" }}>
+                          <Button variant="contained" size="small" onClick={() => setIsFormOpen(true)} startIcon={<OpenInFullIcon />} sx={{ textTransform: "none", fontWeight: 600, background: "#1E5DA9", boxShadow: "0 4px 12px rgba(30,93,169,0.3)" }}>
                             Open Builder
                           </Button>
                         </Box>

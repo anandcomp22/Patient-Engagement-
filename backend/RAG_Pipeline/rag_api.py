@@ -193,11 +193,33 @@ def retrieve_meds_now():
         for i, meta in enumerate(med_metas):
             meta["comment"] = comments[i] if i < len(comments) else ""
 
+        # Generate a very short clinical summary (diagnosis)
+        try:
+            # Use a more forceful prompt to get a short medical term
+            summary_prompt = f"Based on this medical transcript, provide ONLY a 3-5 word formal clinical diagnosis (e.g. 'Viral Fever', 'Lower Back Pain'). Do not include sentences or pleasantries. Transcript: {raw_transcript[-600:]}"
+            summary_res = ollama_client.generate(model="llama3.2", prompt=summary_prompt)
+            suggested_diagnosis = summary_res['response'].strip().strip('."')
+            if ":" in suggested_diagnosis:
+                suggested_diagnosis = suggested_diagnosis.split(":")[-1].strip()
+            
+            # Also generate professional consultation notes (cleaned up version of transcript)
+            notes_prompt = f"Convert this messy medical transcript into professional, concise clinical notes (bullet points). Remove gibberish and conversation filler. Transcript: {raw_transcript[-1000:]}"
+            notes_res = ollama_client.generate(model="llama3.2", prompt=notes_prompt)
+            suggested_notes = notes_res['response'].strip()
+            
+            print(f"[RAG] Suggested Diagnosis: {suggested_diagnosis}")
+        except Exception as e:
+            print(f"[RAG] Diagnosis/Notes generation failed: {e}")
+            suggested_diagnosis = "Clinical evaluation required"
+            suggested_notes = raw_transcript
+
         return jsonify({
             "ok":       True,
             "keywords": keywords,
             "documents": med_docs,
-            "metadata":  med_metas
+            "metadata":  med_metas,
+            "suggested_diagnosis": suggested_diagnosis,
+            "suggested_notes": suggested_notes
         })
 
     except Exception as e:

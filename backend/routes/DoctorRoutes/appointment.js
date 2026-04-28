@@ -3,6 +3,7 @@ const router = express.Router();
 const { Appointment, videocall, Patient, Doctor } = require('../../db/models'); 
 const { v4: uuidv4 } = require('uuid');
 const authMiddleware = require('../../middleware/authMiddleware');
+const { sendEmail } = require('../../utils/mailer');
 
 /*router.get('/appointments', authMiddleware, async (req, res) => {
   try {
@@ -101,12 +102,17 @@ router.post('/book', authMiddleware, async (req, res) => {
       return res.status(409).json({ message: "Slot already booked" });
     }
 
+    const roomId = uuidv4();
+    const patientName = `${patient.firstName} ${patient.lastName}`;
+    const doctorName = `Dr. ${doctor.firstName} ${doctor.lastName}`;
+    const formattedDate = new Date(appointmentDate).toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+
     const appointment = await Appointment.create({
       patient: patient._id,
       patientId: pId,
       doctorId: dId,
-      doctorName: `Dr. ${doctor.firstName} ${doctor.lastName}`,
-      patientName: `${patient.firstName} ${patient.lastName}`,
+      doctorName,
+      patientName,
       patientEmail: patient.email,
       patientPhone: patient.phone,
       patientAge: new Date().getFullYear() - new Date(patient.dob).getFullYear(),
@@ -122,11 +128,62 @@ router.post('/book', authMiddleware, async (req, res) => {
       appointmentId: appointment._id,
       doctorId: dId,
       patientId: pId,
-      roomId: uuidv4(),
+      roomId,
       appstatus: "confirmed"
     });
 
     req.app.get("io").emit("appointment-updated");
+
+    // ── Send Confirmation Emails ──
+    const videoLink = `${process.env.FRONTEND_URL ? `http://localhost:${process.env.FRONTEND_URL}` : "http://localhost:3000"}/patient/video-call?roomId=${roomId}`;
+    const doctorVideoLink = `${process.env.FRONTEND_URL ? `http://localhost:${process.env.FRONTEND_URL}` : "http://localhost:3000"}/doctor/video-call?roomId=${roomId}&patientEmail=${encodeURIComponent(patient.email)}&patientName=${encodeURIComponent(patientName)}&patientId=${pId}`;
+
+    // Email to Patient
+    try {
+      await sendEmail(
+        patient.email,
+        `Appointment Confirmed — ${doctorName} on ${formattedDate}`,
+        `<div style="font-family:Arial,sans-serif;max-width:600px;border:1px solid #e2e8f0;padding:24px;border-radius:12px;">
+          <h2 style="color:#1E5DA9;margin-bottom:4px;">AidME Healthcare</h2>
+          <p style="color:#64748b;margin-top:0;">Appointment Confirmation</p>
+          <hr style="border:none;border-top:1px solid #e2e8f0;"/>
+          <p>Dear <strong>${patientName}</strong>,</p>
+          <p>Your appointment has been confirmed with the following details:</p>
+          <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+            <tr><td style="padding:8px 0;color:#64748b;">Doctor</td><td style="padding:8px 0;font-weight:700;">${doctorName}</td></tr>
+            <tr><td style="padding:8px 0;color:#64748b;">Specialty</td><td style="padding:8px 0;">${doctor.specialty}</td></tr>
+            <tr><td style="padding:8px 0;color:#64748b;">Date</td><td style="padding:8px 0;font-weight:700;">${formattedDate}</td></tr>
+            <tr><td style="padding:8px 0;color:#64748b;">Time</td><td style="padding:8px 0;font-weight:700;">${time}</td></tr>
+            <tr><td style="padding:8px 0;color:#64748b;">Reason</td><td style="padding:8px 0;">${reason || "General Checkup"}</td></tr>
+          </table>
+          <a href="${videoLink}" style="display:inline-block;background:#1E5DA9;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-top:8px;">Join Video Consultation</a>
+          <p style="color:#94a3b8;font-size:0.8rem;margin-top:16px;">The join link will be active at your scheduled time. You'll also receive a reminder 10 minutes before.</p>
+        </div>`
+      );
+    } catch (emailErr) {
+      console.error("[Booking] Patient confirmation email failed:", emailErr.message);
+    }
+
+    // Email to Doctor
+    try {
+      await sendEmail(
+        doctor.email,
+        `New Appointment: ${patientName} on ${formattedDate} at ${time}`,
+        `<div style="font-family:Arial,sans-serif;max-width:600px;border:1px solid #e2e8f0;padding:24px;border-radius:12px;">
+          <h2 style="color:#1E5DA9;">New Appointment Scheduled</h2>
+          <p>A new consultation has been booked for you:</p>
+          <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+            <tr><td style="padding:8px 0;color:#64748b;">Patient</td><td style="padding:8px 0;font-weight:700;">${patientName}</td></tr>
+            <tr><td style="padding:8px 0;color:#64748b;">Date</td><td style="padding:8px 0;font-weight:700;">${formattedDate}</td></tr>
+            <tr><td style="padding:8px 0;color:#64748b;">Time</td><td style="padding:8px 0;font-weight:700;">${time}</td></tr>
+            <tr><td style="padding:8px 0;color:#64748b;">Reason</td><td style="padding:8px 0;">${reason || "General Checkup"}</td></tr>
+          </table>
+          <a href="${doctorVideoLink}" style="display:inline-block;background:#1E5DA9;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;">Join Call (at scheduled time)</a>
+        </div>`
+      );
+    } catch (emailErr) {
+      console.error("[Booking] Doctor confirmation email failed:", emailErr.message);
+    }
 
     res.status(201).json({
       success: true,

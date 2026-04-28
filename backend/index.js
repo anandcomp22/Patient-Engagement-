@@ -174,6 +174,11 @@ io.on("connection", (socket) => {
 const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
   console.log(`Server started at http://localhost:${PORT}`);
+
+  // ── Activate Cron Jobs ──
+  require("./crons/unlockSlots");
+  require("./crons/activateCall");
+  require("./crons/appointmentReminder")(io);
+  console.log("[Server] ✅ All cron jobs activated");
 });
 
-/* appended to trigger nodemon */

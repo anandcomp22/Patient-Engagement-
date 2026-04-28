@@ -45,7 +45,9 @@ router.post("/upload-report", upload.single("report"), async (req, res) => {
 router.get("/reports/:patientId", async (req, res) => {
   try {
     const patientId = Number(req.params.patientId);
+    console.log(`[Reports API] Requesting reports for patientId: ${patientId} (type: ${typeof patientId})`);
     const reports = await MedicalReport.find({ patientId }).sort({ uploadDate: -1 });
+    console.log(`[Reports API] Found ${reports.length} reports for patient ${patientId}`);
     res.json(reports);
   } catch (err) {
     console.error("Error fetching reports:", err);

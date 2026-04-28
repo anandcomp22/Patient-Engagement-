@@ -7,7 +7,7 @@ import {
 import {
   MicOff, Mic, Videocam, VideocamOff, CallEnd,
   Fullscreen, FullscreenExit, ContentCopy, Send,
-  Add, PersonOutline, SmartToy, Download, Email, Save, Visibility,
+  Add, PersonOutline, SmartToy, Download, Email, Save, Visibility, Description,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -57,10 +57,10 @@ const VideoCall = () => {
   const [copied, setCopied] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [connectedPatientName, setConnectedPatientName] = useState("");
-  const [connectedPatientId, setConnectedPatientId] = useState(patientId);
   const [leftMessage, setLeftMessage] = useState("");
   const [patientDetails, setPatientDetails] = useState({ age: "", gender: "", phone: "", address: "" });
   const [prescriptionGuidelines, setPrescriptionGuidelines] = useState([]);
+  const [patientReports, setPatientReports] = useState([]);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -93,18 +93,25 @@ const VideoCall = () => {
       const res = await fetch(`${API_BASE}/patient/profile/${pid}`);
       if (res.ok) {
         const data = await res.json();
-        setPatientDetails({ 
-          age: data.age || "", 
-          gender: data.gender || "", 
-          phone: data.phone || "", 
-          address: data.address || "" 
+        setPatientDetails({
+          age: data.age || "",
+          gender: data.gender || "",
+          phone: data.phone || "",
+          address: data.address || ""
         });
         if (data.name) setPatientName(data.name);
         if (data.email) setPatientEmail(data.email);
         if (data.patientId) setPatientId(data.patientId.toString());
+
+        // Fetch reports too
+        const reportsRes = await fetch(`${API_BASE}/patient/reports/${pid}`);
+        if (reportsRes.ok) {
+          const reportsData = await reportsRes.json();
+          setPatientReports(reportsData);
+        }
       }
-    } catch (e) { 
-      console.error("Failed to fetch patient profile:", e); 
+    } catch (e) {
+      console.error("Failed to fetch patient profile:", e);
     }
   };
 
@@ -112,7 +119,7 @@ const VideoCall = () => {
     if (patientId) {
       fetchPatientProfile(patientId);
     }
-  }, []);
+  }, [patientId]);
 
   // ── Manual E-Prescription Actions ────────────────────────────
   const activePatientName = patientName;
@@ -126,9 +133,9 @@ const VideoCall = () => {
     patientId: activePatientId,
     age: patientDetails.age || "",
     gender: patientDetails.gender || "",
-    diagnosis: detectedCondition || (notes ? notes.split('.')[0] : "Consultation in progress"),
+    diagnosis: detectedCondition || (notes && notes.length > 20 ? notes.trim().split(/[.!?]/).filter(s => s.trim().length > 10).pop() || notes.substring(0, 100) : "Consultation in progress"),
     medicines: medications.filter(m => m.name.trim() !== ""),
-    guidelines: prescriptionGuidelines.length > 0 ? prescriptionGuidelines : (notes ? notes.split("\n").filter(g => g.trim() !== "") : []),
+    guidelines: prescriptionGuidelines.length > 0 ? prescriptionGuidelines : (notes && notes.length > 50 ? ["Follow-up as advised during call", "Maintain hydration"] : []),
     nextVisit: "TBD"
   };
 
@@ -141,11 +148,11 @@ const VideoCall = () => {
     };
     try {
       await fetch(`${API_BASE}/prescriptions/generate`, {
-        method: "POST", 
-        headers: { 
+        method: "POST",
+        headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }, 
+        },
         body: JSON.stringify(pData),
       });
 
@@ -192,63 +199,66 @@ const VideoCall = () => {
 
   const handleSendToPatient = async () => {
     let targetEmail = patientEmail;
-    
+
     // If no email from query params, prompt the user
     if (!targetEmail || targetEmail === "null" || targetEmail === "undefined") {
-        const manualEmail = prompt("Patient email is missing. Please enter the recipient's email address:", "");
-        if (!manualEmail) {
-            alert("Email is required to send the prescription.");
-            return;
-        }
-        targetEmail = manualEmail;
+      const manualEmail = prompt("Patient email is missing. Please enter the recipient's email address:", "");
+      if (!manualEmail) {
+        alert("Email is required to send the prescription.");
+        return;
+      }
+      targetEmail = manualEmail;
     }
 
     setSendingEmail(true);
     const filename = `prescription_${activePatientName.replace(/\s+/g, "_")}.pdf`;
-    
+
     // First save the PDF to server if not already done
     await handleSavePrescription();
 
     const deliveryData = {
-        email: targetEmail,
-        patient: activePatientName,
-        patientId: activePatientId,
-        diagnosis: prescriptionPreviewData.diagnosis,
-        medicines: prescriptionPreviewData.medicines,
-        guidelines: prescriptionPreviewData.guidelines,
-        nextVisit: prescriptionPreviewData.nextVisit,
-        doctorId: localStorage.getItem("doctorId"),
-        appointmentId: roomId, 
-        file: filename
+      email: targetEmail,
+      patient: activePatientName,
+      patientId: activePatientId,
+      diagnosis: prescriptionPreviewData.diagnosis,
+      medicines: prescriptionPreviewData.medicines,
+      guidelines: prescriptionPreviewData.guidelines,
+      nextVisit: prescriptionPreviewData.nextVisit,
+      doctorId: localStorage.getItem("doctorId"),
+      doctorName: name, // From current session state
+      appointmentId: roomId,
+      file: filename
     };
 
     try {
-        const res = await fetch(`${API_BASE}/prescriptions/save-and-send`, {
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify(deliveryData)
-        });
+      const res = await fetch(`${API_BASE}/prescriptions/save-and-send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify(deliveryData)
+      });
 
-        if (res.ok) {
-            alert(`Prescription successfully saved to records and sent to ${deliveryData.email}!`);
-            setPreviewOpen(false);
-        } else {
-            throw new Error("Delivery failed");
-        }
+      if (res.ok) {
+        alert(`Prescription successfully saved to records and sent to ${deliveryData.email}!`);
+        setPreviewOpen(false);
+
+        // ── Mark Appointment as Completed ──
+        fetch(`${API_BASE}/appointment/complete/${roomId}`, {
+          method: "PUT",
+          headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+        }).catch(err => console.error("Failed to mark appointment as complete:", err));
+
+      } else {
+        throw new Error("Delivery failed");
+      }
     } catch (err) {
-        alert("Error sending prescription. Please try again.");
-        console.error(err);
+      alert("Error sending prescription. Please try again.");
+      console.error(err);
     } finally {
-        setSendingEmail(false);
+      setSendingEmail(false);
     }
-  };
-
-  const handleSendEmail = () => {
-    // Legacy support or fallback
-    handleSendToPatient();
   };
 
   // ── Socket init ────────────────────────────────────────────
@@ -308,17 +318,35 @@ const VideoCall = () => {
   const handleAiMedicines = useCallback((meds) => {
     const newMeds = meds
       .filter(m => m.metadata?.drug_name)
-      .map(m => ({ 
-        name: m.metadata.drug_name, 
-        dosage: m.metadata.dosage || "Standard Dose", 
-        frequency: m.metadata.frequency || "2x daily (After meals)", 
-        duration: m.metadata.duration || "5 Days" 
+      .map(m => ({
+        name: m.metadata.drug_name,
+        dosage: m.metadata.dosage || "Standard Dose",
+        frequency: m.metadata.frequency || "2x daily (After meals)",
+        duration: m.metadata.duration || "5 Days"
       }));
     setSuggestedMeds(prev => {
       const existing = new Set(prev.map(p => p.name?.toLowerCase()));
       return [...prev, ...newMeds.filter(m => !existing.has(m.name.toLowerCase()))];
     });
   }, []); // no deps — only uses setSuggestedMeds (stable setter)
+
+  const handleSelectAiMedicine = useCallback((med) => {
+    if (!med || !med.metadata) return;
+    const name = med.metadata.drug_name || "Unknown Medicine";
+    const dosage = med.metadata.dosage || "Standard Dose";
+    const freq = med.metadata.frequency || "2x daily (After meals)";
+    const dur = med.metadata.duration || "5 Days";
+    const note = med.metadata.comment || med.metadata.indications || "";
+
+    setMedications(prev => {
+      const exists = prev.find(m => m.name?.toLowerCase() === name.toLowerCase());
+      if (exists) return prev;
+      return [...prev, { name, dosage, frequency: freq, duration: dur, note }];
+    });
+
+    // Also remove from suggested if it was there
+    setSuggestedMeds(prev => prev.filter(p => p.name?.toLowerCase() !== name.toLowerCase()));
+  }, []);
 
   // ── Auto-generate guidelines when medications change ──────
   useEffect(() => {
@@ -330,11 +358,11 @@ const VideoCall = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ medications })
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.guidelines) setPrescriptionGuidelines(data.guidelines);
-      })
-      .catch(err => console.error("Failed to fetch guidelines:", err));
+        .then(res => res.json())
+        .then(data => {
+          if (data.guidelines) setPrescriptionGuidelines(data.guidelines);
+        })
+        .catch(err => console.error("Failed to fetch guidelines:", err));
     } else {
       setPrescriptionGuidelines([]);
     }
@@ -370,7 +398,7 @@ const VideoCall = () => {
       if (peerConnection.current) {
         peerConnection.current.ontrack = null;
         peerConnection.current.onicecandidate = null;
-        try { peerConnection.current.close(); } catch (_) {}
+        try { peerConnection.current.close(); } catch (_) { }
       }
 
       const pc = new RTCPeerConnection({
@@ -439,7 +467,6 @@ const VideoCall = () => {
         if (role === "patient") {
           setPatientJoined(true);
           setConnectedPatientName(userName || "Patient");
-          setConnectedPatientId(pid || patientId);
           setLeftMessage("");
           setMedications([]);
           setSuggestedMeds([]);
@@ -457,7 +484,7 @@ const VideoCall = () => {
           socketRef.current.emit("offer", { roomId, offer });
         }
       });
-      socketRef.current.on("user-left", ({ role, userName }) => { 
+      socketRef.current.on("user-left", ({ role, userName }) => {
         if (role === "patient") {
           setPatientJoined(false);
           setLeftMessage(`${userName || "Patient"} has left the call`);
@@ -470,15 +497,8 @@ const VideoCall = () => {
       socketRef.current.emit("media-ready", { roomId, role: "doctor", userName: name });
     }).catch(err => console.error("Media access error:", err));
 
-    // Transcript from socket
-    const handleTranscript = ({ text }) => {
-      if (!text) return;
-      setNotes(p => p + " " + text + " ");
-    };
-    socketRef.current.on("transcript", handleTranscript);
-
     return () => {
-      ["offer", "answer", "ice-candidate", "peer-ready", "user-left", "transcript"].forEach(e => socketRef.current.off(e));
+      ["offer", "answer", "ice-candidate", "peer-ready", "user-left"].forEach(e => socketRef.current.off(e));
       peerConnection.current?.close();
       peerConnection.current = null;
     };
@@ -498,33 +518,20 @@ const VideoCall = () => {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => { });
     clearInterval(durationTimer.current);
 
-    const prescriptionData = {
-      patientId, patient: patientName, age: "N/A", address: "Teleconsultation", contact: "N/A",
-      prescriptionNo: `RX-${Date.now()}`,
-      date: new Date().toLocaleDateString(),
-      email: patientEmail || "patient@clinic.com",
-      medicines: medications.length > 0 ? medications : [{ name: "General Advice", dosage: "-", frequency: "-", duration: "-" }],
-      notes: notes || "No additional notes",
-    };
-
+    // ── Mark Appointment as Completed ──
     try {
-      await fetch(`${API_BASE}/prescriptions/generate`, {
-        method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}` },
-        body: JSON.stringify(prescriptionData),
+      await fetch(`${API_BASE}/appointment/complete/${roomId}`, {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
       });
-      const element = document.getElementById("prescription-template-doc");
-      if (element) {
-        const filename = `prescription_${patientName.replace(/\s+/g, "_")}.pdf`;
-        const pdfBlob = await html2pdf().set({ margin: 10, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(element).outputPdf('blob');
-        const formData = new FormData();
-        formData.append("prescriptionPdf", pdfBlob, filename);
-        const uploadRes = await fetch(`${API_BASE}/prescriptions/uploadPdf`, { method: "POST", headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }, body: formData });
-        const uploadData = await uploadRes.json();
-        if (uploadData.file) {
-          await fetch(`${API_BASE}/prescriptions/send`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}` }, body: JSON.stringify({ email: prescriptionData.email, file: uploadData.file }) });
-        }
+    } catch (e) { console.error("Failed to mark appointment as complete:", e); }
+
+    // Prompt to send prescription if not already sent
+    if (medications.length > 0 && !callEndedRef.current) {
+      if (window.confirm("Consultation ended. Would you like to send the prescription to the patient now?")) {
+        await handleSendToPatient();
       }
-    } catch (e) { console.error("Prescription error:", e); }
+    }
 
     try {
       await fetch(`${API_BASE}/api/videocall/summary`, {
@@ -569,7 +576,7 @@ const VideoCall = () => {
           {/* Decorative circles */}
           <Box sx={{ position: 'absolute', top: -100, right: -50, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.5)', filter: 'blur(20px)' }} />
           <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 250, height: 250, borderRadius: '50%', background: 'rgba(255,255,255,0.5)', filter: 'blur(20px)' }} />
-          
+
           <Typography variant="h3" sx={{ color: '#E65100', fontWeight: 800, mb: 2, zIndex: 1 }}>
             Doctor Consultation Room
           </Typography>
@@ -579,15 +586,15 @@ const VideoCall = () => {
 
           <Box sx={{ zIndex: 1, display: 'flex', flexDirection: 'column', gap: 3.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-              <Avatar sx={{ bgcolor: '#fff', color: '#E65100', width: 48, height: 48, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}><SmartToy/></Avatar>
+              <Avatar sx={{ bgcolor: '#fff', color: '#E65100', width: 48, height: 48, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}><SmartToy /></Avatar>
               <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>AI Assistant transcribes continuously</Typography>
             </Box>
-             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-              <Avatar sx={{ bgcolor: '#fff', color: '#E65100', width: 48, height: 48, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}><Videocam/></Avatar>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+              <Avatar sx={{ bgcolor: '#fff', color: '#E65100', width: 48, height: 48, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}><Videocam /></Avatar>
               <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>AI detects visually apparent conditions</Typography>
             </Box>
-             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-              <Avatar sx={{ bgcolor: '#fff', color: '#E65100', width: 48, height: 48, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}><Mic/></Avatar>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+              <Avatar sx={{ bgcolor: '#fff', color: '#E65100', width: 48, height: 48, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}><Mic /></Avatar>
               <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>Mention medicines to auto-add them</Typography>
             </Box>
           </Box>
@@ -1022,6 +1029,16 @@ const VideoCall = () => {
           {/* Notes & Actions */}
           <Box sx={{ mb: 2 }}>
             <Typography variant="caption" sx={{ color: "#888", textTransform: "uppercase", letterSpacing: 1, fontSize: "0.68rem" }}>
+              Clinical Diagnosis
+            </Typography>
+            <TextField
+              fullWidth placeholder="AI will suggest or type here..."
+              value={detectedCondition}
+              onChange={e => setDetectedCondition(e.target.value)}
+              sx={{ mt: 1, mb: 1.5, ...lightInputSx }}
+            />
+
+            <Typography variant="caption" sx={{ color: "#888", textTransform: "uppercase", letterSpacing: 1, fontSize: "0.68rem" }}>
               Consultation Notes
             </Typography>
             <TextField
@@ -1043,14 +1060,14 @@ const VideoCall = () => {
                 sx={{ flexGrow: 1, textTransform: "none", borderColor: "rgba(30,93,169,0.3)" }}>
                 Download
               </Button>
-              <Button size="small" variant="contained" startIcon={<Email fontSize="small" />} 
-                onClick={handleSendToPatient} 
+              <Button size="small" variant="contained" startIcon={<Email fontSize="small" />}
+                onClick={handleSendToPatient}
                 disabled={sendingEmail}
-                sx={{ 
-                  width: "100%", 
-                  textTransform: "none", 
-                  background: "linear-gradient(135deg, #FF6F00, #E65100)", 
-                  boxShadow: "0 4px 12px rgba(230,81,0,0.2)", 
+                sx={{
+                  width: "100%",
+                  textTransform: "none",
+                  background: "linear-gradient(135deg, #FF6F00, #E65100)",
+                  boxShadow: "0 4px 12px rgba(230,81,0,0.2)",
                   fontWeight: 700,
                   '&:hover': { background: "linear-gradient(135deg, #E65100, #BF360C)" }
                 }}
@@ -1058,6 +1075,46 @@ const VideoCall = () => {
                 {sendingEmail ? "Sending..." : "Send to Patient"}
               </Button>
             </Box>
+          </Box>
+
+          {/* Patient Medical Documents */}
+          <Divider sx={{ borderColor: "rgba(0,0,0,0.07)", mb: 2 }} />
+          <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+              <Description sx={{ color: "#1E5DA9", fontSize: 18 }} />
+              <Typography variant="caption" sx={{ color: "#1E5DA9", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, fontSize: "0.7rem" }}>
+                Medical Documents ({patientReports.length})
+              </Typography>
+            </Box>
+
+            {patientReports.length === 0 ? (
+              <Typography variant="caption" sx={{ color: "#888", fontStyle: "italic", display: "block", px: 1 }}>
+                No documents uploaded by patient.
+              </Typography>
+            ) : (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                {patientReports.map((report, i) => (
+                  <Box key={i} sx={{
+                    p: 1.5, borderRadius: 2,
+                    background: "rgba(0,0,0,0.02)",
+                    border: "1px solid rgba(0,0,0,0.05)",
+                    display: "flex", alignItems: "center", justifyContent: "space-between"
+                  }}>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography sx={{ fontSize: "0.8rem", fontWeight: 600, color: "#333", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {report.reportName}
+                      </Typography>
+                      <Typography sx={{ fontSize: "0.65rem", color: "#666" }}>
+                        {report.reportType} • {new Date(report.uploadDate).toLocaleDateString()}
+                      </Typography>
+                    </Box>
+                    <IconButton size="small" onClick={() => window.open(`${API_BASE}/${report.filePath.replace(/\\/g, '/')}`, "_blank")} sx={{ color: "#1E5DA9" }}>
+                      <Visibility fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Box>
 
           {/* AI Panel */}
@@ -1076,12 +1133,18 @@ const VideoCall = () => {
             <AiPanel
               localStream={localStream}
               remoteStream={remoteStream}
-              active={joined && patientJoined}
+              active={joined} // Start as soon as doctor joins
               sessionId={roomId}
               patientId={queryParams.get("patientId") || "patient_101"}
               doctorId={doctorId}
               liveTranscript={notes}
               onMedicinesFound={handleAiMedicines}
+              onTranscriptUpdate={(text) => { /* Only for internal sync if needed, but we don't auto-update notes anymore */ }}
+              onSelectMedicine={handleSelectAiMedicine}
+              onAiSummary={({ diagnosis, notes }) => {
+                if (diagnosis) setDetectedCondition(diagnosis);
+                if (notes) setNotes(notes);
+              }}
             />
           </Box>
         </Box>

@@ -10,6 +10,7 @@ import LiveVideoCall from './components/Doctor/VideoCallMech/LiveVideoCall';
 import DoctorVideoCall from './components/Doctor/VideoCallMech/VideoCall';
 import Prescriptions from './components/Doctor/Dashboard/Prescriptions';
 import AboutUs from './components/Doctor/Dashboard/AboutUs';
+import HelpSupport from './components/Doctor/Dashboard/HelpSupport';
 import PatientSignUp from './components/Patient/PatientPortal/PatientSignUp';
 import PatientAppointments from './components/Patient/Dashboard/PatientAppointments';
 import BookAppointment from './components/Patient/Dashboard/BookAppointment';
@@ -20,6 +21,7 @@ import PatientSidebar from './components/Patient/Dashboard/PatientSidebar';
 import PatientNavbar from './components/Patient/Dashboard/PatientNavbar';
 import PatientVideoCall from './components/Patient/VideoCallMech/PatientVideoCall';
 import PatientPrescriptions from './components/Patient/Dashboard/PatientPrescriptions';
+import PatientHelpSupport from './components/Patient/Dashboard/PatientHelpSupport';
 import PayPalPaymentPage from './PaymentGateway/PayPalButton';
 
 import AnalysisPage from './components/Doctor/Dashboard/Analysis';
@@ -95,6 +97,7 @@ function App() {
                       <Route path="video-call" element={<PatientVideoCall />} />
                       <Route path="upload-report" element={<UploadReport />} />
                       <Route path="prescriptions" element={<PatientPrescriptions />} />
+                      <Route path="support" element={<PatientHelpSupport />} />
                     </Routes>
 
 
@@ -134,6 +137,7 @@ function App() {
                     <Route path="prescriptions" element={<Prescriptions />} />
                     <Route path="analysis" element={<AnalysisPage />} />
                     <Route path="settings" element={<DoctorSettings />} />
+                    <Route path="help" element={<HelpSupport />} />
                     <Route path="logout" element={<LoginOutlined />} />
                   </Routes>
                 </Box>
