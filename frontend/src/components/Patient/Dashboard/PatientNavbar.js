@@ -30,8 +30,8 @@ const PatientNavbar = ({ sidebarOpen, onToggle, isMobile }) => {
     <AppBar
         position="fixed"
         sx={{
-          width: isMobile ? "100%" : (sidebarOpen ? "calc(100% - 250px)" : "calc(100% - 62px)"),
-          ml: isMobile ? 0 : (sidebarOpen ? "220px" : "62px"),
+          width: isMobile ? "100%" : (sidebarOpen ? "calc(100% - 240px)" : "calc(100% - 62px)"),
+          ml: isMobile ? 0 : (sidebarOpen ? "240px" : "62px"),
           transition: "all 0.3s ease-in-out",
           bgcolor: "background.paper",
           boxShadow: "0px 4px 10px rgba(0,0,0,0.05)", 

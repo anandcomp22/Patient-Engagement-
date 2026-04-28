@@ -11,7 +11,7 @@ import {
   Badge,
   CircularProgress,
   Box as MuiBox,
-  Container,
+
   Chip,
   Divider,
 } from '@mui/material';
@@ -274,7 +274,7 @@ export default function PatientDashboard() {
 
   return (
     <>
-      <Container maxWidth="lg" sx={{ p: { xs: 2, md: 3 }, mt: 3, mb: 4 }}>
+      <Box sx={{ p: { xs: 2, md: 3 }, mt: 3, mb: 4, width: '100%' }}>
       {confetti && <Confetti width={width} height={height} />}
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
@@ -503,7 +503,7 @@ export default function PatientDashboard() {
           </Card>
         </AnimatedCard>
       </Grid>
-    </Container>
+    </Box>
 
     {/* Floating Medical Chatbot — fixed overlay, visible on all scroll positions */}
     <MedicalChatBot />

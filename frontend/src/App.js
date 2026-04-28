@@ -93,7 +93,7 @@ function App() {
                   <Box
                     sx={{
                       flexGrow: 1,
-                      ml: isMobile ? 0 : (sidebarOpen ? '250px' : '62px'),
+                      ml: isMobile ? 0 : (sidebarOpen ? '240px' : '62px'),
                       transition: 'margin-left 0.3s ease-in-out',
                       width: isMobile ? '100%' : 'auto',
                     }}
