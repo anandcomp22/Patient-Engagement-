@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { Box, Typography, IconButton, TextField, Button, Paper, Fade, Tooltip, Avatar } from "@mui/material";
+import { Box, Typography, IconButton, TextField, Button, Paper, Fade, Tooltip, Avatar, Chip } from "@mui/material";
 import { MicOff, Mic, Videocam, VideocamOff, CallEnd, Fullscreen, FullscreenExit, PersonOutline } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import io from "socket.io-client";
@@ -36,14 +36,95 @@ const PatientVideoCall = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [callDuration, setCallDuration] = useState(0);
+  const [inLobby, setInLobby] = useState(true);
+  const [lobbyStatus, setLobbyStatus] = useState({ doctorPresent: false, patientPresent: false });
+  const [mediaReady, setMediaReady] = useState(false);
+  const [isMediaLoading, setIsMediaLoading] = useState(false);
   const controlsTimer = useRef(null);
   const durationTimer = useRef(null);
 
-  // ── Socket ──────────────────────────────────────────────────
+  // ── Socket (Connect ONCE) ───────────────────────────────────
   useEffect(() => {
     socketRef.current = io("http://localhost:8000", { transports: ["websocket"] });
-    return () => socketRef.current.disconnect();
-  }, []);
+    
+    socketRef.current.on("lobby-status", (status) => {
+      console.log("[Patient] Lobby status update:", status);
+      setLobbyStatus(status);
+    });
+
+    socketRef.current.on("lobby-call-started", () => {
+      console.log("[Patient] Doctor started the call. Joining automatically...");
+      setInLobby(prevInLobby => {
+        if (prevInLobby) {
+          // If media is ready, auto-join. Otherwise, the button will show "Doctor is calling!"
+          setTimeout(() => {
+            document.getElementById("patient-join-btn")?.click();
+          }, 100);
+        }
+        return prevInLobby;
+      });
+    });
+
+    return () => {
+      if (socketRef.current) socketRef.current.disconnect();
+    };
+  }, []); // Empty dependency array: connects exactly once
+
+  // ── Handle Lobby Join/Leave Dynamically ───────────────────
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    // Send an immediate join
+    if (roomId && name && inLobby) {
+      socketRef.current.emit("lobby-join", { roomId, role: "patient", userName: name });
+    }
+
+    // Robust Polling: Every 2 seconds, re-assert our presence in the room.
+    // This completely eliminates any missing events or desyncs.
+    const interval = setInterval(() => {
+      if (roomId && name && inLobby && socketRef.current && socketRef.current.connected) {
+        socketRef.current.emit("lobby-ping", { roomId, role: "patient", userName: name });
+      }
+    }, 2000);
+
+    return () => {
+      clearInterval(interval);
+      if (roomId && socketRef.current && socketRef.current.connected) {
+        socketRef.current.emit("lobby-leave", { roomId, role: "patient" });
+      }
+    };
+  }, [roomId, name, inLobby]);
+
+  // ── Media Permissions Request ──────────────────────────────
+  const handleRequestPermissions = async () => {
+    setIsMediaLoading(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      // Permissions granted! Stop tracks to keep camera off in lobby.
+      stream.getTracks().forEach(track => track.stop());
+      setMediaReady(true);
+    } catch (err) {
+      console.error("Media permission denied:", err);
+      alert("Please grant camera and microphone permissions to join the call.");
+    } finally {
+      setIsMediaLoading(false);
+    }
+  };
+
+  // ── Media Preview ───────────────────────────────────────────
+  // Per user request, we do not auto-start camera in lobby.
+  /*
+  useEffect(() => {
+    if (inLobby && !localStream) {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then(stream => { 
+          setLocalStream(stream); 
+          if (localVideoRef.current) localVideoRef.current.srcObject = stream; 
+        })
+        .catch(console.error);
+    }
+  }, [inLobby, localStream]);
+  */
 
   // ── Name from storage ───────────────────────────────────────
   useEffect(() => {
@@ -106,6 +187,7 @@ const PatientVideoCall = () => {
     }
     socketRef.current.emit("join-room", { roomId });
     setJoined(true);
+    setInLobby(false);
   };
 
   const patientId = localStorage.getItem("patientId") || "patient_unknown";
@@ -213,130 +295,106 @@ const PatientVideoCall = () => {
   };
 
   // ── Pre-join screen ──────────────────────────────────────────
-  if (!joined) {
+  // ── Pre-join / Waiting Room ──────────────────────────────────
+  if (inLobby || !joined) {
     return (
-      <Box sx={{ minHeight: "100vh", display: "flex" }}>
+      <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: { xs: 'column', md: 'row' }, bgcolor: "#f8fafc" }}>
         {/* Left Side: Info / Branding */}
         <Box sx={{
-          flex: 1,
-          display: { xs: 'none', md: 'flex' },
-          flexDirection: 'column',
-          justifyContent: 'center',
-          p: { md: 6, lg: 10 },
-          background: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)',
-          position: 'relative',
-          overflow: 'hidden'
+          flex: 1, display: { xs: 'none', md: 'flex' }, flexDirection: 'column', justifyContent: 'center',
+          p: { md: 6, lg: 10 }, background: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)',
+          position: 'relative', overflow: 'hidden'
         }}>
-          {/* Decorative circles */}
           <Box sx={{ position: 'absolute', top: -100, right: -50, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', filter: 'blur(20px)' }} />
           <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 250, height: 250, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', filter: 'blur(20px)' }} />
           
-          <Typography variant="h3" sx={{ color: '#1E5DA9', fontWeight: 800, mb: 2, zIndex: 1 }}>
-            Your Virtual Care Room
-          </Typography>
-          <Typography variant="h6" sx={{ color: '#555', mb: 6, zIndex: 1, maxWidth: 500, lineHeight: 1.6 }}>
-            Experience high-quality, secure consultations from the comfort of your home.
-          </Typography>
+          <Typography variant="h3" sx={{ color: '#1E5DA9', fontWeight: 800, mb: 2, zIndex: 1, fontSize: { xs: "2rem", md: "3rem" } }}>Your Virtual Care Room</Typography>
+          <Typography variant="h6" sx={{ color: '#555', mb: 6, zIndex: 1, maxWidth: 500, lineHeight: 1.6 }}>Experience high-quality, secure consultations from the comfort of your home.</Typography>
 
           <Box sx={{ zIndex: 1, display: 'flex', flexDirection: 'column', gap: 3.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-              <Avatar sx={{ bgcolor: '#fff', color: '#1E5DA9', width: 40, height: 40, fontWeight: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>1</Avatar>
-              <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>Find a quiet, well-lit space</Typography>
-            </Box>
-             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-              <Avatar sx={{ bgcolor: '#fff', color: '#1E5DA9', width: 40, height: 40, fontWeight: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>2</Avatar>
-              <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>Check your internet connection</Typography>
-            </Box>
-             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-              <Avatar sx={{ bgcolor: '#fff', color: '#1E5DA9', width: 40, height: 40, fontWeight: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>3</Avatar>
-              <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>Test your microphone and camera</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-              <Avatar sx={{ bgcolor: '#fff', color: '#1E5DA9', width: 40, height: 40, fontWeight: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>4</Avatar>
-              <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>Keep any relevant medical records nearby</Typography>
-            </Box>
+            {[
+              "Find a quiet, well-lit space",
+              "Check your internet connection",
+              "Test your microphone and camera",
+              "Keep any relevant medical records nearby"
+            ].map((text, idx) => (
+              <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+                <Avatar sx={{ bgcolor: '#fff', color: '#1E5DA9', width: 40, height: 40, fontWeight: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>{idx + 1}</Avatar>
+                <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>{text}</Typography>
+              </Box>
+            ))}
           </Box>
         </Box>
 
-        {/* Right Side: Join Form */}
-        <Box sx={{
-          width: { xs: '100%', md: '480px' },
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#fff',
-          position: 'relative',
-          zIndex: 2,
-          boxShadow: { md: '-20px 0 40px rgba(0,0,0,0.04)' }
-        }}>
-          <Paper elevation={0} sx={{
-            p: { xs: 4, md: 6 },
-            width: "100%",
-            mx: 2,
-            background: "transparent",
-            color: "#1E5DA9",
-          }}>
+        {/* Right Side: Join Form / Media Preview */}
+        <Box sx={{ width: { xs: '100%', md: '520px' }, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', position: 'relative', zIndex: 2, boxShadow: { md: '-20px 0 40px rgba(0,0,0,0.04)' } }}>
+          <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 4, md: 6 }, width: "100%", mx: 2, background: "transparent", color: "#1E5DA9" }}>
+            
             <Box sx={{ textAlign: "center", mb: 4 }}>
-              <Box sx={{
-                width: 64, height: 64, borderRadius: "50%", mx: "auto", mb: 2,
-                background: "linear-gradient(135deg, #62b8ffff 0%, #1E5DA9 100%)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: "0 8px 24px rgba(30,93,169,0.3)"
-              }}>
-                <Videocam sx={{ color: "#fff", fontSize: 30 }} />
-              </Box>
-              <Typography variant="h5" fontWeight={800} sx={{ color: "#1E5DA9" }}>
-                Join Consultation
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#777", mt: 1 }}>
-                Connect with your doctor securely
-              </Typography>
+              <Typography variant="h5" fontWeight="800" sx={{ color: "#1E5DA9", mb: 1 }}>Waiting Room</Typography>
+              <Typography variant="body2" sx={{ color: "#777", mb: 3 }}>Check your camera and microphone</Typography>
             </Box>
 
-            <TextField
-              fullWidth
-              label="Your Name"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              sx={{ mb: 2.5, ...lightInputSx }}
-            />
-            <TextField
-              fullWidth
-              label="Room ID"
-              value={roomId}
-              onChange={e => setRoomId(e.target.value)}
-              sx={{ mb: 4, ...lightInputSx }}
-            />
+            <Box sx={{ 
+              width: "100%", aspectRatio: "16/9", bgcolor: "#1a1a1a", borderRadius: 4, overflow: "hidden", position: "relative", 
+              boxShadow: "0 10px 30px rgba(0,0,0,0.1)", mb: 4,
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"
+            }}>
+              {mediaReady ? (
+                <Box sx={{ textAlign: "center", animation: "fadeIn 0.5s ease-in" }}>
+                  <Avatar sx={{ width: 100, height: 100, bgcolor: "rgba(30,93,169,0.1)", border: "1px solid #1E5DA9", mb: 2, mx: "auto" }}>
+                    <PersonOutline sx={{ fontSize: 50, color: "#1E5DA9" }} />
+                  </Avatar>
+                  <Typography variant="subtitle1" sx={{ color: "#fff", fontWeight: 700 }}>Devices Ready</Typography>
+                  <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.5)" }}>Camera & Mic will turn on when you join</Typography>
+                </Box>
+              ) : (
+                <Box sx={{ textAlign: "center", p: 3 }}>
+                  <Avatar sx={{ width: 80, height: 80, bgcolor: "rgba(255,255,255,0.05)", mb: 2, mx: "auto" }}>
+                    <VideocamOff sx={{ fontSize: 40, color: "rgba(255,255,255,0.3)" }} />
+                  </Avatar>
+                  <Button 
+                    variant="outlined" 
+                    onClick={handleRequestPermissions} 
+                    disabled={isMediaLoading}
+                    sx={{ color: "#1E5DA9", borderColor: "#1E5DA9" }}
+                  >
+                    {isMediaLoading ? "Checking..." : "Enable Camera & Mic"}
+                  </Button>
+                </Box>
+              )}
+              
+              {mediaReady && (
+                <Box sx={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 2 }}>
+                  <IconButton onClick={() => setMicOn(!micOn)} sx={{ bgcolor: micOn ? "rgba(255,255,255,0.1)" : "rgba(239,68,68,0.2)", color: micOn ? "#fff" : "#ef4444", width: 44, height: 44 }}>
+                    {micOn ? <Mic fontSize="small" /> : <MicOff fontSize="small" />}
+                  </IconButton>
+                  <IconButton onClick={() => setCameraOn(!cameraOn)} sx={{ bgcolor: cameraOn ? "rgba(255,255,255,0.1)" : "rgba(239,68,68,0.2)", color: cameraOn ? "#fff" : "#ef4444", width: 44, height: 44 }}>
+                    {cameraOn ? <Videocam fontSize="small" /> : <VideocamOff fontSize="small" />}
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
+
+            <Box sx={{ mb: 4, display: "flex", justifyContent: "center", gap: 2 }}>
+              <Chip label={lobbyStatus.doctorPresent ? "Doctor is Ready" : "Waiting for Doctor..."} color={lobbyStatus.doctorPresent ? "success" : "default"} variant={lobbyStatus.doctorPresent ? "filled" : "outlined"} sx={{ fontWeight: 700 }} />
+            </Box>
+
+            <TextField fullWidth label="Your Name" value={name} onChange={e => setName(e.target.value)} sx={{ mb: 2.5, ...lightInputSx }} />
+            <TextField fullWidth label="Room ID" value={roomId} onChange={e => setRoomId(e.target.value)} sx={{ mb: 4, ...lightInputSx }} />
 
             <Button
-              fullWidth
-              variant="contained"
-              size="large"
-              onClick={joinRoom}
-              disabled={!roomId || !name}
-              sx={{
-                py: 1.6,
-                borderRadius: 2,
-                fontWeight: 700,
-                fontSize: "1.05rem",
-                background: "linear-gradient(90deg, #62b8ffff, #1E5DA9)",
-                textTransform: "none",
-                boxShadow: "0 8px 24px rgba(30,93,169,0.3)",
-                "&:hover": { background: "linear-gradient(90deg, #1E5DA9, #0f3f7a)", transform: "translateY(-1px)", boxShadow: "0 12px 28px rgba(30,93,169,0.4)" },
-                transition: "all 0.2s ease-in-out",
-                "&:disabled": { opacity: 0.5, transform: "none", boxShadow: "none" },
-              }}
+              id="patient-join-btn"
+              fullWidth variant="contained" size="large" onClick={joinRoom} disabled={!roomId || !name || !lobbyStatus.doctorPresent || !mediaReady}
+              sx={{ py: 1.6, borderRadius: 2, fontWeight: 700, fontSize: "1.05rem", background: "linear-gradient(90deg, #62b8ffff, #1E5DA9)", textTransform: "none", boxShadow: "0 8px 24px rgba(30,93,169,0.3)", "&:hover": { background: "linear-gradient(90deg, #1E5DA9, #0f3f7a)", transform: "translateY(-1px)", boxShadow: "0 12px 28px rgba(30,93,169,0.4)" }, transition: "all 0.2s ease-in-out", "&:disabled": { opacity: 0.5, transform: "none", boxShadow: "none" } }}
             >
-              Enter Video Room
+              {!mediaReady ? "Enable Media to Join" : (lobbyStatus.doctorPresent ? "Enter Video Room" : "Waiting for Doctor...")}
             </Button>
-
-            <Typography variant="caption" sx={{
-              display: "block", textAlign: "center", mt: 4,
-              color: "#999", fontWeight: 500
-            }}>
-              🔒 End-to-end encrypted · HIPAA compliant
-            </Typography>
           </Paper>
+        </Box>
+
+        {/* Start Media Preview useEffect Hook replacement */}
+        <Box sx={{ display: "none" }}>
         </Box>
         <style>{globalStyles}</style>
       </Box>
@@ -463,17 +521,19 @@ const PatientVideoCall = () => {
           <Box sx={{
             position: "absolute", bottom: 24, left: "50%",
             transform: "translateX(-50%)",
-            display: "flex", alignItems: "center", gap: 1.5,
-            px: 3, py: 1.5,
+            display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 },
+            px: { xs: 2, sm: 3 }, py: 1.5,
             borderRadius: "100px",
             background: "rgba(255,255,255,0.9)",
             backdropFilter: "blur(16px)",
             border: "1px solid rgba(0,0,0,0.1)",
             boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+            width: { xs: "90%", sm: "auto" },
+            justifyContent: "center"
           }}>
             <Tooltip title={micOn ? "Mute mic" : "Unmute mic"} placement="top">
               <IconButton onClick={toggleMic} sx={{
-                color: micOn ? "#1E5DA9" : "#fff", width: 52, height: 52,
+                color: micOn ? "#1E5DA9" : "#fff", width: { xs: 44, sm: 52 }, height: { xs: 44, sm: 52 },
                 background: micOn ? "rgba(30,93,169,0.1)" : "rgba(239,68,68,0.9)",
                 "&:hover": { background: micOn ? "rgba(30,93,169,0.2)" : "rgba(239,68,68,1)" },
                 transition: "all 0.2s",
@@ -484,7 +544,7 @@ const PatientVideoCall = () => {
 
             <Tooltip title={cameraOn ? "Turn off camera" : "Turn on camera"} placement="top">
               <IconButton onClick={toggleCamera} sx={{
-                color: cameraOn ? "#1E5DA9" : "#fff", width: 52, height: 52,
+                color: cameraOn ? "#1E5DA9" : "#fff", width: { xs: 44, sm: 52 }, height: { xs: 44, sm: 52 },
                 background: cameraOn ? "rgba(30,93,169,0.1)" : "rgba(239,68,68,0.9)",
                 "&:hover": { background: cameraOn ? "rgba(30,93,169,0.2)" : "rgba(239,68,68,1)" },
                 transition: "all 0.2s",
@@ -498,7 +558,7 @@ const PatientVideoCall = () => {
 
             <Tooltip title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} placement="top">
               <IconButton onClick={toggleFullscreen} sx={{
-                color: "#1E5DA9", width: 52, height: 52,
+                color: "#1E5DA9", width: { xs: 44, sm: 52 }, height: { xs: 44, sm: 52 },
                 background: "rgba(30,93,169,0.1)",
                 "&:hover": { background: "rgba(30,93,169,0.2)" },
                 transition: "all 0.2s",
@@ -512,7 +572,7 @@ const PatientVideoCall = () => {
 
             <Tooltip title="End call" placement="top">
               <IconButton onClick={endCall} sx={{
-                color: "#fff", width: 56, height: 56,
+                color: "#fff", width: { xs: 48, sm: 56 }, height: { xs: 48, sm: 56 },
                 background: "linear-gradient(135deg, #ef4444, #dc2626)",
                 boxShadow: "0 4px 20px rgba(239,68,68,0.5)",
                 "&:hover": {

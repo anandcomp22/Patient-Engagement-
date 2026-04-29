@@ -97,16 +97,27 @@ export default function PatientAppointments() {
                   </TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>{appt.doctorName}</TableCell>
                   <TableCell>
-                    <Chip 
-                      label={type === 'missed' ? 'Missed' : (type === 'upcoming' ? 'Confirmed' : 'Completed')}
-                      size="small"
-                      icon={type === 'upcoming' ? <Schedule /> : (type === 'completed' ? <CheckCircle /> : <ErrorOutline />)}
-                      sx={{ 
-                        fontWeight: 800, fontSize: '0.7rem',
-                        bgcolor: type === 'upcoming' ? '#dbeafe' : (type === 'completed' ? '#dcfce7' : '#fee2e2'),
-                        color: type === 'upcoming' ? '#1e40af' : (type === 'completed' ? '#166534' : '#991b1b')
-                      }}
-                    />
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                      <Chip 
+                        label={type === 'missed' ? 'Missed' : (type === 'upcoming' ? (appt.appstatus === 'pending' ? 'Pending' : 'Confirmed') : 'Completed')}
+                        size="small"
+                        icon={type === 'upcoming' ? <Schedule /> : (type === 'completed' ? <CheckCircle /> : <ErrorOutline />)}
+                        sx={{ 
+                          fontWeight: 800, fontSize: '0.7rem',
+                          bgcolor: type === 'upcoming' ? (appt.appstatus === 'pending' ? '#fef3c7' : '#dbeafe') : (type === 'completed' ? '#dcfce7' : '#fee2e2'),
+                          color: type === 'upcoming' ? (appt.appstatus === 'pending' ? '#92400e' : '#1e40af') : (type === 'completed' ? '#166534' : '#991b1b')
+                        }}
+                      />
+                      <Chip 
+                        label={appt.paymentstatus === 'paid' ? 'Paid' : 'Unpaid'}
+                        size="small"
+                        sx={{ 
+                          fontWeight: 800, fontSize: '0.6rem', height: 18,
+                          bgcolor: appt.paymentstatus === 'paid' ? '#dcfce7' : '#fee2e2',
+                          color: appt.paymentstatus === 'paid' ? '#166534' : '#991b1b'
+                        }}
+                      />
+                    </Box>
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', gap: 1 }}>

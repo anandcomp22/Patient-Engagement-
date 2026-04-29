@@ -23,6 +23,8 @@ import PatientVideoCall from './components/Patient/VideoCallMech/PatientVideoCal
 import PatientPrescriptions from './components/Patient/Dashboard/PatientPrescriptions';
 import PatientHelpSupport from './components/Patient/Dashboard/PatientHelpSupport';
 import PayPalPaymentPage from './PaymentGateway/PayPalButton';
+import BookingSuccess from './components/Patient/BookingFlow/BookingSuccess';
+import BookingCancel from './components/Patient/BookingFlow/BookingCancel';
 
 import AnalysisPage from './components/Doctor/Dashboard/Analysis';
 import DoctorSettings from './components/Doctor/DoctorSetting/DoctorSettings';
@@ -98,6 +100,8 @@ function App() {
                       <Route path="upload-report" element={<UploadReport />} />
                       <Route path="prescriptions" element={<PatientPrescriptions />} />
                       <Route path="support" element={<PatientHelpSupport />} />
+                      <Route path="booking-success" element={<BookingSuccess />} />
+                      <Route path="booking-cancel" element={<BookingCancel />} />
                     </Routes>
 
 

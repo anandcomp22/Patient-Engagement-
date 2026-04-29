@@ -168,7 +168,7 @@ const feepaySchema = new mongoose.Schema({
   paymentmethod: { type: String, required: true },
 
   fees: { type: Number, required: true },
-  transactionId: { type: Number, required: true, unique: true }
+  transactionId: { type: String, required: true, unique: true }
 });
 
 

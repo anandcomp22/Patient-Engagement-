@@ -1,6 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { Appointment, videocall, Patient, Doctor } = require('../../db/models'); 
+const { Appointment, videocall, Patient, Doctor } = require('../../db/models');
+require('dotenv').config();
+const Stripe = require('stripe');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.error("[Stripe Error] STRIPE_SECRET_KEY is missing from .env!");
+} else {
+  console.log("[Stripe] Key loaded:", process.env.STRIPE_SECRET_KEY.substring(0, 7) + "...");
+}
 const { v4: uuidv4 } = require('uuid');
 const authMiddleware = require('../../middleware/authMiddleware');
 const { sendEmail } = require('../../utils/mailer');
@@ -23,7 +31,7 @@ router.get('/app', authMiddleware, async (req, res) => {
     const doctorId = Number(req.user.doctorId);
     const appointments = await Appointment.find({ doctorId }).sort({ appointmentDate: -1 });
     return res.status(200).json(appointments);
-    
+
   } catch (err) {
     console.error("Error fetching appointments:", err);
     return res.status(500).json({ message: "Failed to fetch appointments" });
@@ -39,19 +47,19 @@ router.get('/available-slots', authMiddleware, async (req, res) => {
 
     // Standard available slots in a day (could be customized per doctor later)
     const ALL_SLOTS = [
-      "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", 
-      "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", 
-      "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", 
+      "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
+      "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
+      "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM",
       "04:00 PM", "04:30 PM", "05:00 PM"
     ];
 
     // Find booked appointments for this doctor on the selected date
     const dId = Number(doctorId);
     const queryDate = new Date(date);
-    
+
     // We only filter by starting date; time is handled separately
-    const startOfDay = new Date(queryDate.setHours(0,0,0,0));
-    const endOfDay = new Date(queryDate.setHours(23,59,59,999));
+    const startOfDay = new Date(queryDate.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(queryDate.setHours(23, 59, 59, 999));
 
     const bookedAppointments = await Appointment.find({
       doctorId: dId,
@@ -60,7 +68,13 @@ router.get('/available-slots', authMiddleware, async (req, res) => {
         $lte: endOfDay
       },
       // Optionally ignore cancelled / dropped appointments
-      appstatus: { $in: ["confirmed", "pending", "Appointment Done", "completed"] }
+      $or: [
+        { appstatus: { $in: ["confirmed", "Appointment Done", "completed"] } },
+        { 
+          appstatus: "pending", 
+          createdAt: { $gte: new Date(Date.now() - 15 * 60 * 1000) } 
+        }
+      ]
     });
 
     const bookedTimes = bookedAppointments.map(app => app.startTime);
@@ -77,13 +91,22 @@ router.get('/available-slots', authMiddleware, async (req, res) => {
 router.post('/book', authMiddleware, async (req, res) => {
   try {
     const { appointmentDate, patientId, time, reason, doctorId } = req.body;
+    console.log("[Booking Debug] Request Body:", req.body);
+    console.log("[Booking Debug] User from Token:", req.user);
 
     // Use securely verified patientId from the token if available, otherwise fallback to frontend's provided ID
     const dId = Number(doctorId) || Number(req.user.doctorId);
     const pId = req.user.patientId ? Number(req.user.patientId) : Number(patientId);
 
+    if (!pId || isNaN(pId)) {
+      console.error("[Booking Error] Invalid Patient ID:", { pId, user: req.user });
+      return res.status(400).json({ 
+        message: "Invalid or missing Patient ID. Please ensure you are logged in as a patient." 
+      });
+    }
+
     if (!dId || isNaN(dId)) {
-      return res.status(400).json({ message: "Invalid doctorId" });
+      return res.status(400).json({ message: "Invalid or missing Doctor ID." });
     }
 
     const doctor = await Doctor.findOne({ doctorId: dId });
@@ -92,14 +115,21 @@ router.post('/book', authMiddleware, async (req, res) => {
     if (!doctor) return res.status(404).json({ message: "Doctor not found" });
     if (!patient) return res.status(404).json({ message: "Patient not found" });
 
+
     const exists = await Appointment.findOne({
       doctorId: dId,
       startTime: time,
-      appointmentDate: new Date(appointmentDate)
+      appointmentDate: new Date(appointmentDate),
+      appstatus: { $ne: "cancelled" }
     });
 
     if (exists) {
-      return res.status(409).json({ message: "Slot already booked" });
+      if (exists.paymentstatus === "paid") {
+        return res.status(409).json({ message: "Slot already booked and paid." });
+      }
+      // If pending, clean up old record to allow retry
+      await Appointment.deleteOne({ _id: exists._id });
+      await videocall.deleteOne({ appointmentId: exists._id });
     }
 
     const roomId = uuidv4();
@@ -120,7 +150,7 @@ router.post('/book', authMiddleware, async (req, res) => {
       startTime: time,
       endTime: "30 mins",
       reason: reason || "General Checkup",
-      appstatus: "confirmed",
+      appstatus: "pending",
       paymentstatus: "pending"
     });
 
@@ -129,72 +159,60 @@ router.post('/book', authMiddleware, async (req, res) => {
       doctorId: dId,
       patientId: pId,
       roomId,
-      appstatus: "confirmed"
+      appstatus: "pending"
+    });
+
+    const amount = 1499; // Hardcoded ₹500 fee
+    let frontendUrl = process.env.FRONTEND_URL || "3000";
+    if (!frontendUrl.toString().startsWith('http')) {
+      frontendUrl = `http://localhost:${frontendUrl}`;
+    }
+
+    const successUrl = `${frontendUrl}/patient/book?session_id={CHECKOUT_SESSION_ID}&appointmentId=${appointment.appointmentId.toString()}&payment_success=true`;
+    const cancelUrl = `${frontendUrl}/patient/book?appointmentId=${appointment.appointmentId.toString()}&payment_cancel=true`;
+
+    console.log("[Stripe] Creating session URL check:", { successUrl, cancelUrl });
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "inr",
+            product_data: {
+              name: `Consultation with Dr. ${doctor.firstName} ${doctor.lastName}`,
+              description: `Appointment on ${formattedDate} at ${time}`,
+            },
+            unit_amount: amount * 100,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      metadata: {
+        appointmentId: appointment.appointmentId.toString(),
+      },
     });
 
     req.app.get("io").emit("appointment-updated");
 
-    // ── Send Confirmation Emails ──
-    const videoLink = `${process.env.FRONTEND_URL ? `http://localhost:${process.env.FRONTEND_URL}` : "http://localhost:3000"}/patient/video-call?roomId=${roomId}`;
-    const doctorVideoLink = `${process.env.FRONTEND_URL ? `http://localhost:${process.env.FRONTEND_URL}` : "http://localhost:3000"}/doctor/video-call?roomId=${roomId}&patientEmail=${encodeURIComponent(patient.email)}&patientName=${encodeURIComponent(patientName)}&patientId=${pId}`;
-
-    // Email to Patient
-    try {
-      await sendEmail(
-        patient.email,
-        `Appointment Confirmed — ${doctorName} on ${formattedDate}`,
-        `<div style="font-family:Arial,sans-serif;max-width:600px;border:1px solid #e2e8f0;padding:24px;border-radius:12px;">
-          <h2 style="color:#1E5DA9;margin-bottom:4px;">AidME Healthcare</h2>
-          <p style="color:#64748b;margin-top:0;">Appointment Confirmation</p>
-          <hr style="border:none;border-top:1px solid #e2e8f0;"/>
-          <p>Dear <strong>${patientName}</strong>,</p>
-          <p>Your appointment has been confirmed with the following details:</p>
-          <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-            <tr><td style="padding:8px 0;color:#64748b;">Doctor</td><td style="padding:8px 0;font-weight:700;">${doctorName}</td></tr>
-            <tr><td style="padding:8px 0;color:#64748b;">Specialty</td><td style="padding:8px 0;">${doctor.specialty}</td></tr>
-            <tr><td style="padding:8px 0;color:#64748b;">Date</td><td style="padding:8px 0;font-weight:700;">${formattedDate}</td></tr>
-            <tr><td style="padding:8px 0;color:#64748b;">Time</td><td style="padding:8px 0;font-weight:700;">${time}</td></tr>
-            <tr><td style="padding:8px 0;color:#64748b;">Reason</td><td style="padding:8px 0;">${reason || "General Checkup"}</td></tr>
-          </table>
-          <a href="${videoLink}" style="display:inline-block;background:#1E5DA9;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-top:8px;">Join Video Consultation</a>
-          <p style="color:#94a3b8;font-size:0.8rem;margin-top:16px;">The join link will be active at your scheduled time. You'll also receive a reminder 10 minutes before.</p>
-        </div>`
-      );
-    } catch (emailErr) {
-      console.error("[Booking] Patient confirmation email failed:", emailErr.message);
-    }
-
-    // Email to Doctor
-    try {
-      await sendEmail(
-        doctor.email,
-        `New Appointment: ${patientName} on ${formattedDate} at ${time}`,
-        `<div style="font-family:Arial,sans-serif;max-width:600px;border:1px solid #e2e8f0;padding:24px;border-radius:12px;">
-          <h2 style="color:#1E5DA9;">New Appointment Scheduled</h2>
-          <p>A new consultation has been booked for you:</p>
-          <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-            <tr><td style="padding:8px 0;color:#64748b;">Patient</td><td style="padding:8px 0;font-weight:700;">${patientName}</td></tr>
-            <tr><td style="padding:8px 0;color:#64748b;">Date</td><td style="padding:8px 0;font-weight:700;">${formattedDate}</td></tr>
-            <tr><td style="padding:8px 0;color:#64748b;">Time</td><td style="padding:8px 0;font-weight:700;">${time}</td></tr>
-            <tr><td style="padding:8px 0;color:#64748b;">Reason</td><td style="padding:8px 0;">${reason || "General Checkup"}</td></tr>
-          </table>
-          <a href="${doctorVideoLink}" style="display:inline-block;background:#1E5DA9;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;">Join Call (at scheduled time)</a>
-        </div>`
-      );
-    } catch (emailErr) {
-      console.error("[Booking] Doctor confirmation email failed:", emailErr.message);
-    }
-
     res.status(201).json({
       success: true,
-      message: "Appointment booked successfully",
+      message: "Appointment created. Please complete payment.",
       appointment,
+      paymentUrl: session.url,
       roomId: videocallEntry.roomId
     });
 
   } catch (err) {
-    console.error("Appointment booking error:", err);
-    res.status(500).json({ message: "Failed to book appointment" });
+    console.error("Appointment booking error:", {
+      message: err.message,
+      stack: err.stack,
+      stripeError: err.raw || err
+    });
+    res.status(500).json({ message: "Failed to book appointment", details: err.message });
   }
 });
 
@@ -244,43 +262,43 @@ router.put("/complete/:appointmentId", async (req, res) => {
   }
 });
 
-  router.put("/reschedule", authMiddleware, async (req, res) => {
-    try {
-      const { appointmentId, newDate } = req.body;
-      const dateObj = new Date(newDate);
-      
-      const formattedTime = dateObj.toLocaleTimeString("en-US", { 
-        hour: "2-digit", minute: "2-digit", hour12: true 
-      });
+router.put("/reschedule", authMiddleware, async (req, res) => {
+  try {
+    const { appointmentId, newDate } = req.body;
+    const dateObj = new Date(newDate);
 
-      const updated = await Appointment.findOneAndUpdate(
-        { appointmentId: Number(appointmentId) },
-        { 
-          appointmentDate: dateObj,
-          startTime: formattedTime,
-          appstatus: "Rescheduled"
-        },
+    const formattedTime = dateObj.toLocaleTimeString("en-US", {
+      hour: "2-digit", minute: "2-digit", hour12: true
+    });
+
+    const updated = await Appointment.findOneAndUpdate(
+      { appointmentId: Number(appointmentId) },
+      {
+        appointmentDate: dateObj,
+        startTime: formattedTime,
+        appstatus: "Rescheduled"
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      // Fallback to _id just in case
+      const altUpdated = await Appointment.findByIdAndUpdate(
+        appointmentId,
+        { appointmentDate: dateObj, startTime: formattedTime, appstatus: "Rescheduled" },
         { new: true }
       );
-      
-      if (!updated) {
-        // Fallback to _id just in case
-        const altUpdated = await Appointment.findByIdAndUpdate(
-          appointmentId,
-          { appointmentDate: dateObj, startTime: formattedTime, appstatus: "Rescheduled" },
-          { new: true }
-        );
-        if (!altUpdated) return res.status(404).json({ message: "Not found" });
-      }
-
-      req.app.get("io").emit("appointment-updated");
-      res.json({ message: "Rescheduled", success: true });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Error rescheduling" });
+      if (!altUpdated) return res.status(404).json({ message: "Not found" });
     }
-  });
-  
+
+    req.app.get("io").emit("appointment-updated");
+    res.json({ message: "Rescheduled", success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error rescheduling" });
+  }
+});
+
 
 router.get('/room/:appointmentId', async (req, res) => {
   const { appointmentId } = req.params;
@@ -305,9 +323,54 @@ router.get('/room/:appointmentId', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error fetching room and patient data" });
-  } 
+  }
 });
 
 
+
+router.post("/finalize", authMiddleware, async (req, res) => {
+  const { appointmentId, sessionId } = req.body; // Accept sessionId too
+  try {
+    const appt = await Appointment.findOne({ appointmentId: appointmentId });
+    if (!appt) return res.status(404).json({ message: "Appointment not found" });
+    
+    // If not paid in DB yet, check Stripe directly (Resilience)
+    if (appt.paymentstatus !== "paid" && sessionId) {
+      console.log("[Finalize] Checking Stripe directly for session:", sessionId);
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      if (session.payment_status === "paid") {
+        appt.paymentstatus = "paid";
+        await appt.save();
+      }
+    }
+
+    if (appt.paymentstatus !== "paid") {
+      return res.status(400).json({ message: "Payment not verified yet by Stripe." });
+    }
+
+    appt.appstatus = "confirmed";
+    await appt.save();
+
+    console.log("[Finalize] Appointment confirmed in DB:", appt.appointmentId);
+
+    // Trigger email helper (Non-blocking background task)
+    const { sendAppointmentConfirmation } = require("../../utils/appointmentHelpers");
+    sendAppointmentConfirmation(appt).catch(err => console.error("Background Email Error:", err));
+
+    // Safety check for socket.io
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("appointment-updated");
+    }
+
+    res.json({ success: true, message: "Appointment confirmed!", appointment: appt });
+  } catch (err) {
+    console.error("[Finalize Error] Full Stack Trace:", err);
+    res.status(500).json({ 
+      message: "Error finalizing appointment", 
+      details: err.message 
+    });
+  }
+});
 
 module.exports = router;

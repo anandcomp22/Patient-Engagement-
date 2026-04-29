@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
-const { Server } = require("socket.io"); 
+const { Server } = require("socket.io");
 const path = require("path");
 const fs = require("fs");
 require("dotenv").config();
@@ -18,6 +18,7 @@ const feespayRouter = require("./routes/PaymentRoutes/feespay.js");
 const prescriptionRoutes = require("./routes/DoctorRoutes/prescriptionRoutes.js");
 const newsRoute = require('./routes/DoctorRoutes/newsRoute.js');
 const paypalRoute = require('./routes/PaymentRoutes/paypal.js');
+const stripeRoute = require('./routes/PaymentRoutes/stripe.js');
 const summary = require('./routes/DoctorRoutes/videoCall.js');
 const auth = require("./middleware/authMiddleware");
 const analysis = require('./routes/DoctorRoutes/analytics.js');
@@ -52,23 +53,24 @@ if (!fs.existsSync(reportsDir)) {
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin:'*',
+    origin: '*',
     credentials: true,
     methods: ["GET", "POST"],
   },
 });
 
 app.set("io", io);
-app.use("/prescriptions", auth, prescriptionRoutes); 
-app.use("/feespay", auth, feespayRouter); 
-app.use("/doctor", doctorRouter); 
+app.use("/prescriptions", auth, prescriptionRoutes);
+app.use("/feespay", auth, feespayRouter);
+app.use("/doctor", doctorRouter);
 app.use("/appointment", auth, appointmentRouter);
 app.use("/patient", patientRouter);
 app.use('/api/news', newsRoute);
 app.use('/api/paypal', paypalRoute);
+app.use('/api/stripe', stripeRoute);
 app.use('/api/videocall', summary);
 app.use('/api/analytics', analysis);
-app.use('/api/ai',aiprescript)
+app.use('/api/ai', aiprescript)
 app.use("/rag", RAGRoutes);
 app.use("/admin/dashboard", adminDashboard);
 app.use("/admin/doctors", adminDoctors);
@@ -87,6 +89,9 @@ app.use("/admin/patients", adminPatients);
 app.use("/uploads", express.static("uploads"));
 
 
+const readyPeers = {}; // { roomId: { doctor: {...}, patient: {...} } }
+const lobbyPeers = {}; // { roomId: { doctor: {...}, patient: {...} } }
+
 io.on("connection", (socket) => {
   console.log("🔌 Client connected:", socket.id);
 
@@ -94,7 +99,77 @@ io.on("connection", (socket) => {
     console.log(`Event received: ${event}`, args);
   });
 
-  const readyPeers = {}; // { roomId: { doctor: {...}, patient: {...} } }
+  socket.on("lobby-join", async ({ roomId, role, userName }) => {
+    socket.join(roomId);
+    if (!lobbyPeers[roomId]) lobbyPeers[roomId] = {};
+    lobbyPeers[roomId][role] = { socketId: socket.id, userName };
+
+    console.log(`[Lobby] ${role} (${userName}) joined room ${roomId}`);
+
+    // Notify others in the lobby
+    io.to(roomId).emit("lobby-status", {
+      doctorPresent: !!lobbyPeers[roomId].doctor,
+      patientPresent: !!lobbyPeers[roomId].patient,
+      lobbyParticipants: lobbyPeers[roomId]
+    });
+
+    // If both are in lobby, mark appointment as ACTIVE
+    if (lobbyPeers[roomId].doctor && lobbyPeers[roomId].patient) {
+      try {
+        const { Appointment } = require("./db/models");
+        await Appointment.findByIdAndUpdate(roomId, { callStatus: "ACTIVE" });
+        console.log(`[Lobby] Appointment ${roomId} activated!`);
+      } catch (err) {
+        console.error("Failed to activate appointment:", err);
+      }
+    }
+  });
+
+  socket.on("lobby-leave", ({ roomId, role }) => {
+    socket.leave(roomId);
+    if (lobbyPeers[roomId] && lobbyPeers[roomId][role]) {
+      const userName = lobbyPeers[roomId][role].userName;
+      delete lobbyPeers[roomId][role];
+      console.log(`[Lobby] ${role} (${userName}) left room ${roomId} (Changed Room)`);
+
+      io.to(roomId).emit("lobby-status", {
+        doctorPresent: !!lobbyPeers[roomId].doctor,
+        patientPresent: !!lobbyPeers[roomId].patient,
+        lobbyParticipants: lobbyPeers[roomId]
+      });
+
+      if (Object.keys(lobbyPeers[roomId]).length === 0) {
+        delete lobbyPeers[roomId];
+      }
+    }
+  });
+
+  socket.on("lobby-ping", ({ roomId, role, userName }) => {
+    socket.join(roomId); // Ensure socket is definitely in the room
+    if (!lobbyPeers[roomId]) lobbyPeers[roomId] = {};
+
+    // If they were not present, or socket ID changed, update and broadcast
+    if (!lobbyPeers[roomId][role] || lobbyPeers[roomId][role].socketId !== socket.id) {
+      lobbyPeers[roomId][role] = { socketId: socket.id, userName };
+      io.to(roomId).emit("lobby-status", {
+        doctorPresent: !!lobbyPeers[roomId].doctor,
+        patientPresent: !!lobbyPeers[roomId].patient,
+        lobbyParticipants: lobbyPeers[roomId]
+      });
+    } else {
+      // Just reply directly to them to guarantee their UI is perfectly in sync
+      socket.emit("lobby-status", {
+        doctorPresent: !!lobbyPeers[roomId].doctor,
+        patientPresent: !!lobbyPeers[roomId].patient,
+        lobbyParticipants: lobbyPeers[roomId]
+      });
+    }
+  });
+
+  socket.on("lobby-start-call", ({ roomId }) => {
+    console.log(`[Lobby] Doctor started call in room ${roomId}. Signaling all participants...`);
+    io.to(roomId).emit("lobby-call-started", { roomId });
+  });
 
   socket.on("join-room", ({ roomId }) => {
     socket.join(roomId);
@@ -108,7 +183,7 @@ io.on("connection", (socket) => {
 
     // Tell everyone else in the room (with participant info)
     socket.to(roomId).emit("peer-ready", { role, userName: userName || "Unknown", patientId: patientId || "" });
-    
+
     // Tell the new person about existing people
     Object.keys(readyPeers[roomId]).forEach(existingRole => {
       if (existingRole !== role) {
@@ -133,10 +208,49 @@ io.on("connection", (socket) => {
   socket.on("user-left", ({ roomId, role, userName }) => {
     socket.to(roomId).emit("user-left", { role, userName: userName || "Someone" });
     socket.leave(roomId);
+
+    // Clean up readyPeers
     if (readyPeers[roomId]) {
       delete readyPeers[roomId][role];
-      if (Object.keys(readyPeers[roomId]).length === 0) {
-        delete readyPeers[roomId];
+      if (Object.keys(readyPeers[roomId]).length === 0) delete readyPeers[roomId];
+    }
+
+    // Clean up lobbyPeers
+    if (lobbyPeers[roomId]) {
+      delete lobbyPeers[roomId][role];
+      io.to(roomId).emit("lobby-status", {
+        doctorPresent: !!lobbyPeers[roomId].doctor,
+        patientPresent: !!lobbyPeers[roomId].patient,
+        lobbyParticipants: lobbyPeers[roomId]
+      });
+      if (Object.keys(lobbyPeers[roomId]).length === 0) delete lobbyPeers[roomId];
+    }
+  });
+
+  socket.on("disconnect", () => {
+    // Clean up any lingering presence for this socket in lobbyPeers
+    for (const roomId in lobbyPeers) {
+      for (const role in lobbyPeers[roomId]) {
+        if (lobbyPeers[roomId][role].socketId === socket.id) {
+          delete lobbyPeers[roomId][role];
+          io.to(roomId).emit("lobby-status", {
+            doctorPresent: !!lobbyPeers[roomId].doctor,
+            patientPresent: !!lobbyPeers[roomId].patient,
+            lobbyParticipants: lobbyPeers[roomId]
+          });
+          if (Object.keys(lobbyPeers[roomId]).length === 0) delete lobbyPeers[roomId];
+        }
+      }
+    }
+
+    // Clean up any lingering presence for this socket in readyPeers
+    for (const roomId in readyPeers) {
+      for (const role in readyPeers[roomId]) {
+        if (readyPeers[roomId][role].socketId === socket.id) {
+          delete readyPeers[roomId][role];
+          socket.to(roomId).emit("user-left", { role, userName: "Someone" });
+          if (Object.keys(readyPeers[roomId]).length === 0) delete readyPeers[roomId];
+        }
       }
     }
   });
