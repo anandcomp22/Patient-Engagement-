@@ -25,7 +25,7 @@ const FOOTER = [
   { text:"Logout",   icon:<LoginOutlined />, path:"/admin/auth/login", logout:true },
 ];
 
-const AdminSidebar = ({ open, onToggle }) => {
+const AdminSidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
   const { pathname } = useLocation();
   const navigate     = useNavigate();
 
@@ -34,16 +34,25 @@ const AdminSidebar = ({ open, onToggle }) => {
     navigate("/admin/auth/login");
   };
 
+  const handleNavClick = () => {
+    if (isMobile && onMobileClose) onMobileClose();
+  };
+
   const NavItem = ({ item, isFooter }) => {
     const active = pathname === item.path;
-    const handleClick = isFooter && item.logout ? handleLogout : undefined;
+    const handleClick = () => {
+      if (isFooter && item.logout) {
+        handleLogout();
+      }
+      handleNavClick();
+    };
 
     return (
       <Tooltip title={!open ? item.text : ""} placement="right" key={item.text}>
         <ListItem
           button
-          component={handleClick ? "div" : Link}
-          to={!handleClick ? item.path : undefined}
+          component={isFooter && item.logout ? "div" : Link}
+          to={!(isFooter && item.logout) ? item.path : undefined}
           onClick={handleClick}
           sx={{
             mb: 0.5,
@@ -94,11 +103,13 @@ const AdminSidebar = ({ open, onToggle }) => {
 
   return (
     <Drawer
-      variant="permanent"
-      open={open}
+      variant={isMobile ? "temporary" : "permanent"}
+      open={isMobile ? open : true}
+      onClose={onToggle}
+      ModalProps={{ keepMounted: true }}
       PaperProps={{
         sx: {
-          width: open ? 240 : 64,
+          width: isMobile ? 260 : (open ? 240 : 64),
           position: "fixed",
           height: "100vh",
           transition: "width 0.3s cubic-bezier(0.4,0,0.2,1)",
@@ -121,11 +132,6 @@ const AdminSidebar = ({ open, onToggle }) => {
       {/* Logo */}
       <Box sx={{ display:"flex", flexDirection:"column", alignItems:"center", mb:2, px:1 }}>
         <img src={Aidme} alt="AidME" style={{ maxWidth: open ? 110 : 36, transition:"max-width 0.3s ease", borderRadius:8 }} />
-        {/*{open && (
-          <Typography variant="caption" sx={{ color:"rgba(255,255,255,0.5)", mt:0.5, fontSize:10, letterSpacing:1.5 }}>
-            ADMIN PORTAL
-          </Typography>
-        )}*/}
       </Box>
 
       {/* Main Menu */}

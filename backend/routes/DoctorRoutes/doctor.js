@@ -90,7 +90,7 @@ router.post("/signin", async (req, res) => {
 
 router.get("/me", authMiddleware, async (req, res) => {
   try {
-    const doctor = await Doctor.findOne({ doctorId: req.user.doctorId }).select("firstName lastName email specialty");
+    const doctor = await Doctor.findOne({ doctorId: req.user.doctorId }).select("firstName lastName email specialty verificationStatus");
     if (!doctor) {
       return res.status(404).json({ message: "Doctor not found" });
     }

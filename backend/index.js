@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
-const { Server } = require("socket.io"); 
+const { Server } = require("socket.io");
 const path = require("path");
 const fs = require("fs");
 require("dotenv").config();
@@ -18,6 +18,7 @@ const feespayRouter = require("./routes/PaymentRoutes/feespay.js");
 const prescriptionRoutes = require("./routes/DoctorRoutes/prescriptionRoutes.js");
 const newsRoute = require('./routes/DoctorRoutes/newsRoute.js');
 const paypalRoute = require('./routes/PaymentRoutes/paypal.js');
+const stripeRoute = require('./routes/PaymentRoutes/stripeRoute.js');
 const summary = require('./routes/DoctorRoutes/videoCall.js');
 const auth = require("./middleware/authMiddleware");
 const analysis = require('./routes/DoctorRoutes/analytics.js');
@@ -34,8 +35,21 @@ const adminAuthRoutes = require("./routes/AdminRoutes/auth");
 const adminPatients = require("./routes/AdminRoutes/adminPatients");
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || origin.endsWith(".vercel.app") || origin.includes("localhost")) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("AidMe Backend is running successfully!");
+});
 
 connectToDatabase();
 
@@ -52,23 +66,24 @@ if (!fs.existsSync(reportsDir)) {
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin:'*',
+    origin: '*',
     credentials: true,
     methods: ["GET", "POST"],
   },
 });
 
 app.set("io", io);
-app.use("/prescriptions", auth, prescriptionRoutes); 
-app.use("/feespay", auth, feespayRouter); 
-app.use("/doctor", doctorRouter); 
+app.use("/prescriptions", auth, prescriptionRoutes);
+app.use("/feespay", auth, feespayRouter);
+app.use("/doctor", doctorRouter);
 app.use("/appointment", auth, appointmentRouter);
 app.use("/patient", patientRouter);
 app.use('/api/news', newsRoute);
 app.use('/api/paypal', paypalRoute);
+app.use('/api/stripe', stripeRoute);
 app.use('/api/videocall', summary);
 app.use('/api/analytics', analysis);
-app.use('/api/ai',aiprescript)
+app.use('/api/ai', aiprescript)
 app.use("/rag", RAGRoutes);
 app.use("/admin/dashboard", adminDashboard);
 app.use("/admin/doctors", adminDoctors);
@@ -108,7 +123,7 @@ io.on("connection", (socket) => {
 
     // Tell everyone else in the room (with participant info)
     socket.to(roomId).emit("peer-ready", { role, userName: userName || "Unknown", patientId: patientId || "" });
-    
+
     // Tell the new person about existing people
     Object.keys(readyPeers[roomId]).forEach(existingRole => {
       if (existingRole !== role) {
@@ -171,9 +186,19 @@ io.on("connection", (socket) => {
 });
 
 
-const PORT = process.env.PORT || 8000;
-server.listen(PORT, () => {
-  console.log(`Server started at http://localhost:${PORT}`);
-});
+const startServer = async () => {
+    try {
+        await connectToDatabase();
+        const PORT = process.env.PORT || 8000;
+        server.listen(PORT, "0.0.0.0", () => {
+            console.log(`Server started on port ${PORT}`);
+        });
+    } catch (err) {
+        console.error("Failed to start server:", err);
+        process.exit(1);
+    }
+};
+
+startServer();
 
 /* appended to trigger nodemon */

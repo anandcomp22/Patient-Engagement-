@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from '@mui/material';
+import { Box, useMediaQuery } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Doctor/Dashboard/Sidebar';
 import Navbar from './components/Doctor/Dashboard/Navbar';
@@ -25,18 +25,18 @@ import PayPalPaymentPage from './PaymentGateway/PayPalButton';
 import AnalysisPage from './components/Doctor/Dashboard/Analysis';
 import DoctorSettings from './components/Doctor/DoctorSetting/DoctorSettings';
 import UploadReport from './components/Patient/Dashboard/UploadedReport';
-import AdminSidebar from "../src/components/Administration/AdminSidebar";
-import AdminNavbar from "../src/components/Administration/AdminNavbar";
-import AdminDashboard from "../src/components/Administration/AdminDashboard";
-import AdminPayments from "../src/components/Administration/AdminPayments";
-import AdminAnalytics from "../src/components/Administration/AdminAnalytics";
-import AdminActivityLogs from "../src/components/Administration/AdminActivityLogs";
-import AdminRoleManagement from "../src/components/Administration/AdminRoleManagement";
-import AdminLogin from "../src/components/Administration/AdminLogin";
-import AdminRegister from "../src/components/Administration/AdminRegister";
-import AdminVerification from '../src/components/Administration/AdminDoctorVerification';
-import AdminDoctorsPage from "../src/components/Administration/AdminDoctors";
-import AdminPatientsPage from "../src/components/Administration/AdminPatients";
+import AdminSidebar from "./components/Administration/AdminSidebar";
+import AdminNavbar from "./components/Administration/AdminNavbar";
+import AdminDashboard from "./components/Administration/AdminDashboard";
+import AdminPayments from "./components/Administration/AdminPayments";
+import AdminAnalytics from "./components/Administration/AdminAnalytics";
+import AdminActivityLogs from "./components/Administration/AdminActivityLogs";
+import AdminRoleManagement from "./components/Administration/AdminRoleManagement";
+import AdminLogin from "./components/Administration/AdminLogin";
+import AdminRegister from "./components/Administration/AdminRegister";
+import AdminVerification from './components/Administration/AdminDoctorVerification';
+import AdminDoctorsPage from "./components/Administration/AdminDoctors";
+import AdminPatientsPage from "./components/Administration/AdminPatients";
 import VerifyPrescription from './components/Common/VerifyPrescription';
 
 
@@ -54,8 +54,19 @@ const theme = createTheme({
 
 
 function App() {
-  const [sidebarOpen, setSidebarOpen] = React.useState(true);
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [sidebarOpen, setSidebarOpen] = React.useState(!isMobile);
   const toggleSidebar = () => setSidebarOpen(prev => !prev);
+
+  // Auto-close sidebar when switching to mobile, auto-open on desktop
+  React.useEffect(() => {
+    setSidebarOpen(!isMobile);
+  }, [isMobile]);
+
+  // Close sidebar on navigation for mobile
+  const handleMobileClose = () => {
+    if (isMobile) setSidebarOpen(false);
+  };
 
   return (
     <Router>
@@ -78,16 +89,17 @@ function App() {
             path="/patient/*"
             element={
               <Box sx={{ display: 'flex' }}>
-                <PatientSidebar open={sidebarOpen} onToggle={toggleSidebar} />
+                <PatientSidebar open={sidebarOpen} onToggle={toggleSidebar} isMobile={isMobile} onMobileClose={handleMobileClose} />
                   <Box
                     sx={{
                       flexGrow: 1,
-                      ml: sidebarOpen ? '250px' : '62px',
+                      ml: isMobile ? 0 : (sidebarOpen ? '240px' : '62px'),
                       transition: 'margin-left 0.3s ease-in-out',
+                      width: isMobile ? '100%' : 'auto',
                     }}
                   >
-                  <PatientNavbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar}/>
-                  <Box sx={{ p: 3, mt: 8 }}>
+                  <PatientNavbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar} isMobile={isMobile} />
+                  <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, mt: 8 }}>
                     <Routes>
                       <Route path="dashboard" element={<PatientDashboard />} />
                       <Route path="appointments" element={<PatientAppointments />} />
@@ -110,20 +122,21 @@ function App() {
             element={
               <Box sx={{ display: 'flex' }}>
                 {/* Sidebar with toggle */}
-                <Sidebar open={sidebarOpen} onToggle={toggleSidebar} />
+                <Sidebar open={sidebarOpen} onToggle={toggleSidebar} isMobile={isMobile} onMobileClose={handleMobileClose} />
 
                 {/* Main content area shifts with sidebar */}
                 <Box
                   className="main-content"
                   sx={{
                     flexGrow: 1,
-                    ml: sidebarOpen ? '250px' : '72px',
+                    ml: isMobile ? 0 : (sidebarOpen ? '250px' : '72px'),
                     transition: 'margin-left 0.3s ease-in-out',
-                    p: 3,
-                    mt: 8
+                    p: { xs: 1, sm: 2, md: 3 },
+                    mt: 8,
+                    width: isMobile ? '100%' : 'auto',
                   }}
                 >
-                  <Navbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar} />
+                  <Navbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar} isMobile={isMobile} />
 
                   <Routes>
                     <Route path="dashboard" element={<Dashboard sidebarOpen={sidebarOpen} />} />
@@ -146,18 +159,19 @@ function App() {
               path="/admin/*"
               element={
                 <Box sx={{ display: "flex" }}>
-                  <AdminSidebar open={sidebarOpen} onToggle={toggleSidebar} />
+                  <AdminSidebar open={sidebarOpen} onToggle={toggleSidebar} isMobile={isMobile} onMobileClose={handleMobileClose} />
 
                   <Box
                     sx={{
                       flexGrow: 1,
-                      ml: sidebarOpen ? "250px" : "70px",
+                      ml: isMobile ? 0 : (sidebarOpen ? "250px" : "70px"),
                       transition: "margin-left 0.3s ease-in-out",
                       mt: 8,
-                      p: 3,
+                      p: { xs: 1, sm: 2, md: 3 },
+                      width: isMobile ? '100%' : 'auto',
                     }}
                   >
-                    <AdminNavbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar} />
+                    <AdminNavbar sidebarOpen={sidebarOpen} onToggle={toggleSidebar} isMobile={isMobile} />
 
                     {/* ✅ ADMIN ROUTES */}
                     <Routes>

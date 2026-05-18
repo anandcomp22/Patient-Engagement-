@@ -1,6 +1,5 @@
 /* Content Layout */
 .content {
-  margin-left: 27px; /* Space between sidebar and content */
   margin-top: 90px; /* Space below navbar */
   padding: 20px;
 }
@@ -208,11 +207,20 @@
 }
 
 
-/* Responsive Design */
-@media (max-width: 768px) {
+/* ── Tablet ─────────────────────────────────────────── */
+@media (max-width: 899px) {
   .content {
-    margin-top: 90px;
-    padding: 20px;
+    margin-top: 70px;
+    padding: 12px;
+  }
+
+  .section-box {
+    margin-top: 24px;
+    padding: 16px;
+  }
+
+  .section-box:hover {
+    transform: none;
   }
 
   .dashboard-box {
@@ -249,6 +257,92 @@
   .video-btn {
     font-size: 11px;
     padding: 4px 9px;
+  }
+
+  .view-all {
+    font-size: 12px;
+  }
+}
+
+/* ── Mobile ─────────────────────────────────────────── */
+@media (max-width: 599px) {
+  .content {
+    margin-top: 60px;
+    padding: 8px;
+  }
+
+  .section-box {
+    margin-top: 16px;
+    padding: 12px;
+  }
+
+  .section-box:hover {
+    transform: none;
+  }
+
+  .dashboard-box {
+    min-height: 80px;
+    padding: 10px;
+    padding-left: 50px;
+  }
+
+  .icon-container {
+    width: 36px;
+    height: 36px;
+    left: 4px;
+  }
+
+  .box-title {
+    font-size: 13px;
+  }
+
+  .box-value {
+    font-size: 20px;
+  }
+
+  .section-title {
+    font-size: 15px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+  }
+
+  .appointment-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .appointment-name {
+    font-size: 14px;
+  }
+
+  .appointment-info {
+    font-size: 12px;
+  }
+
+  .appointment-time {
+    font-size: 12px;
+  }
+
+  .video-btn {
+    font-size: 11px;
+    padding: 4px 8px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .insight-card {
+    padding: 10px;
+    margin-top: 10px;
+  }
+
+  .insight-title {
+    font-size: 14px;
+  }
+
+  .insight-text {
+    font-size: 12px;
   }
 
   .view-all {

@@ -185,13 +185,13 @@ const Appointments = () => {
 
   return (
     <Box sx={{ p: 3, mt: 3 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
+      <Box sx={{ display: "flex", flexDirection: { xs: 'column', sm: 'row' }, justifyContent: "space-between", alignItems: { xs: 'stretch', sm: 'center' }, mb: 4, gap: 2 }}>
         <Box>
-          <Typography variant="h5" sx={{ fontWeight: 800, color: "#1E5DA9" }}>Appointments Calendar</Typography>
+          <Typography variant="h5" sx={{ fontWeight: 800, color: "#1E5DA9", fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>Appointments Calendar</Typography>
           <Typography variant="body2" sx={{ color: "#777", mt: 0.5 }}>Manage and schedule your patient consultations efficiently.</Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} 
-          sx={{ background: "linear-gradient(135deg, #62b8ffff, #1E5DA9)", borderRadius: 2, fontWeight: 700, textTransform: "none", boxShadow: "0 4px 14px rgba(30,93,169,0.2)" }} 
+          sx={{ background: "linear-gradient(135deg, #62b8ffff, #1E5DA9)", borderRadius: 2, fontWeight: 700, textTransform: "none", boxShadow: "0 4px 14px rgba(30,93,169,0.2)", alignSelf: { xs: 'stretch', sm: 'auto' } }} 
           onClick={() => setShowForm(true)}
         >
           New Appointment
@@ -199,12 +199,12 @@ const Appointments = () => {
       </Box>
 
       {/* Filters and Date Bar */}
-      <Paper sx={{ p: 2, mb: 4, borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+      <Paper sx={{ p: 2, mb: 4, borderRadius: 3, display: "flex", flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: "space-between", gap: 2, background: "#fff", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: 'wrap' }}>
           <TextField
             placeholder="Search patients..."
             size="small"
-            sx={{ width: 280, "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+            sx={{ width: { xs: '100%', sm: 280 }, "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "#888" }} /></InputAdornment> }}
@@ -214,9 +214,9 @@ const Appointments = () => {
           </Button>
         </Box>
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, background: "#f8fafc", p: "4px 12px", borderRadius: 3, border: "1px solid rgba(0,0,0,0.05)" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, background: "#f8fafc", p: "4px 12px", borderRadius: 3, border: "1px solid rgba(0,0,0,0.05)", justifyContent: 'center' }}>
           <IconButton size="small" onClick={() => changeDate(-1)} sx={{ color: "#1E5DA9" }}><ArrowBackIosNewIcon fontSize="small" /></IconButton>
-          <Box sx={{ textAlign: "center", minWidth: 160 }}>
+          <Box sx={{ textAlign: "center", minWidth: { xs: 120, sm: 160 } }}>
             <Typography variant="subtitle2" fontWeight="700" color="#333">
               {selectedDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
             </Typography>
