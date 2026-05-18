@@ -6,4 +6,9 @@ backend/RAG_Pipeline/chroma_db
 project_env/
 uploads
 
+# Large ML stuff
+*.pt
+*.pth
+*.h5
+
 gpu_env

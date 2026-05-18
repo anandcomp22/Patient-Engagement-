@@ -1,10 +1,16 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { AppBar, Toolbar, Typography, Box, Button, Paper, Grid, Container,Breadcrumbs,Link,Chip,Avatar,Divider,
-   Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Checkbox, FormControlLabel,InputAdornment,IconButton, CircularProgress,Snackbar,Alert} from '@mui/material';
-import { Favorite, ContactMail, Phone, NavigateNext, Visibility,
-  LocalHospital, Spa, Description, Vaccines, MonitorHeart, Psychology, MedicalInformation,  CheckCircle, SentimentSatisfiedAlt, EventAvailable,PersonSearch, AdminPanelSettingsLock, 
-  FlashOn, VisibilityOff} from '@mui/icons-material';
-  import Close from "@mui/icons-material/Close";
+import {
+  AppBar, Toolbar, Typography, Box, Button, Paper, Grid, Container, Breadcrumbs, Link, Chip, Avatar, Divider,
+  Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Checkbox, FormControlLabel, InputAdornment, IconButton, CircularProgress, Snackbar, Alert,
+  Drawer, List, ListItem, ListItemText, useMediaQuery, useTheme
+} from '@mui/material';
+import {
+  Favorite, ContactMail, Phone, NavigateNext, Visibility,
+  LocalHospital, Spa, Description, Vaccines, MonitorHeart, Psychology, MedicalInformation, CheckCircle, SentimentSatisfiedAlt, EventAvailable, PersonSearch, AdminPanelSettingsLock,
+  FlashOn, VisibilityOff,
+  Menu as MenuIcon
+} from '@mui/icons-material';
+import Close from "@mui/icons-material/Close";
 import VideocamIcon from '@mui/icons-material/Videocam';
 import PersonIcon from '@mui/icons-material/Person';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -14,15 +20,15 @@ import BoltIcon from '@mui/icons-material/Bolt';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const specialties = ["General Physician","Dermatology","Obstetrics & Gynaecology","Orthopaedics","ENT","Neurology","Cardiology","Urology","Gastroenterology/GI",
-  "Psychiatry","Paediatrics","Pulmonology/Respiratory","Endocrinology","Nephrology","Neurosurgery","Rheumatology","Ophthalmology","Surgical Gastroenterology",
-  "Infectious Disease","General & Laparoscopic Surgery","Psychology","Medical Oncology","Diabetology","Dentist" ];
+const specialties = ["General Physician", "Dermatology", "Obstetrics & Gynaecology", "Orthopaedics", "ENT", "Neurology", "Cardiology", "Urology", "Gastroenterology/GI",
+  "Psychiatry", "Paediatrics", "Pulmonology/Respiratory", "Endocrinology", "Nephrology", "Neurosurgery", "Rheumatology", "Ophthalmology", "Surgical Gastroenterology",
+  "Infectious Disease", "General & Laparoscopic Surgery", "Psychology", "Medical Oncology", "Diabetology", "Dentist"];
 
 const patientFeatures = [
-  { 
-    icon: <Visibility />, 
-    name: "Cataract Detection", 
-    desc: "AI-powered analysis of eye scans for cataract detection", 
+  {
+    icon: <Visibility />,
+    name: "Cataract Detection",
+    desc: "AI-powered analysis of eye scans for cataract detection",
     details: {
       text: "Our model uses Convolutional Neural Networks (CNN) to analyze retina images and detect cataracts at an early stage.",
       image: "/features/cataract.jpeg",
@@ -37,10 +43,10 @@ const patientFeatures = [
       ]
     }
   },
-  { 
-    icon: <LocalHospital />, 
-    name: "Pneumonia Detection", 
-    desc: "Automated detection from chest X-ray uploads", 
+  {
+    icon: <LocalHospital />,
+    name: "Pneumonia Detection",
+    desc: "Automated detection from chest X-ray uploads",
     details: {
       text: "Using a pre-trained deep learning model, the system detects pneumonia patterns in chest X-rays accurately.",
       image: "/features/pneumonia.jpeg",
@@ -55,10 +61,10 @@ const patientFeatures = [
       ]
     }
   },
-  { 
-    icon: <Favorite />, 
-    name: "Heart Disease Prediction", 
-    desc: "Risk assessment based on medical reports", 
+  {
+    icon: <Favorite />,
+    name: "Heart Disease Prediction",
+    desc: "Risk assessment based on medical reports",
     details: {
       text: "This ML model predicts the risk of heart disease based on patient medical data and lifestyle metrics.",
       image: "/features/heart.jpeg",
@@ -73,10 +79,10 @@ const patientFeatures = [
       ]
     }
   },
-  { 
-    icon: <Spa />, 
-    name: "Skin Infection Analysis", 
-    desc: "Dermatological condition analysis from images", 
+  {
+    icon: <Spa />,
+    name: "Skin Infection Analysis",
+    desc: "Dermatological condition analysis from images",
     details: {
       text: "The system classifies skin conditions using CNN, identifying infections, rashes, or acne accurately.",
       image: "/features/skin.jpeg",
@@ -91,10 +97,10 @@ const patientFeatures = [
       ]
     }
   },
-  { 
-    icon: <Description />, 
-    name: "Report Analysis", 
-    desc: "Comprehensive medical report interpretation", 
+  {
+    icon: <Description />,
+    name: "Report Analysis",
+    desc: "Comprehensive medical report interpretation",
     details: {
       text: "AI NLP model extracts key insights from medical reports and summarizes critical health information.",
       image: "/features/report.jpeg",
@@ -109,10 +115,10 @@ const patientFeatures = [
       ]
     }
   },
-  { 
-    icon: <Vaccines />, 
-    name: "Vaccination Reminders", 
-    desc: "Personalized vaccination schedules", 
+  {
+    icon: <Vaccines />,
+    name: "Vaccination Reminders",
+    desc: "Personalized vaccination schedules",
     details: {
       text: "AI-driven scheduling system sends personalized reminders for upcoming vaccines.",
       image: "/features/vaccinations.jpeg",
@@ -127,10 +133,10 @@ const patientFeatures = [
       ]
     }
   },
-  { 
-    icon: <MonitorHeart />, 
-    name: "Health Monitoring", 
-    desc: "Track vital signs and health metrics", 
+  {
+    icon: <MonitorHeart />,
+    name: "Health Monitoring",
+    desc: "Track vital signs and health metrics",
     details: {
       text: "The system monitors real-time vitals using wearable devices and predicts anomalies using ML models.",
       image: "/features/monitor.jpeg",
@@ -145,10 +151,10 @@ const patientFeatures = [
       ]
     }
   },
-  { 
-    icon: <Psychology />, 
-    name: "Mental Health Screening", 
-    desc: "Preliminary mental health assessments", 
+  {
+    icon: <Psychology />,
+    name: "Mental Health Screening",
+    desc: "Preliminary mental health assessments",
     details: {
       text: "The system uses ML models to assess mental health based on patient responses and behavioral patterns.",
       image: "/features/mental.jpeg",
@@ -163,10 +169,10 @@ const patientFeatures = [
       ]
     }
   },
-  { 
-    icon: <MedicalInformation />, 
-    name: "Medication Management", 
-    desc: "Personalized medication tracking", 
+  {
+    icon: <MedicalInformation />,
+    name: "Medication Management",
+    desc: "Personalized medication tracking",
     details: {
       text: "The system tracks medications, schedules doses, and predicts adherence using AI algorithms.",
       image: "/features/medince.jpeg",
@@ -220,35 +226,29 @@ const benefits = [
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobileNav = useMediaQuery(theme.breakpoints.down('md'));
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navButtonStyle = {
-    position: "relative",
-    color: "#1c2b4a",
-    fontWeight: 500,
-    textTransform: "none",
-    backgroundColor: "transparent",
-    fontSize: "0.95rem",
-    "&::after": {
-      content: '""',
-      position: "absolute",
-      left: 0,
-      bottom: -6,
-      width: "0%",
-      height: "2px",
-      backgroundColor: "#0d6efd",
-      transition: "width 0.3s ease",
-    },
-    "&:hover": {
-      backgroundColor: "transparent",
-    },
-    "&:hover::after": {
-      width: "100%",
-    },
+  const navItems = ["Home", "Features", "Specialties", "About", "Contact"];
+
+  const handleNavClick = (item) => {
+    setMobileMenuOpen(false);
+    if (item === "Home")
+      document.getElementById("header-section")?.scrollIntoView({ behavior: "smooth" });
+    if (item === "Features")
+      document.getElementById("features-section")?.scrollIntoView({ behavior: "smooth" });
+    if (item === "Specialties")
+      document.getElementById("specialties-section")?.scrollIntoView({ behavior: "smooth" });
+    if (item === "About") navigate("/aboutus");
+    if (item === "Contact")
+      document.getElementById("contact-section")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <AppBar
-      position="sticky"
+    <>
+      <AppBar
+        position="sticky"
         elevation={4}
         sx={{
           background: "linear-gradient(135deg, rgb(219, 236, 249) 0%, rgb(159, 212, 255) 100%)",
@@ -258,116 +258,136 @@ const Navbar = () => {
           boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
           width: '100%',
         }}
-    >
-      <Toolbar
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "1fr auto 1fr",
-          alignItems: "center",
-          px: { xs: 2, md: 6 },
-          minHeight: 72,
-        }}
       >
-        {/* LEFT — LOGO + BRAND */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <img
-            src="/main1.png"
-            alt="Icon"
-            style={{
-              width: "48px",
-              height: "48px",
-              borderRadius: "50%",
-            }}
-          />
-
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 800,
-              color: "#787878", // ✅ Brand white
-              letterSpacing: "0.5px",
-            }}
-          >
-            AidME
-          </Typography>
-        </Box>
-
-        {/* CENTER — NAV LINKS */}
-        <Box sx={{ display: "flex", gap: 4, justifyContent: "center" }}>
-          {["Home", "Features", "Specialties", "About", "Contact"].map((item) => (
-            <Button
-              key={item}
-              sx={{
-                color: "#787878", // ✅ White nav text
-                fontWeight: 600,
-                textTransform: "none",
-                fontSize: "0.95rem",
-                position: "relative",
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  width: "0%",
-                  height: "2px",
-                  left: 0,
-                  bottom: -4,
-                  backgroundColor: "#406aff",
-                  transition: "width 0.3s ease",
-                },
-                "&:hover::after": {
-                  width: "100%",
-                },
-                "&:hover": {
-                  backgroundColor: "transparent", // ✅ navbar shape unchanged
-                },
+        <Toolbar
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            px: { xs: 2, md: 6 },
+            minHeight: 72,
+          }}
+        >
+          {/* LEFT — LOGO + BRAND */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <img
+              src="/main1.png"
+              alt="Icon"
+              style={{
+                width: "48px",
+                height: "48px",
+                borderRadius: "50%",
               }}
-              onClick={() => {
-                if (item === "Home") 
-                  document
-                    .getElementById("header-section")
-                    ?.scrollIntoView({ behavior: "smooth" });
-                if (item === "Features")
-                  document
-                    .getElementById("features-section")
-                    ?.scrollIntoView({ behavior: "smooth" });
-                if (item === "Specialties")
-                  document
-                    .getElementById("specialties-section")
-                    ?.scrollIntoView({ behavior: "smooth" });
-                if (item === "About") navigate("/aboutus");
-                if (item === "Contact")
-                  document
-                    .getElementById("contact-section")
-                    ?.scrollIntoView({ behavior: "smooth" });
+            />
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 800,
+                color: "#787878",
+                letterSpacing: "0.5px",
               }}
             >
-              {item}
-            </Button>
-          ))}
-        </Box>
+              AidME
+            </Typography>
+          </Box>
 
-        {/* RIGHT — ADMIN LOGIN */}
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-          <Button
-            variant="outlined"
-            sx={{
-              borderRadius: 2,
-              px: 3,
-              fontWeight: 600,
-              textTransform: "none",
-              borderColor: "#0d6efd",
-              color: "#0d6efd",
-              "&:hover": {
-                backgroundColor: "#eef5ff",
+          {/* CENTER — NAV LINKS (desktop only) */}
+          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 4, justifyContent: "center" }}>
+            {navItems.map((item) => (
+              <Button
+                key={item}
+                sx={{
+                  color: "#787878",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  fontSize: "0.95rem",
+                  position: "relative",
+                  "&::after": {
+                    content: '""',
+                    position: "absolute",
+                    width: "0%",
+                    height: "2px",
+                    left: 0,
+                    bottom: -4,
+                    backgroundColor: "#406aff",
+                    transition: "width 0.3s ease",
+                  },
+                  "&:hover::after": { width: "100%" },
+                  "&:hover": { backgroundColor: "transparent" },
+                }}
+                onClick={() => handleNavClick(item)}
+              >
+                {item}
+              </Button>
+            ))}
+          </Box>
+
+          {/* RIGHT — Admin Login (desktop) + Hamburger (mobile) */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Button
+              variant="outlined"
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                fontWeight: 600,
+                textTransform: "none",
                 borderColor: "#0d6efd",
-              },
-            }}
-            onClick={() => navigate("/admin/auth/login")}
-          >
-            Admin Login
-          </Button>
+                color: "#0d6efd",
+                display: { xs: "none", md: "inline-flex" },
+                "&:hover": {
+                  backgroundColor: "#eef5ff",
+                  borderColor: "#0d6efd",
+                },
+              }}
+              onClick={() => navigate("/admin/auth/login")}
+            >
+              Admin Login
+            </Button>
+            {/* Hamburger for mobile */}
+            {isMobileNav && (
+              <IconButton
+                onClick={() => setMobileMenuOpen(true)}
+                sx={{ color: "#0d6efd" }}
+                aria-label="open menu"
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
+          </Box>
+        </Toolbar>
+      </AppBar>
+
+      {/* Mobile Navigation Drawer */}
+      <Drawer
+        anchor="right"
+        open={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        PaperProps={{
+          sx: {
+            width: 260,
+            background: "linear-gradient(135deg, #e8f4fd 0%, #d0e8ff 100%)",
+            pt: 2,
+          }
+        }}
+      >
+        <Box sx={{ px: 2, mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
+          <img src="/main1.png" alt="Icon" style={{ width: 36, height: 36, borderRadius: "50%" }} />
+          <Typography variant="h6" sx={{ fontWeight: 800, color: "#787878" }}>AidME</Typography>
         </Box>
-      </Toolbar>
-    </AppBar>
+        <Divider />
+        <List>
+          {navItems.map((item) => (
+            <ListItem button key={item} onClick={() => handleNavClick(item)} sx={{ py: 1.5 }}>
+              <ListItemText primary={item} primaryTypographyProps={{ fontWeight: 600, color: "#555" }} />
+            </ListItem>
+          ))}
+          <Divider sx={{ my: 1 }} />
+          <ListItem button onClick={() => { setMobileMenuOpen(false); navigate("/admin/auth/login"); }} sx={{ py: 1.5 }}>
+            <ListItemText primary="Admin Login" primaryTypographyProps={{ fontWeight: 600, color: "#0d6efd" }} />
+          </ListItem>
+        </List>
+      </Drawer>
+    </>
   );
 };
 
@@ -380,27 +400,27 @@ const HomePage = () => {
   const [loginType, setLoginType] = useState("doctor");
 
   const navigate = useNavigate();
-    const [showPassword, setShowPassword] = useState(false);
-    const [rememberMe, setRememberMe] = useState(false);
-    const [formData, setFormData] = useState({
-      email: '',
-      password: ''
-    });
-    const [errors, setErrors] = useState({});
-    const [verificationStatus, setVerificationStatus] = useState(() => {
-      const savedStatus = localStorage.getItem('doctorVerificationStatus');
-      return savedStatus ? JSON.parse(savedStatus) : null;
-    });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState('info');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [verificationStatus, setVerificationStatus] = useState(() => {
+    const savedStatus = localStorage.getItem('doctorVerificationStatus');
+    return savedStatus ? JSON.parse(savedStatus) : null;
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('info');
 
-    const [openSpecialty, setOpenSpecialty] = React.useState(false);
-    const [selectedSpecialty, setSelectedSpecialty] = React.useState("");
+  const [openSpecialty, setOpenSpecialty] = React.useState(false);
+  const [selectedSpecialty, setSelectedSpecialty] = React.useState("");
 
 
-      useEffect(() => {
+  useEffect(() => {
     if (verificationStatus) {
       localStorage.setItem('doctorVerificationStatus', JSON.stringify(verificationStatus));
     }
@@ -443,10 +463,6 @@ const HomePage = () => {
     if (!formData.password) newErrors.password = 'Password is required';
     else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
 
-    if (loginType === "doctor" && verificationStatus !== 'verified') {
-      newErrors.verification = 'Medical license must be verified';
-      showSnackbar('Please complete license verification first', 'error');
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -460,8 +476,8 @@ const HomePage = () => {
     setIsSubmitting(true);
 
     try {
-      const endpoint = loginType === "doctor" 
-        ? "http://localhost:8000/doctor/signin" 
+      const endpoint = loginType === "doctor"
+        ? "http://localhost:8000/doctor/signin"
         : "http://localhost:8000/patient/signin";
 
       const res = await axios.post(endpoint, formData);
@@ -471,7 +487,7 @@ const HomePage = () => {
         localStorage.setItem("doctorName", `${data.doctor.firstName} ${data.doctor.lastName}`);
         localStorage.setItem("doctorEmail", data.doctor.email);
         localStorage.setItem("doctorId", data.doctor.doctorId);
-        
+
       } else {
         localStorage.setItem("patientName", `${data.patient.firstName} ${data.patient.lastName}`);
         localStorage.setItem("patientEmail", data.patient.email);
@@ -486,22 +502,22 @@ const HomePage = () => {
         navigate(loginType === "doctor" ? "/doctor/dashboard" : "/patient/dashboard");
       }, 1000);
 
-      } catch (err) {
-        if (err.response?.status === 403) {
-          showSnackbar(err.response.data.message, "error"); // Pending verification message
-        } else {
-          showSnackbar("Login failed: " + (err.response?.data?.message || err.message), "error");
-        }
-      } finally {
-        setIsSubmitting(false);
+    } catch (err) {
+      if (err.response?.status === 403) {
+        showSnackbar(err.response.data.message, "error"); // Pending verification message
+      } else {
+        showSnackbar("Login failed: " + (err.response?.data?.message || err.message), "error");
       }
-    };
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
 
   const handleCloseSnackbar = (event, reason) => {
-  if (reason === 'clickaway') return;
-  setSnackbarOpen(false);
-};
+    if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
+  };
 
   const handleOpen = (feature) => {
     setSelectedFeature(feature);
@@ -515,108 +531,109 @@ const HomePage = () => {
 
   return (
     <>
-    <Navbar /> 
+      <Navbar />
 
       {/* Main Content */}
       <Container maxWidth={true} >
         {/* HERO LOGIN SECTION */}
-          <Box 
-          id ="header-section"
-            sx={{
-              minHeight: "100vh",
-              px: { xs: 2, md: 10 },
-              display: "flex",
-              alignItems: "center",
-              background:
-                "radial-gradient(circle at top, #eef6ff 0%, #ffffff 60%)",
-            }}
-          >
-            <Grid container spacing={8} alignItems="center">
-              {/* LEFT CONTENT */}
-              <Grid item xs={12} md={6}>
-                <Chip
-                  icon={<FlashOn sx={{ color: "#ff9800" }} />}
-                  label="Instant Booking"
-                  sx={{
-                    mb: 3,
-                    px: 2,
-                    py: 1,
-                    borderRadius: 3,
-                    bgcolor: "#ffffff",
-                    fontWeight: 600,
-                    boxShadow: 2,
-                  }}
-                />
+        <Box
+          id="header-section"
+          sx={{
+            minHeight: "100vh",
+            px: { xs: 2, md: 10 },
+            display: "flex",
+            alignItems: "center",
+            background:
+              "radial-gradient(circle at top, #eef6ff 0%, #ffffff 60%)",
+          }}
+        >
+          <Grid container spacing={8} alignItems="center">
+            {/* LEFT CONTENT */}
+            <Grid item xs={12} md={6}>
+              <Chip
+                icon={<FlashOn sx={{ color: "#ff9800" }} />}
+                label="Instant Booking"
+                sx={{
+                  mb: 3,
+                  px: 2,
+                  py: 1,
+                  borderRadius: 3,
+                  bgcolor: "#ffffff",
+                  fontWeight: 600,
+                  boxShadow: 2,
+                }}
+              />
 
-                <Typography
-                  variant="h2"
-                  fontWeight={800}
-                  sx={{ color: "#0b428f", lineHeight: 1.1 }}
-                >
-                  Healthcare <br />
-                  That <br />
-                  Understands <br />
-                  You
-                </Typography>
+              <Typography
+                variant="h2"
+                fontWeight={800}
+                sx={{ color: "#0b428f", lineHeight: 1.1, fontSize: { xs: '2rem', sm: '2.5rem', md: '3.75rem' } }}
+              >
+                Healthcare <br />
+                That <br />
+                Understands <br />
+                You
+              </Typography>
 
-                <Typography
-                  variant="body1"
-                  sx={{
-                    mt: 3,
-                    maxWidth: 520,
-                    color: "#5f6f86",
-                    fontSize: "1.05rem",
-                    lineHeight: 1.7,
-                  }}
-                >
-                  Experience the future of medicine with AI-driven diagnostics,
-                  instant video consultations, and personalized care plans. Your
-                  health journey, reimagined.
-                </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  mt: 3,
+                  maxWidth: 520,
+                  color: "#5f6f86",
+                  fontSize: "1.05rem",
+                  lineHeight: 1.7,
+                }}
+              >
+                Experience the future of medicine with AI-driven diagnostics,
+                instant video consultations, and personalized care plans. Your
+                health journey, reimagined.
+              </Typography>
 
-                <Box sx={{ display: "flex", gap: 4, mt: 6 }}>
-                  <Box>
-                    <Typography variant="h4" fontWeight={800} color="#2d79d6">
-                      10K+
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Happy Patients
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="h4" fontWeight={800} color="#2d79d6">
-                      500+
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Doctors
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="h4" fontWeight={800} color="#2d79d6">
-                      4.9
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Rating
-                    </Typography>
-                  </Box>
+              <Box sx={{ display: "flex", gap: { xs: 2, sm: 4 }, mt: { xs: 3, md: 6 }, flexWrap: 'wrap' }}>
+                <Box>
+                  <Typography variant="h4" fontWeight={800} color="#2d79d6">
+                    10K+
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Happy Patients
+                  </Typography>
                 </Box>
-              </Grid>
+                <Box>
+                  <Typography variant="h4" fontWeight={800} color="#2d79d6">
+                    500+
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Doctors
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="h4" fontWeight={800} color="#2d79d6">
+                    4.9
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Rating
+                  </Typography>
+                </Box>
+              </Box>
+            </Grid>
 
-              {/* RIGHT LOGIN CARD */}
-              <Grid item xs={12} md={6}>
-                <Paper
-                  elevation={6}
-                  sx={{
-                    p: 4,
-                    borderRadius: 4,
-                    maxWidth: 420,
-                    mx: "auto",
-                    background: "linear-gradient(135deg, #f4f9ff, #ffffff)",
-                    boxShadow: "0 20px 60px rgba(13,110,253,0.15)",
-                  }}
-                >
-                  {/* LOGIN TOGGLE */}
-                  <form onSubmit={handleSubmit}>
+            {/* RIGHT LOGIN CARD */}
+            <Grid item xs={12} md={6}>
+              <Paper
+                elevation={6}
+                sx={{
+                  p: { xs: 2.5, sm: 4 },
+                  borderRadius: 4,
+                  maxWidth: 420,
+                  width: '100%',
+                  mx: "auto",
+                  background: "linear-gradient(135deg, #f4f9ff, #ffffff)",
+                  boxShadow: "0 20px 60px rgba(13,110,253,0.15)",
+                }}
+              >
+                {/* LOGIN TOGGLE */}
+                <form onSubmit={handleSubmit}>
                   <Box sx={{ display: "flex", mb: 3 }}>
                     <Button
                       fullWidth
@@ -736,12 +753,12 @@ const HomePage = () => {
                       control={<Checkbox checked={rememberMe} onChange={handleRememberMe} />}
                       label="Remember me"
                     />
-                    <Link 
-                      href="/doctor/forgot-password" 
-                      variant="body2" 
+                    <Link
+                      href="/doctor/forgot-password"
+                      variant="body2"
                       sx={{ color: '#1E5DA9' }}
                     >
-                    Forgot password?
+                      Forgot password?
                     </Link>
                   </Box>
 
@@ -765,49 +782,49 @@ const HomePage = () => {
                     onClose={handleCloseSnackbar}
                     anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                   >
-                    <Alert 
-                      onClose={handleCloseSnackbar} 
-                      severity={snackbarSeverity} 
+                    <Alert
+                      onClose={handleCloseSnackbar}
+                      severity={snackbarSeverity}
                       variant="filled"
                       sx={{ width: '100%' }}
                     >
                       {snackbarMessage}
                     </Alert>
                   </Snackbar>
-                  </form>
+                </form>
 
-                  {/* REGISTER */}
-                  <Typography
-                    variant="body2"
-                    sx={{ mt: 1.5, textAlign: "center", color: "text.secondary" }}
+                {/* REGISTER */}
+                <Typography
+                  variant="body2"
+                  sx={{ mt: 1.5, textAlign: "center", color: "text.secondary" }}
+                >
+                  Don&apos;t have an account?{" "}
+                  <Box
+                    component="span"
+                    sx={{
+                      color: "primary.main",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      "&:hover": { textDecoration: "underline" },
+                    }}
+                    onClick={() =>
+                      navigate(
+                        loginType === "doctor"
+                          ? "/doctor/signup"
+                          : "/patient/signup"
+                      )
+                    }
                   >
-                    Don&apos;t have an account?{" "}
-                    <Box
-                      component="span"
-                      sx={{
-                        color: "primary.main",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        "&:hover": { textDecoration: "underline" },
-                      }}
-                      onClick={() =>
-                        navigate(
-                          loginType === "doctor"
-                            ? "/doctor/signup"
-                            : "/patient/signup"
-                        )
-                      }
-                    >
-                      Register as {loginType === "doctor" ? "Doctor" : "Patient"}
-                    </Box>
-                  </Typography>
-                </Paper>
-              </Grid>
+                    Register as {loginType === "doctor" ? "Doctor" : "Patient"}
+                  </Box>
+                </Typography>
+              </Paper>
             </Grid>
-          </Box>
+          </Grid>
+        </Box>
 
         {/* What is AidME Section */}
-        <Box sx={{ 
+        <Box sx={{
           backgroundColor: '#f0f7ff',
           borderRadius: 2,
           p: 4,
@@ -849,8 +866,8 @@ const HomePage = () => {
           >
             Browse by Specialties
           </Typography>
-          <Typography 
-            variant="body1" 
+          <Typography
+            variant="body1"
             sx={{ mb: 4, textAlign: 'center', color: '#4a4a4a' }}
           >
             Multiple specialties to choose from for your healthcare needs
@@ -987,8 +1004,8 @@ const HomePage = () => {
           >
             Features Provided by AidME
           </Typography>
-          <Typography 
-            variant="body1" 
+          <Typography
+            variant="body1"
             sx={{ mb: 6, textAlign: 'center', color: '#4a4a4a' }}
           >
             Our advanced healthcare platform offers these innovative features to patients:
@@ -996,9 +1013,9 @@ const HomePage = () => {
           <Grid container spacing={3}>
             {patientFeatures.map((feature, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
-                <Paper elevation={2} sx={{ 
-                  p: 3, 
-                  height: '100%', 
+                <Paper elevation={2} sx={{
+                  p: 3,
+                  height: '100%',
                   borderRadius: 2,
                   '&:hover': {
                     boxShadow: 4,
@@ -1007,8 +1024,8 @@ const HomePage = () => {
                   }
                 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Avatar sx={{ 
-                      bgcolor: '#2a72caff', 
+                    <Avatar sx={{
+                      bgcolor: '#2a72caff',
                       mr: 2,
                       width: 40,
                       height: 40
@@ -1022,8 +1039,8 @@ const HomePage = () => {
                   <Typography variant="body2" sx={{ mb: 2 }}>
                     {feature.desc}
                   </Typography>
-                  <Button size="small" sx={{ color: '#2a72caff', fontWeight: 'bold' }} 
-                  onClick={() => handleOpen(feature)}>Know Now →</Button>
+                  <Button size="small" sx={{ color: '#2a72caff', fontWeight: 'bold' }}
+                    onClick={() => handleOpen(feature)}>Know Now →</Button>
                 </Paper>
               </Grid>
             ))}
@@ -1070,8 +1087,8 @@ const HomePage = () => {
             Why Choose AidME?
           </Typography>
 
-          <Typography 
-            variant="body1" 
+          <Typography
+            variant="body1"
             sx={{ mb: 6, textAlign: 'center', color: '#4a4a4a' }}
           >
             Experience the benefits of modern healthcare technology combined with expert medical care
@@ -1080,8 +1097,8 @@ const HomePage = () => {
           <Grid container spacing={4}>
             {benefits.map((benefit, index) => (
               <Grid item xs={12} md={6} key={index}>
-                <Paper 
-                  elevation={2} 
+                <Paper
+                  elevation={2}
                   sx={{
                     p: 3,
                     borderRadius: 3,
@@ -1111,8 +1128,8 @@ const HomePage = () => {
         </Box>
 
         {/* Success Rate Section with Animated Circular Progress */}
-          <Box sx={{ mb: 8 }}>
-            <Typography
+        <Box sx={{ mb: 8 }}>
+          <Typography
             variant="h4"
             sx={{
               mb: 2,
@@ -1127,7 +1144,7 @@ const HomePage = () => {
             Our Success Metrics
           </Typography>
 
-            <Grid container spacing={4} justifyContent="center">
+          <Grid container spacing={4} justifyContent="center">
             {[
               { title: 'Success Rate', target: 98, icon: <CheckCircle sx={{ fontSize: 40, color: '#2a72ca' }} /> },
               { title: 'Patient Satisfaction', target: 96, icon: <SentimentSatisfiedAlt sx={{ fontSize: 40, color: '#2a72ca' }} /> },
@@ -1157,25 +1174,25 @@ const HomePage = () => {
               </Grid>
             ))}
           </Grid>
-          </Box>
+        </Box>
 
         {/* Find Doctors Section */}
         <Box id="contact-section" ref={contactRef} sx={{ mt: 4, mb: 6 }}>
           <Breadcrumbs separator={<NavigateNext fontSize="small" />} aria-label="breadcrumb">
             <Typography variant="h6" color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
-              <PersonSearch  sx={{ mr: 0.5 }} fontSize="inherit" />
+              <PersonSearch sx={{ mr: 0.5 }} fontSize="inherit" />
               Find Doctors
             </Typography>
           </Breadcrumbs>
-          <Typography variant="h5" sx={{ mt: 3, mb: 2, fontWeight: 'bold', color: "#2a72caff"}}>
+          <Typography variant="h5" sx={{ mt: 3, mb: 2, fontWeight: 'bold', color: "#2a72caff" }}>
             Find the right doctor for your ailments
           </Typography>
-          
+
           <Chip
             icon={<Phone />}
             label="Call +91-9552111011 to book an appointment"
             variant="outlined"
-            sx={{ 
+            sx={{
               p: 2,
               fontSize: '1rem',
               bgcolor: '#86c8ffff',
@@ -1186,7 +1203,7 @@ const HomePage = () => {
       </Container>
 
       {/* Footer */}
-      <Box 
+      <Box
         component="footer"
         sx={{
           py: 3,
@@ -1214,7 +1231,7 @@ const HomePage = () => {
               <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 'bold' }}>
                 Services
               </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.5, flexWrap: 'wrap', justifyContent: 'space-between'}}>
+              <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.5, flexWrap: 'wrap', justifyContent: 'space-between' }}>
                 <Link href="#" underline="none" color="text.secondary" sx={{ '&:hover': { color: 'primary.main' } }}>Find Doctors</Link>
                 <Link href="#" underline="none" color="text.secondary" sx={{ '&:hover': { color: 'primary.main' } }}>Video Consultations</Link>
                 <Link href="#" underline="none" color="text.secondary" sx={{ '&:hover': { color: 'primary.main' } }}>Health Records</Link>

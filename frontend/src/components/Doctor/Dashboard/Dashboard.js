@@ -156,14 +156,13 @@ const Dashboard = ({ sidebarOpen }) => {
     const fetchDoctorProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-
-        const res = await axios.get(`${API_BASE}/doctor/profile`, {
+        const res = await axios.get(`${API_BASE}/doctor/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        setDoctor(res.data);
+        setDoctor(res.data.doctor);
       } catch (err) {
         console.error("Failed to fetch doctor profile", err);
       }

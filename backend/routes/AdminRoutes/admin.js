@@ -15,7 +15,7 @@ router.get("/", adminAuth, async (req, res) => {
   const filter = status ? { verificationStatus: status } : {};
 
   const doctors = await Doctor.find(filter).select(
-    "firstName lastName email specialty licenseNumber licenseDocument verificationStatus"
+    "firstName lastName email specialty licenseNumber licenseDocument verificationStatus experience hospital"
   ).sort({ created: -1 });
   res.json(doctors);
 });

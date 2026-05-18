@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./BookAppointment.css";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
@@ -21,7 +21,34 @@ const BookAppointment = () => {
   
   const [loading, setLoading] = useState(true);
   const [slotsLoading, setSlotsLoading] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 0. Parse Stripe redirect success
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("success") === "true") {
+      const docName = params.get("docName") || "";
+      const urlDate = params.get("date");
+      const urlTime = params.get("time");
+      const urlRoomId = params.get("roomId");
+
+      // Mock selected doctor for popup display
+      setSelectedDoctor({ firstName: docName.replace('Dr. ', ''), lastName: '' });
+      setDate(urlDate);
+      setTime(urlTime);
+      setRoomId(urlRoomId);
+      setAppointmentDateTime(`${urlDate}T${urlTime}`);
+      setShowSuccessPopup(true);
+
+      // Clean URL
+      window.history.replaceState(null, '', '/patient/book');
+    } else if (params.get("canceled") === "true") {
+      alert("Payment was canceled. Please try booking again.");
+      window.history.replaceState(null, '', '/patient/book');
+    }
+  }, [location.search]);
 
   // 1. Fetch all doctors on mount
   useEffect(() => {
@@ -93,11 +120,30 @@ const BookAppointment = () => {
         }
       );
 
-      setRoomId(res.data.roomId);
-      setAppointmentDateTime(`${date}T${time}`);
-      setShowSuccessPopup(true);
+      const appointmentId = res.data.appointment?._id || res.data.appointment?.appointmentId;
+      const rId = res.data.roomId;
+
+      setPaymentLoading(true);
+
+      // Call internal Stripe handler
+      const stripeRes = await axios.post(`${API}/api/stripe/create-checkout-session`, {
+        appointmentId,
+        doctorId: selectedDoctor.doctorId,
+        doctorName: `Dr. ${selectedDoctor.firstName} ${selectedDoctor.lastName}`,
+        date,
+        time,
+        roomId: rId
+      });
+
+      if (stripeRes.data.url) {
+        window.location.href = stripeRes.data.url;
+      } else {
+        setPaymentLoading(false);
+        alert("Payment gateway error.");
+      }
 
     } catch (err) {
+      setPaymentLoading(false);
       alert(err.response?.data?.message || "Error booking appointment.");
     }
   } else {
@@ -208,10 +254,10 @@ const isJoinAllowed = () => {
           <button 
             onClick={handleBooking} 
             className="book-btn"
-            disabled={!selectedDoctor || !date || !time}
-            style={{ opacity: (!selectedDoctor || !date || !time) ? 0.5 : 1, cursor: (!selectedDoctor || !date || !time) ? 'not-allowed' : 'pointer' }}
+            disabled={!selectedDoctor || !date || !time || paymentLoading}
+            style={{ opacity: (!selectedDoctor || !date || !time || paymentLoading) ? 0.5 : 1, cursor: (!selectedDoctor || !date || !time || paymentLoading) ? 'not-allowed' : 'pointer' }}
           >
-            Book Appointment
+            {paymentLoading ? "Redirecting to Payment..." : "Pay & Book Appointment"}
           </button>
         </div>
 

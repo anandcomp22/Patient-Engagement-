@@ -53,5 +53,29 @@
     background-color: #427cf9; /* Light white */
     margin: 10px auto; /* Center the line */
   }
-  
-  
+
+/* ── Tablet ─────────────────────────────────────────── */
+@media (max-width: 899px) {
+  .sidebar {
+    width: 260px;
+  }
+
+  .sidebar .MuiDrawer-paper {
+    width: 260px;
+  }
+}
+
+/* ── Mobile ─────────────────────────────────────────── */
+@media (max-width: 599px) {
+  .sidebar {
+    width: 260px;
+  }
+
+  .sidebar .MuiDrawer-paper {
+    width: 260px;
+  }
+
+  .sidebar-title {
+    font-size: 16px;
+  }
+}

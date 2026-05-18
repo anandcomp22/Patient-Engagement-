@@ -25,7 +25,7 @@ import {
 } from "@mui/icons-material";
 import Aidme from "./icons/logo.png";
 
-const Sidebar = ({ open, onToggle }) => {
+const Sidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
   const { pathname } = useLocation();
 
   const menuItems = [
@@ -43,28 +43,12 @@ const Sidebar = ({ open, onToggle }) => {
     { text: "Logout", icon: <LoginOutlined />, to: "/" },
   ];
 
-  return (
-    <Drawer
-      variant="permanent"
-      open={open}
-      PaperProps={{
-        sx: {
-          width: open ? 240 : 62,
-          position: "fixed",
-          height: "100vh",
-          transition: "width 0.3s ease-in-out",
-          bgcolor: "primary.light",
-          backgroundImage: open
-            ? "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)"
-            : "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)",
-          color: "white",
-          boxShadow: 3,
-          overflowX: "hidden",
-          borderTopRightRadius: 30,
-          borderBottomRightRadius: 30,
-        },
-      }}
-    >
+  const handleNavClick = () => {
+    if (isMobile && onMobileClose) onMobileClose();
+  };
+
+  const drawerContent = (
+    <>
       {/* Toggle Button */}
       <Box
         sx={{
@@ -114,9 +98,9 @@ const Sidebar = ({ open, onToggle }) => {
         {menuItems.map((item) => (
           <Tooltip title={!open ? item.text : ""} placement="right" key={item.text}>
             <ListItem
-              button
               component={Link}
               to={item.to}
+              onClick={handleNavClick}
               sx={{
                 mb: 1,
                 px: open ? 2 : 1,
@@ -158,9 +142,9 @@ const Sidebar = ({ open, onToggle }) => {
         {footerItems.map((item) => (
           <Tooltip title={!open ? item.text : ""} placement="right" key={item.text}>
             <ListItem
-              button
               component={Link}
               to={item.to}
+              onClick={handleNavClick}
               sx={{
                 mb: 1,
                 px: open ? 2 : 1,
@@ -190,6 +174,32 @@ const Sidebar = ({ open, onToggle }) => {
           </Tooltip>
         ))}
       </List>
+    </>
+  );
+
+  return (
+    <Drawer
+      variant={isMobile ? "temporary" : "permanent"}
+      open={isMobile ? open : true}
+      onClose={onToggle}
+      ModalProps={{ keepMounted: true }}
+      PaperProps={{
+        sx: {
+          width: isMobile ? 260 : (open ? 240 : 62),
+          position: "fixed",
+          height: "100vh",
+          transition: "width 0.3s ease-in-out",
+          bgcolor: "primary.light",
+          backgroundImage: "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)",
+          color: "white",
+          boxShadow: 3,
+          overflowX: "hidden",
+          borderTopRightRadius: 30,
+          borderBottomRightRadius: 30,
+        },
+      }}
+    >
+      {drawerContent}
     </Drawer>
   );
 };
