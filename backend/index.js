@@ -35,8 +35,21 @@ const adminAuthRoutes = require("./routes/AdminRoutes/auth");
 const adminPatients = require("./routes/AdminRoutes/adminPatients");
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || origin.endsWith(".vercel.app") || origin.includes("localhost")) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("AidMe Backend is running successfully!");
+});
 
 connectToDatabase();
 
@@ -173,9 +186,19 @@ io.on("connection", (socket) => {
 });
 
 
-const PORT = process.env.PORT || 8000;
-server.listen(PORT, () => {
-  console.log(`Server started at http://localhost:${PORT}`);
-});
+const startServer = async () => {
+    try {
+        await connectToDatabase();
+        const PORT = process.env.PORT || 8000;
+        server.listen(PORT, "0.0.0.0", () => {
+            console.log(`Server started on port ${PORT}`);
+        });
+    } catch (err) {
+        console.error("Failed to start server:", err);
+        process.exit(1);
+    }
+};
+
+startServer();
 
 /* appended to trigger nodemon */
