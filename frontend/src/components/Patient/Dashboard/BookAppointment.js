@@ -33,6 +33,7 @@ const BookAppointment = () => {
       const urlDate = params.get("date");
       const urlTime = params.get("time");
       const urlRoomId = params.get("roomId");
+      const urlAppointmentId = params.get("appointmentId");
 
       // Mock selected doctor for popup display
       setSelectedDoctor({ firstName: docName.replace('Dr. ', ''), lastName: '' });
@@ -41,6 +42,14 @@ const BookAppointment = () => {
       setRoomId(urlRoomId);
       setAppointmentDateTime(`${urlDate}T${urlTime}`);
       setShowSuccessPopup(true);
+
+      // Confirm payment on backend — triggers notifications to doctor, admin, patient
+      if (urlAppointmentId) {
+        axios.post(`${API}/appointment/confirm-payment`, 
+          { appointmentId: urlAppointmentId },
+          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        ).catch(err => console.error("Payment confirmation error:", err));
+      }
 
       // Clean URL
       window.history.replaceState(null, '', '/patient/book');

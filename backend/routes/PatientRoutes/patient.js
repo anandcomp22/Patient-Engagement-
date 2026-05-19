@@ -5,7 +5,7 @@ const { Patient, MedicalReport } = require("../../db/models");
 const { generateToken } = require("../../utils/auth");
 const authMiddleware = require("../../middleware/authMiddleware");
 const { Appointment } = require("../../db/models");
-const { Doctor, Slot } = require("../../db/models");
+const { Doctor, Slot, FeePay } = require("../../db/models");
 const { sendNotification } = require("../../utils/notificationHelper");
 const { v4: uuid } = require('uuid');
 
@@ -290,6 +290,18 @@ router.get("/profile/:patientId", async (req, res) => {
   } catch (err) {
     console.error("Error fetching patient profile:", err);
     res.status(500).json({ message: "Failed to fetch patient profile" });
+  }
+});
+
+// ── Patient payment history ──
+router.get("/payments/:patientId", async (req, res) => {
+  try {
+    const patientId = Number(req.params.patientId);
+    const payments = await FeePay.find({ patientId }).sort({ createdAt: -1 });
+    res.json(payments);
+  } catch (err) {
+    console.error("Error fetching patient payments:", err);
+    res.status(500).json({ message: "Failed to fetch payments" });
   }
 });
 

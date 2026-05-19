@@ -6,16 +6,19 @@ import {
 } from "@mui/material";
 import { History, Search, FilterList, Download } from "@mui/icons-material";
 import axios from "axios";
+import { io } from "socket.io-client";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const ACTION_COLOR = {
-  DOCTOR_VERIFICATION: { bg:"#dcfce7", color:"#22c55e" },
-  APPROVE:             { bg:"#dcfce7", color:"#22c55e" },
-  REJECT:              { bg:"#fee2e2", color:"#ef4444"  },
-  SUSPEND:             { bg:"#fef3c7", color:"#f59e0b"  },
-  LOGIN:               { bg:"#dbeafe", color:"#3b82f6"  },
-  DELETE:              { bg:"#fee2e2", color:"#ef4444"  },
+  DOCTOR_VERIFICATION: { bg:"#dcfce7", color:"#059669" },
+  APPROVE:             { bg:"#dcfce7", color:"#059669" },
+  REJECT:              { bg:"#fee2e2", color:"#DC2626"  },
+  SUSPEND:             { bg:"#fef3c7", color:"#D97706"  },
+  LOGIN:               { bg:"#dbeafe", color:"#1E3A8A"  },
+  DELETE:              { bg:"#fee2e2", color:"#DC2626"  },
+  PAYMENT:             { bg:"#d1fae5", color:"#065F46"  },
+  BOOKING:             { bg:"#e0e7ff", color:"#4338CA"  },
 };
 
 const getActionStyle = (action="") => {
@@ -51,6 +54,15 @@ const AdminActivityLogs = () => {
 
   useEffect(() => { fetchLogs(); }, [page, search, date]); // eslint-disable-line
 
+  // Real-time: auto-refresh on any admin action
+  useEffect(() => {
+    const socket = io(API);
+    socket.on("admin-log-updated", () => fetchLogs());
+    socket.on("appointment-updated", () => fetchLogs());
+    socket.on("payment-updated", () => fetchLogs());
+    return () => socket.disconnect();
+  }, []); // eslint-disable-line
+
   const exportCSV = () => {
     const rows = [["Admin","Action","Target","IP","Time"]];
     data.logs.forEach(l => {
@@ -80,7 +92,7 @@ const AdminActivityLogs = () => {
           </Typography>
         </Box>
         <Button startIcon={<Download />} variant="outlined" onClick={exportCSV}
-          sx={{ borderRadius:"12px", textTransform:"none", fontWeight:600, borderColor:"#667eea", color:"#667eea" }}>
+          sx={{ borderRadius:"12px", textTransform:"none", fontWeight:600, borderColor:"#1E3A8A", color:"#1E3A8A" }}>
           Export CSV
         </Button>
       </Box>
@@ -150,7 +162,7 @@ const AdminActivityLogs = () => {
         {data.totalPages>1 && (
           <Box sx={{ display:"flex", justifyContent:"center", p:2 }}>
             <Pagination count={data.totalPages} page={page} onChange={(_,v)=>setPage(v)}
-              sx={{ "& .MuiPaginationItem-root.Mui-selected":{ background:"linear-gradient(135deg,#667eea,#764ba2)", color:"#fff" } }} />
+              sx={{ "& .MuiPaginationItem-root.Mui-selected":{ background:"linear-gradient(135deg, #1E3A8A, #3B82F6)", color:"#fff" } }} />
           </Box>
         )}
       </Paper>

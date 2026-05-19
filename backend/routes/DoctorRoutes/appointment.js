@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { Appointment, videocall, Patient, Doctor } = require('../../db/models'); 
+const { Appointment, videocall, Patient, Doctor, FeePay } = require('../../db/models'); 
 const { v4: uuidv4 } = require('uuid');
 const authMiddleware = require('../../middleware/authMiddleware');
+const { sendNotification } = require('../../utils/notificationHelper');
 
 /*router.get('/appointments', authMiddleware, async (req, res) => {
   try {
@@ -126,7 +127,12 @@ router.post('/book', authMiddleware, async (req, res) => {
       appstatus: "confirmed"
     });
 
-    req.app.get("io").emit("appointment-updated");
+    const io = req.app.get("io");
+    io.emit("appointment-updated");
+
+    // Send real-time notifications for new booking
+    await sendNotification(io, dId.toString(), "doctor", "New Appointment Booked", `${patient.firstName} ${patient.lastName} booked an appointment on ${appointmentDate} at ${time}.`);
+    await sendNotification(io, "admin", "admin", "New Appointment", `${patient.firstName} ${patient.lastName} booked with Dr. ${doctor.firstName} ${doctor.lastName} on ${appointmentDate}.`);
 
     res.status(201).json({
       success: true,
@@ -138,6 +144,70 @@ router.post('/book', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("Appointment booking error:", err);
     res.status(500).json({ message: "Failed to book appointment" });
+  }
+});
+
+// ── Confirm payment after Stripe success redirect ──
+router.post('/confirm-payment', authMiddleware, async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    if (!appointmentId) return res.status(400).json({ message: "appointmentId is required" });
+
+    const appointment = await Appointment.findByIdAndUpdate(
+      appointmentId,
+      { paymentstatus: "paid" },
+      { new: true }
+    );
+    if (!appointment) return res.status(404).json({ message: "Appointment not found" });
+
+    // Create a FeePay record for payment history
+    await FeePay.create({
+      doctorId: appointment.doctorId,
+      patientId: appointment.patientId,
+      patientname: appointment.patientName,
+      doctorname: appointment.doctorName,
+      fees: 100,
+      paymentmethod: "Stripe",
+      paymentstatus: "paid"
+    });
+
+    const io = req.app.get("io");
+
+    // Notify Doctor
+    await sendNotification(
+      io,
+      appointment.doctorId.toString(),
+      "doctor",
+      "Payment Received 💰",
+      `₹100 received from ${appointment.patientName} for appointment on ${new Date(appointment.appointmentDate).toLocaleDateString()}.`
+    );
+
+    // Notify Admin
+    await sendNotification(
+      io,
+      "admin",
+      "admin",
+      "New Payment Recorded 💳",
+      `₹100 paid by ${appointment.patientName} to ${appointment.doctorName} via Stripe.`
+    );
+
+    // Notify Patient (receipt confirmation)
+    await sendNotification(
+      io,
+      appointment.patientId.toString(),
+      "patient",
+      "Payment Successful ✅",
+      `Your ₹100 payment to ${appointment.doctorName} was successful. Your appointment is confirmed.`
+    );
+
+    // Broadcast to admin payments page for live table update
+    io.emit("payment-updated");
+    io.emit("appointment-updated");
+
+    res.json({ success: true, message: "Payment confirmed", appointment });
+  } catch (err) {
+    console.error("Confirm payment error:", err);
+    res.status(500).json({ message: "Failed to confirm payment" });
   }
 });
 
