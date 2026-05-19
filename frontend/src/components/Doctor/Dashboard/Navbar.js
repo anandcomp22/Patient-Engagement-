@@ -6,21 +6,25 @@ import {
   Button, TextField,
   IconButton, Avatar
 } from "@mui/material";
-import { Notifications, Settings, Menu as MenuIcon } from "@mui/icons-material";
+import { Settings, Menu as MenuIcon } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
+import NotificationBell from "../../Common/NotificationBell";
 
 
 const Navbar = ({ sidebarOpen, onToggle, isMobile }) => {
   const [doctorName, setDoctorName] = useState("");
   const [doctorEmail, setDoctorEmail] = useState("");
+  const [doctorId, setDoctorId] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     const name = localStorage.getItem("doctorName");
     const email = localStorage.getItem("doctorEmail");
+    const dId = localStorage.getItem("doctorId");
     if (name && email) {
       setDoctorName(name);
       setDoctorEmail(email);
+      setDoctorId(dId);
     }
   }, []);
 
@@ -80,9 +84,7 @@ const Navbar = ({ sidebarOpen, onToggle, isMobile }) => {
 
         {/* Right Actions */}
         <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, sm: 1, md: 2 } }}>
-          <IconButton sx={{ color: "gray" }}>
-            <Notifications />
-          </IconButton>
+          <NotificationBell role="doctor" userId={doctorId} />
           <IconButton sx={{ color: "gray", display: { xs: "none", sm: "inline-flex" } }}>
             <Settings />
           </IconButton>

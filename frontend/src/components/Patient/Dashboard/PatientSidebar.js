@@ -8,7 +8,8 @@ import {
   Help,
   Menu as MenuIcon,
   LoginOutlined,
-  ChevronLeft as ChevronLeftIcon
+  ChevronLeft as ChevronLeftIcon,
+  Visibility as VisibilityIcon
 } from '@mui/icons-material';
 import DescriptionIcon from "@mui/icons-material/Description";
 import RxIcon from "@mui/icons-material/Description"; // Alias for readability
@@ -23,6 +24,7 @@ const PatientSidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
       { text: "My Prescriptions", icon: <RxIcon />, to: "/patient/prescriptions" },
       { text: "Video Call Room", icon: <VideoCall />, to: "/patient/video-call" },
       { text: "Upload Report", icon: <DescriptionIcon />, to: "/patient/upload-report" },
+      { text: "Disease Detection", icon: <VisibilityIcon />, to: "/patient/disease-detection" },
     ];
 
     const footerItems = [

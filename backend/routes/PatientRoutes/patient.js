@@ -5,7 +5,9 @@ const { Patient, MedicalReport } = require("../../db/models");
 const { generateToken } = require("../../utils/auth");
 const authMiddleware = require("../../middleware/authMiddleware");
 const { Appointment } = require("../../db/models");
-const { Doctor } = require("../../db/models");
+const { Doctor, Slot } = require("../../db/models");
+const { sendNotification } = require("../../utils/notificationHelper");
+const { v4: uuid } = require('uuid');
 
 const router = express.Router();
 
@@ -189,6 +191,12 @@ router.post("/confirm", async (req, res) => {
     roomId: uuid(),
     callStatus: "NOT_STARTED"
   });
+
+  const io = req.app.get("io");
+  if (io) {
+    await sendNotification(io, doctorId.toString(), "doctor", "New Appointment Booking", `Patient ID ${patientId} has booked a new appointment with you.`);
+    await sendNotification(io, patientId.toString(), "patient", "Appointment Confirmed", `Your appointment with Doctor ID ${doctorId} is successfully confirmed.`);
+  }
 
   res.json({ message: "Appointment confirmed", appointment });
 });

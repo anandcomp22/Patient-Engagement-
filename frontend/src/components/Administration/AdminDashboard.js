@@ -15,15 +15,15 @@ import { useNavigate } from "react-router-dom";
 const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const GRADIENT_CARDS = [
-  { key: "doctors",       label: "Total Doctors",    icon: LocalHospital,    grad: "linear-gradient(135deg,#667eea,#764ba2)", link: "/admin/doctors" },
-  { key: "patients",      label: "Total Patients",   icon: People,           grad: "linear-gradient(135deg,#f093fb,#f5576c)", link: "/admin/patients" },
-  { key: "appointments",  label: "Appointments",     icon: EventAvailable,   grad: "linear-gradient(135deg,#4facfe,#00f2fe)", link: null },
-  { key: "revenue",       label: "Revenue (₹)",      icon: CurrencyRupee,    grad: "linear-gradient(135deg,#43e97b,#38f9d7)", link: null },
-  { key: "pendingDoctors",label: "Pending Verify",   icon: Warning,          grad: "linear-gradient(135deg,#fa709a,#fee140)", link: "/admin/verify" },
-  { key: "activeCalls",   label: "Active Calls",     icon: Videocam,         grad: "linear-gradient(135deg,#a18cd1,#fbc2eb)", link: null },
+  { key: "doctors",       label: "Total Doctors",    icon: LocalHospital,    grad: "linear-gradient(135deg, #1E3A8A, #3B82F6)", link: "/admin/doctors" },
+  { key: "patients",      label: "Total Patients",   icon: People,           grad: "linear-gradient(135deg, #0F766E, #14B8A6)", link: "/admin/patients" },
+  { key: "appointments",  label: "Appointments",     icon: EventAvailable,   grad: "linear-gradient(135deg, #4338CA, #6366F1)", link: null },
+  { key: "revenue",       label: "Revenue (₹)",      icon: CurrencyRupee,    grad: "linear-gradient(135deg, #065F46, #10B981)", link: null },
+  { key: "pendingDoctors",label: "Pending Verify",   icon: Warning,          grad: "linear-gradient(135deg, #B45309, #F59E0B)", link: "/admin/verify" },
+  { key: "activeCalls",   label: "Active Calls",     icon: Videocam,         grad: "linear-gradient(135deg, #5B21B6, #8B5CF6)", link: null },
 ];
 
-const STATUS_COLOR = { confirmed:"#4facfe", pending:"#fa709a", cancelled:"#f5576c", completed:"#43e97b" };
+const STATUS_COLOR = { confirmed:"#3B82F6", pending:"#F59E0B", cancelled:"#EF4444", completed:"#10B981" };
 
 const AdminDashboard = () => {
   const [metrics, setMetrics]         = useState({});
@@ -134,12 +134,12 @@ const AdminDashboard = () => {
                   <Tooltip formatter={v => [`₹${v}`, "Revenue"]} />
                   <Line
                     type="monotone" dataKey="revenue" strokeWidth={3}
-                    stroke="url(#revGrad)" dot={{ r:5, fill:"#667eea" }}
+                    stroke="url(#revGrad)" dot={{ r:5, fill:"#1E3A8A" }}
                   />
                   <defs>
                     <linearGradient id="revGrad" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#667eea" />
-                      <stop offset="100%" stopColor="#764ba2" />
+                      <stop offset="0%" stopColor="#1E3A8A" />
+                      <stop offset="100%" stopColor="#3B82F6" />
                     </linearGradient>
                   </defs>
                 </LineChart>
@@ -152,12 +152,12 @@ const AdminDashboard = () => {
           <Paper sx={{ borderRadius:"20px", p:3, boxShadow:"0 4px 20px rgba(0,0,0,0.06)", height:"100%" }}>
             <Typography fontWeight={700} mb={2} sx={{ color:"#1a1a2e" }}>Quick Actions</Typography>
             {[
-              { label:"Verify Doctors",   color:"#667eea", path:"/admin/verify"    },
-              { label:"View Doctors",     color:"#f093fb", path:"/admin/doctors"   },
-              { label:"Manage Patients",  color:"#4facfe", path:"/admin/patients"  },
-              { label:"View Analytics",   color:"#43e97b", path:"/admin/analytics" },
-              { label:"Activity Logs",    color:"#fa709a", path:"/admin/logs"      },
-              { label:"Payments",         color:"#a18cd1", path:"/admin/payments"  },
+              { label:"Verify Doctors",   color:"#1E3A8A", path:"/admin/verify"    },
+              { label:"View Doctors",     color:"#0F766E", path:"/admin/doctors"   },
+              { label:"Manage Patients",  color:"#4338CA", path:"/admin/patients"  },
+              { label:"View Analytics",   color:"#065F46", path:"/admin/analytics" },
+              { label:"Activity Logs",    color:"#B45309", path:"/admin/logs"      },
+              { label:"Payments",         color:"#5B21B6", path:"/admin/payments"  },
             ].map(btn => (
               <Button
                 key={btn.label} fullWidth variant="outlined"
