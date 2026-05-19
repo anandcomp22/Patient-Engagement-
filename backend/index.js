@@ -33,6 +33,7 @@ const adminLogs = require("./routes/AdminRoutes/logs");
 const adminVerifyRoutes = require("./routes/AdminRoutes/admin");
 const adminAuthRoutes = require("./routes/AdminRoutes/auth");
 const adminPatients = require("./routes/AdminRoutes/adminPatients");
+const notificationRoutes = require("./routes/NotificationRoutes/notification");
 
 const app = express();
 app.use(cors({
@@ -97,6 +98,7 @@ app.use("/admin/logs", adminLogs);
 app.use("/admin/verify", adminVerifyRoutes);
 app.use("/admin/auth", adminAuthRoutes);
 app.use("/admin/patients", adminPatients);
+app.use("/api/notifications", notificationRoutes);
 
 
 app.use("/uploads", express.static("uploads"));
@@ -113,6 +115,12 @@ io.on("connection", (socket) => {
 
   socket.on("join-room", ({ roomId }) => {
     socket.join(roomId);
+  });
+
+  socket.on("join-notifications", ({ role, userId }) => {
+    const room = `notify_${role}_${userId}`;
+    socket.join(room);
+    console.log(`[Socket] Client ${socket.id} joined notification room: ${room}`);
   });
 
   socket.on("media-ready", ({ roomId, role, userName, patientId }) => {

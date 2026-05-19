@@ -267,6 +267,15 @@ const patientSchema = new mongoose.Schema({
   }, { timestamps: true });
 
 
+  const NotificationSchema = new mongoose.Schema({
+    userId: { type: String, required: true, index: true }, // 'admin', or doctorId, or patientId
+    role: { type: String, enum: ['patient', 'doctor', 'admin'], required: true },
+    title: { type: String, required: true },
+    message: { type: String, required: true },
+    isRead: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
+  });
+
   const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -354,5 +363,6 @@ const Slot = mongoose.model('Slot', slotSchema);
 const AdminLog = mongoose.model('AdminLog', AdminLogSchema);
 const Admin = mongoose.model('Admin', AdminSchema);
 const MedicalReport = mongoose.model('MedicalReport', medicalReportSchema);
+const Notification = mongoose.model('Notification', NotificationSchema);
 
-module.exports = { Prescription, Doctor, FeePay, Appointment, Patient, videocall, User, videocallSchem, Slot, AdminLog, Admin, MedicalReport, connectToDatabase };
+module.exports = { Prescription, Doctor, FeePay, Appointment, Patient, videocall, User, videocallSchem, Slot, AdminLog, Admin, MedicalReport, Notification, connectToDatabase };

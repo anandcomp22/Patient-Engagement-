@@ -159,7 +159,15 @@ export default function useHealthData() {
 
     const listener = async (event) => {
       if (event.origin !== window.location.origin) return;
-      const { access_token } = event.data || {};
+      const { access_token, error: authError } = event.data || {};
+      
+      if (authError) {
+        window.removeEventListener('message', listener);
+        popup?.close();
+        setError(`Google Fit Auth Error: ${authError}`);
+        return;
+      }
+      
       if (!access_token) return;
       window.removeEventListener('message', listener);
       popup?.close();

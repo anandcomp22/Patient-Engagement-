@@ -20,6 +20,7 @@ import PatientSidebar from './components/Patient/Dashboard/PatientSidebar';
 import PatientNavbar from './components/Patient/Dashboard/PatientNavbar';
 import PatientVideoCall from './components/Patient/VideoCallMech/PatientVideoCall';
 import PatientPrescriptions from './components/Patient/Dashboard/PatientPrescriptions';
+import DiseaseDetection from './components/Patient/Dashboard/DiseaseDetection';
 import PayPalPaymentPage from './PaymentGateway/PayPalButton';
 
 import AnalysisPage from './components/Doctor/Dashboard/Analysis';
@@ -107,6 +108,7 @@ function App() {
                       <Route path="video-call" element={<PatientVideoCall />} />
                       <Route path="upload-report" element={<UploadReport />} />
                       <Route path="prescriptions" element={<PatientPrescriptions />} />
+                      <Route path="disease-detection" element={<DiseaseDetection />} />
                     </Routes>
 
 

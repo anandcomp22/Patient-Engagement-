@@ -1,21 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppBar, Toolbar, Typography, Box, Button, TextField, IconButton, Avatar } from "@mui/material";
-import { Notifications, Settings, Menu as MenuIcon } from "@mui/icons-material";
+import { Settings, Menu as MenuIcon } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
+import NotificationBell from "../../../components/Common/NotificationBell";
 //import "./PatientNavbar.css";
 
 const PatientNavbar = ({ sidebarOpen, onToggle, isMobile }) => {
   const [patientName, setPatientName] = useState("");
   const [patientEmail, setPatientEmail] = useState("");
+  const [patientId, setPatientId] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     const name = localStorage.getItem("patientName");
     const email = localStorage.getItem("patientEmail");
+    const pId = localStorage.getItem("patientId");
     if (name && email) {
       setPatientName(name);
       setPatientEmail(email);
+      setPatientId(pId);
     }
   }, []);
 
@@ -75,9 +79,7 @@ const PatientNavbar = ({ sidebarOpen, onToggle, isMobile }) => {
 
         {/* Right Actions */}
         <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, sm: 1, md: 2 } }}>
-          <IconButton sx={{ color: "gray" }}>
-            <Notifications />
-          </IconButton>
+          <NotificationBell role="patient" userId={patientId} />
           <IconButton sx={{ color: "gray", display: { xs: "none", sm: "inline-flex" } }}>
             <Settings />
           </IconButton>
