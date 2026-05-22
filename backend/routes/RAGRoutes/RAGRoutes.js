@@ -89,4 +89,20 @@ router.post("/session/retrieve-meds-now", async (req, res) => {
   }
 });
 
+// -------------------------------------------------
+// GENERATE PRESCRIPTION GUIDELINES
+// Proxies to Python /rag/prescription-guidelines on port 5000
+// -------------------------------------------------
+router.post("/prescription-guidelines", async (req, res) => {
+  try {
+    const r = await axios.post(`${PYTHON_RAG_URL}/rag/prescription-guidelines`, req.body, {
+      timeout: 90000, // LLM can be slow
+    });
+    res.json(r.data);
+  } catch (err) {
+    console.error("[RAG /prescription-guidelines error]:", err.message);
+    res.status(500).json({ error: "Python RAG API not reachable", details: err.message });
+  }
+});
+
 module.exports = router;

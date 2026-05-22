@@ -22,6 +22,7 @@ import PatientNavbar from './components/Patient/Dashboard/PatientNavbar';
 import PatientVideoCall from './components/Patient/VideoCallMech/PatientVideoCall';
 import PatientPrescriptions from './components/Patient/Dashboard/PatientPrescriptions';
 import PatientHelpSupport from './components/Patient/Dashboard/PatientHelpSupport';
+import DiseaseDetection from './components/Patient/Dashboard/DiseaseDetection';
 import PayPalPaymentPage from './PaymentGateway/PayPalButton';
 import BookingSuccess from './components/Patient/BookingFlow/BookingSuccess';
 import BookingCancel from './components/Patient/BookingFlow/BookingCancel';
@@ -112,6 +113,7 @@ function App() {
                       <Route path="upload-report" element={<UploadReport />} />
                       <Route path="prescriptions" element={<PatientPrescriptions />} />
                       <Route path="support" element={<PatientHelpSupport />} />
+                      <Route path="disease-detection" element={<DiseaseDetection />} />
                       <Route path="booking-success" element={<BookingSuccess />} />
                       <Route path="booking-cancel" element={<BookingCancel />} />
                     </Routes>

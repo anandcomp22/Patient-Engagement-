@@ -19,6 +19,7 @@ from rag_service import (
     retrieve_medicine_docs,
     generate_medicine_comments,
     generate_prescription_guidelines,
+    llm,
 )
 
 app = Flask(__name__)
@@ -197,15 +198,13 @@ def retrieve_meds_now():
         try:
             # Use a more forceful prompt to get a short medical term
             summary_prompt = f"Based on this medical transcript, provide ONLY a 3-5 word formal clinical diagnosis (e.g. 'Viral Fever', 'Lower Back Pain'). Do not include sentences or pleasantries. Transcript: {raw_transcript[-600:]}"
-            summary_res = ollama_client.generate(model="llama3.2", prompt=summary_prompt)
-            suggested_diagnosis = summary_res['response'].strip().strip('."')
+            suggested_diagnosis = llm.invoke(summary_prompt).strip().strip('."')
             if ":" in suggested_diagnosis:
                 suggested_diagnosis = suggested_diagnosis.split(":")[-1].strip()
             
             # Also generate professional consultation notes (cleaned up version of transcript)
             notes_prompt = f"Convert this messy medical transcript into professional, concise clinical notes (bullet points). Remove gibberish and conversation filler. Transcript: {raw_transcript[-1000:]}"
-            notes_res = ollama_client.generate(model="llama3.2", prompt=notes_prompt)
-            suggested_notes = notes_res['response'].strip()
+            suggested_notes = llm.invoke(notes_prompt).strip()
             
             print(f"[RAG] Suggested Diagnosis: {suggested_diagnosis}")
         except Exception as e:
