@@ -118,6 +118,41 @@ const prescriptionSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
+const NotificationSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true
+  },
+
+  role: {
+    type: String,
+    enum: ["admin", "doctor", "patient"],
+    required: true
+  },
+
+  title: {
+    type: String,
+    required: true
+  },
+
+  message: {
+    type: String,
+    required: true
+  },
+
+  type: {
+    type: String,
+    enum: ["appointment", "payment", "report", "general"],
+    default: "general"
+  },
+
+  isRead: {
+    type: Boolean,
+    default: false
+  }
+
+}, { timestamps: true });   
+
 const doctorSchema = new mongoose.Schema({
   doctorId: { type: Number, required: true, unique: true },
   firstName: { type: String, required: true },
