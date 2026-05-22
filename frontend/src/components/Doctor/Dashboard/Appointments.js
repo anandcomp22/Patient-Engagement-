@@ -293,7 +293,10 @@ const Appointments = () => {
                         <Typography variant="subtitle1" fontWeight={800} color="#1E5DA9">
                           {item.patientName}
                         </Typography>
-                        <Chip size="small" sx={{ mt: 0.5, height: 20, fontSize: "0.65rem", fontWeight: 700, background: "#E3F2FD", color: "#1E5DA9" }} label={item.appstatus || "Scheduled"} />
+                        <Box sx={{ display: "flex", gap: 0.5, mt: 0.5 }}>
+                          <Chip size="small" sx={{ height: 20, fontSize: "0.65rem", fontWeight: 700, background: "#E3F2FD", color: "#1E5DA9" }} label={item.appstatus || "Scheduled"} />
+                          <Chip size="small" sx={{ height: 20, fontSize: "0.65rem", fontWeight: 700, background: item.paymentstatus === "paid" ? "#dcfce7" : "#fee2e2", color: item.paymentstatus === "paid" ? "#22c55e" : "#ef4444" }} label={item.paymentstatus === "paid" ? "Paid" : "Unpaid"} />
+                        </Box>
                       </Box>
                     </Box>
                     <Box sx={{ display: "flex", gap: 0.5 }}>

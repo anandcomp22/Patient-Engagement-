@@ -39,7 +39,7 @@ const Sidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
 
   const footerItems = [
     { text: "Settings", icon: <Settings />, to: "/doctor/settings" },
-    { text: "Help & Support", icon: <Help />, to: "/aboutus" },
+    { text: "Help & Support", icon: <Help />, to: "/doctor/help" },
     { text: "Logout", icon: <LoginOutlined />, to: "/" },
   ];
 

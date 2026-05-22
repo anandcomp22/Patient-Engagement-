@@ -7,7 +7,7 @@ import {
 import {
   MicOff, Mic, Videocam, VideocamOff, CallEnd,
   Fullscreen, FullscreenExit, ContentCopy, Send,
-  Add, PersonOutline, SmartToy, Download, Email, Save, Visibility,
+  Add, PersonOutline, SmartToy, Download, Email, Save, Visibility, Description,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -42,6 +42,10 @@ const VideoCall = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [callDuration, setCallDuration] = useState(0);
+  const [inLobby, setInLobby] = useState(true);
+  const [lobbyStatus, setLobbyStatus] = useState({ doctorPresent: false, patientPresent: false });
+  const [mediaReady, setMediaReady] = useState(false);
+  const [isMediaLoading, setIsMediaLoading] = useState(false);
 
   // Prescription state
   const [medications, setMedications] = useState([]);
@@ -57,10 +61,10 @@ const VideoCall = () => {
   const [copied, setCopied] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [connectedPatientName, setConnectedPatientName] = useState("");
-  const [connectedPatientId, setConnectedPatientId] = useState(patientId);
   const [leftMessage, setLeftMessage] = useState("");
   const [patientDetails, setPatientDetails] = useState({ age: "", gender: "", phone: "", address: "" });
   const [prescriptionGuidelines, setPrescriptionGuidelines] = useState([]);
+  const [patientReports, setPatientReports] = useState([]);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -93,18 +97,25 @@ const VideoCall = () => {
       const res = await fetch(`${API_BASE}/patient/profile/${pid}`);
       if (res.ok) {
         const data = await res.json();
-        setPatientDetails({ 
-          age: data.age || "", 
-          gender: data.gender || "", 
-          phone: data.phone || "", 
-          address: data.address || "" 
+        setPatientDetails({
+          age: data.age || "",
+          gender: data.gender || "",
+          phone: data.phone || "",
+          address: data.address || ""
         });
         if (data.name) setPatientName(data.name);
         if (data.email) setPatientEmail(data.email);
         if (data.patientId) setPatientId(data.patientId.toString());
+
+        // Fetch reports too
+        const reportsRes = await fetch(`${API_BASE}/patient/reports/${pid}`);
+        if (reportsRes.ok) {
+          const reportsData = await reportsRes.json();
+          setPatientReports(reportsData);
+        }
       }
-    } catch (e) { 
-      console.error("Failed to fetch patient profile:", e); 
+    } catch (e) {
+      console.error("Failed to fetch patient profile:", e);
     }
   };
 
@@ -112,7 +123,7 @@ const VideoCall = () => {
     if (patientId) {
       fetchPatientProfile(patientId);
     }
-  }, []);
+  }, [patientId]);
 
   // ── Manual E-Prescription Actions ────────────────────────────
   const activePatientName = patientName;
@@ -126,9 +137,9 @@ const VideoCall = () => {
     patientId: activePatientId,
     age: patientDetails.age || "",
     gender: patientDetails.gender || "",
-    diagnosis: detectedCondition || (notes ? notes.split('.')[0] : "Consultation in progress"),
+    diagnosis: detectedCondition || (notes && notes.length > 20 ? notes.trim().split(/[.!?]/).filter(s => s.trim().length > 10).pop() || notes.substring(0, 100) : "Consultation in progress"),
     medicines: medications.filter(m => m.name.trim() !== ""),
-    guidelines: prescriptionGuidelines.length > 0 ? prescriptionGuidelines : (notes ? notes.split("\n").filter(g => g.trim() !== "") : []),
+    guidelines: prescriptionGuidelines.length > 0 ? prescriptionGuidelines : (notes && notes.length > 50 ? ["Follow-up as advised during call", "Maintain hydration"] : []),
     nextVisit: "TBD"
   };
 
@@ -141,11 +152,11 @@ const VideoCall = () => {
     };
     try {
       await fetch(`${API_BASE}/prescriptions/generate`, {
-        method: "POST", 
-        headers: { 
+        method: "POST",
+        headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }, 
+        },
         body: JSON.stringify(pData),
       });
 
@@ -192,70 +203,140 @@ const VideoCall = () => {
 
   const handleSendToPatient = async () => {
     let targetEmail = patientEmail;
-    
+
     // If no email from query params, prompt the user
     if (!targetEmail || targetEmail === "null" || targetEmail === "undefined") {
-        const manualEmail = prompt("Patient email is missing. Please enter the recipient's email address:", "");
-        if (!manualEmail) {
-            alert("Email is required to send the prescription.");
-            return;
-        }
-        targetEmail = manualEmail;
+      const manualEmail = prompt("Patient email is missing. Please enter the recipient's email address:", "");
+      if (!manualEmail) {
+        alert("Email is required to send the prescription.");
+        return;
+      }
+      targetEmail = manualEmail;
     }
 
     setSendingEmail(true);
     const filename = `prescription_${activePatientName.replace(/\s+/g, "_")}.pdf`;
-    
+
     // First save the PDF to server if not already done
     await handleSavePrescription();
 
     const deliveryData = {
-        email: targetEmail,
-        patient: activePatientName,
-        patientId: activePatientId,
-        diagnosis: prescriptionPreviewData.diagnosis,
-        medicines: prescriptionPreviewData.medicines,
-        guidelines: prescriptionPreviewData.guidelines,
-        nextVisit: prescriptionPreviewData.nextVisit,
-        doctorId: localStorage.getItem("doctorId"),
-        appointmentId: roomId, 
-        file: filename
+      email: targetEmail,
+      patient: activePatientName,
+      patientId: activePatientId,
+      diagnosis: prescriptionPreviewData.diagnosis,
+      medicines: prescriptionPreviewData.medicines,
+      guidelines: prescriptionPreviewData.guidelines,
+      nextVisit: prescriptionPreviewData.nextVisit,
+      doctorId: localStorage.getItem("doctorId"),
+      doctorName: name, // From current session state
+      appointmentId: roomId,
+      file: filename
     };
 
     try {
-        const res = await fetch(`${API_BASE}/prescriptions/save-and-send`, {
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify(deliveryData)
-        });
+      const res = await fetch(`${API_BASE}/prescriptions/save-and-send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify(deliveryData)
+      });
 
-        if (res.ok) {
-            alert(`Prescription successfully saved to records and sent to ${deliveryData.email}!`);
-            setPreviewOpen(false);
-        } else {
-            throw new Error("Delivery failed");
-        }
+      if (res.ok) {
+        alert(`Prescription successfully saved to records and sent to ${deliveryData.email}!`);
+        setPreviewOpen(false);
+
+        // ── Mark Appointment as Completed ──
+        fetch(`${API_BASE}/appointment/complete/${roomId}`, {
+          method: "PUT",
+          headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+        }).catch(err => console.error("Failed to mark appointment as complete:", err));
+
+      } else {
+        throw new Error("Delivery failed");
+      }
     } catch (err) {
-        alert("Error sending prescription. Please try again.");
-        console.error(err);
+      alert("Error sending prescription. Please try again.");
+      console.error(err);
     } finally {
-        setSendingEmail(false);
+      setSendingEmail(false);
     }
   };
 
-  const handleSendEmail = () => {
-    // Legacy support or fallback
-    handleSendToPatient();
-  };
-
-  // ── Socket init ────────────────────────────────────────────
+  // ── Socket init (Connect ONCE) ────────────────────────────
   useEffect(() => {
     socketRef.current = io("http://localhost:8000", { transports: ["websocket"] });
-    return () => socketRef.current.disconnect();
-  }, []);
+    
+    socketRef.current.on("lobby-status", (status) => {
+      console.log("[Doctor] Lobby status update:", status);
+      setLobbyStatus(status);
+    });
+
+    return () => {
+      if (socketRef.current) socketRef.current.disconnect();
+    };
+  }, []); // Empty dependency array: connects exactly once
+
+  // ── Handle Lobby Join/Leave Dynamically ───────────────────
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    // Send an immediate join
+    if (roomId && name && inLobby) {
+      socketRef.current.emit("lobby-join", { roomId, role: "doctor", userName: name });
+    }
+
+    // Robust Polling: Every 2 seconds, re-assert our presence in the room.
+    // This completely eliminates any missing events or desyncs.
+    const interval = setInterval(() => {
+      if (roomId && name && inLobby && socketRef.current && socketRef.current.connected) {
+        socketRef.current.emit("lobby-ping", { roomId, role: "doctor", userName: name });
+      }
+    }, 2000);
+
+    return () => {
+      clearInterval(interval);
+      if (roomId && socketRef.current && socketRef.current.connected) {
+        socketRef.current.emit("lobby-leave", { roomId, role: "doctor" });
+      }
+    };
+  }, [roomId, name, inLobby]);
+
+  // ── Media Permissions Request ──────────────────────────────
+  const handleRequestPermissions = async () => {
+    setIsMediaLoading(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      // We got the stream! This confirms permissions are granted.
+      // But user doesn't want the camera ON in the lobby, so we stop it immediately.
+      stream.getTracks().forEach(track => track.stop());
+      setMediaReady(true);
+    } catch (err) {
+      console.error("Media permission denied:", err);
+      alert("Please grant camera and microphone permissions to proceed.");
+    } finally {
+      setIsMediaLoading(false);
+    }
+  };
+
+  // ── Media Preview ───────────────────────────────────────────
+  // Automatically start preview ONLY IF mediaReady is true (meaning they clicked the button)
+  // But per user request "don't want video camera to be on to check lobby", 
+  // we will NOT show the video preview at all in the lobby.
+  /*
+  useEffect(() => {
+    if (inLobby && !localStream && mediaReady) {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then(stream => { 
+          setLocalStream(stream); 
+          if (localVideoRef.current) localVideoRef.current.srcObject = stream; 
+        })
+        .catch(console.error);
+    }
+  }, [inLobby, localStream, mediaReady]);
+  */
 
   // ── Name from storage ──────────────────────────────────────
   useEffect(() => {
@@ -308,17 +389,35 @@ const VideoCall = () => {
   const handleAiMedicines = useCallback((meds) => {
     const newMeds = meds
       .filter(m => m.metadata?.drug_name)
-      .map(m => ({ 
-        name: m.metadata.drug_name, 
-        dosage: m.metadata.dosage || "Standard Dose", 
-        frequency: m.metadata.frequency || "2x daily (After meals)", 
-        duration: m.metadata.duration || "5 Days" 
+      .map(m => ({
+        name: m.metadata.drug_name,
+        dosage: m.metadata.dosage || "Standard Dose",
+        frequency: m.metadata.frequency || "2x daily (After meals)",
+        duration: m.metadata.duration || "5 Days"
       }));
     setSuggestedMeds(prev => {
       const existing = new Set(prev.map(p => p.name?.toLowerCase()));
       return [...prev, ...newMeds.filter(m => !existing.has(m.name.toLowerCase()))];
     });
   }, []); // no deps — only uses setSuggestedMeds (stable setter)
+
+  const handleSelectAiMedicine = useCallback((med) => {
+    if (!med || !med.metadata) return;
+    const name = med.metadata.drug_name || "Unknown Medicine";
+    const dosage = med.metadata.dosage || "Standard Dose";
+    const freq = med.metadata.frequency || "2x daily (After meals)";
+    const dur = med.metadata.duration || "5 Days";
+    const note = med.metadata.comment || med.metadata.indications || "";
+
+    setMedications(prev => {
+      const exists = prev.find(m => m.name?.toLowerCase() === name.toLowerCase());
+      if (exists) return prev;
+      return [...prev, { name, dosage, frequency: freq, duration: dur, note }];
+    });
+
+    // Also remove from suggested if it was there
+    setSuggestedMeds(prev => prev.filter(p => p.name?.toLowerCase() !== name.toLowerCase()));
+  }, []);
 
   // ── Auto-generate guidelines when medications change ──────
   useEffect(() => {
@@ -330,11 +429,11 @@ const VideoCall = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ medications })
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.guidelines) setPrescriptionGuidelines(data.guidelines);
-      })
-      .catch(err => console.error("Failed to fetch guidelines:", err));
+        .then(res => res.json())
+        .then(data => {
+          if (data.guidelines) setPrescriptionGuidelines(data.guidelines);
+        })
+        .catch(err => console.error("Failed to fetch guidelines:", err));
     } else {
       setPrescriptionGuidelines([]);
     }
@@ -353,9 +452,29 @@ const VideoCall = () => {
   const joinRoom = async () => {
     if (joined) return;
     if (!roomId || !name) { alert("Please enter Room ID and Name"); return; }
+    
+    // Signal to the server that the call has officially started
+    // This will trigger the auto-join for the patient
+    socketRef.current.emit("lobby-start-call", { roomId });
+    
     socketRef.current.emit("join-room", { roomId });
     setJoined(true);
+    setInLobby(false);
+    setCallStartTime(new Date().toISOString());
   };
+
+  // ── Auto-Join when both in Lobby ───────────────────────────
+  // REMOVED for manual start control per user request
+  /*
+  useEffect(() => {
+    if (inLobby && !joined && lobbyStatus.doctorPresent && lobbyStatus.patientPresent && roomId && name) {
+      const timer = setTimeout(() => {
+        joinRoom();
+      }, 1500); 
+      return () => clearTimeout(timer);
+    }
+  }, [inLobby, joined, lobbyStatus, roomId, name]);
+  */
 
   // ── WebRTC ─────────────────────────────────────────────────
   useEffect(() => {
@@ -370,7 +489,7 @@ const VideoCall = () => {
       if (peerConnection.current) {
         peerConnection.current.ontrack = null;
         peerConnection.current.onicecandidate = null;
-        try { peerConnection.current.close(); } catch (_) {}
+        try { peerConnection.current.close(); } catch (_) { }
       }
 
       const pc = new RTCPeerConnection({
@@ -439,7 +558,6 @@ const VideoCall = () => {
         if (role === "patient") {
           setPatientJoined(true);
           setConnectedPatientName(userName || "Patient");
-          setConnectedPatientId(pid || patientId);
           setLeftMessage("");
           setMedications([]);
           setSuggestedMeds([]);
@@ -450,14 +568,19 @@ const VideoCall = () => {
           // Fetch full patient profile from backend
           if (pid) fetchPatientProfile(pid);
 
-          // Rebuild a fresh peer connection for this new patient
-          const pc = buildPC(localMediaStream);
-          const offer = await pc.createOffer();
-          await pc.setLocalDescription(offer);
-          socketRef.current.emit("offer", { roomId, offer });
+          // Use the existing peer connection, do NOT rebuild it
+          if (peerConnection.current) {
+            try {
+              const offer = await peerConnection.current.createOffer();
+              await peerConnection.current.setLocalDescription(offer);
+              socketRef.current.emit("offer", { roomId, offer });
+            } catch (err) {
+              console.error("Error creating offer:", err);
+            }
+          }
         }
       });
-      socketRef.current.on("user-left", ({ role, userName }) => { 
+      socketRef.current.on("user-left", ({ role, userName }) => {
         if (role === "patient") {
           setPatientJoined(false);
           setLeftMessage(`${userName || "Patient"} has left the call`);
@@ -470,15 +593,8 @@ const VideoCall = () => {
       socketRef.current.emit("media-ready", { roomId, role: "doctor", userName: name });
     }).catch(err => console.error("Media access error:", err));
 
-    // Transcript from socket
-    const handleTranscript = ({ text }) => {
-      if (!text) return;
-      setNotes(p => p + " " + text + " ");
-    };
-    socketRef.current.on("transcript", handleTranscript);
-
     return () => {
-      ["offer", "answer", "ice-candidate", "peer-ready", "user-left", "transcript"].forEach(e => socketRef.current.off(e));
+      ["offer", "answer", "ice-candidate", "peer-ready", "user-left"].forEach(e => socketRef.current.off(e));
       peerConnection.current?.close();
       peerConnection.current = null;
     };
@@ -498,33 +614,20 @@ const VideoCall = () => {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => { });
     clearInterval(durationTimer.current);
 
-    const prescriptionData = {
-      patientId, patient: patientName, age: "N/A", address: "Teleconsultation", contact: "N/A",
-      prescriptionNo: `RX-${Date.now()}`,
-      date: new Date().toLocaleDateString(),
-      email: patientEmail || "patient@clinic.com",
-      medicines: medications.length > 0 ? medications : [{ name: "General Advice", dosage: "-", frequency: "-", duration: "-" }],
-      notes: notes || "No additional notes",
-    };
-
+    // ── Mark Appointment as Completed ──
     try {
-      await fetch(`${API_BASE}/prescriptions/generate`, {
-        method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}` },
-        body: JSON.stringify(prescriptionData),
+      await fetch(`${API_BASE}/appointment/complete/${roomId}`, {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
       });
-      const element = document.getElementById("prescription-template-doc");
-      if (element) {
-        const filename = `prescription_${patientName.replace(/\s+/g, "_")}.pdf`;
-        const pdfBlob = await html2pdf().set({ margin: 10, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(element).outputPdf('blob');
-        const formData = new FormData();
-        formData.append("prescriptionPdf", pdfBlob, filename);
-        const uploadRes = await fetch(`${API_BASE}/prescriptions/uploadPdf`, { method: "POST", headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }, body: formData });
-        const uploadData = await uploadRes.json();
-        if (uploadData.file) {
-          await fetch(`${API_BASE}/prescriptions/send`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}` }, body: JSON.stringify({ email: prescriptionData.email, file: uploadData.file }) });
-        }
+    } catch (e) { console.error("Failed to mark appointment as complete:", e); }
+
+    // Prompt to send prescription if not already sent
+    if (medications.length > 0 && !callEndedRef.current) {
+      if (window.confirm("Consultation ended. Would you like to send the prescription to the patient now?")) {
+        await handleSendToPatient();
       }
-    } catch (e) { console.error("Prescription error:", e); }
+    }
 
     try {
       await fetch(`${API_BASE}/api/videocall/summary`, {
@@ -551,152 +654,131 @@ const VideoCall = () => {
   };
 
   // ── Pre-join UI ────────────────────────────────────────────
-  if (!joined) {
+  // ── Pre-join / Lobby Screen ──────────────────────────────────
+  if (inLobby || !joined) {
     const joinLink = `${window.location.origin}/patient/video-call?roomId=${roomId}`;
     return (
-      <Box sx={{ minHeight: "calc(100vh - 80px)", display: "flex" }}>
-        {/* Left Side: Info / Branding */}
+      <Box sx={{ minHeight: "calc(100vh - 80px)", display: "flex", flexDirection: { xs: 'column', md: 'row' }, bgcolor: "#f8fafc" }}>
+        {/* Left Side: Media Preview */}
         <Box sx={{
-          flex: 1,
-          display: { xs: 'none', md: 'flex' },
-          flexDirection: 'column',
-          justifyContent: 'center',
-          p: { md: 6, lg: 10 },
-          background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',
-          position: 'relative',
-          overflow: 'hidden'
+          flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', p: { xs: 2, sm: 4 },
+          background: 'linear-gradient(135deg, #f0f4f8 0%, #f8fafc 100%)',
+          position: 'relative', overflow: 'hidden'
         }}>
-          {/* Decorative circles */}
-          <Box sx={{ position: 'absolute', top: -100, right: -50, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.5)', filter: 'blur(20px)' }} />
-          <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 250, height: 250, borderRadius: '50%', background: 'rgba(255,255,255,0.5)', filter: 'blur(20px)' }} />
+          <Typography variant="h4" fontWeight="800" sx={{ color: "#1E5DA9", mb: { xs: 2, md: 4 }, zIndex: 1, textAlign: "center", fontSize: { xs: "1.75rem", md: "2.125rem" } }}>Consultation Lobby</Typography>
           
-          <Typography variant="h3" sx={{ color: '#E65100', fontWeight: 800, mb: 2, zIndex: 1 }}>
-            Doctor Consultation Room
-          </Typography>
-          <Typography variant="h6" sx={{ color: '#555', mb: 6, zIndex: 1, maxWidth: 500, lineHeight: 1.6 }}>
-            Utilize integrated AI tools for automated clinical notes and prescriptions.
-          </Typography>
+          <Paper sx={{ 
+            width: "100%", maxWidth: 640, aspectRatio: "16/9", bgcolor: "#1a1a1a", borderRadius: 4, overflow: "hidden", position: "relative",
+            boxShadow: "0 20px 40px rgba(0,0,0,0.2)", zIndex: 1,
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"
+          }}>
+            {mediaReady ? (
+              <Box sx={{ textAlign: "center", animation: "fadeIn 0.5s ease-in" }}>
+                <Avatar sx={{ width: 120, height: 120, bgcolor: "rgba(30,93,169,0.1)", border: "2px solid #1E5DA9", mb: 3, mx: "auto" }}>
+                  <PersonOutline sx={{ fontSize: 60, color: "#1E5DA9" }} />
+                </Avatar>
+                <Typography variant="h6" sx={{ color: "#fff", mb: 1 }}>Media Devices Ready</Typography>
+                <Box sx={{ display: "flex", gap: 1, justifyContent: "center" }}>
+                   <Chip size="small" icon={<Mic sx={{ fontSize: "1rem !important" }} />} label="Microphone Active" sx={{ bgcolor: "rgba(34,197,94,0.2)", color: "#4ade80", border: "1px solid #16a34a" }} />
+                   <Chip size="small" icon={<Videocam sx={{ fontSize: "1rem !important" }} />} label="Camera Active" sx={{ bgcolor: "rgba(34,197,94,0.2)", color: "#4ade80", border: "1px solid #16a34a" }} />
+                </Box>
+              </Box>
+            ) : (
+              <Box sx={{ textAlign: "center", p: 4 }}>
+                <Avatar sx={{ width: 100, height: 100, bgcolor: "rgba(255,255,255,0.05)", mb: 3, mx: "auto" }}>
+                  <VideocamOff sx={{ fontSize: 50, color: "rgba(255,255,255,0.3)" }} />
+                </Avatar>
+                <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.6)", mb: 4, maxWidth: 300 }}>
+                  Camera and Microphone are currently off for your privacy.
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  onClick={handleRequestPermissions} 
+                  disabled={isMediaLoading}
+                  sx={{ 
+                    bgcolor: "#1E5DA9", borderRadius: 2, px: 4, py: 1.5,
+                    "&:hover": { bgcolor: "#154a8a" }
+                  }}
+                >
+                  {isMediaLoading ? "Checking..." : "Enable Camera & Mic"}
+                </Button>
+              </Box>
+            )}
+            
+            {/* Minimal overlays for lobby */}
+            {mediaReady && (
+              <Box sx={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 2 }}>
+                <Tooltip title={micOn ? "Mute Mic" : "Unmute Mic"}>
+                  <IconButton onClick={() => setMicOn(!micOn)} 
+                    sx={{ bgcolor: micOn ? "rgba(255,255,255,0.1)" : "rgba(239,68,68,0.2)", color: micOn ? "#fff" : "#ef4444" }}>
+                    {micOn ? <Mic /> : <MicOff />}
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title={cameraOn ? "Turn off Camera" : "Turn on Camera"}>
+                  <IconButton onClick={() => setCameraOn(!cameraOn)} 
+                    sx={{ bgcolor: cameraOn ? "rgba(255,255,255,0.1)" : "rgba(239,68,68,0.2)", color: cameraOn ? "#fff" : "#ef4444" }}>
+                    {cameraOn ? <Videocam /> : <VideocamOff />}
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            )}
+          </Paper>
 
-          <Box sx={{ zIndex: 1, display: 'flex', flexDirection: 'column', gap: 3.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-              <Avatar sx={{ bgcolor: '#fff', color: '#E65100', width: 48, height: 48, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}><SmartToy/></Avatar>
-              <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>AI Assistant transcribes continuously</Typography>
-            </Box>
-             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-              <Avatar sx={{ bgcolor: '#fff', color: '#E65100', width: 48, height: 48, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}><Videocam/></Avatar>
-              <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>AI detects visually apparent conditions</Typography>
-            </Box>
-             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-              <Avatar sx={{ bgcolor: '#fff', color: '#E65100', width: 48, height: 48, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}><Mic/></Avatar>
-              <Typography variant="body1" sx={{ color: '#333', fontWeight: 600, fontSize: '1.05rem' }}>Mention medicines to auto-add them</Typography>
-            </Box>
+          <Box sx={{ mt: 4, p: 3, bgcolor: "rgba(30,93,169,0.05)", borderRadius: 4, border: "1px solid rgba(30,93,169,0.1)", textAlign: "center", maxWidth: 400, width: "100%" }}>
+             <Typography variant="subtitle1" fontWeight="700" color="#1E5DA9" gutterBottom>Lobby Status</Typography>
+             <Box sx={{ display: "flex", justifyContent: "space-around", mb: 2 }}>
+                <Box>
+                   <Typography variant="caption" display="block" color="#777">Doctor</Typography>
+                   <Chip label="Ready" color="success" size="small" />
+                </Box>
+                <Box>
+                   <Typography variant="caption" display="block" color="#777">Patient</Typography>
+                   <Chip 
+                     label={lobbyStatus.patientPresent ? "Ready" : "Waiting..."} 
+                     color={lobbyStatus.patientPresent ? "success" : "default"} 
+                     variant={lobbyStatus.patientPresent ? "filled" : "outlined"}
+                     size="small" 
+                   />
+                </Box>
+             </Box>
+             <Typography variant="body2" color="#555" sx={{ mb: 2 }}>
+               {lobbyStatus.patientPresent 
+                 ? "Patient is in the lobby. You can start the consultation." 
+                 : "Waiting for the patient to join the lobby..."}
+             </Typography>
           </Box>
         </Box>
 
-        {/* Right Side: Join Form */}
-        <Box sx={{
-          width: { xs: '100%', md: '480px' },
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#fff',
-          position: 'relative',
-          zIndex: 2,
-          boxShadow: { md: '-20px 0 40px rgba(0,0,0,0.04)' }
-        }}>
-          <Paper elevation={0} sx={{
-            p: { xs: 4, md: 6 },
-            width: "100%",
-            mx: 2,
-            background: "transparent",
-            color: "#1E5DA9",
-          }}>
+        {/* Right Side: Join Controls */}
+        <Box sx={{ width: { xs: '100%', md: '440px' }, display: "flex", flexDirection: "column", justifyContent: "center", p: { xs: 3, sm: 6 }, bgcolor: "#fff", borderLeft: { xs: 'none', md: '1px solid #eee' }, borderTop: { xs: '1px solid #eee', md: 'none' }, zIndex: 2 }}>
+          <Typography variant="h5" fontWeight="800" sx={{ color: "#1E5DA9", mb: 1 }}>Start Consultation</Typography>
+          <Typography variant="body2" sx={{ color: "#777", mb: 4 }}>Both participants must be in the lobby to start.</Typography>
 
-            <Box sx={{ textAlign: "center", mb: 4 }}>
-              <Box sx={{
-                width: 64, height: 64, borderRadius: "50%", mx: "auto", mb: 2,
-                background: "linear-gradient(135deg, #62b8ffff, #1E5DA9)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: "0 8px 24px rgba(30,93,169,0.3)"
-              }}>
-                <Videocam sx={{ color: "#fff", fontSize: 30 }} />
-              </Box>
-              <Typography variant="h5" fontWeight={800} sx={{ color: "#1E5DA9" }}>
-                Start Consultation
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#777", mt: 1 }}>
-                Set up your video room below
-              </Typography>
-            </Box>
-
-            <TextField fullWidth label="Doctor Name" value={name}
-              onChange={e => setName(e.target.value)} sx={{ mb: 2.5, ...lightInputSx }} />
-
-            <Box sx={{ display: "flex", gap: 1.5, mb: 2.5 }}>
-              <TextField fullWidth label="Room ID" value={roomId}
-                onChange={e => setRoomId(e.target.value)} sx={lightInputSx} />
-              <Button variant="outlined" onClick={generateRoomId} sx={{
-                minWidth: 80, borderRadius: 2, color: "#1E5DA9",
-                borderColor: "rgba(0,0,0,0.15)",
-                "&:hover": { borderColor: "#1E5DA9", background: "rgba(30,93,169,0.05)" },
-                textTransform: "none", fontWeight: 600,
-              }}>
-                Generate
-              </Button>
-            </Box>
-
-            {roomId && (
-              <Box sx={{
-                mb: 3, p: 2, borderRadius: 2,
-                background: "rgba(30,93,169,0.06)",
-                border: "1px solid rgba(30,93,169,0.2)",
-              }}>
-                <Typography sx={{ color: "#555", fontSize: "0.75rem", mb: 1 }}>
-                  Patient join link
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography sx={{ flex: 1, color: "#1E5DA9", fontSize: "0.78rem", wordBreak: "break-all" }}>
-                    {joinLink}
-                  </Typography>
-                  <Tooltip title={copied ? "Copied!" : "Copy link"}>
-                    <IconButton onClick={copyLink} size="small" sx={{ color: copied ? "#22c55e" : "#555" }}>
-                      <ContentCopy fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-                {patientEmail && (
-                  <Button size="small" startIcon={<Send fontSize="small" />}
-                    onClick={async () => {
-                      await fetch(`${API_BASE}/email/send-video-link`, {
-                        method: "POST", headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ email: patientEmail, link: joinLink, doctorName: name }),
-                      });
-                      alert("Link sent to patient!");
-                    }}
-                    sx={{
-                      mt: 1, textTransform: "none", color: "#60a5fa", fontSize: "0.78rem",
-                      "&:hover": { background: "rgba(96,165,250,0.1)" },
-                    }}>
-                    Send via email to {patientEmail}
-                  </Button>
-                )}
-              </Box>
-            )}
-
-            <Button fullWidth variant="contained" size="large" onClick={joinRoom}
-              disabled={!roomId || !name}
-              sx={{
-                py: 1.6, borderRadius: 2, fontWeight: 700, fontSize: "1.05rem",
-                background: "linear-gradient(90deg, #62b8ffff, #1E5DA9)",
-                textTransform: "none",
-                boxShadow: "0 8px 24px rgba(30,93,169,0.3)",
-                "&:hover": { background: "linear-gradient(90deg, #1E5DA9, #0f3f7a)", transform: "translateY(-1px)", boxShadow: "0 12px 28px rgba(30,93,169,0.4)" },
-                transition: "all 0.2s ease-in-out",
-                "&:disabled": { opacity: 0.5, transform: "none", boxShadow: "none" },
-              }}>
-              Start Video Call
+          <TextField fullWidth label="Your Display Name" value={name} onChange={e => setName(e.target.value)} sx={{ mb: 2.5, ...lightInputSx }} />
+          
+          <Box sx={{ display: "flex", gap: 1.5, mb: 4 }}>
+            <TextField fullWidth label="Room ID" value={roomId} onChange={e => setRoomId(e.target.value)} sx={lightInputSx} />
+            <Button variant="outlined" onClick={generateRoomId} sx={{ minWidth: 80, borderRadius: 2, color: "#1E5DA9", borderColor: "rgba(30,93,169,0.3)" }}>
+              New
             </Button>
-          </Paper>
+          </Box>
+
+          <Button 
+            fullWidth variant="contained" size="large" onClick={joinRoom} disabled={!roomId || !name || !lobbyStatus.patientPresent || !mediaReady}
+            sx={{ py: 2, borderRadius: 2, fontWeight: 700, background: "linear-gradient(135deg, #62b8ffff, #1E5DA9)", boxShadow: "0 8px 20px rgba(30,93,169,0.2)", "&:disabled": { opacity: 0.6 } }}
+          >
+            {!mediaReady ? "Enable Media to Start" : (lobbyStatus.patientPresent ? "Start Video Consultation" : "Waiting for Patient...")}
+          </Button>
+
+          <Box sx={{ mt: 4, p: 2, bgcolor: "#f1f5f9", borderRadius: 3 }}>
+            <Typography variant="caption" fontWeight="700" sx={{ color: "#64748b", mb: 1, display: "block" }}>Quick Invite Link</Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <TextField fullWidth size="small" value={joinLink} InputProps={{ readOnly: true, sx: { fontSize: "0.75rem", bgcolor: "#fff" } }} />
+              <IconButton size="small" onClick={() => { navigator.clipboard.writeText(joinLink); setCopied(true); setTimeout(() => setCopied(false), 2000); }}>
+                <ContentCopy fontSize="small" color={copied ? "success" : "inherit"} />
+              </IconButton>
+            </Box>
+          </Box>
         </Box>
         <style>{globalStyles}</style>
       </Box>
@@ -708,6 +790,7 @@ const VideoCall = () => {
     <Box sx={{
       height: "calc(100vh - 80px)",
       display: "flex",
+      flexDirection: { xs: "column", lg: "row" },
       background: "#f0f4f8",
       overflow: "hidden",
       gap: 0,
@@ -718,7 +801,8 @@ const VideoCall = () => {
         onMouseMove={resetControlsTimer}
         onClick={resetControlsTimer}
         sx={{
-          flex: 1,
+          flex: { xs: "none", lg: 1 },
+          height: { xs: "45vh", sm: "55vh", lg: "100%" },
           position: "relative",
           background: "#f8fafc",
           overflow: "hidden",
@@ -870,11 +954,13 @@ const VideoCall = () => {
 
       {/* ── Right Panel (Prescription + AI) ── */}
       <Box sx={{
-        width: 360,
+        width: { xs: "100%", lg: 360 },
+        flex: { xs: 1, lg: "none" },
         display: "flex",
         flexDirection: "column",
         background: "#ffffff",
-        borderLeft: "1px solid rgba(0,0,0,0.07)",
+        borderLeft: { xs: "none", lg: "1px solid rgba(0,0,0,0.07)" },
+        borderTop: { xs: "1px solid rgba(0,0,0,0.07)", lg: "none" },
         overflow: "hidden",
       }}>
         {/* Panel header */}
@@ -1022,6 +1108,16 @@ const VideoCall = () => {
           {/* Notes & Actions */}
           <Box sx={{ mb: 2 }}>
             <Typography variant="caption" sx={{ color: "#888", textTransform: "uppercase", letterSpacing: 1, fontSize: "0.68rem" }}>
+              Clinical Diagnosis
+            </Typography>
+            <TextField
+              fullWidth placeholder="AI will suggest or type here..."
+              value={detectedCondition}
+              onChange={e => setDetectedCondition(e.target.value)}
+              sx={{ mt: 1, mb: 1.5, ...lightInputSx }}
+            />
+
+            <Typography variant="caption" sx={{ color: "#888", textTransform: "uppercase", letterSpacing: 1, fontSize: "0.68rem" }}>
               Consultation Notes
             </Typography>
             <TextField
@@ -1043,14 +1139,14 @@ const VideoCall = () => {
                 sx={{ flexGrow: 1, textTransform: "none", borderColor: "rgba(30,93,169,0.3)" }}>
                 Download
               </Button>
-              <Button size="small" variant="contained" startIcon={<Email fontSize="small" />} 
-                onClick={handleSendToPatient} 
+              <Button size="small" variant="contained" startIcon={<Email fontSize="small" />}
+                onClick={handleSendToPatient}
                 disabled={sendingEmail}
-                sx={{ 
-                  width: "100%", 
-                  textTransform: "none", 
-                  background: "linear-gradient(135deg, #FF6F00, #E65100)", 
-                  boxShadow: "0 4px 12px rgba(230,81,0,0.2)", 
+                sx={{
+                  width: "100%",
+                  textTransform: "none",
+                  background: "linear-gradient(135deg, #FF6F00, #E65100)",
+                  boxShadow: "0 4px 12px rgba(230,81,0,0.2)",
                   fontWeight: 700,
                   '&:hover': { background: "linear-gradient(135deg, #E65100, #BF360C)" }
                 }}
@@ -1058,6 +1154,46 @@ const VideoCall = () => {
                 {sendingEmail ? "Sending..." : "Send to Patient"}
               </Button>
             </Box>
+          </Box>
+
+          {/* Patient Medical Documents */}
+          <Divider sx={{ borderColor: "rgba(0,0,0,0.07)", mb: 2 }} />
+          <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+              <Description sx={{ color: "#1E5DA9", fontSize: 18 }} />
+              <Typography variant="caption" sx={{ color: "#1E5DA9", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, fontSize: "0.7rem" }}>
+                Medical Documents ({patientReports.length})
+              </Typography>
+            </Box>
+
+            {patientReports.length === 0 ? (
+              <Typography variant="caption" sx={{ color: "#888", fontStyle: "italic", display: "block", px: 1 }}>
+                No documents uploaded by patient.
+              </Typography>
+            ) : (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                {patientReports.map((report, i) => (
+                  <Box key={i} sx={{
+                    p: 1.5, borderRadius: 2,
+                    background: "rgba(0,0,0,0.02)",
+                    border: "1px solid rgba(0,0,0,0.05)",
+                    display: "flex", alignItems: "center", justifyContent: "space-between"
+                  }}>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography sx={{ fontSize: "0.8rem", fontWeight: 600, color: "#333", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {report.reportName}
+                      </Typography>
+                      <Typography sx={{ fontSize: "0.65rem", color: "#666" }}>
+                        {report.reportType} • {new Date(report.uploadDate).toLocaleDateString()}
+                      </Typography>
+                    </Box>
+                    <IconButton size="small" onClick={() => window.open(`${API_BASE}/${report.filePath.replace(/\\/g, '/')}`, "_blank")} sx={{ color: "#1E5DA9" }}>
+                      <Visibility fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Box>
 
           {/* AI Panel */}
@@ -1076,12 +1212,18 @@ const VideoCall = () => {
             <AiPanel
               localStream={localStream}
               remoteStream={remoteStream}
-              active={joined && patientJoined}
+              active={joined} // Start as soon as doctor joins
               sessionId={roomId}
               patientId={queryParams.get("patientId") || "patient_101"}
               doctorId={doctorId}
               liveTranscript={notes}
               onMedicinesFound={handleAiMedicines}
+              onTranscriptUpdate={(text) => { /* Only for internal sync if needed, but we don't auto-update notes anymore */ }}
+              onSelectMedicine={handleSelectAiMedicine}
+              onAiSummary={({ diagnosis, notes }) => {
+                if (diagnosis) setDetectedCondition(diagnosis);
+                if (notes) setNotes(notes);
+              }}
             />
           </Box>
         </Box>

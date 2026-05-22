@@ -14,6 +14,8 @@ import {
 
   Chip,
   Divider,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   CalendarToday,
@@ -31,6 +33,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { formatDistanceToNowStrict } from 'date-fns';
 import axios from 'axios';
+import io from 'socket.io-client';
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -197,10 +200,11 @@ export default function PatientDashboard() {
   // ── Health device data ─────────────────────────────────────────────
   const health = useHealthData();
   const isHealthConnected = ['ble', 'gfit', 'demo'].includes(health.connectionStatus);
-  const [notifications] = useState(['New appointment scheduled', 'Medication reminder']);
+  const [notifications, setNotifications] = useState(['New appointment scheduled', 'Medication reminder']);
   const [patientName, setPatientName] = useState("");
   const [greeting, setGreeting] = useState("");
   const [loading, setLoading] = useState(true);
+  const [reminderToast, setReminderToast] = useState(null);
 
   const profileInitials = 'SP';
   const patientId = localStorage.getItem("patientId") || 123;
@@ -271,6 +275,18 @@ export default function PatientDashboard() {
       }, 4000);
     }
   }, []);
+
+  // ── Socket.IO: Listen for appointment reminders ──
+  useEffect(() => {
+    const socket = io(API_BASE);
+    socket.on("appointment-reminder", (data) => {
+      if (Number(data.patientId) === Number(patientId)) {
+        setReminderToast(data);
+        setNotifications(prev => [`⏰ ${data.doctorName} appointment in ${data.minutesAway} min!`, ...prev]);
+      }
+    });
+    return () => socket.disconnect();
+  }, [patientId]);
 
   return (
     <>
@@ -507,6 +523,31 @@ export default function PatientDashboard() {
 
     {/* Floating Medical Chatbot — fixed overlay, visible on all scroll positions */}
     <MedicalChatBot />
+
+    {/* Appointment Reminder Toast */}
+    <Snackbar
+      open={Boolean(reminderToast)}
+      autoHideDuration={30000}
+      onClose={() => setReminderToast(null)}
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+    >
+      <Alert
+        severity="info"
+        variant="filled"
+        onClose={() => setReminderToast(null)}
+        action={
+          <Button color="inherit" size="small" onClick={() => {
+            navigate(`/patient/video-call?roomId=${reminderToast?.roomId || ''}`);
+            setReminderToast(null);
+          }}>
+            Join Now
+          </Button>
+        }
+        sx={{ width: '100%', fontSize: '0.95rem' }}
+      >
+        {reminderToast ? `Your consultation with ${reminderToast.doctorName} starts in ${reminderToast.minutesAway} minutes!` : ''}
+      </Alert>
+    </Snackbar>
   </>
   );
 }

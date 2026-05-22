@@ -47,7 +47,9 @@ router.post("/upload-report", upload.single("report"), async (req, res) => {
 router.get("/reports/:patientId", async (req, res) => {
   try {
     const patientId = Number(req.params.patientId);
+    console.log(`[Reports API] Requesting reports for patientId: ${patientId} (type: ${typeof patientId})`);
     const reports = await MedicalReport.find({ patientId }).sort({ uploadDate: -1 });
+    console.log(`[Reports API] Found ${reports.length} reports for patient ${patientId}`);
     res.json(reports);
   } catch (err) {
     console.error("Error fetching reports:", err);
@@ -91,12 +93,14 @@ router.get("/available-slots", async (req, res) => {
       return res.status(400).json({ message: "doctorId and date are required" });
     }
 
-    const ALL_SLOTS = [
-      "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", 
-      "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", 
-      "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", 
-      "04:00 PM", "04:30 PM", "05:00 PM"
-    ];
+    const ALL_SLOTS = [];
+    for (let h = 0; h < 24; h++) {
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const displayH = h % 12 === 0 ? 12 : h % 12;
+      const hourStr = displayH.toString().padStart(2, '0');
+      ALL_SLOTS.push(`${hourStr}:00 ${ampm}`);
+      ALL_SLOTS.push(`${hourStr}:30 ${ampm}`);
+    }
 
     const dId = Number(doctorId);
     const queryDate = new Date(date);

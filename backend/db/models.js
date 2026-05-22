@@ -7,7 +7,7 @@ const AdminSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true
-  }, 
+  },
 
   lastName: {
     type: String,
@@ -17,7 +17,7 @@ const AdminSchema = new mongoose.Schema({
 
   email: {
     type: String,
-    required: true, 
+    required: true,
     unique: true,
     lowercase: true
   },
@@ -110,6 +110,7 @@ const prescriptionSchema = new mongoose.Schema({
   ],
   guidelines: [String],
   diagnosis: { type: String, default: "General Consultation" },
+  doctorName: { type: String, default: "Doctor" },
   date: { type: Date, default: Date.now },
   nextVisit: { type: String, default: "TBD" },
   notes: { type: String, default: "No additional notes" },
@@ -118,56 +119,58 @@ const prescriptionSchema = new mongoose.Schema({
 
 
 const doctorSchema = new mongoose.Schema({
-    doctorId: { type: Number, required: true, unique: true },
-    firstName: { type: String, required: true },
-    middleName: { type: String },
-    lastName: { type: String, required: true },
-    email: { type: String, required: true },
-    password: { type: String, required: true },
-    dob: { type: Date, required: true },
-    phone: { type: String, required: true },
-    licenseNumber: { type: String, required: true },
-    specialty: { type: String, required: true },
-    qualifications: { type: [String], required: true },
-    experience: { type: Number, required: true },
-    hospital: { type: String, required: true },
-    country: { type: String, required: true },
-    state: { type: String, required: true },
-    district: { type: String, required: true },   
-    profileImage: { type: String },
-    licenseDocument: { type: String, default: null }, 
-    isVerified: {
-      type: Boolean,
-      default: false
-    },
-    verificationDate: {type: Date},
-    verificationStatus: {
-      type: String,
-      enum: ["not_uploaded", "pending", "verified", "rejected"],
-      default: "not_uploaded"
-    },
-      verifiedAt: Date,
+  doctorId: { type: Number, required: true, unique: true },
+  firstName: { type: String, required: true },
+  middleName: { type: String },
+  lastName: { type: String, required: true },
+  email: { type: String, required: true },
+  password: { type: String, required: true },
+  dob: { type: Date, required: true },
+  phone: { type: String, required: true },
+  licenseNumber: { type: String, required: true },
+  specialty: { type: String, required: true },
+  qualifications: { type: [String], required: true },
+  experience: { type: Number, required: true },
+  hospital: { type: String, required: true },
+  country: { type: String, required: true },
+  state: { type: String, required: true },
+  district: { type: String, required: true },
+  profileImage: { type: String },
+  licenseDocument: { type: String, default: null },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationDate: { type: Date },
+  verificationStatus: {
+    type: String,
+    enum: ["not_uploaded", "pending", "verified", "rejected"],
+    default: "not_uploaded"
+  },
+  verifiedAt: Date,
   verifiedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Admin",
   },
-    isActive: { type: Boolean, default: true }
-  }, { timestamps: true });
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
 
 const feepaySchema = new mongoose.Schema({
-    patientId: { type: Number, required: true},
-    patientname: { type: String, required: true },
-    doctorId: { type: Number, required: true },
-    doctorname: { type: String, required: true },
-    paymentstatus: {type: String, 
-        enum: ['paid', 'pending', 'fail']},
-    
-    paymentmethod: {type: String, required: true},
+  patientId: { type: Number, required: true },
+  patientname: { type: String, required: true },
+  doctorId: { type: Number, required: true },
+  doctorname: { type: String, required: true },
+  paymentstatus: {
+    type: String,
+    enum: ['paid', 'pending', 'fail']
+  },
 
-    fees: { type: Number, required: true },
-    transactionId :{ type: Number, required: true, unique: true }
+  paymentmethod: { type: String, required: true },
+
+  fees: { type: Number, required: true },
+  transactionId: { type: String, required: true, unique: true }
 });
- 
+
 
 const appointmentSchema = new mongoose.Schema({
   appointmentId: {
@@ -176,8 +179,8 @@ const appointmentSchema = new mongoose.Schema({
     unique: true
   },
 
-  patient: { 
-    type: mongoose.Schema.Types.ObjectId, 
+  patient: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Patient",
     required: true
   },
@@ -214,7 +217,8 @@ const appointmentSchema = new mongoose.Schema({
     default: "pending"
   },
 
-  meetingLink: String
+  meetingLink: String,
+  reminderSent: { type: Boolean, default: false }
 }, { timestamps: true });
 
 const slotSchema = new mongoose.Schema({
@@ -230,59 +234,50 @@ const slotSchema = new mongoose.Schema({
 });
 
 const patientSchema = new mongoose.Schema({
-    patientId: { type: Number, required: true, unique: true },
-    firstName: { type: String, required: true },
-    middleName: { type: String },
-    lastName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    phone: { type: String, required: true },
-    dob: { type: Date, required: true },
-    country: { type: String },
-    state: { type: String },
-    district: { type: String },
-    gender: {
-      type: String,
-      enum: ['male', 'female', 'other']
-    },
-    contact: { type: Number },
-    bloodgroup: { type: String },
-    allergies: { type: String },
-    emergencycontact: {
-      ename: { type: String },
-      econtact: { type: Number },
-      relation: { type: String }
-    },
-  });
-  
-  
-  const medicalReportSchema = new mongoose.Schema({
-    patientId: { type: Number, required: true },
-    reportName: { type: String, required: true },
-    reportType: { type: String },
-    uploadDate: { type: Date, default: Date.now },
-    generationPlace: { type: String },
-    filePath: { type: String, required: true },
-    description: { type: String },
-  }, { timestamps: true });
+  patientId: { type: Number, required: true, unique: true },
+  firstName: { type: String, required: true },
+  middleName: { type: String },
+  lastName: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  phone: { type: String, required: true },
+  dob: { type: Date, required: true },
+  country: { type: String },
+  state: { type: String },
+  district: { type: String },
+  gender: {
+    type: String,
+    enum: ['male', 'female', 'other']
+  },
+  contact: { type: Number },
+  bloodgroup: { type: String },
+  allergies: { type: String },
+  emergencycontact: {
+    ename: { type: String },
+    econtact: { type: Number },
+    relation: { type: String }
+  },
+});
 
 
-  const NotificationSchema = new mongoose.Schema({
-    userId: { type: String, required: true, index: true }, // 'admin', or doctorId, or patientId
-    role: { type: String, enum: ['patient', 'doctor', 'admin'], required: true },
-    title: { type: String, required: true },
-    message: { type: String, required: true },
-    isRead: { type: Boolean, default: false },
-    createdAt: { type: Date, default: Date.now }
-  });
+const medicalReportSchema = new mongoose.Schema({
+  patientId: { type: Number, required: true },
+  reportName: { type: String, required: true },
+  reportType: { type: String },
+  uploadDate: { type: Date, default: Date.now },
+  generationPlace: { type: String },
+  filePath: { type: String, required: true },
+  description: { type: String },
+}, { timestamps: true });
 
-  const userSchema = new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    role: { type: String, enum: ['doctor', 'patient'], required: true },
-    userId: { type: Number, required: true },
-  });
-  
+
+const userSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ['doctor', 'patient'], required: true },
+  userId: { type: Number, required: true },
+});
+
 
 const videocallSchema = new mongoose.Schema({
   appointmentId: {
@@ -306,10 +301,10 @@ const videocallSchema = new mongoose.Schema({
     unique: true
   },
   appstatus: {
-  type: String,
-  enum: ["confirmed", "pending", "cancelled", "appointment done"],
-  default: "confirmed",
-  lowercase: true
+    type: String,
+    enum: ["confirmed", "pending", "cancelled", "appointment done"],
+    default: "confirmed",
+    lowercase: true
   },
   callduration: Number,
   recordinglink: String
@@ -317,38 +312,38 @@ const videocallSchema = new mongoose.Schema({
 
 
 const VideoCallSummarySchema = new mongoose.Schema({
-    roomId: String,
-    doctorName: String,
-    doctorEmail: String,
-    patientName: String,
-    patientEmail: String,
-    startTime: Date,
-    endTime: Date,
-    transcription: String, 
-    detectedCondition: String,
-    medications: [
-      {
-        name: String,
-        dosage: String,
-        frequency: String,
-        duration: String
-      }
-    ]
-  }, { timestamps: true });
+  roomId: String,
+  doctorName: String,
+  doctorEmail: String,
+  patientName: String,
+  patientEmail: String,
+  startTime: Date,
+  endTime: Date,
+  transcription: String,
+  detectedCondition: String,
+  medications: [
+    {
+      name: String,
+      dosage: String,
+      frequency: String,
+      duration: String
+    }
+  ]
+}, { timestamps: true });
 
 const connectToDatabase = async function () {
-    try {
-        if (!process.env.MONGODB_URL) {
-            throw new Error("MONGODB_URL is not defined in .env file");
-        }
+  try {
+    if (!process.env.MONGODB_URL) {
+      throw new Error("MONGODB_URL is not defined in .env file");
+    }
 
-        await mongoose.connect(process.env.MONGODB_URL);
+    await mongoose.connect(process.env.MONGODB_URL);
 
-        console.log(" Connected to MongoDB");
-    } catch (error) {
-        console.error(" Connection to MongoDB failed:", error.message);
-        process.exit(1);
-    } 
+    console.log(" Connected to MongoDB");
+  } catch (error) {
+    console.error(" Connection to MongoDB failed:", error.message);
+    process.exit(1);
+  }
 };
 
 const Prescription = mongoose.model('Prescription', prescriptionSchema);
