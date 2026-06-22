@@ -91,7 +91,9 @@ const PrescriptionTemplate = ({ prescription }) => {
                     </Box>
                     <Box>
                         <Typography variant="caption" display="block" sx={{ fontWeight: 700, color: colors.lightText }}>DATE</Typography>
-                        <Typography variant="body1" sx={{ fontWeight: 800 }}>{new Date().toLocaleDateString()}</Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 800 }}>
+                            {prescription.date ? new Date(prescription.date).toLocaleDateString() : new Date().toLocaleDateString()}
+                        </Typography>
                     </Box>
                 </Box>
             </Grid>

@@ -2,7 +2,8 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
-const { Prescription } = require("../../db/models");
+const mongoose = require("mongoose");
+const { Prescription, Appointment } = require("../../db/models");
 const { sendEmail } = require("../../utils/mailer");
 require("dotenv").config();
 
@@ -26,12 +27,27 @@ router.post("/generate", async (req, res) => {
     try {
         const { patient, patientId, diagnosis, medicines, guidelines, nextVisit, doctorId, doctorName, appointmentId, secureId } = req.body;
 
+        // Sanitize patientId and doctorId to ensure they are numbers
+        const cleanPatientId = Number(patientId) || 202;
+        const cleanDoctorId = Number(doctorId) || req.user?.doctorId || 101;
+
+        // Sanitize appointmentId to ensure it is a valid Mongoose ObjectId or check roomId mapping
+        let cleanAppointmentId = undefined;
+        if (appointmentId && mongoose.Types.ObjectId.isValid(appointmentId)) {
+            cleanAppointmentId = appointmentId;
+        } else if (appointmentId && appointmentId !== "null" && appointmentId !== "undefined") {
+            const appt = await Appointment.findOne({ roomId: appointmentId });
+            if (appt) {
+                cleanAppointmentId = appt._id;
+            }
+        }
+
         const newPrescription = new Prescription({
             patientName: patient,
-            patientId: patientId || 202,
-            doctorId: doctorId || 101,
+            patientId: cleanPatientId,
+            doctorId: cleanDoctorId,
             doctorName: doctorName || "Doctor",
-            appointmentId: appointmentId,
+            appointmentId: cleanAppointmentId,
             diagnosis: diagnosis || "General Consultation",
             medicines: medicines || [],
             guidelines: guidelines || [],
@@ -51,13 +67,28 @@ router.post("/save-and-send", async (req, res) => {
     try {
         const { email, patient, patientId, diagnosis, medicines, guidelines, nextVisit, doctorId, doctorName, appointmentId, secureId, file } = req.body;
 
+        // Sanitize patientId and doctorId to ensure they are numbers
+        const cleanPatientId = Number(patientId) || 202;
+        const cleanDoctorId = Number(doctorId) || req.user?.doctorId || 101;
+
+        // Sanitize appointmentId to ensure it is a valid Mongoose ObjectId or check roomId mapping
+        let cleanAppointmentId = undefined;
+        if (appointmentId && mongoose.Types.ObjectId.isValid(appointmentId)) {
+            cleanAppointmentId = appointmentId;
+        } else if (appointmentId && appointmentId !== "null" && appointmentId !== "undefined") {
+            const appt = await Appointment.findOne({ roomId: appointmentId });
+            if (appt) {
+                cleanAppointmentId = appt._id;
+            }
+        }
+
         // 1. Save to Database
         const newPrescription = new Prescription({
             patientName: patient,
-            patientId: patientId || 202,
-            doctorId: doctorId || 101,
+            patientId: cleanPatientId,
+            doctorId: cleanDoctorId,
             doctorName: doctorName || "Doctor",
-            appointmentId: appointmentId,
+            appointmentId: cleanAppointmentId,
             diagnosis: diagnosis || "General Consultation",
             medicines: medicines || [],
             guidelines: guidelines || [],

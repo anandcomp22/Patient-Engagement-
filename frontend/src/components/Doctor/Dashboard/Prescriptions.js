@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   Box, Typography, Button, Paper, Grid, List, ListItem, ListItemText,
-  ListItemAvatar, Avatar, TextField, Tabs, Tab, IconButton, Divider, Chip
+  ListItemAvatar, Avatar, TextField, Tabs, Tab, IconButton, Divider, Chip,
+  Accordion, AccordionSummary, AccordionDetails
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -14,6 +15,7 @@ import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
 import HistoryIcon from "@mui/icons-material/History";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import axios from "axios";
 import PrescriptionTemplate from "./PrescriptionTemplate";
 import MedicalReportTemplate from "./MedicalReportTemplate";
@@ -67,22 +69,26 @@ const Prescriptions = () => {
     fetchData();
   }, []);
 
+  const fetchHistory = useCallback(async () => {
+    if (!selectedPatient) return;
+    try {
+      const res = await axios.get(`${API_BASE}/prescriptions/patient/${selectedPatient.patientId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setPastPrescriptions(res.data || []);
+    } catch (err) {
+      console.error("Failed to load historical prescriptions", err);
+    }
+  }, [selectedPatient]);
+
   useEffect(() => {
     if (selectedPatient) {
-      const fetchHistory = async () => {
-        try {
-          const res = await axios.get(`${API_BASE}/prescriptions/patient/${selectedPatient.patientId}`);
-          setPastPrescriptions(res.data || []);
-        } catch (err) {
-          console.error("Failed to load historical prescriptions", err);
-        }
-      };
       fetchHistory();
     } else {
       setPastPrescriptions([]);
       setSelectedPastRx(null);
     }
-  }, [selectedPatient]);
+  }, [selectedPatient, fetchHistory]);
 
   const handleAddMedicine = () => {
     setDynamicMedicines([...dynamicMedicines, { name: "", dosage: "", frequency: "", duration: "", note: "" }]);
@@ -128,6 +134,7 @@ const Prescriptions = () => {
       }
 
       alert("Prescription securely saved and generated.");
+      fetchHistory();
     } catch (err) {
       console.error(err);
       alert("Failed to save prescription. Check console.");
@@ -173,17 +180,24 @@ const Prescriptions = () => {
   // Decide whether to show Live Form Data OR Selected Historical Data
   const prescriptionPreviewData = selectedPatient
     ? (selectedPastRx ? {
-      doctor: doctorName,
+      doctor: selectedPastRx.doctorName || selectedPastRx.doctor || doctorName,
       specialization: "",
       license: "",
-      patient: `${selectedPatient.firstName} ${selectedPatient.lastName || ""}`.trim(),
+      patient: selectedPastRx.patientName || `${selectedPatient.firstName} ${selectedPatient.lastName || ""}`.trim(),
       patientId: selectedPatient.patientId,
-      age: selectedPatient.patientAge || selectedPatient.age || "N/A",
-      gender: selectedPatient.gender || "N/A",
-      diagnosis: "Historical Record",
-      medicines: [{ name: selectedPastRx.medicine, dosage: selectedPastRx.dosage || "", frequency: "", duration: "", note: "" }],
-      guidelines: [selectedPastRx.notes],
-      nextVisit: new Date(selectedPastRx.date).toLocaleDateString()
+      age: selectedPastRx.age || selectedPatient.patientAge || selectedPatient.age || "N/A",
+      gender: selectedPastRx.gender || selectedPatient.gender || "N/A",
+      diagnosis: selectedPastRx.diagnosis || "Historical Record",
+      medicines: selectedPastRx.medicines && selectedPastRx.medicines.length > 0
+        ? selectedPastRx.medicines
+        : (selectedPastRx.medicine 
+            ? [{ name: selectedPastRx.medicine, dosage: selectedPastRx.dosage || "", frequency: "", duration: "", note: "" }]
+            : []),
+      guidelines: selectedPastRx.guidelines && selectedPastRx.guidelines.length > 0
+        ? selectedPastRx.guidelines
+        : (selectedPastRx.notes ? [selectedPastRx.notes] : []),
+      nextVisit: selectedPastRx.nextVisit || "TBD",
+      date: selectedPastRx.date
     } : {
       doctor: doctorName,
       specialization: "",
@@ -195,9 +209,49 @@ const Prescriptions = () => {
       diagnosis: diagnosis || "General Consultation",
       medicines: dynamicMedicines.filter(m => m.name.trim() !== ""),
       guidelines: guidelines.split("\n").filter(g => g.trim() !== ""),
-      nextVisit: selectedPatient.nextAppointment ? new Date(selectedPatient.nextAppointment).toLocaleDateString() : "TBD"
+      nextVisit: selectedPatient.nextAppointment ? new Date(selectedPatient.nextAppointment).toLocaleDateString() : "TBD",
+      date: new Date().toISOString().split("T")[0]
     })
     : null;
+
+  // Group pastPrescriptions: Year -> Month -> Date -> List of prescriptions
+  const groupedPrescriptions = useMemo(() => {
+    const groups = {};
+    if (!pastPrescriptions || pastPrescriptions.length === 0) return groups;
+
+    // Sort prescriptions from newest to oldest by date
+    const sorted = [...pastPrescriptions].sort((a, b) => {
+      const dateA = new Date(a.date || a.createdAt);
+      const dateB = new Date(b.date || b.createdAt);
+      return dateB - dateA;
+    });
+
+    sorted.forEach(rx => {
+      const d = rx.date ? new Date(rx.date) : (rx.createdAt ? new Date(rx.createdAt) : new Date());
+      if (isNaN(d.getTime())) return;
+      
+      const year = d.getFullYear();
+      const month = d.toLocaleString("default", { month: "long" });
+      const dateStr = d.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+      
+      if (!groups[year]) {
+        groups[year] = {};
+      }
+      if (!groups[year][month]) {
+        groups[year][month] = {};
+      }
+      if (!groups[year][month][dateStr]) {
+        groups[year][month][dateStr] = [];
+      }
+      groups[year][month][dateStr].push(rx);
+    });
+    
+    return groups;
+  }, [pastPrescriptions]);
 
   const patientAppointments = selectedPatient
     ? allAppointments.filter(a => Number(a.patientId) === Number(selectedPatient.patientId))
@@ -362,15 +416,72 @@ const Prescriptions = () => {
                       {pastPrescriptions.length === 0 ? (
                         <Typography variant="body2" color="#888">No historical prescriptions found for {selectedPatient.firstName}.</Typography>
                       ) : (
-                        <List sx={{ p: 0 }}>
-                          {pastPrescriptions.map(rx => (
-                            <ListItem key={rx._id} sx={{ mb: 1.5, p: 2, border: "1px solid #eee", borderRadius: 3, display: "flex", flexDirection: "column", alignItems: "flex-start", background: selectedPastRx?._id === rx._id ? "#F3F8FF" : "#fafafa", transition: "all 0.2s", cursor: "pointer", "&:hover": { borderColor: "#1E5DA9" } }} onClick={() => setSelectedPastRx(rx)}>
-                              <Typography variant="caption" fontWeight="bold" color="#1E5DA9">{new Date(rx.date).toLocaleDateString()}</Typography>
-                              <Typography variant="body2" sx={{ my: 0.5, fontWeight: 600 }}>{rx.medicine}</Typography>
-                              <Button size="small" startIcon={<VisibilityIcon />} sx={{ mt: 1, textTransform: "none" }}>Reconstruct & View</Button>
-                            </ListItem>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                          {Object.keys(groupedPrescriptions).sort((a, b) => b - a).map(year => (
+                            <Accordion key={year} defaultExpanded sx={{ boxShadow: "none", border: "1px solid #e2e8f0", borderRadius: "8px !important", "&:before": { display: "none" } }}>
+                              <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ bgcolor: "#f8fafc", py: 0, minHeight: "44px !important", ".MuiAccordionSummary-content": { my: "8px !important" } }}>
+                                <Typography fontWeight="800" color="#1E5DA9" variant="subtitle2">{year} Prescriptions</Typography>
+                              </AccordionSummary>
+                              <AccordionDetails sx={{ p: 1, pb: 0.5, display: "flex", flexDirection: "column", gap: 1 }}>
+                                {Object.keys(groupedPrescriptions[year]).map(month => (
+                                  <Accordion key={month} defaultExpanded sx={{ boxShadow: "none", border: "1px solid #edf2f7", borderRadius: "6px !important", "&:before": { display: "none" } }}>
+                                    <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ bgcolor: "#fafafa", py: 0, minHeight: "38px !important", ".MuiAccordionSummary-content": { my: "6px !important" } }}>
+                                      <Typography fontWeight="700" color="#4a5568" variant="body2">{month}</Typography>
+                                    </AccordionSummary>
+                                    <AccordionDetails sx={{ p: 1, pb: 0.5, display: "flex", flexDirection: "column", gap: 1 }}>
+                                      {Object.keys(groupedPrescriptions[year][month]).map(dateStr => (
+                                        <Accordion key={dateStr} defaultExpanded sx={{ boxShadow: "none", border: "1px solid #f7fafc", borderRadius: "4px !important", "&:before": { display: "none" } }}>
+                                          <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ py: 0, minHeight: "32px !important", ".MuiAccordionSummary-content": { my: "4px !important" } }}>
+                                            <Typography fontWeight="600" color="#718096" variant="caption">{dateStr}</Typography>
+                                          </AccordionSummary>
+                                          <AccordionDetails sx={{ p: 0.5 }}>
+                                            <List sx={{ p: 0 }}>
+                                              {groupedPrescriptions[year][month][dateStr].map(rx => {
+                                                const medsText = rx.medicines && rx.medicines.length > 0
+                                                  ? rx.medicines.map(m => m.name).join(", ")
+                                                  : (rx.medicine || "View Details");
+                                                return (
+                                                  <ListItem
+                                                    key={rx._id}
+                                                    sx={{
+                                                      mb: 1,
+                                                      p: 1.5,
+                                                      border: "1px solid #edf2f7",
+                                                      borderRadius: 2,
+                                                      display: "flex",
+                                                      flexDirection: "column",
+                                                      alignItems: "flex-start",
+                                                      background: selectedPastRx?._id === rx._id ? "#F3F8FF" : "#ffffff",
+                                                      borderColor: selectedPastRx?._id === rx._id ? "#1E5DA9" : "#edf2f7",
+                                                      transition: "all 0.2s",
+                                                      cursor: "pointer",
+                                                      "&:hover": { borderColor: "#1E5DA9" }
+                                                    }}
+                                                    onClick={() => setSelectedPastRx(rx)}
+                                                  >
+                                                    <Typography variant="body2" sx={{ fontWeight: 600, color: "#2d3748" }}>
+                                                      Diagnosis: {rx.diagnosis || "General Consultation"}
+                                                    </Typography>
+                                                    <Typography variant="caption" sx={{ color: "#718096", mt: 0.5 }}>
+                                                      Meds: {medsText}
+                                                    </Typography>
+                                                    <Button size="small" startIcon={<VisibilityIcon />} sx={{ mt: 1, textTransform: "none", py: 0, fontSize: "0.75rem" }}>
+                                                      View PDF
+                                                    </Button>
+                                                  </ListItem>
+                                                );
+                                              })}
+                                            </List>
+                                          </AccordionDetails>
+                                        </Accordion>
+                                      ))}
+                                    </AccordionDetails>
+                                  </Accordion>
+                                ))}
+                              </AccordionDetails>
+                            </Accordion>
                           ))}
-                        </List>
+                        </Box>
                       )}
                     </Grid>
                     <Grid item xs={8} sx={{ height: "100%", overflowY: "auto", background: "#f4f7fb", position: "relative" }}>

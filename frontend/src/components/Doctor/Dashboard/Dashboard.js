@@ -481,7 +481,7 @@ const Dashboard = ({ sidebarOpen }) => {
                           </Tooltip>
                           <Button variant="contained" size="small" startIcon={<Videocam />}
                             sx={{ background: "#1E5DA9", color: "#fff", textTransform: "none", borderRadius: 2, px: 2, boxShadow: "none", "&:hover": { background: "#0f3f7a", boxShadow: "0 4px 10px rgba(30,93,169,0.2)" } }}
-                            onClick={() => navigate(`/doctor/video-call?roomId=${appointment._id}&patientEmail=${appointment.patientEmail}`)}
+                            onClick={() => navigate(`/doctor/video-call?roomId=${appointment._id}&patientEmail=${appointment.patientEmail}&patientName=${encodeURIComponent(appointment.patientName || "")}&patientId=${appointment.patientId}`)}
                           >
                             Join
                           </Button>

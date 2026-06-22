@@ -38,6 +38,7 @@ const PatientVideoCall = () => {
   const [callDuration, setCallDuration] = useState(0);
   const [inLobby, setInLobby] = useState(true);
   const [lobbyStatus, setLobbyStatus] = useState({ doctorPresent: false, patientPresent: false });
+  const [doctorStartedCall, setDoctorStartedCall] = useState(false);
   const [mediaReady, setMediaReady] = useState(false);
   const [isMediaLoading, setIsMediaLoading] = useState(false);
   const controlsTimer = useRef(null);
@@ -50,10 +51,13 @@ const PatientVideoCall = () => {
     socketRef.current.on("lobby-status", (status) => {
       console.log("[Patient] Lobby status update:", status);
       setLobbyStatus(status);
+      // If server signals callStarted, keep the button unlocked
+      if (status.callStarted) setDoctorStartedCall(true);
     });
 
     socketRef.current.on("lobby-call-started", () => {
       console.log("[Patient] Doctor started the call. Joining automatically...");
+      setDoctorStartedCall(true); // Unlock the join button immediately
       setInLobby(prevInLobby => {
         if (prevInLobby) {
           // If media is ready, auto-join. Otherwise, the button will show "Doctor is calling!"
@@ -377,7 +381,7 @@ const PatientVideoCall = () => {
             </Box>
 
             <Box sx={{ mb: 4, display: "flex", justifyContent: "center", gap: 2 }}>
-              <Chip label={lobbyStatus.doctorPresent ? "Doctor is Ready" : "Waiting for Doctor..."} color={lobbyStatus.doctorPresent ? "success" : "default"} variant={lobbyStatus.doctorPresent ? "filled" : "outlined"} sx={{ fontWeight: 700 }} />
+              <Chip label={(lobbyStatus.doctorPresent || doctorStartedCall) ? "Doctor is Ready ✓" : "Waiting for Doctor..."} color={(lobbyStatus.doctorPresent || doctorStartedCall) ? "success" : "default"} variant={(lobbyStatus.doctorPresent || doctorStartedCall) ? "filled" : "outlined"} sx={{ fontWeight: 700 }} />
             </Box>
 
             <TextField fullWidth label="Your Name" value={name} onChange={e => setName(e.target.value)} sx={{ mb: 2.5, ...lightInputSx }} />
@@ -385,10 +389,10 @@ const PatientVideoCall = () => {
 
             <Button
               id="patient-join-btn"
-              fullWidth variant="contained" size="large" onClick={joinRoom} disabled={!roomId || !name || !lobbyStatus.doctorPresent || !mediaReady}
+              fullWidth variant="contained" size="large" onClick={joinRoom} disabled={!roomId || !name || (!lobbyStatus.doctorPresent && !doctorStartedCall) || !mediaReady}
               sx={{ py: 1.6, borderRadius: 2, fontWeight: 700, fontSize: "1.05rem", background: "linear-gradient(90deg, #62b8ffff, #1E5DA9)", textTransform: "none", boxShadow: "0 8px 24px rgba(30,93,169,0.3)", "&:hover": { background: "linear-gradient(90deg, #1E5DA9, #0f3f7a)", transform: "translateY(-1px)", boxShadow: "0 12px 28px rgba(30,93,169,0.4)" }, transition: "all 0.2s ease-in-out", "&:disabled": { opacity: 0.5, transform: "none", boxShadow: "none" } }}
             >
-              {!mediaReady ? "Enable Media to Join" : (lobbyStatus.doctorPresent ? "Enter Video Room" : "Waiting for Doctor...")}
+              {!mediaReady ? "Enable Media to Join" : (lobbyStatus.doctorPresent || doctorStartedCall ? "Enter Video Room" : "Waiting for Doctor...")}
             </Button>
           </Paper>
         </Box>

@@ -181,7 +181,17 @@ io.on("connection", (socket) => {
 
   socket.on("lobby-start-call", ({ roomId }) => {
     console.log(`[Lobby] Doctor started call in room ${roomId}. Signaling all participants...`);
+    // Emit call-started event so patient's join button unlocks
     io.to(roomId).emit("lobby-call-started", { roomId });
+    // Also keep broadcasting doctorPresent=true so patient UI doesn't revert to "Waiting"
+    if (lobbyPeers[roomId]) {
+      io.to(roomId).emit("lobby-status", {
+        doctorPresent: true,
+        patientPresent: !!lobbyPeers[roomId].patient,
+        lobbyParticipants: lobbyPeers[roomId],
+        callStarted: true
+      });
+    }
   });
 
   socket.on("join-room", ({ roomId }) => {

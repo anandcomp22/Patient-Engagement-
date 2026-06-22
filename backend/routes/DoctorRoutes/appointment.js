@@ -12,6 +12,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 const { v4: uuidv4 } = require('uuid');
 const authMiddleware = require('../../middleware/authMiddleware');
 const { sendEmail } = require('../../utils/mailer');
+const { sendNotification } = require('../../utils/notificationHelper');
 
 /*router.get('/appointments', authMiddleware, async (req, res) => {
   try {
@@ -28,8 +29,17 @@ router.get('/app', authMiddleware, async (req, res) => {
   console.log(" /appointment route hit");
   try {
     console.log("Decoded user in appointment route:", req.user);
-    const doctorId = Number(req.user.doctorId);
-    const appointments = await Appointment.find({ doctorId }).sort({ appointmentDate: -1 });
+    
+    let query = {};
+    if (req.user.role === "doctor") {
+      query.doctorId = Number(req.user.doctorId);
+    } else if (req.user.role === "patient") {
+      query.patientId = Number(req.user.patientId);
+    } else {
+      query.doctorId = Number(req.user.doctorId);
+    }
+
+    const appointments = await Appointment.find(query).sort({ appointmentDate: -1 });
     return res.status(200).json(appointments);
 
   } catch (err) {

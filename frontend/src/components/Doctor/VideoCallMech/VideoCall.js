@@ -558,6 +558,9 @@ const VideoCall = () => {
         if (role === "patient") {
           setPatientJoined(true);
           setConnectedPatientName(userName || "Patient");
+          // ── Update prescription patient data from real peer-ready values ──
+          if (userName) setPatientName(userName);
+          if (pid) setPatientId(pid);
           setLeftMessage("");
           setMedications([]);
           setSuggestedMeds([]);
