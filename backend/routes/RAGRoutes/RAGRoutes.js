@@ -2,7 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const router = express.Router();
 
-const PYTHON_RAG_URL = "http://127.0.0.1:5000";
+const PYTHON_RAG_URL = "http://localhost:5000";
 
 router.get("/", (req, res) => {
   res.json({ ok: true, message: "RAG Node Router Running" });
@@ -80,7 +80,27 @@ router.post("/session/retrieve-meds-now", async (req, res) => {
     );
     res.json(r.data);
   } catch (err) {
-    console.error("[RAG /retrieve-meds-now error]:", err.message);
+    console.error("[RAG /retrieve-meds-now error]:", err.message, err.code);
+    res.status(500).json({ 
+      error: "Python RAG API not reachable", 
+      details: err.message,
+      code: err.code 
+    });
+  }
+});
+
+// -------------------------------------------------
+// GENERATE PRESCRIPTION GUIDELINES
+// Proxies to Python /rag/prescription-guidelines on port 5000
+// -------------------------------------------------
+router.post("/prescription-guidelines", async (req, res) => {
+  try {
+    const r = await axios.post(`${PYTHON_RAG_URL}/rag/prescription-guidelines`, req.body, {
+      timeout: 90000, // LLM can be slow
+    });
+    res.json(r.data);
+  } catch (err) {
+    console.error("[RAG /prescription-guidelines error]:", err.message);
     res.status(500).json({ error: "Python RAG API not reachable", details: err.message });
   }
 });

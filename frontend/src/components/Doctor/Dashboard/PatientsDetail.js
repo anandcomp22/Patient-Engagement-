@@ -27,7 +27,9 @@ const PatientsDetail = () => {
   const [showAddPatient, setShowAddPatient] = useState(false);
   const [viewProfileData, setViewProfileData] = useState(null);
   const [prescriptions, setPrescriptions] = useState([]);
+  const [reports, setReports] = useState([]);
   const [showBookMeeting, setShowBookMeeting] = useState(null);
+  const [fetchError, setFetchError] = useState(null);
 
   // Forms
   const [addForm, setAddForm] = useState({ firstName: "", lastName: "", email: "", phone: "", age: "", gender: "Male" });
@@ -102,20 +104,30 @@ const PatientsDetail = () => {
     }
   };
 
-  const handleViewProfile = async (patient) => {
-    setViewProfileData(patient);
-    try {
-      const token = localStorage.getItem("token");
-      const fullName = `${patient.firstName} ${patient.lastName}`;
-      const res = await axios.get(`${API_BASE}/prescriptions/patient/${encodeURIComponent(fullName)}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setPrescriptions(res.data || []);
-    } catch (err) {
-      console.error("Failed to fetch prescriptions", err);
-      setPrescriptions([]);
-    }
-  };
+   const handleViewProfile = async (patient) => {
+     setViewProfileData(patient);
+     setFetchError(null);
+     try {
+       const token = localStorage.getItem("token");
+       
+       // Fetch Prescriptions by patientId (backend expects ID, not name)
+       const res = await axios.get(`${API_BASE}/prescriptions/patient/${patient.patientId}`, {
+         headers: { Authorization: `Bearer ${token}` }
+       });
+       setPrescriptions(res.data || []);
+ 
+       // Fetch Medical Reports
+       const reportsRes = await axios.get(`${API_BASE}/patient/reports/${patient.patientId}`, {
+         headers: { Authorization: `Bearer ${token}` }
+       });
+       setReports(reportsRes.data || []);
+     } catch (err) {
+       console.error("Failed to fetch data for patient", err);
+       setFetchError(err.message);
+       setPrescriptions([]);
+       setReports([]);
+     }
+   };
 
   const handleBookMeeting = async () => {
     try {
@@ -295,9 +307,43 @@ const PatientsDetail = () => {
                       <ListItem key={i} sx={{ border: "1px solid #eee", borderRadius: 2, mb: 1, p: 1.5 }}>
                         <ListItemIcon sx={{ minWidth: 40 }}><DescriptionIcon sx={{ color: "#1E5DA9" }} /></ListItemIcon>
                         <ListItemText 
-                          primary={<Typography variant="body2" fontWeight="700">{px.medicine}</Typography>} 
+                          primary={<Typography variant="body2" fontWeight="700">{px.medicine || px.diagnosis}</Typography>} 
                           secondary={<Typography variant="caption" color="text.secondary">Issued: {new Date(px.date).toLocaleDateString()} — {px.notes}</Typography>}
                         />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </Box>
+
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#1E5DA9", mb: 1 }}>
+                  Medical Reports {fetchError && <span style={{color:'red', fontSize:'0.7rem'}}>({fetchError})</span>}
+                </Typography>
+                {reports.length === 0 ? (
+                  <Typography variant="body2" sx={{ color: "#777", fontStyle: "italic", p: 2, background: "#f9f9f9", borderRadius: 2 }}>
+                    {fetchError ? `Failed to load reports: ${fetchError}` : "No medical reports uploaded by the patient."}
+                    <br/><span style={{fontSize:'0.6rem'}}>Checked ID: {viewProfileData?.patientId}</span>
+                  </Typography>
+                ) : (
+                  <List sx={{ p: 0 }}>
+                    {reports.map((report, i) => (
+                      <ListItem key={i} sx={{ border: "1px solid #eee", borderRadius: 2, mb: 1, p: 1.5, display: "flex", justifyContent: "space-between" }}>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <ListItemIcon sx={{ minWidth: 40 }}><DescriptionIcon sx={{ color: "#1E5DA9" }} /></ListItemIcon>
+                          <ListItemText 
+                            primary={<Typography variant="body2" fontWeight="700">{report.reportName}</Typography>} 
+                            secondary={<Typography variant="caption" color="text.secondary">{report.reportType} • {new Date(report.uploadDate).toLocaleDateString()}</Typography>}
+                          />
+                        </Box>
+                        <Button 
+                          size="small" 
+                          variant="outlined" 
+                          sx={{ textTransform: "none", fontSize: "0.75rem", borderRadius: 1.5 }}
+                          onClick={() => window.open(`${API_BASE}/${report.filePath.replace(/\\/g, '/')}`, "_blank")}
+                        >
+                          View
+                        </Button>
                       </ListItem>
                     ))}
                   </List>

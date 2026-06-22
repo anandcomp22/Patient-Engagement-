@@ -41,7 +41,10 @@ const PatientPrescriptions = () => {
   useEffect(() => {
     const fetchPrescriptions = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/prescriptions/patient/${patientId}`);
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`${API_BASE}/prescriptions/patient/${patientId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         setPrescriptions(res.data);
       } catch (err) {
         console.error("Error fetching prescriptions:", err);
@@ -118,7 +121,7 @@ const PatientPrescriptions = () => {
                         <Grid container spacing={2}>
                             <Grid item xs={12} md={4}>
                                 <Typography variant="caption" color="text.secondary">DOCTOR</Typography>
-                                <Typography variant="body1" fontWeight={600}>Dr. Recorded</Typography>{/* Doctor Name needs to be in Prescription Schema or join */}
+                                <Typography variant="body1" fontWeight={600}>Dr. {rx.doctorName || "AidME Specialist"}</Typography>{/* Doctor Name needs to be in Prescription Schema or join */}
                             </Grid>
                             <Grid item xs={12} md={4}>
                                 <Typography variant="caption" color="text.secondary">MEDICATIONS</Typography>

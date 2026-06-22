@@ -11,6 +11,7 @@ import {
 import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -34,21 +35,28 @@ const AdminDashboard = () => {
 
   const auth = { headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` } };
 
+  const load = async () => {
+    try {
+      const [m, r, rev] = await Promise.all([
+        axios.get(`${API}/admin/dashboard/metrics`, auth),
+        axios.get(`${API}/admin/dashboard/recent-appointments`, auth),
+        axios.get(`${API}/admin/analytics/monthly-revenue`, auth),
+      ]);
+      setMetrics(m.data);
+      setRecentApp(r.data || []);
+      setMonthly(rev.data || []);
+    } catch (e) { console.error(e); }
+    finally   { setLoading(false); }
+  };
+
+  useEffect(() => { load(); }, []); // eslint-disable-line
+
+  // Real-time: auto-refresh dashboard on any change
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [m, r, rev] = await Promise.all([
-          axios.get(`${API}/admin/dashboard/metrics`, auth),
-          axios.get(`${API}/admin/dashboard/recent-appointments`, auth),
-          axios.get(`${API}/admin/analytics/monthly-revenue`, auth),
-        ]);
-        setMetrics(m.data);
-        setRecentApp(r.data || []);
-        setMonthly(rev.data || []);
-      } catch (e) { console.error(e); }
-      finally   { setLoading(false); }
-    };
-    load();
+    const socket = io(API);
+    socket.on("appointment-updated", () => load());
+    socket.on("payment-updated", () => load());
+    return () => socket.disconnect();
   }, []); // eslint-disable-line
 
   return (

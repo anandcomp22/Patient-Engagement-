@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
-import { 
-  Box, Typography, Button, Paper, Grid, List, ListItem, ListItemText, 
-  ListItemAvatar, Avatar, TextField, Tabs, Tab, IconButton, Divider, Chip
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import {
+  Box, Typography, Button, Paper, Grid, List, ListItem, ListItemText,
+  ListItemAvatar, Avatar, TextField, Tabs, Tab, IconButton, Divider, Chip,
+  Accordion, AccordionSummary, AccordionDetails
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -14,6 +15,7 @@ import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
 import HistoryIcon from "@mui/icons-material/History";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import axios from "axios";
 import PrescriptionTemplate from "./PrescriptionTemplate";
 import MedicalReportTemplate from "./MedicalReportTemplate";
@@ -67,23 +69,26 @@ const Prescriptions = () => {
     fetchData();
   }, []);
 
+  const fetchHistory = useCallback(async () => {
+    if (!selectedPatient) return;
+    try {
+      const res = await axios.get(`${API_BASE}/prescriptions/patient/${selectedPatient.patientId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setPastPrescriptions(res.data || []);
+    } catch (err) {
+      console.error("Failed to load historical prescriptions", err);
+    }
+  }, [selectedPatient]);
+
   useEffect(() => {
     if (selectedPatient) {
-      const fetchHistory = async () => {
-        try {
-          const fullName = `${selectedPatient.firstName} ${selectedPatient.lastName}`;
-          const res = await axios.get(`${API_BASE}/prescriptions/patient/${encodeURIComponent(fullName)}`);
-          setPastPrescriptions(res.data || []);
-        } catch (err) {
-          console.error("Failed to load historical prescriptions", err);
-        }
-      };
       fetchHistory();
     } else {
       setPastPrescriptions([]);
       setSelectedPastRx(null);
     }
-  }, [selectedPatient]);
+  }, [selectedPatient, fetchHistory]);
 
   const handleAddMedicine = () => {
     setDynamicMedicines([...dynamicMedicines, { name: "", dosage: "", frequency: "", duration: "", note: "" }]);
@@ -129,6 +134,7 @@ const Prescriptions = () => {
       }
 
       alert("Prescription securely saved and generated.");
+      fetchHistory();
     } catch (err) {
       console.error(err);
       alert("Failed to save prescription. Check console.");
@@ -153,9 +159,9 @@ const Prescriptions = () => {
     }
     const name = `${selectedPatient.firstName} ${selectedPatient.lastName}`;
     const filename = `prescription_${name.replace(/\s+/g, "_")}.pdf`;
-    
-    axios.post(`${API_BASE}/prescriptions/send`, { 
-      email: selectedPatient.email, file: filename 
+
+    axios.post(`${API_BASE}/prescriptions/send`, {
+      email: selectedPatient.email, file: filename
     }, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     })
@@ -170,35 +176,82 @@ const Prescriptions = () => {
   // Build the live preview data objects
   // Build the live preview data objects
   const doctorName = localStorage.getItem("doctorName") || "Doctor";
-  
+
   // Decide whether to show Live Form Data OR Selected Historical Data
-  const prescriptionPreviewData = selectedPatient 
+  const prescriptionPreviewData = selectedPatient
     ? (selectedPastRx ? {
-        doctor: doctorName,
-        specialization: "", 
-        license: "",
-        patient: `${selectedPatient.firstName} ${selectedPatient.lastName || ""}`.trim(),
-        patientId: selectedPatient.patientId,
-        age: selectedPatient.patientAge || selectedPatient.age || "N/A",
-        gender: selectedPatient.gender || "N/A",
-        diagnosis: "Historical Record",
-        medicines: [{ name: selectedPastRx.medicine, dosage: selectedPastRx.dosage || "", frequency: "", duration: "", note: "" }],
-        guidelines: [selectedPastRx.notes],
-        nextVisit: new Date(selectedPastRx.date).toLocaleDateString()
-      } : {
-        doctor: doctorName,
-        specialization: "", 
-        license: "",        
-        patient: `${selectedPatient.firstName} ${selectedPatient.lastName || ""}`.trim(),
-        patientId: selectedPatient.patientId,
-        age: selectedPatient.patientAge || selectedPatient.age || "N/A",
-        gender: selectedPatient.gender || "N/A",
-        diagnosis: diagnosis || "General Consultation",
-        medicines: dynamicMedicines.filter(m => m.name.trim() !== ""),
-        guidelines: guidelines.split("\n").filter(g => g.trim() !== ""),
-        nextVisit: selectedPatient.nextAppointment ? new Date(selectedPatient.nextAppointment).toLocaleDateString() : "TBD"
-      })
+      doctor: selectedPastRx.doctorName || selectedPastRx.doctor || doctorName,
+      specialization: "",
+      license: "",
+      patient: selectedPastRx.patientName || `${selectedPatient.firstName} ${selectedPatient.lastName || ""}`.trim(),
+      patientId: selectedPatient.patientId,
+      age: selectedPastRx.age || selectedPatient.patientAge || selectedPatient.age || "N/A",
+      gender: selectedPastRx.gender || selectedPatient.gender || "N/A",
+      diagnosis: selectedPastRx.diagnosis || "Historical Record",
+      medicines: selectedPastRx.medicines && selectedPastRx.medicines.length > 0
+        ? selectedPastRx.medicines
+        : (selectedPastRx.medicine 
+            ? [{ name: selectedPastRx.medicine, dosage: selectedPastRx.dosage || "", frequency: "", duration: "", note: "" }]
+            : []),
+      guidelines: selectedPastRx.guidelines && selectedPastRx.guidelines.length > 0
+        ? selectedPastRx.guidelines
+        : (selectedPastRx.notes ? [selectedPastRx.notes] : []),
+      nextVisit: selectedPastRx.nextVisit || "TBD",
+      date: selectedPastRx.date
+    } : {
+      doctor: doctorName,
+      specialization: "",
+      license: "",
+      patient: `${selectedPatient.firstName} ${selectedPatient.lastName || ""}`.trim(),
+      patientId: selectedPatient.patientId,
+      age: selectedPatient.patientAge || selectedPatient.age || "N/A",
+      gender: selectedPatient.gender || "N/A",
+      diagnosis: diagnosis || "General Consultation",
+      medicines: dynamicMedicines.filter(m => m.name.trim() !== ""),
+      guidelines: guidelines.split("\n").filter(g => g.trim() !== ""),
+      nextVisit: selectedPatient.nextAppointment ? new Date(selectedPatient.nextAppointment).toLocaleDateString() : "TBD",
+      date: new Date().toISOString().split("T")[0]
+    })
     : null;
+
+  // Group pastPrescriptions: Year -> Month -> Date -> List of prescriptions
+  const groupedPrescriptions = useMemo(() => {
+    const groups = {};
+    if (!pastPrescriptions || pastPrescriptions.length === 0) return groups;
+
+    // Sort prescriptions from newest to oldest by date
+    const sorted = [...pastPrescriptions].sort((a, b) => {
+      const dateA = new Date(a.date || a.createdAt);
+      const dateB = new Date(b.date || b.createdAt);
+      return dateB - dateA;
+    });
+
+    sorted.forEach(rx => {
+      const d = rx.date ? new Date(rx.date) : (rx.createdAt ? new Date(rx.createdAt) : new Date());
+      if (isNaN(d.getTime())) return;
+      
+      const year = d.getFullYear();
+      const month = d.toLocaleString("default", { month: "long" });
+      const dateStr = d.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+      
+      if (!groups[year]) {
+        groups[year] = {};
+      }
+      if (!groups[year][month]) {
+        groups[year][month] = {};
+      }
+      if (!groups[year][month][dateStr]) {
+        groups[year][month][dateStr] = [];
+      }
+      groups[year][month][dateStr].push(rx);
+    });
+    
+    return groups;
+  }, [pastPrescriptions]);
 
   const patientAppointments = selectedPatient
     ? allAppointments.filter(a => Number(a.patientId) === Number(selectedPatient.patientId))
@@ -220,7 +273,7 @@ const Prescriptions = () => {
     remarks: `Patient has ${patientAppointments.length} recorded visits in the timeline. Maintenance and regular checks requested.`
   } : null;
 
-  const filteredPatients = patients.filter(p => 
+  const filteredPatients = patients.filter(p =>
     `${p.firstName} ${p.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -231,7 +284,7 @@ const Prescriptions = () => {
       </Typography>
 
       <Grid container spacing={3} sx={{ flexGrow: 1, overflow: "hidden" }}>
-        
+
         {/* Left Sidebar: Patients List */}
         <Grid item xs={3} sx={{ height: "100%", display: "flex", flexDirection: "column", "@media print": { display: "none" } }}>
           <Paper sx={{ p: 2, flexGrow: 1, display: "flex", flexDirection: "column", borderRadius: 4, overflow: "hidden", border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
@@ -243,11 +296,11 @@ const Prescriptions = () => {
             />
             <List sx={{ overflowY: "auto", flexGrow: 1 }}>
               {filteredPatients.map(p => (
-                <ListItem 
-                  button key={p.patientId} 
+                <ListItem
+                  button key={p.patientId}
                   onClick={() => setSelectedPatient(p)}
-                  sx={{ 
-                    borderRadius: 2, mb: 1, 
+                  sx={{
+                    borderRadius: 2, mb: 1,
                     background: selectedPatient?.patientId === p.patientId ? "#E3F2FD" : "transparent",
                     border: selectedPatient?.patientId === p.patientId ? "1px solid #1E5DA9" : "1px solid transparent"
                   }}
@@ -290,11 +343,11 @@ const Prescriptions = () => {
 
               {/* Dynamic Content Space */}
               <Box sx={{ flexGrow: 1, display: "flex", overflow: "hidden" }} ref={printRef}>
-                
+
                 {/* E-PRESCRIPTION VIEW */}
                 {activeTab === 0 && (
                   <Grid container sx={{ width: "100%", height: "100%" }}>
-                    
+
                     {/* Input Form Column (Conditionally Rendered/Shrunk) */}
                     {isFormOpen && (
                       <Grid item xs={5} sx={{ p: 3, borderRight: "1px solid #eee", overflowY: "auto", background: "#fff", "@media print": { display: "none" }, transition: "all 0.3s ease" }}>
@@ -302,47 +355,47 @@ const Prescriptions = () => {
                           <Typography variant="subtitle1" fontWeight="800" color="#1E5DA9">Rx Builder</Typography>
                           <Box>
                             <Chip label={`Selected: ${selectedPatient.firstName}`} size="small" sx={{ fontWeight: 600, mr: 1 }} />
-                            <IconButton size="small" onClick={() => setIsFormOpen(false)} title="Shrink Form"><CloseFullscreenIcon fontSize="small" sx={{ color: "#888" }}/></IconButton>
+                            <IconButton size="small" onClick={() => setIsFormOpen(false)} title="Shrink Form"><CloseFullscreenIcon fontSize="small" sx={{ color: "#888" }} /></IconButton>
                           </Box>
                         </Box>
-                      
-                      <TextField fullWidth size="small" label="Primary Diagnosis" sx={{ mb: 3 }} value={diagnosis} onChange={e => setDiagnosis(e.target.value)} />
-                      
-                      <Typography variant="caption" fontWeight="bold" color="#888" sx={{ mb: 1, display: "block" }}>MEDICATIONS</Typography>
-                      {dynamicMedicines.map((med, i) => (
-                        <Box key={i} sx={{ border: "1px solid #e0e0e0", p: 1.5, borderRadius: 2, mb: 1.5, background: "#fafafa", position: "relative" }}>
-                          <Grid container spacing={1}>
-                            <Grid item xs={12}><TextField fullWidth size="small" placeholder="Medicine Name (e.g. Amoxicillin)" value={med.name} onChange={e => handleMedicineChange(i, "name", e.target.value)} /></Grid>
-                            <Grid item xs={6}><TextField fullWidth size="small" placeholder="Dosage (500mg)" value={med.dosage} onChange={e => handleMedicineChange(i, "dosage", e.target.value)} /></Grid>
-                            <Grid item xs={6}><TextField fullWidth size="small" placeholder="Freq (1-0-1)" value={med.frequency} onChange={e => handleMedicineChange(i, "frequency", e.target.value)} /></Grid>
-                            <Grid item xs={6}><TextField fullWidth size="small" placeholder="Duration (5 days)" value={med.duration} onChange={e => handleMedicineChange(i, "duration", e.target.value)} /></Grid>
-                            <Grid item xs={6}><TextField fullWidth size="small" placeholder="Notes (After food)" value={med.note} onChange={e => handleMedicineChange(i, "note", e.target.value)} /></Grid>
-                          </Grid>
-                          {dynamicMedicines.length > 1 && (
-                            <IconButton size="small" sx={{ position: "absolute", top: -10, right: -10, background: "#fff", border: "1px solid #ccc", boxShadow: 1 }} color="error" onClick={() => handleRemoveMedicine(i)}>
-                              <RemoveCircleOutlineIcon fontSize="small" />
-                            </IconButton>
-                          )}
+
+                        <TextField fullWidth size="small" label="Primary Diagnosis" sx={{ mb: 3 }} value={diagnosis} onChange={e => setDiagnosis(e.target.value)} />
+
+                        <Typography variant="caption" fontWeight="bold" color="#888" sx={{ mb: 1, display: "block" }}>MEDICATIONS</Typography>
+                        {dynamicMedicines.map((med, i) => (
+                          <Box key={i} sx={{ border: "1px solid #e0e0e0", p: 1.5, borderRadius: 2, mb: 1.5, background: "#fafafa", position: "relative" }}>
+                            <Grid container spacing={1}>
+                              <Grid item xs={12}><TextField fullWidth size="small" placeholder="Medicine Name (e.g. Amoxicillin)" value={med.name} onChange={e => handleMedicineChange(i, "name", e.target.value)} /></Grid>
+                              <Grid item xs={6}><TextField fullWidth size="small" placeholder="Dosage (500mg)" value={med.dosage} onChange={e => handleMedicineChange(i, "dosage", e.target.value)} /></Grid>
+                              <Grid item xs={6}><TextField fullWidth size="small" placeholder="Freq (1-0-1)" value={med.frequency} onChange={e => handleMedicineChange(i, "frequency", e.target.value)} /></Grid>
+                              <Grid item xs={6}><TextField fullWidth size="small" placeholder="Duration (5 days)" value={med.duration} onChange={e => handleMedicineChange(i, "duration", e.target.value)} /></Grid>
+                              <Grid item xs={6}><TextField fullWidth size="small" placeholder="Notes (After food)" value={med.note} onChange={e => handleMedicineChange(i, "note", e.target.value)} /></Grid>
+                            </Grid>
+                            {dynamicMedicines.length > 1 && (
+                              <IconButton size="small" sx={{ position: "absolute", top: -10, right: -10, background: "#fff", border: "1px solid #ccc", boxShadow: 1 }} color="error" onClick={() => handleRemoveMedicine(i)}>
+                                <RemoveCircleOutlineIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                          </Box>
+                        ))}
+                        <Button startIcon={<AddCircleOutlineIcon />} onClick={handleAddMedicine} size="small" sx={{ mb: 2, textTransform: "none", fontWeight: 600 }}>Add Another Medicine</Button>
+
+                        <TextField fullWidth multiline rows={2} size="small" label="Guidelines & Advice (Line breaks allowed)" sx={{ mb: 3 }} value={guidelines} onChange={e => setGuidelines(e.target.value)} />
+
+                        <Box sx={{ display: "flex", gap: 1, mt: 2, flexWrap: "wrap" }}>
+                          <Button variant="contained" color="primary" startIcon={<SaveIcon />} onClick={handleSavePrescription} sx={{ flexGrow: 1, fontWeight: 600, textTransform: "none", boxShadow: "none" }}>Save Rx</Button>
+                          <Button variant="outlined" color="primary" startIcon={<DownloadIcon />} onClick={handleDownload} sx={{ flexGrow: 1, fontWeight: 600, textTransform: "none" }}>Download</Button>
+                          <Button variant="contained" color="secondary" startIcon={<EmailIcon />} onClick={handleSendEmail} sx={{ width: "100%", fontWeight: 600, textTransform: "none", background: "linear-gradient(135deg, #10b981, #059669)", boxShadow: "none" }}>Email to Patient</Button>
+                          <Button fullWidth variant="outlined" startIcon={<PrintIcon />} onClick={handlePrint} sx={{ fontWeight: 600, textTransform: "none", color: "#555", borderColor: "#ccc" }}>Print</Button>
                         </Box>
-                      ))}
-                      <Button startIcon={<AddCircleOutlineIcon />} onClick={handleAddMedicine} size="small" sx={{ mb: 3, textTransform: "none", fontWeight: 600 }}>Add Another Medicine</Button>
-
-                      <TextField fullWidth multiline rows={3} size="small" label="Guidelines & Advice (Line breaks allowed)" sx={{ mb: 3 }} value={guidelines} onChange={e => setGuidelines(e.target.value)} />
-
-                      <Box sx={{ display: "flex", gap: 1, mt: 2, flexWrap: "wrap" }}>
-                        <Button variant="contained" color="primary" startIcon={<SaveIcon />} onClick={handleSavePrescription} sx={{ flexGrow: 1, fontWeight: 600, textTransform: "none", boxShadow: "none" }}>Save Rx</Button>
-                        <Button variant="outlined" color="primary" startIcon={<DownloadIcon />} onClick={handleDownload} sx={{ flexGrow: 1, fontWeight: 600, textTransform: "none" }}>Download</Button>
-                        <Button variant="contained" color="secondary" startIcon={<EmailIcon />} onClick={handleSendEmail} sx={{ width: "100%", fontWeight: 600, textTransform: "none", background: "linear-gradient(135deg, #10b981, #059669)", boxShadow: "none" }}>Email to Patient</Button>
-                        <Button fullWidth variant="outlined" startIcon={<PrintIcon />} onClick={handlePrint} sx={{ fontWeight: 600, textTransform: "none", color: "#555", borderColor: "#ccc" }}>Print</Button>
-                      </Box>
-                    </Grid>
+                      </Grid>
                     )}
 
                     {/* Live Preview Column */}
                     <Grid item xs={isFormOpen ? 7 : 12} sx={{ height: "100%", overflowY: "auto", position: "relative", transition: "all 0.3s ease", background: "#f4f7fb" }}>
                       {!isFormOpen && (
                         <Box sx={{ position: "absolute", top: 16, left: 16, zIndex: 10, "@media print": { display: "none" } }}>
-                          <Button variant="contained" size="small" onClick={() => setIsFormOpen(true)} startIcon={<OpenInFullIcon/>} sx={{ textTransform: "none", fontWeight: 600, background: "#1E5DA9", boxShadow: "0 4px 12px rgba(30,93,169,0.3)" }}>
+                          <Button variant="contained" size="small" onClick={() => setIsFormOpen(true)} startIcon={<OpenInFullIcon />} sx={{ textTransform: "none", fontWeight: 600, background: "#1E5DA9", boxShadow: "0 4px 12px rgba(30,93,169,0.3)" }}>
                             Open Builder
                           </Button>
                         </Box>
@@ -363,15 +416,72 @@ const Prescriptions = () => {
                       {pastPrescriptions.length === 0 ? (
                         <Typography variant="body2" color="#888">No historical prescriptions found for {selectedPatient.firstName}.</Typography>
                       ) : (
-                        <List sx={{ p: 0 }}>
-                          {pastPrescriptions.map(rx => (
-                            <ListItem key={rx._id} sx={{ mb: 1.5, p: 2, border: "1px solid #eee", borderRadius: 3, display: "flex", flexDirection: "column", alignItems: "flex-start", background: selectedPastRx?._id === rx._id ? "#F3F8FF" : "#fafafa", transition: "all 0.2s", cursor: "pointer", "&:hover": { borderColor: "#1E5DA9" } }} onClick={() => setSelectedPastRx(rx)}>
-                              <Typography variant="caption" fontWeight="bold" color="#1E5DA9">{new Date(rx.date).toLocaleDateString()}</Typography>
-                              <Typography variant="body2" sx={{ my: 0.5, fontWeight: 600 }}>{rx.medicine}</Typography>
-                              <Button size="small" startIcon={<VisibilityIcon />} sx={{ mt: 1, textTransform: "none" }}>Reconstruct & View</Button>
-                            </ListItem>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                          {Object.keys(groupedPrescriptions).sort((a, b) => b - a).map(year => (
+                            <Accordion key={year} defaultExpanded sx={{ boxShadow: "none", border: "1px solid #e2e8f0", borderRadius: "8px !important", "&:before": { display: "none" } }}>
+                              <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ bgcolor: "#f8fafc", py: 0, minHeight: "44px !important", ".MuiAccordionSummary-content": { my: "8px !important" } }}>
+                                <Typography fontWeight="800" color="#1E5DA9" variant="subtitle2">{year} Prescriptions</Typography>
+                              </AccordionSummary>
+                              <AccordionDetails sx={{ p: 1, pb: 0.5, display: "flex", flexDirection: "column", gap: 1 }}>
+                                {Object.keys(groupedPrescriptions[year]).map(month => (
+                                  <Accordion key={month} defaultExpanded sx={{ boxShadow: "none", border: "1px solid #edf2f7", borderRadius: "6px !important", "&:before": { display: "none" } }}>
+                                    <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ bgcolor: "#fafafa", py: 0, minHeight: "38px !important", ".MuiAccordionSummary-content": { my: "6px !important" } }}>
+                                      <Typography fontWeight="700" color="#4a5568" variant="body2">{month}</Typography>
+                                    </AccordionSummary>
+                                    <AccordionDetails sx={{ p: 1, pb: 0.5, display: "flex", flexDirection: "column", gap: 1 }}>
+                                      {Object.keys(groupedPrescriptions[year][month]).map(dateStr => (
+                                        <Accordion key={dateStr} defaultExpanded sx={{ boxShadow: "none", border: "1px solid #f7fafc", borderRadius: "4px !important", "&:before": { display: "none" } }}>
+                                          <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ py: 0, minHeight: "32px !important", ".MuiAccordionSummary-content": { my: "4px !important" } }}>
+                                            <Typography fontWeight="600" color="#718096" variant="caption">{dateStr}</Typography>
+                                          </AccordionSummary>
+                                          <AccordionDetails sx={{ p: 0.5 }}>
+                                            <List sx={{ p: 0 }}>
+                                              {groupedPrescriptions[year][month][dateStr].map(rx => {
+                                                const medsText = rx.medicines && rx.medicines.length > 0
+                                                  ? rx.medicines.map(m => m.name).join(", ")
+                                                  : (rx.medicine || "View Details");
+                                                return (
+                                                  <ListItem
+                                                    key={rx._id}
+                                                    sx={{
+                                                      mb: 1,
+                                                      p: 1.5,
+                                                      border: "1px solid #edf2f7",
+                                                      borderRadius: 2,
+                                                      display: "flex",
+                                                      flexDirection: "column",
+                                                      alignItems: "flex-start",
+                                                      background: selectedPastRx?._id === rx._id ? "#F3F8FF" : "#ffffff",
+                                                      borderColor: selectedPastRx?._id === rx._id ? "#1E5DA9" : "#edf2f7",
+                                                      transition: "all 0.2s",
+                                                      cursor: "pointer",
+                                                      "&:hover": { borderColor: "#1E5DA9" }
+                                                    }}
+                                                    onClick={() => setSelectedPastRx(rx)}
+                                                  >
+                                                    <Typography variant="body2" sx={{ fontWeight: 600, color: "#2d3748" }}>
+                                                      Diagnosis: {rx.diagnosis || "General Consultation"}
+                                                    </Typography>
+                                                    <Typography variant="caption" sx={{ color: "#718096", mt: 0.5 }}>
+                                                      Meds: {medsText}
+                                                    </Typography>
+                                                    <Button size="small" startIcon={<VisibilityIcon />} sx={{ mt: 1, textTransform: "none", py: 0, fontSize: "0.75rem" }}>
+                                                      View PDF
+                                                    </Button>
+                                                  </ListItem>
+                                                );
+                                              })}
+                                            </List>
+                                          </AccordionDetails>
+                                        </Accordion>
+                                      ))}
+                                    </AccordionDetails>
+                                  </Accordion>
+                                ))}
+                              </AccordionDetails>
+                            </Accordion>
                           ))}
-                        </List>
+                        </Box>
                       )}
                     </Grid>
                     <Grid item xs={8} sx={{ height: "100%", overflowY: "auto", background: "#f4f7fb", position: "relative" }}>

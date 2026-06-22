@@ -34,7 +34,8 @@ const MedBotIcon = ({ size = 32 }) => (
 
 
 // ─── Ollama config ─────────────────────────────────────────────────────────
-const OLLAMA_URL   = 'http://localhost:11434/api/chat';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const OLLAMA_URL   = `${API_BASE}/api/ai/chat`;
 const OLLAMA_MODEL = 'llama3.2';
 
 const SYSTEM_PROMPT = `You are MedBot, a smart medical assistant built into the Patient Engagement application.
@@ -110,8 +111,10 @@ export default function MedicalChatBot() {
   // Check Ollama status on open
   useEffect(() => {
     if (!open) return;
-    fetch('http://localhost:11434/api/tags', { signal: AbortSignal.timeout(2000) })
-      .then(() => setOllamaOnline(true))
+    const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+    fetch(`${API_BASE}/api/ai/status`, { signal: AbortSignal.timeout(2000) })
+      .then(res => res.json())
+      .then(data => setOllamaOnline(data.online))
       .catch(() => setOllamaOnline(false));
   }, [open]);
 

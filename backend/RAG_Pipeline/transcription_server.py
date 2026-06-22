@@ -265,10 +265,13 @@ async def handler(ws):
 
                 chunk_base64 = payload["data"]
                 sample_rate  = payload.get("sample_rate", 16000)
-
-                # FIX: accumulate RAW PCM bytes — NOT WAV bytes.
-                # Concatenating WAV blobs creates multiple headers that ffmpeg rejects.
                 pcm_bytes = decode_pcm_base64(chunk_base64)
+                
+                # Debug logging
+                if chunk_count % 10 == 0:
+                    samples = np.frombuffer(pcm_bytes, dtype=np.int16).astype(np.float32)
+                    rms = np.sqrt(np.mean(np.square(samples)))
+                    print(f"[WS] Chunk {chunk_count} received. Session: {session_id}, Bytes: {len(pcm_bytes)}, RMS: {rms:.1f}")
                 audio_buffer += pcm_bytes
                 chunk_count += 1
 

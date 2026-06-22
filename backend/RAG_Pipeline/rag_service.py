@@ -269,23 +269,30 @@ Output format:
         print(f"[generate_medicine_comments] Ollama error: {e}")
         return ["Suitable for reported symptoms."] * len(med_metas)
 
-    # Simple parsing: extract text after the colon
+    # Simple parsing: extract text after the colon or after the name
     comments = []
-    lines = [line.strip() for line in output.split("\n") if ":" in line]
+    lines = [line.strip() for line in output.split("\n") if line.strip()]
     
-    for i, name in enumerate(drug_names):
+    for name in drug_names:
         found = False
+        # Try to find a line that mentions the drug name
         for line in lines:
+            # Check for "Name: Comment" or "1. Name: Comment" or "Name - Comment"
             if name.lower() in line.lower():
-                parts = line.split(":", 1)
-                if len(parts) > 1:
-                    comments.append(parts[1].strip())
-                    found = True
-                    break
+                # Extract the part after the drug name
+                # regex to find name followed by some delimiter
+                pattern = re.compile(re.escape(name), re.IGNORECASE)
+                match = pattern.search(line)
+                if match:
+                    comment_part = line[match.end():].strip().lstrip(": -").strip()
+                    if comment_part:
+                        comments.append(comment_part)
+                        found = True
+                        break
         if not found:
-            comments.append(f"Standard treatment for indicated symptoms.")
+            comments.append(f"Clinically indicated for reported symptoms.")
 
-    return comments
+    return comments[:len(med_metas)]
 
 
 # ──────────────────────────────────────────────────────────────
@@ -438,16 +445,20 @@ Answer:"""
         answer = ""
 
     # --- Hallucination guard ---
-    # If any Title-case word in the answer is NOT a known drug, fall back to top-3 list
-    answer_words = set(answer.split())
-    title_words  = {w for w in answer_words if w.istitle() and len(w) > 3}
-    hallucinated = title_words - drug_name_set
+    # We only want to keep medicines that are actually in our drug_name_set.
+    # We'll re-format the answer to ensure it only contains valid links.
+    lines = answer.split("\n")
+    final_meds = []
+    for drug in drug_name_set:
+        # If the LLM mentioned this drug anywhere in the answer
+        if drug.lower() in answer.lower():
+            final_meds.append(drug)
+    
+    if not final_meds:
+        # Fallback to top-3 retrieved if LLM failed to pick any or picked wrong ones
+        final_meds = [m.get("drug_name") for m in med_metas[:3] if m.get("drug_name")]
 
-    if hallucinated or not answer or "can't provide" in answer.lower():
-        answer = "Recommended Medicines:\n" + "\n".join(
-            f"- {m.get('drug_name')}" for m in med_metas[:3]
-        )
-
+    answer = "Recommended Medicines:\n" + "\n".join(f"- {m}" for m in final_meds)
     answer = _truncate(answer, 200)
 
     # --- Persist Q&A ---

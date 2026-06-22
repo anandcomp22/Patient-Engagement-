@@ -6,7 +6,6 @@ const path = require("path");
 const fs = require("fs");
 require("dotenv").config();
 const { spawn } = require("child_process");
-//require("../backend/cron/unlockSlots");
 const { Prescription, Doctor, FeePay, Appointment, Patient, videocallSchem, connectToDatabase,
 } = require("./db/models");
 
@@ -18,7 +17,7 @@ const feespayRouter = require("./routes/PaymentRoutes/feespay.js");
 const prescriptionRoutes = require("./routes/DoctorRoutes/prescriptionRoutes.js");
 const newsRoute = require('./routes/DoctorRoutes/newsRoute.js');
 const paypalRoute = require('./routes/PaymentRoutes/paypal.js');
-const stripeRoute = require('./routes/PaymentRoutes/stripeRoute.js');
+const stripeRoute = require('./routes/PaymentRoutes/stripe.js');
 const summary = require('./routes/DoctorRoutes/videoCall.js');
 const auth = require("./middleware/authMiddleware");
 const analysis = require('./routes/DoctorRoutes/analytics.js');
@@ -93,7 +92,6 @@ app.use("/admin/payments", adminPayments);
 app.use("/admin/analytics", adminAnalytics);
 app.use("/slot", patientRouter);
 app.use("/payment", patientRouter);
-//app.use("/appointment", patientRouter);
 app.use("/admin/logs", adminLogs);
 app.use("/admin/verify", adminVerifyRoutes);
 app.use("/admin/auth", adminAuthRoutes);
@@ -104,14 +102,97 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/uploads", express.static("uploads"));
 
 
+const readyPeers = {}; // { roomId: { doctor: {...}, patient: {...} } }
+const lobbyPeers = {}; // { roomId: { doctor: {...}, patient: {...} } }
+
 io.on("connection", (socket) => {
-  console.log("🔌 Client connected:", socket.id);
+  //console.log("🔌 Client connected:", socket.id);
 
   socket.onAny((event, ...args) => {
     console.log(`Event received: ${event}`, args);
   });
 
-  const readyPeers = {}; // { roomId: { doctor: {...}, patient: {...} } }
+  socket.on("lobby-join", async ({ roomId, role, userName }) => {
+    socket.join(roomId);
+    if (!lobbyPeers[roomId]) lobbyPeers[roomId] = {};
+    lobbyPeers[roomId][role] = { socketId: socket.id, userName };
+
+    console.log(`[Lobby] ${role} (${userName}) joined room ${roomId}`);
+
+    // Notify others in the lobby
+    io.to(roomId).emit("lobby-status", {
+      doctorPresent: !!lobbyPeers[roomId].doctor,
+      patientPresent: !!lobbyPeers[roomId].patient,
+      lobbyParticipants: lobbyPeers[roomId]
+    });
+
+    // If both are in lobby, mark appointment as ACTIVE
+    if (lobbyPeers[roomId].doctor && lobbyPeers[roomId].patient) {
+      try {
+        const { Appointment } = require("./db/models");
+        await Appointment.findByIdAndUpdate(roomId, { callStatus: "ACTIVE" });
+        console.log(`[Lobby] Appointment ${roomId} activated!`);
+      } catch (err) {
+        console.error("Failed to activate appointment:", err);
+      }
+    }
+  });
+
+  socket.on("lobby-leave", ({ roomId, role }) => {
+    socket.leave(roomId);
+    if (lobbyPeers[roomId] && lobbyPeers[roomId][role]) {
+      const userName = lobbyPeers[roomId][role].userName;
+      delete lobbyPeers[roomId][role];
+      console.log(`[Lobby] ${role} (${userName}) left room ${roomId} (Changed Room)`);
+
+      io.to(roomId).emit("lobby-status", {
+        doctorPresent: !!lobbyPeers[roomId].doctor,
+        patientPresent: !!lobbyPeers[roomId].patient,
+        lobbyParticipants: lobbyPeers[roomId]
+      });
+
+      if (Object.keys(lobbyPeers[roomId]).length === 0) {
+        delete lobbyPeers[roomId];
+      }
+    }
+  });
+
+  socket.on("lobby-ping", ({ roomId, role, userName }) => {
+    socket.join(roomId); // Ensure socket is definitely in the room
+    if (!lobbyPeers[roomId]) lobbyPeers[roomId] = {};
+
+    // If they were not present, or socket ID changed, update and broadcast
+    if (!lobbyPeers[roomId][role] || lobbyPeers[roomId][role].socketId !== socket.id) {
+      lobbyPeers[roomId][role] = { socketId: socket.id, userName };
+      io.to(roomId).emit("lobby-status", {
+        doctorPresent: !!lobbyPeers[roomId].doctor,
+        patientPresent: !!lobbyPeers[roomId].patient,
+        lobbyParticipants: lobbyPeers[roomId]
+      });
+    } else {
+      // Just reply directly to them to guarantee their UI is perfectly in sync
+      socket.emit("lobby-status", {
+        doctorPresent: !!lobbyPeers[roomId].doctor,
+        patientPresent: !!lobbyPeers[roomId].patient,
+        lobbyParticipants: lobbyPeers[roomId]
+      });
+    }
+  });
+
+  socket.on("lobby-start-call", ({ roomId }) => {
+    console.log(`[Lobby] Doctor started call in room ${roomId}. Signaling all participants...`);
+    // Emit call-started event so patient's join button unlocks
+    io.to(roomId).emit("lobby-call-started", { roomId });
+    // Also keep broadcasting doctorPresent=true so patient UI doesn't revert to "Waiting"
+    if (lobbyPeers[roomId]) {
+      io.to(roomId).emit("lobby-status", {
+        doctorPresent: true,
+        patientPresent: !!lobbyPeers[roomId].patient,
+        lobbyParticipants: lobbyPeers[roomId],
+        callStarted: true
+      });
+    }
+  });
 
   socket.on("join-room", ({ roomId }) => {
     socket.join(roomId);
@@ -156,57 +237,63 @@ io.on("connection", (socket) => {
   socket.on("user-left", ({ roomId, role, userName }) => {
     socket.to(roomId).emit("user-left", { role, userName: userName || "Someone" });
     socket.leave(roomId);
+
+    // Clean up readyPeers
     if (readyPeers[roomId]) {
       delete readyPeers[roomId][role];
-      if (Object.keys(readyPeers[roomId]).length === 0) {
-        delete readyPeers[roomId];
+      if (Object.keys(readyPeers[roomId]).length === 0) delete readyPeers[roomId];
+    }
+
+    // Clean up lobbyPeers
+    if (lobbyPeers[roomId]) {
+      delete lobbyPeers[roomId][role];
+      io.to(roomId).emit("lobby-status", {
+        doctorPresent: !!lobbyPeers[roomId].doctor,
+        patientPresent: !!lobbyPeers[roomId].patient,
+        lobbyParticipants: lobbyPeers[roomId]
+      });
+      if (Object.keys(lobbyPeers[roomId]).length === 0) delete lobbyPeers[roomId];
+    }
+  });
+
+  socket.on("disconnect", () => {
+    // Clean up any lingering presence for this socket in lobbyPeers
+    for (const roomId in lobbyPeers) {
+      for (const role in lobbyPeers[roomId]) {
+        if (lobbyPeers[roomId][role].socketId === socket.id) {
+          delete lobbyPeers[roomId][role];
+          io.to(roomId).emit("lobby-status", {
+            doctorPresent: !!lobbyPeers[roomId].doctor,
+            patientPresent: !!lobbyPeers[roomId].patient,
+            lobbyParticipants: lobbyPeers[roomId]
+          });
+          if (Object.keys(lobbyPeers[roomId]).length === 0) delete lobbyPeers[roomId];
+        }
+      }
+    }
+
+    // Clean up any lingering presence for this socket in readyPeers
+    for (const roomId in readyPeers) {
+      for (const role in readyPeers[roomId]) {
+        if (readyPeers[roomId][role].socketId === socket.id) {
+          delete readyPeers[roomId][role];
+          socket.to(roomId).emit("user-left", { role, userName: "Someone" });
+          if (Object.keys(readyPeers[roomId]).length === 0) delete readyPeers[roomId];
+        }
       }
     }
   });
-
-  /*socket.on("appointment-update", () => {
-    io.emit("appointment-updated");
-  });*/
-
-  /*const python = spawn("python", ["transcriber.py"]);
-
-  socket.on("audio-stream", (data) => {
-    if (python.stdin.writable) {
-      python.stdin.write(Buffer.from(data));
-    }
-  });
-
-  python.stdout.on("data", (data) => {
-    try {
-      const parsed = JSON.parse(data.toString());
-      socket.emit("transcript", parsed);
-    } catch (err) {
-      console.error("Failed to parse transcript:", err);
-    }
-  });
-
-  
-
-  socket.on("disconnect", () => {
-    python.kill();
-    console.log("User disconnected:", socket.id);
-  });*/
 });
 
 
-const startServer = async () => {
-    try {
-        await connectToDatabase();
-        const PORT = process.env.PORT || 8000;
-        server.listen(PORT, "0.0.0.0", () => {
-            console.log(`Server started on port ${PORT}`);
-        });
-    } catch (err) {
-        console.error("Failed to start server:", err);
-        process.exit(1);
-    }
-};
+const PORT = process.env.PORT || 8000;
+server.listen(PORT, () => {
+  console.log(`Server started at http://localhost:${PORT}`);
 
-startServer();
+  // ── Activate Cron Jobs ──
+  require("./crons/unlockSlots");
+  require("./crons/activateCall");
+  require("./crons/appointmentReminder")(io);
+  console.log("[Server] All cron jobs activated");
+});
 
-/* appended to trigger nodemon */

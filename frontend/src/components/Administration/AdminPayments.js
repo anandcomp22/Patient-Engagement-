@@ -9,15 +9,16 @@ import {
   CurrencyRupee, TrendingUp, Payment, CheckCircle, Cancel, HourglassFull, Download
 } from "@mui/icons-material";
 import axios from "axios";
+import { io } from "socket.io-client";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const SUMMARY_CARDS = [
-  { key:"totalRevenue",   label:"Total Revenue",   icon:CurrencyRupee, grad:"linear-gradient(135deg,#43e97b,#38f9d7)", prefix:"₹" },
-  { key:"totalPayments",  label:"Total Payments",  icon:Payment,       grad:"linear-gradient(135deg,#4facfe,#00f2fe)", prefix:""  },
-  { key:"paidPayments",   label:"Paid",            icon:CheckCircle,   grad:"linear-gradient(135deg,#667eea,#764ba2)", prefix:""  },
-  { key:"failedPayments", label:"Failed",          icon:Cancel,        grad:"linear-gradient(135deg,#f5576c,#fa709a)", prefix:""  },
-  { key:"pendingPayments",label:"Pending",         icon:HourglassFull, grad:"linear-gradient(135deg,#f6d365,#fda085)", prefix:""  },
+  { key:"totalRevenue",   label:"Total Revenue",   icon:CurrencyRupee, grad:"linear-gradient(135deg, #065F46, #10B981)", prefix:"₹" },
+  { key:"totalPayments",  label:"Total Payments",  icon:Payment,       grad:"linear-gradient(135deg, #1E3A8A, #3B82F6)", prefix:""  },
+  { key:"paidPayments",   label:"Paid",            icon:CheckCircle,   grad:"linear-gradient(135deg, #0F766E, #14B8A6)", prefix:""  },
+  { key:"failedPayments", label:"Failed",          icon:Cancel,        grad:"linear-gradient(135deg, #991B1B, #EF4444)", prefix:""  },
+  { key:"pendingPayments",label:"Pending",         icon:HourglassFull, grad:"linear-gradient(135deg, #B45309, #F59E0B)", prefix:""  },
 ];
 
 const AdminPayments = () => {
@@ -61,6 +62,16 @@ const AdminPayments = () => {
   useEffect(() => { fetchSummary(); }, []); // eslint-disable-line
   useEffect(() => { fetchPayments(); }, [page, status, from, to]); // eslint-disable-line
 
+  // Real-time: auto-refresh when a new payment comes in
+  useEffect(() => {
+    const socket = io(API);
+    socket.on("payment-updated", () => {
+      fetchSummary();
+      fetchPayments();
+    });
+    return () => socket.disconnect();
+  }, []); // eslint-disable-line
+
   const exportCSV = () => {
     const rows = [["Patient","Doctor","Amount","Method","Status","Date"]];
     data.payments.forEach(p => rows.push([
@@ -88,7 +99,7 @@ const AdminPayments = () => {
           <Typography variant="body2" color="text.secondary">Financial overview and transaction management</Typography>
         </Box>
         <Button startIcon={<Download />} variant="outlined" onClick={exportCSV}
-          sx={{ borderRadius:"12px", textTransform:"none", fontWeight:600, borderColor:"#43e97b", color:"#22c55e" }}>
+          sx={{ borderRadius:"12px", textTransform:"none", fontWeight:600, borderColor:"#065F46", color:"#10B981" }}>
           Export CSV
         </Button>
       </Box>
@@ -159,8 +170,8 @@ const AdminPayments = () => {
                       <TableCell sx={{ fontSize:13, color:"#64748b" }}>{p.doctorname || p.doctorId?.name || "—"}</TableCell>
                       <TableCell>
                         <Stack direction="row" alignItems="center" gap={0.3}>
-                          <CurrencyRupee sx={{ fontSize:15, color:"#43e97b" }} />
-                          <Typography fontWeight={700} color="#22c55e">{(p.fees||0).toLocaleString()}</Typography>
+                          <CurrencyRupee sx={{ fontSize:15, color:"#10B981" }} />
+                          <Typography fontWeight={700} color="#059669">{(p.fees||0).toLocaleString()}</Typography>
                         </Stack>
                       </TableCell>
                       <TableCell>
@@ -182,7 +193,7 @@ const AdminPayments = () => {
         {data.totalPages>1 && (
           <Box sx={{ display:"flex", justifyContent:"center", p:2 }}>
             <Pagination count={data.totalPages} page={page} onChange={(_,v)=>setPage(v)}
-              sx={{ "& .MuiPaginationItem-root.Mui-selected":{ background:"linear-gradient(135deg,#43e97b,#38f9d7)", color:"#fff" } }} />
+              sx={{ "& .MuiPaginationItem-root.Mui-selected":{ background:"linear-gradient(135deg, #065F46, #10B981)", color:"#fff" } }} />
           </Box>
         )}
       </Paper>
