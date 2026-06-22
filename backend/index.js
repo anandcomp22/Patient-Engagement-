@@ -6,7 +6,6 @@ const path = require("path");
 const fs = require("fs");
 require("dotenv").config();
 const { spawn } = require("child_process");
-//require("../backend/cron/unlockSlots");
 const { Prescription, Doctor, FeePay, Appointment, Patient, videocallSchem, connectToDatabase,
 } = require("./db/models");
 
@@ -93,7 +92,6 @@ app.use("/admin/payments", adminPayments);
 app.use("/admin/analytics", adminAnalytics);
 app.use("/slot", patientRouter);
 app.use("/payment", patientRouter);
-//app.use("/appointment", patientRouter);
 app.use("/admin/logs", adminLogs);
 app.use("/admin/verify", adminVerifyRoutes);
 app.use("/admin/auth", adminAuthRoutes);
@@ -108,7 +106,7 @@ const readyPeers = {}; // { roomId: { doctor: {...}, patient: {...} } }
 const lobbyPeers = {}; // { roomId: { doctor: {...}, patient: {...} } }
 
 io.on("connection", (socket) => {
-  console.log("🔌 Client connected:", socket.id);
+  //console.log("🔌 Client connected:", socket.id);
 
   socket.onAny((event, ...args) => {
     console.log(`Event received: ${event}`, args);
@@ -275,34 +273,6 @@ io.on("connection", (socket) => {
       }
     }
   });
-
-  /*socket.on("appointment-update", () => {
-    io.emit("appointment-updated");
-  });*/
-
-  /*const python = spawn("python", ["transcriber.py"]);
-
-  socket.on("audio-stream", (data) => {
-    if (python.stdin.writable) {
-      python.stdin.write(Buffer.from(data));
-    }
-  });
-
-  python.stdout.on("data", (data) => {
-    try {
-      const parsed = JSON.parse(data.toString());
-      socket.emit("transcript", parsed);
-    } catch (err) {
-      console.error("Failed to parse transcript:", err);
-    }
-  });
-
-  
-
-  socket.on("disconnect", () => {
-    python.kill();
-    console.log("User disconnected:", socket.id);
-  });*/
 });
 
 
@@ -314,6 +284,6 @@ server.listen(PORT, () => {
   require("./crons/unlockSlots");
   require("./crons/activateCall");
   require("./crons/appointmentReminder")(io);
-  console.log("[Server] ✅ All cron jobs activated");
+  console.log("[Server] All cron jobs activated");
 });
 
