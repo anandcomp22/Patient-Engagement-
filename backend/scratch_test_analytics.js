@@ -1,58 +1,49 @@
-const express = require("express");
-const router = express.Router();
-const { Appointment, Prescription, FeePay, videocall } = require("../../db/models"); 
-const authMiddleware = require("../../middleware/authMiddleware");
+const { Appointment, Prescription, FeePay, videocall, Doctor } = require("./db/models");
+const mongoose = require("mongoose");
+require("dotenv").config();
 
-// GET /api/analytics/doctor-overview - Fetch real-time analytics overview
-router.get("/doctor-overview", authMiddleware, async (req, res) => {
+async function run() {
   try {
-    const doctorId = Number(req.user.doctorId);
-    const { startDate, endDate } = req.query;
+    await mongoose.connect(process.env.MONGODB_URL);
+    console.log("Connected to DB");
 
-    let dateFilter = { doctorId };
-    if (startDate || endDate) {
-      dateFilter.appointmentDate = {};
-      if (startDate) dateFilter.appointmentDate.$gte = new Date(startDate);
-      if (endDate) {
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-        dateFilter.appointmentDate.$lte = end;
-      }
+    // Fetch any doctor
+    const doctor = await Doctor.findOne();
+    if (!doctor) {
+      console.log("No doctors found in DB");
+      await mongoose.disconnect();
+      return;
     }
+    console.log(`Testing analytics for Doctor ID: ${doctor.doctorId} (${doctor.firstName} ${doctor.lastName})`);
 
-    // 1. Fetch appointments
-    const appointments = await Appointment.find(dateFilter).sort({ appointmentDate: 1 });
+    const doctorId = Number(doctor.doctorId);
 
-    // 2. Fetch payments (FeePay)
-    let paymentFilter = { doctorId, paymentstatus: "paid" };
-    if (startDate || endDate) {
-      paymentFilter.createdAt = {};
-      if (startDate) paymentFilter.createdAt.$gte = new Date(startDate);
-      if (endDate) {
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-        paymentFilter.createdAt.$lte = end;
-      }
-    }
-    const payments = await FeePay.find(paymentFilter).sort({ createdAt: 1 });
+    // Run the analytics.js query logic
+    const appointments = await Appointment.find({ doctorId }).sort({ appointmentDate: 1 });
+    console.log(`Found ${appointments.length} appointments`);
 
-    // 3. Fetch videocalls
+    const payments = await FeePay.find({ doctorId, paymentstatus: "paid" }).sort({ createdAt: 1 });
+    console.log(`Found ${payments.length} paid payments`);
+
     const videocalls = await videocall.find({ doctorId });
+    console.log(`Found ${videocalls.length} videocall logs`);
+
     const completedCalls = videocalls.filter(c => c.callduration);
     const avgDuration = completedCalls.length > 0
       ? Math.round(completedCalls.reduce((acc, c) => acc + c.callduration, 0) / completedCalls.length)
-      : 30; // default 30 mins
+      : 30;
+    console.log(`Average duration: ${avgDuration}`);
 
-    // 4. Fetch prescriptions for top medicines
     const prescriptions = await Prescription.find({ doctorId });
+    console.log(`Found ${prescriptions.length} prescriptions`);
 
-    // Summary calculations
     const uniquePatientIds = [...new Set(appointments.map(a => a.patientId))];
     const totalPatients = uniquePatientIds.length;
     const totalAppointments = appointments.length;
     const totalIncome = payments.reduce((acc, p) => acc + p.fees, 0);
 
-    // Grouping by Date for Daily trends (format DD-MM-YYYY)
+    console.log({ totalPatients, totalAppointments, totalIncome });
+
     const formatDate = (d) => {
       const dateObj = new Date(d);
       const day = String(dateObj.getDate()).padStart(2, "0");
@@ -86,14 +77,12 @@ router.get("/doctor-overview", authMiddleware, async (req, res) => {
       dailyCallCountMap[dStr] = (dailyCallCountMap[dStr] || 0) + 1;
     });
 
-    // Generate date lists (sorted)
     let allDates = new Set([
       ...Object.keys(dailyAppointmentsMap),
       ...Object.keys(dailyIncomeMap)
     ]);
 
     if (allDates.size === 0) {
-      // Default to last 7 days if empty
       const today = new Date();
       for (let i = 6; i >= 0; i--) {
         const d = new Date(today);
@@ -117,7 +106,6 @@ router.get("/doctor-overview", authMiddleware, async (req, res) => {
     });
     const incomeTrend = sortedDates.map(d => dailyIncomeMap[d] || 0);
 
-    // Aggregate Medicines
     const medicineCounts = {};
     prescriptions.forEach(p => {
       if (p.medicines && Array.isArray(p.medicines)) {
@@ -136,49 +124,19 @@ router.get("/doctor-overview", authMiddleware, async (req, res) => {
       .slice(0, 5)
       .map(m => m.name);
 
-    if (topMedicines.length === 0) {
-      topMedicines.push("Paracetamol", "Azithromycin", "Amoxicillin", "Ibuprofen", "Cetirizine");
-    }
-
-    res.json({
-      dates: sortedDates,
-      appointments: appointmentsTrend,
-      patients: patientsTrend,
-      avgTime: avgTimeTrend,
-      income: incomeTrend,
-      summary: {
-        totalPatients,
-        totalAppointments,
-        avgTime: avgDuration,
-        totalIncome
-      },
-      topMedicines
+    console.log("Analytics result logic successful!");
+    console.log({
+      datesCount: sortedDates.length,
+      topMedicines,
+      appointmentsTrend,
+      incomeTrend
     });
 
   } catch (err) {
-    console.error("Error in doctor-overview analytics:", err);
-    res.status(500).json({ error: "Failed to fetch analytics", details: err.message });
+    console.error("Error running test:", err);
+  } finally {
+    await mongoose.disconnect();
   }
-});
+}
 
-// Legacy routes for reference if needed
-router.get("/appointments/daily", authMiddleware, async (req, res) => {
-  try {
-    const doctorId = Number(req.user.doctorId);
-    const data = await Appointment.aggregate([
-      { $match: { doctorId } },
-      {
-        $group: {
-          _id: { $substr: ["$appointmentDate", 0, 10] },
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { _id: 1 } }
-    ]);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch daily appointments" });
-  }
-});
-
-module.exports = router;
+run();

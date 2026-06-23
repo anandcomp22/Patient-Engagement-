@@ -55,19 +55,34 @@ router.get('/available-slots', authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "doctorId and date are required" });
     }
 
-    // Standard available slots in a day (could be customized per doctor later)
-    const ALL_SLOTS = [
-      "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
-      "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
-      "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM",
-      "04:00 PM", "04:30 PM", "05:00 PM"
-    ];
-
-    // Find booked appointments for this doctor on the selected date
     const dId = Number(doctorId);
     const queryDate = new Date(date);
 
-    // We only filter by starting date; time is handled separately
+    // Fetch doctor settings
+    const doctor = await Doctor.findOne({ doctorId: dId });
+    
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayName = daysOfWeek[queryDate.getDay()];
+    
+    const allowedDays = (doctor && doctor.availabilityDays && doctor.availabilityDays.length > 0)
+      ? doctor.availabilityDays
+      : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      
+    if (!allowedDays.includes(dayName)) {
+      return res.status(200).json({ availableSlots: [] });
+    }
+
+    // Load custom slots
+    const ALL_SLOTS = (doctor && doctor.availabilitySlots && doctor.availabilitySlots.length > 0)
+      ? doctor.availabilitySlots
+      : [
+          "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
+          "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
+          "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM",
+          "04:00 PM", "04:30 PM", "05:00 PM"
+        ];
+
+    // Find booked appointments for this doctor on the selected date
     const startOfDay = new Date(queryDate.setHours(0, 0, 0, 0));
     const endOfDay = new Date(queryDate.setHours(23, 59, 59, 999));
 

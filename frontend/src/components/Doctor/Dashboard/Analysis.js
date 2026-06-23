@@ -1,14 +1,17 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./Analysis.css";
 import Chart from "chart.js/auto";
-import AnalyticsStatCard from "./AnalysisStatCard";
-import PeopleIcon from "@mui/icons-material/People";
-import EventNoteIcon from "@mui/icons-material/EventNote";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
+import { CircularProgress, Alert } from "@mui/material";
+import axios from "axios";
 
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const Analysis = () => {
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [analyticsData, setAnalyticsData] = useState(null);
 
   const appointmentsRef = useRef(null);
   const patientsRef = useRef(null);
@@ -17,160 +20,239 @@ const Analysis = () => {
 
   const chartInstances = useRef([]);
 
-  const dates = ["01-04-2025", "02-04-2025", "03-04-2025"];
-  const appointments = [12, 18, 9];
-  const patients = [10, 15, 8];
-  const avgTime = [30, 25, 36];
-  const income = [500, 650, 400];
+  const fetchAnalytics = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Doctor token not found. Please log in.");
+        setLoading(false);
+        return;
+      }
 
-  const medicines = [
-    "Paracetamol",
-    "Azithromycin",
-    "Amoxicillin",
-    "Ibuprofen",
-    "Cetirizine"
-  ];
+      // Only send date params when they actually have values
+      const params = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+
+      const res = await axios.get(`${API_BASE}/api/analytics/doctor-overview`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params
+      });
+
+      setAnalyticsData(res.data);
+    } catch (err) {
+      console.error("Error fetching doctor analytics:", err);
+      // Show detailed error from server for debugging
+      const serverMsg = err.response?.data?.error
+        || err.response?.data?.message
+        || err.response?.data?.details
+        || err.message
+        || "Failed to load real-time analytics data.";
+      setError(`Analytics error: ${serverMsg}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    renderCharts();
-
-    return () => {
-      chartInstances.current.forEach(chart => chart.destroy());
-      chartInstances.current = [];
-    };
+    fetchAnalytics();
   }, []);
 
-  const renderCharts = () => {
+  // Re-render charts when analyticsData changes
+  useEffect(() => {
+    if (analyticsData) {
+      destroyCharts();
+      renderCharts(analyticsData);
+    }
+    return () => destroyCharts();
+  }, [analyticsData]);
 
-    chartInstances.current.push(
-      new Chart(appointmentsRef.current, {
-        type: "bar",
-        data: {
-          labels: dates,
-          datasets: [{
-            data: appointments,
-            backgroundColor: "#5aa9ff",
-            borderRadius: 10
-          }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } } }
-      })
-    );
+  const destroyCharts = () => {
+    chartInstances.current.forEach(chart => {
+      if (chart) chart.destroy();
+    });
+    chartInstances.current = [];
+  };
 
-    chartInstances.current.push(
-      new Chart(patientsRef.current, {
-        type: "bar",
-        data: {
-          labels: dates,
-          datasets: [{
-            data: patients,
-            backgroundColor: "#3b82f6",
-            borderRadius: 10
-          }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } } }
-      })
-    );
+  const renderCharts = (data) => {
+    const { dates, appointments, patients, avgTime, income } = data;
 
-    chartInstances.current.push(
-      new Chart(avgTimeRef.current, {
-        type: "line",
-        data: {
-          labels: dates,
-          datasets: [{
-            data: avgTime,
-            borderColor: "#2563eb",
-            tension: 0.4,
-            pointRadius: 5
-          }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } } }
-      })
-    );
+    if (appointmentsRef.current) {
+      chartInstances.current.push(
+        new Chart(appointmentsRef.current, {
+          type: "bar",
+          data: {
+            labels: dates,
+            datasets: [{
+              label: "Appointments",
+              data: appointments,
+              backgroundColor: "#5aa9ff",
+              borderRadius: 8
+            }]
+          },
+          options: { responsive: true, plugins: { legend: { display: false } } }
+        })
+      );
+    }
 
-    chartInstances.current.push(
-      new Chart(incomeRef.current, {
-        type: "line",
-        data: {
-          labels: dates,
-          datasets: [{
-            data: income,
-            fill: true,
-            backgroundColor: "rgba(59,130,246,0.3)",
-            borderColor: "#3b82f6",
-            tension: 0.4,
-            pointRadius: 5
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: ctx => `₹${ctx.raw}`
+    if (patientsRef.current) {
+      chartInstances.current.push(
+        new Chart(patientsRef.current, {
+          type: "bar",
+          data: {
+            labels: dates,
+            datasets: [{
+              label: "Patients Count",
+              data: patients,
+              backgroundColor: "#3b82f6",
+              borderRadius: 8
+            }]
+          },
+          options: { responsive: true, plugins: { legend: { display: false } } }
+        })
+      );
+    }
+
+    if (avgTimeRef.current) {
+      chartInstances.current.push(
+        new Chart(avgTimeRef.current, {
+          type: "line",
+          data: {
+            labels: dates,
+            datasets: [{
+              label: "Avg Time (mins)",
+              data: avgTime,
+              borderColor: "#2563eb",
+              tension: 0.4,
+              pointRadius: 4,
+              fill: false
+            }]
+          },
+          options: { responsive: true, plugins: { legend: { display: false } } }
+        })
+      );
+    }
+
+    if (incomeRef.current) {
+      chartInstances.current.push(
+        new Chart(incomeRef.current, {
+          type: "line",
+          data: {
+            labels: dates,
+            datasets: [{
+              label: "Income (₹)",
+              data: income,
+              fill: true,
+              backgroundColor: "rgba(59,130,246,0.2)",
+              borderColor: "#3b82f6",
+              tension: 0.4,
+              pointRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: ctx => `₹${ctx.raw}`
+                }
               }
             }
           }
-        }
-      })
-    );
+        })
+      );
+    }
+  };
+
+  const handleRefresh = () => {
+    fetchAnalytics();
   };
 
   return (
     <div className="analysis-container">
-
       {/* HEADER */}
       <div className="analysis-header">
-        <h2>📊 Analytics Overview</h2>
+        <h2>📊 Real-Time Analytics Overview</h2>
         <div className="date-filter">
-          <input type="date" />
-          <input type="date" />
-          <button>🔄 Refresh</button>
+          <input 
+            type="date" 
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+          <input 
+            type="date" 
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+          <button onClick={handleRefresh}>🔄 Refresh</button>
         </div>
       </div>
 
-      {/* SUMMARY */}
-      <div className="summary-grid">
-        <div className="summary-card"><p>Total Patients</p><h3>33</h3></div>
-        <div className="summary-card"><p>Total Appointments</p><h3>39</h3></div>
-        <div className="summary-card"><p>Avg Time (min)</p><h3>30</h3></div>
-        <div className="summary-card"><p>Total Income</p><h3>₹1550</h3></div>
-      </div>
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-      
+      {loading ? (
+        <div style={{ display: "flex", justifyContent: "center", padding: "80px" }}>
+          <CircularProgress />
+        </div>
+      ) : (
+        <>
+          {/* SUMMARY */}
+          <div className="summary-grid">
+            <div className="summary-card">
+              <p>Total Patients</p>
+              <h3>{analyticsData?.summary?.totalPatients ?? 0}</h3>
+            </div>
+            <div className="summary-card">
+              <p>Total Appointments</p>
+              <h3>{analyticsData?.summary?.totalAppointments ?? 0}</h3>
+            </div>
+            <div className="summary-card">
+              <p>Avg consultation Time</p>
+              <h3>{analyticsData?.summary?.avgTime ?? 30} min</h3>
+            </div>
+            <div className="summary-card">
+              <p>Total Income</p>
+              <h3>₹{analyticsData?.summary?.totalIncome ?? 0}</h3>
+            </div>
+          </div>
 
-      {/* MEDICINES */}
-      <div className="analysis-card">
-        <h3>💊 Top Medicines Prescribed</h3>
-        <ul className="medicine-list">
-          {medicines.map((m, i) => (
-            <li key={i}>{m} <span>#{i + 1}</span></li>
-          ))}
-        </ul>
-      </div>
+          {/* MEDICINES */}
+          <div className="analysis-card" style={{ marginBottom: "24px" }}>
+            <h3>💊 Top Medicines Prescribed</h3>
+            <ul className="medicine-list">
+              {(analyticsData?.topMedicines || []).map((m, i) => (
+                <li key={i}>{m} <span>#{i + 1}</span></li>
+              ))}
+            </ul>
+          </div>
 
-      {/* CHARTS */}
-      <div className="analysis-card">
-        <h3>📅 Daily Appointments</h3>
-        <canvas ref={appointmentsRef}></canvas>
-      </div>
+          {/* CHARTS GRID */}
+          <div className="charts-grid-layout">
+            <div className="analysis-card">
+              <h3>📅 Daily Appointments</h3>
+              <canvas ref={appointmentsRef}></canvas>
+            </div>
 
-      <div className="analysis-card">
-        <h3>👥 Patient Count</h3>
-        <canvas ref={patientsRef}></canvas>
-      </div>
+            <div className="analysis-card">
+              <h3>👥 Patient Count Trend</h3>
+              <canvas ref={patientsRef}></canvas>
+            </div>
 
-      <div className="analysis-card">
-        <h3>⏱ Avg Patient Time</h3>
-        <canvas ref={avgTimeRef}></canvas>
-      </div>
+            <div className="analysis-card">
+              <h3>⏱ Avg Patient Time Trend</h3>
+              <canvas ref={avgTimeRef}></canvas>
+            </div>
 
-      <div className="analysis-card">
-        <h3>💰 Monthly Income</h3>
-        <canvas ref={incomeRef}></canvas>
-      </div>
-
+            <div className="analysis-card">
+              <h3>💰 Income Trend</h3>
+              <canvas ref={incomeRef}></canvas>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
