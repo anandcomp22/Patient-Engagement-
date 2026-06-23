@@ -69,8 +69,8 @@ const PatientPrescriptions = () => {
   };
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, minHeight: "100vh", bgcolor: "#f8fafc" }}>
-      <Typography variant="h4" sx={{ mb: 4, fontWeight: "bold", color: "#1e293b", display: "flex", alignItems: "center", gap: 2 }}>
+    <Box sx={{ p: { xs: 2, md: 4 }, minHeight: "100vh", bgcolor: "#f8fafc", overflowX: "hidden" }}>
+      <Typography variant="h4" sx={{ mb: 4, fontWeight: "bold", color: "#1e293b", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
         <RxIcon sx={{ fontSize: 40, color: "#1E5DA9" }} />
         My Prescriptions
       </Typography>
@@ -86,7 +86,7 @@ const PatientPrescriptions = () => {
           <Typography variant="body2" sx={{ color: "#cbd5e1" }}>Your medical records will appear here after a consultation.</Typography>
         </Paper>
       ) : (
-        <Grid container spacing={3}>
+        <Grid container spacing={3} sx={{ maxWidth: "1200px", width: "100%", mx: "auto", overflow: "hidden" }}>
           <AnimatePresence>
             {prescriptions.map((rx, index) => (
               <Grid item xs={12} key={rx._id}>
@@ -100,9 +100,10 @@ const PatientPrescriptions = () => {
                     boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                     border: "1px solid #f1f5f9",
                     transition: "all 0.3s ease",
+                    overflow: "hidden",
                     "&:hover": { transform: "translateY(-4px)", boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }
                   }}>
-                    <CardContent sx={{ p: 0 }}>
+                    <CardContent sx={{ p: 0, overflow: "hidden" }}>
                       <Box sx={{ p: 2, display: "flex", alignItems: "center", justifyContent: "space-between", bgcolor: "#f8fafc", borderBottom: "1px solid #f1f5f9" }}>
                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                             <CalendarToday sx={{ fontSize: 18, color: "#64748b" }} />
@@ -125,24 +126,24 @@ const PatientPrescriptions = () => {
                             </Grid>
                             <Grid item xs={12} md={4}>
                                 <Typography variant="caption" color="text.secondary">MEDICATIONS</Typography>
-                                <Typography variant="body1" fontWeight={600}>
+                                <Typography variant="body1" fontWeight={600} sx={{ wordBreak: "break-word", overflowWrap: "anywhere" }}>
                                     {rx.medicines?.length > 0 ? rx.medicines.map(m => m.name).join(", ") : "View Details"}
                                 </Typography>
                             </Grid>
-                            <Grid item xs={12} md={4} sx={{ display: "flex", justifyContent: { md: "flex-end" }, alignItems: "center", gap: 1 }}>
+                            <Grid item xs={12} md={4} sx={{ display: "flex", justifyContent: { xs: "flex-start", md: "flex-end" }, alignItems: "center", gap: 1, flexWrap: "wrap", minWidth: 0 }}>
                                 <Button 
                                     variant="outlined" 
                                     startIcon={<ViewIcon />} 
                                     onClick={() => handleOpenPreview(rx)}
-                                    sx={{ borderRadius: 2, textTransform: "none", fontWeight: 600 }}
+                                    sx={{ borderRadius: 2, textTransform: "none", fontWeight: 600, minWidth: 170 }}
                                 >
                                     View Digital Copy
                                 </Button>
                                 <Button 
                                     variant="contained" 
                                     startIcon={<DownloadIcon />} 
-                                    onClick={() => handleDownload(rx.secureId ? `prescription_${rx.patientName.replace(/\s+/g, "_")}.pdf` : null)}
-                                    sx={{ borderRadius: 2, textTransform: "none", bgcolor: "#1E5DA9", fontWeight: 600 }}
+                                    onClick={() => handleDownload(rx.secureId ? rx.file : null)}
+                                    sx={{ borderRadius: 2, textTransform: "none", bgcolor: "#1E5DA9", fontWeight: 600, minWidth: 170 }}
                                 >
                                     Download PDF
                                 </Button>
