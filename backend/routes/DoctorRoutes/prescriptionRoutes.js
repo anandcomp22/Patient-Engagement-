@@ -25,7 +25,7 @@ router.post("/uploadPdf", upload.single("prescriptionPdf"), (req, res) => {
 
 router.post("/generate", async (req, res) => {
     try {
-        const { patient, patientId, diagnosis, medicines, guidelines, nextVisit, doctorId, doctorName, appointmentId, secureId } = req.body;
+        const { patient, patientId, diagnosis, medicines, guidelines, nextVisit, doctorId, doctorName, appointmentId, secureId, file } = req.body;
 
         // Sanitize patientId and doctorId to ensure they are numbers
         const cleanPatientId = Number(patientId) || 202;
