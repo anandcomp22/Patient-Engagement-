@@ -208,5 +208,224 @@ router.get("/today-count", authMiddleware, async (req, res) => {
 
   res.json({ count });
 });
- 
+
+// GET /settings - Retrieve current doctor settings
+router.get("/settings", authMiddleware, async (req, res) => {
+  try {
+    const doctor = await Doctor.findOne({ doctorId: req.user.doctorId });
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+    res.json({
+      profile: {
+        firstName: doctor.firstName || "",
+        lastName: doctor.lastName || "",
+        email: doctor.email || "",
+        phone: doctor.phone || "",
+        specialty: doctor.specialty || "",
+        qualifications: doctor.qualifications || [],
+        experience: doctor.experience || 0,
+        hospital: doctor.hospital || "",
+        country: doctor.country || "",
+        state: doctor.state || "",
+        district: doctor.district || "",
+      },
+      availability: {
+        days: doctor.availabilityDays || ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        slots: doctor.availabilitySlots || [
+          "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
+          "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
+          "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM",
+          "04:00 PM", "04:30 PM", "05:00 PM"
+        ]
+      },
+      notifications: {
+        emailNotifications: doctor.emailNotifications !== false,
+        smsNotifications: doctor.smsNotifications !== false,
+      },
+      videoCall: {
+        preferredPlatform: doctor.preferredPlatform || "Zoom",
+        meetingLinkTemplate: doctor.meetingLinkTemplate || "",
+      },
+      payment: {
+        consultationFee: doctor.consultationFee || 500,
+        upiId: doctor.upiId || "",
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to retrieve settings", error: err.message });
+  }
+});
+
+// PUT /settings/profile - Update Profile settings
+router.put("/settings/profile", authMiddleware, async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, specialty, qualifications, experience, hospital, country, state, district } = req.body;
+    const doctor = await Doctor.findOneAndUpdate(
+      { doctorId: req.user.doctorId },
+      {
+        $set: {
+          firstName,
+          lastName,
+          email,
+          phone,
+          specialty,
+          qualifications: Array.isArray(qualifications) ? qualifications : qualifications?.split(",").map(q => q.trim()),
+          experience: Number(experience),
+          hospital,
+          country,
+          state,
+          district
+        }
+      },
+      { new: true }
+    );
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+    res.json({ message: "Profile updated successfully", profile: doctor });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update profile", error: err.message });
+  }
+});
+
+// PUT /settings/availability - Update Availability settings
+router.put("/settings/availability", authMiddleware, async (req, res) => {
+  try {
+    const { days, slots } = req.body;
+    const doctor = await Doctor.findOneAndUpdate(
+      { doctorId: req.user.doctorId },
+      {
+        $set: {
+          availabilityDays: days,
+          availabilitySlots: slots
+        }
+      },
+      { new: true }
+    );
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+    res.json({ message: "Availability updated successfully", availability: { days: doctor.availabilityDays, slots: doctor.availabilitySlots } });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update availability", error: err.message });
+  }
+});
+
+// PUT /settings/security - Change Password
+router.put("/settings/security", authMiddleware, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Current password and new password are required" });
+    }
+
+    const doctor = await Doctor.findOne({ doctorId: req.user.doctorId });
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+
+    const isMatch = await bcrypt.compare(currentPassword, doctor.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect current password" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    doctor.password = await bcrypt.hash(newPassword, salt);
+    await doctor.save();
+
+    res.json({ message: "Password updated successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update password", error: err.message });
+  }
+});
+
+// PUT /settings/notifications - Update Notification Preferences
+router.put("/settings/notifications", authMiddleware, async (req, res) => {
+  try {
+    const { emailNotifications, smsNotifications } = req.body;
+    const doctor = await Doctor.findOneAndUpdate(
+      { doctorId: req.user.doctorId },
+      {
+        $set: {
+          emailNotifications: !!emailNotifications,
+          smsNotifications: !!smsNotifications
+        }
+      },
+      { new: true }
+    );
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+    res.json({
+      message: "Notification preferences updated",
+      notifications: {
+        emailNotifications: doctor.emailNotifications,
+        smsNotifications: doctor.smsNotifications
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update notifications", error: err.message });
+  }
+});
+
+// PUT /settings/videocall - Update Video Call settings
+router.put("/settings/videocall", authMiddleware, async (req, res) => {
+  try {
+    const { preferredPlatform, meetingLinkTemplate } = req.body;
+    const doctor = await Doctor.findOneAndUpdate(
+      { doctorId: req.user.doctorId },
+      {
+        $set: {
+          preferredPlatform,
+          meetingLinkTemplate
+        }
+      },
+      { new: true }
+    );
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+    res.json({
+      message: "Video call settings updated",
+      videoCall: {
+        preferredPlatform: doctor.preferredPlatform,
+        meetingLinkTemplate: doctor.meetingLinkTemplate
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update video call settings", error: err.message });
+  }
+});
+
+// PUT /settings/payment - Update Payment settings
+router.put("/settings/payment", authMiddleware, async (req, res) => {
+  try {
+    const { consultationFee, upiId } = req.body;
+    const doctor = await Doctor.findOneAndUpdate(
+      { doctorId: req.user.doctorId },
+      {
+        $set: {
+          consultationFee: Number(consultationFee),
+          upiId
+        }
+      },
+      { new: true }
+    );
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+    res.json({
+      message: "Payment preferences updated",
+      payment: {
+        consultationFee: doctor.consultationFee,
+        upiId: doctor.upiId
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update payment preferences", error: err.message });
+  }
+});
+
+// DELETE /settings/delete - Deactivate account
+router.delete("/settings/delete", authMiddleware, async (req, res) => {
+  try {
+    const doctor = await Doctor.findOneAndUpdate(
+      { doctorId: req.user.doctorId },
+      { $set: { isActive: false } },
+      { new: true }
+    );
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+    res.json({ message: "Account deactivated successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to deactivate account", error: err.message });
+  }
+});
+
 module.exports = router;

@@ -148,6 +148,12 @@ canvas {
   display: block;
 }
 
+.charts-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
 /* =========================
    RESPONSIVE
 ========================= */
@@ -162,5 +168,9 @@ canvas {
   .date-filter {
     width: 100%;
     flex-wrap: wrap;
+  }
+
+  .charts-grid-layout {
+    grid-template-columns: 1fr;
   }
 }
