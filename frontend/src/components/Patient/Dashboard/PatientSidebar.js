@@ -13,7 +13,7 @@ import {
 } from '@mui/icons-material';
 import DescriptionIcon from "@mui/icons-material/Description";
 import RxIcon from "@mui/icons-material/Description"; // Alias for readability
-import Aidme from "../../Doctor/Dashboard/icons/logo.png";
+import Aidme from "./image/patientPortalIcon.png";
 
 const PatientSidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
   const { pathname } = useLocation();
@@ -76,7 +76,7 @@ const PatientSidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
           src={Aidme}
           alt="AidME Logo"
           style={{
-            maxWidth: open ? 120 : 40,
+            maxWidth: open ? 200 : 60,
             transition: "max-width 0.3s ease",
           }}
         />
@@ -180,7 +180,7 @@ const PatientSidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
           width: isMobile ? 260 : (open ? 240 : 62),
           transition: "width 0.3s ease-in-out",
           bgcolor: "primary.light",
-          backgroundImage: "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)",
+          backgroundImage: "linear-gradient(135deg, rgb(243, 243, 243) 0%, rgb(0, 140, 255) 100%)",
           color: "white",
           boxShadow: 3,
           overflowX: "hidden",

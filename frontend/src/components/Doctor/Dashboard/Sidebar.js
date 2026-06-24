@@ -23,7 +23,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
   LoginOutlined,
 } from "@mui/icons-material";
-import Aidme from "./icons/logo.png";
+import Aidme from "./icons/doctorPortalIcon.png";
 
 const Sidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
   const { pathname } = useLocation();
@@ -87,7 +87,7 @@ const Sidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
           src={Aidme}
           alt="AidME Logo"
           style={{
-            maxWidth: open ? 120 : 40,
+            maxWidth: open ? 200 : 60,
             transition: "max-width 0.3s ease",
           }}
         />
@@ -190,7 +190,7 @@ const Sidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
           height: "100vh",
           transition: "width 0.3s ease-in-out",
           bgcolor: "primary.light",
-          backgroundImage: "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)",
+          backgroundImage: "linear-gradient(135deg, rgb(243, 243, 243) 0%, rgb(0, 140, 255) 100%)",
           color: "white",
           boxShadow: 3,
           overflowX: "hidden",

@@ -8,7 +8,7 @@ import {
   ChevronLeft as ChevronLeftIcon, Menu as MenuIcon,
 } from "@mui/icons-material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import Aidme from "../Doctor/icons/logo.png";
+import Aidme from "./adminPortalIcon.png";
 
 const MENU = [
   { text:"Dashboard",    icon:<Dashboard />,    path:"/admin/dashboard" },
@@ -103,24 +103,27 @@ const AdminSidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
 
   return (
     <Drawer
-      variant={isMobile ? "temporary" : "permanent"}
-      open={isMobile ? open : true}
-      onClose={onToggle}
-      ModalProps={{ keepMounted: true }}
-      PaperProps={{
-        sx: {
-          width: isMobile ? 260 : (open ? 240 : 64),
-          position: "fixed",
-          height: "100vh",
-          transition: "width 0.3s cubic-bezier(0.4,0,0.2,1)",
-          background: "linear-gradient(135deg, #bee3fdff 0%, #008cffff 100%)",
-          color: "#fff",
-          boxShadow: "4px 0 24px rgba(0,0,0,0.2)",
-          overflowX: "hidden",
-          borderRight: "none",
-        }
-      }}
-    >
+          variant={isMobile ? "temporary" : "permanent"}
+          open={isMobile ? open : true}
+          onClose={onToggle}
+          ModalProps={{ keepMounted: true }}
+          PaperProps={{
+            sx: {
+              width: isMobile ? 260 : (open ? 240 : 62),
+              position: "fixed",
+              height: "100vh",
+              transition: "width 0.3s ease-in-out",
+              bgcolor: "primary.light",
+              backgroundImage: "linear-gradient(135deg, rgb(243, 243, 243) 0%, rgb(0, 140, 255) 100%)",
+              color: "white",
+              boxShadow: 3,
+              overflowX: "hidden",
+              borderTopRightRadius: 30,
+              borderBottomRightRadius: 30,
+            },
+          }}
+        >
+
       {/* Toggle Button */}
       <Box sx={{ height:64, display:"flex", alignItems:"center", justifyContent: open ? "flex-end" : "center", px:1 }}>
         <IconButton onClick={onToggle}
@@ -131,7 +134,7 @@ const AdminSidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
 
       {/* Logo */}
       <Box sx={{ display:"flex", flexDirection:"column", alignItems:"center", mb:2, px:1 }}>
-        <img src={Aidme} alt="AidME" style={{ maxWidth: open ? 110 : 36, transition:"max-width 0.3s ease", borderRadius:8 }} />
+        <img src={Aidme} alt="AidME" style={{ maxWidth: open ? 200 : 60, transition:"max-width 0.3s ease", borderRadius:8 }} />
       </Box>
 
       {/* Main Menu */}
@@ -140,7 +143,7 @@ const AdminSidebar = ({ open, onToggle, isMobile, onMobileClose }) => {
       </List>
 
       {/* Divider */}
-      <Divider sx={{ borderColor:"rgba(255,255,255,0.1)", mx:2, my:1 }} />
+      <Box sx={{ borderTop: "3px solid rgba(255,255,255,0.3)", my: 2 }} />
 
       {/* Footer Items */}
       <List sx={{ pb:2 }}>

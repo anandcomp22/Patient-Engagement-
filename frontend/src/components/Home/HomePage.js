@@ -19,6 +19,7 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import BoltIcon from '@mui/icons-material/Bolt';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import hometalicon from './homeNavIcon.png';
 
 const specialties = ["General Physician", "Dermatology", "Obstetrics & Gynaecology", "Orthopaedics", "ENT", "Neurology", "Cardiology", "Urology", "Gastroenterology/GI",
   "Psychiatry", "Paediatrics", "Pulmonology/Respiratory", "Endocrinology", "Nephrology", "Neurosurgery", "Rheumatology", "Ophthalmology", "Surgical Gastroenterology",
@@ -264,31 +265,21 @@ const Navbar = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            px: { xs: 2, md: 6 },
+            px: { xs: 2, md:10 },
             minHeight: 72,
           }}
         >
           {/* LEFT — LOGO + BRAND */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <img
-              src="/main1.png"
+              src={hometalicon}
               alt="Icon"
               style={{
-                width: "48px",
-                height: "48px",
+                width: "240px",
+                height: "90px",
                 borderRadius: "50%",
               }}
             />
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 800,
-                color: "#787878",
-                letterSpacing: "0.5px",
-              }}
-            >
-              AidME
-            </Typography>
           </Box>
 
           {/* CENTER — NAV LINKS (desktop only) */}
