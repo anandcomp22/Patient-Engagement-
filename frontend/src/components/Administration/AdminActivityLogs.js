@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {
   Box, Paper, Typography, Chip, Table, TableBody, TableCell,
-  TableHead, TableRow, TextField, InputAdornment, Select, MenuItem,
-  FormControl, InputLabel, Pagination, CircularProgress, Stack, Button
+  TableHead, TableRow, TextField, InputAdornment
+  , Pagination, CircularProgress, Stack, Button
 } from "@mui/material";
-import { History, Search, FilterList, Download } from "@mui/icons-material";
+import { History, FilterList, Download } from "@mui/icons-material";
 import axios from "axios";
 import { io } from "socket.io-client";
 

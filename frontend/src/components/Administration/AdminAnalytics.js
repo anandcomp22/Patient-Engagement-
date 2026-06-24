@@ -4,9 +4,9 @@ import { io } from "socket.io-client";
 import { Box, Grid, Paper, Typography, CircularProgress } from "@mui/material";
 import { TrendingUp, BarChartOutlined, PieChartOutlined, Timeline } from "@mui/icons-material";
 import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+   BarChart, Bar, PieChart, Pie, Cell,
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  CartesianGrid, Legend
+  CartesianGrid
 } from "recharts";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
