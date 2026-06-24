@@ -16,7 +16,7 @@ import {
   Link,
   Snackbar
 } from "@mui/material";
-import { Email, Lock, Visibility, VisibilityOff, ArrowBack, AdminPanelSettings, Security } from "@mui/icons-material";
+import { Visibility, VisibilityOff, Security } from "@mui/icons-material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 //import backgroundImage from "../assets/admin-bg.jpg";
@@ -28,7 +28,6 @@ const AdminLogin = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [loginType, setLoginType] = useState("admin");
   const [errors, setErrors] = useState({});
   const [rememberMe, setRememberMe] = useState(false);

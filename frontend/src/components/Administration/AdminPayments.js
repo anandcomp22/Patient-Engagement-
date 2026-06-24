@@ -6,7 +6,7 @@ import {
   Pagination, CircularProgress, Stack, Skeleton
 } from "@mui/material";
 import {
-  CurrencyRupee, TrendingUp, Payment, CheckCircle, Cancel, HourglassFull, Download
+  CurrencyRupee, Payment, CheckCircle, Cancel, HourglassFull, Download
 } from "@mui/icons-material";
 import axios from "axios";
 import { io } from "socket.io-client";
